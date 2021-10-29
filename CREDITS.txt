@@ -1,0 +1,47 @@
+Sonic Robo Blast 2: Persona
+Mod by Lat'
+
+--- CREDITS ---
+
+PROGRAMMING:
+	Lat'
+	Spectra
+	Snu
+	
+PROGRAMMING ASSISTANCE:
+	LJ Sonic (PRNG Library)
+	
+
+ARTISTS:
+	STJr (Base SRB2 sprites)
+	
+	Lat':			UI
+	DylanNeyaz:		Character Cut-in art, UI
+	Q.T.D.:			All-Out Attack character artwork
+	Snu:			General art assistance, All-Out Attack character artwork, UI
+	SoapSurfin:		Titlescreen art
+
+	Inazuma:		Shadow The Hedgehog sprites
+	DrStephen:		Dr. Eggman sprites
+	.Luke:			Blaze The Cat sprites
+	
+
+MODEL RIPPING:
+	Hero May Cry
+	Ordomandalore
+	Lat'
+
+
+PERSONA 3 / 4 MODDING TOOLS:
+	Amicitia community
+	
+
+Sonic Robo Blast 2 belongs to Sonic Team Jr.
+
+LEGAL STUFF:
+Sonic The Hedgehog is property of SEGA
+Shin Megami Tensei / Persona is property of ATLUS / SEGA
+No copyright infringement intended, this is a fan project meant as a love letter to some of my favourite game franchises ever.
+
+THIS GAME SHOULD NOT BE SOLD!
+This is a non-profit project! (In fact, I lose money!)

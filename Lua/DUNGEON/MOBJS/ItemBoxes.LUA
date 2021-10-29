@@ -1,0 +1,184 @@
+freeslot("MT_P3CHEST")
+mobjinfo[MT_P3CHEST] = {
+	-1,
+	S_MYSTERY_BOX,
+	0,
+	S_NULL,
+	sfx_None,
+	0,
+	sfx_None,
+	S_NULL,
+	0,
+	sfx_None,
+	S_NULL,
+	S_NULL,
+	S_NULL,
+	S_NULL,
+	sfx_None,
+	0,
+	16 * FRACUNIT,
+	32 * FRACUNIT,
+	1000,
+	0,
+	0,
+	sfx_None,
+	MF_SCENERY|MF_SOLID,
+	S_NULL
+}
+
+freeslot("S_P3_GOLDRANDOM1", "S_P3_GOLDRANDOM2", "S_P3_GOLDRANDOMOFF")
+states[S_P3_GOLDRANDOM1] = {SPR_TVMY, B, 2, nil, 0, 0, S_P3_GOLDRANDOM2}
+states[S_P3_GOLDRANDOM2] = {SPR_XLTV, A, 1, nil, 0, 0, S_P3_GOLDRANDOM1}
+states[S_P3_GOLDRANDOMOFF] = {SPR_XLTV, B, -1, nil, 0, 0, S_P3_GOLDRANDOMOFF}
+
+
+
+-- item collection
+addHook("MobjCollide", function(t, mo)
+
+	if not mo or not mo.valid return end
+	if mo.type ~= MT_PLAYER then return end
+	local p = mo.player
+	if not (p.pflags & PF_JUMPED or p.dashmode > TICRATE*3) return end
+	if (t.hitflags and t.hitflags & (2^(p.P_party-1))) return end	-- already popped that gold box
+
+	local gold = t.hitflags ~= nil
+	
+	if server.gamemode == GM_VOIDRUN
+		local dng = server.P_DungeonStatus
+		if dng.VR_type == VC_INFILTRATION
+		and dng.VR_timer ~= nil
+			dng.VR_score = $+1	-- got item!
+		end
+	end	
+
+	if t.content and t.content[1]
+		for k,v in ipairs(t.content)
+
+
+			-- check if item is a weapon / ring / weapon series
+			local rare
+			if type(v) == "table"
+				--print("A")
+				if v[1] == "series"
+					--print(v[2])
+					
+					local wpn = dropWeaponFromSeries(v[2], server.plentities[mo.player.P_party])
+					--print(wpn)
+					wpn = makeWeapon(wpn, P_RandomRange(0, 3))
+					if wpn
+					
+						addWeapon(mo, wpn)
+						rare = wpn.rarity >= 5
+
+						if mo.player.P_party == consoleplayer.P_party
+							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildWeaponName(wpn))
+						end
+						spawnWeaponDrop(wpn, t.x, t.y, t.z)
+					end	
+				
+				elseif v[1] == "ring"
+					local ring = v[2]
+					ring = makeRing(ring, P_RandomRange(0, 3))
+					
+					if ring
+					
+						addRing(mo, ring)
+						rare = ring.rarity >= 5
+						
+						if mo.player.P_party == consoleplayer.P_party
+							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildRingName(ring))
+						end
+						spawnRingDrop(ring, t.x, t.y, t.z)
+					end
+					
+				elseif v[1] == "weapon"
+					local wpn = v[2]
+					ring = makeWeapon(wpn, P_RandomRange(0, 3))
+					
+					if wpn
+						addWeapon(mo, wpn)
+						rare = wpn.rarity >= 5
+						
+						if mo.player.P_party == consoleplayer.P_party
+							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildWeaponName(wpn))
+						end
+						spawnWeaponDrop(wpn, t.x, t.y, t.z)
+					end		
+				end	
+				
+
+				if rare
+					IT_startRareDropAnim(mo.player)
+				end				
+				
+				continue
+			end
+
+			-- get item name for display:
+			local it = itemDefs[v]
+			local name = it and buildItemName(it) or v
+			local amount = 1
+
+			if it and it.material
+				amount = P_RandomRange(1, 5 - (it.rarity/2))
+			end
+			local extrastr = ""
+
+			if amount > 1
+				extrastr = " x"..amount
+			end
+
+
+			BTL_addItem(server.P_BattleStatus[mo.player.P_party], v, amount)
+
+			if mo.player.P_party == consoleplayer.P_party
+				DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..name..extrastr)
+			end
+
+			if it and it.rarity and not it.material and it.rarity >= 5
+				IT_startRareDropAnim(mo.player)
+			end
+			
+			spawnItemDrop(it, t.x, t.y, t.z)
+		end
+	else
+		DNG_logMessage("\x82"..mo.player.name.."\x80".." found an empty box...")
+	end
+
+	-- set this item's space back as a white space:
+	if not gold or consoleplayer.P_party == p.P_party
+		server.map[#t.subsector.sector+1] = 1	-- walkable.
+	end
+
+	if t and t.valid
+
+		for i=1,16
+			local b = P_SpawnMobj(t.x, t.y, t.z+20*FRACUNIT, MT_DUMMY)
+			b.momx = P_RandomRange(-8, 8)*FRACUNIT
+			b.momy = P_RandomRange(-8, 8)*FRACUNIT
+			b.momz = P_RandomRange(-8, 8)*FRACUNIT
+			b.state = S_AOADUST1
+			b.frame = A|FF_FULLBRIGHT
+			b.scale = FRACUNIT*3
+			b.destscale = FRACUNIT/12
+		end
+
+		if gold
+			t.hitflags = $| (2^(p.P_party-1))
+			if p.P_party == consoleplayer.P_party
+				t.state = S_P3_GOLDRANDOMOFF
+			end
+		else
+			local boom = P_SpawnMobj(t.x, t.y, t.z, MT_DUMMY)
+			boom.state = S_BOX_POP1
+			S_StartSound(boom, sfx_pop)
+			server.DNG_entities[#server.DNG_entities+1] = boom
+			P_RemoveMobj(t)
+		end
+
+		if mo.momz < 0
+			mo.momz = -$ /2
+		end
+	end
+end, MT_P3CHEST)
