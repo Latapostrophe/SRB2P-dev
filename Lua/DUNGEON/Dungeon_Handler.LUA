@@ -77,30 +77,30 @@ rawset(_G, "DNG_Thinker", function()
 	end
 
 	if not NET_isset() return end	-- wait until we're finished setting up our team in MP
-	
+
 	SRB2P_runHook("DungeonThinker", battle)
-	
+
 	if server.entrytime
-		
+
 		-- voidrun hack
 		if server.gamemode == GM_VOIDRUN
 		and server.P_DungeonStatus.VR_type == VC_REPEL
 		and server.entrytime == TICRATE/2
 		and server.P_DungeonStatus.VR_timer ~= nil
-			
+
 			local bwaves = {}
 			server.P_DungeonStatus.VR_target = 0
-			
+
 			for i = 1, 3 do
 				bwaves[i] = server.waves[P_RandomRange(1, #server.waves)]
 				server.P_DungeonStatus.VR_target = $ + #bwaves[i]
 			end
-			
+
 			BTL_start(1, bwaves[1])
 			server.P_BattleStatus[1].storedwaves = bwaves
 		end
 		D_voidRun()
-		
+
 		return
 	else
 
@@ -191,7 +191,6 @@ addHook("MapLoad", do
 			print("Loading file data...")
 			SAVE_applyFileHeader(server.netgamefile)	-- load data
 			server.netgamefile = nil
-			server.P_netstat.buffer.load = nil		-- drop data
 		end
 
 		if not server.P_DungeonStatus.floor
@@ -199,13 +198,13 @@ addHook("MapLoad", do
 			if server.gamemode == GM_VOIDRUN
 				server.P_DungeonStatus.floor = 1
 				D_startEvent(1, "ev_vr1")
-			
+
 			elseif server.cdungeon	-- custom dungeons
 				server.P_DungeonStatus.floor = 1
 				server.P_DungeonStatus.savefloor = 1
-				
+
 			else
-								
+
 				server.P_DungeonStatus.floor = 2
 				-- ^ that's a default
 				if server.difficulty
@@ -216,6 +215,10 @@ addHook("MapLoad", do
 		end
 
 		DNG_setFloor(server.P_DungeonStatus.floor)
+
+		-- 01/11/2021: Only drop save data now as we still need it there
+		server.P_netstat.buffer.load = nil		-- drop data
+
 	else
 		-- ready waves and items
 		-- separate here because DNG_setFloor will do it for tartarus
@@ -253,17 +256,17 @@ end, MT_PLAYER)
 
 
 COM_AddCommand("d_spawnreaper", function(p, arg)
-	
+
 	if not cv_debugcheats.value return end
-	
+
 	dprint("DEBUG: "..p.name.." spawned the Reaper")
 	D_spawnReaper()
 end, 1)
 
 COM_AddCommand("d_skipfloor", function(p)
-	
+
 	if not cv_debugcheats.value return end
-	
+
 	if not p or not p.P_party return end
 	if server.P_BattleStatus[p.P_party].running return end	-- cannot be used in battle
 
@@ -279,9 +282,9 @@ COM_AddCommand("d_skipfloor", function(p)
 end, 1)
 
 COM_AddCommand("d_revealmap", function(p)
-	
+
 	if not cv_debugcheats.value return end
-	
+
 	if not p.P_party return end
 	for i = 1, 2048
 		server.rendermap[p.P_party][i-1] = server.map[i-1]
@@ -289,9 +292,9 @@ COM_AddCommand("d_revealmap", function(p)
 end, 1)
 
 COM_AddCommand("d_allstrong", function(p)
-	
+
 	if not cv_debugcheats.value return end
-	
+
 	if not p.P_party return end
 	dprint("oH GOD OH FUcK!!!!")
 	for i = 1, #server.DNG_entities

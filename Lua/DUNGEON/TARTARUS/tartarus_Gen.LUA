@@ -28,20 +28,20 @@ local function DNG_generatefloor(t, floornum)
 			if server.P_DungeonStatus.VR_challenge%3 == 0
 				t = 4	-- shop area
 			end
-			
+
 			dprint("I:"..server.P_DungeonStatus.VR_floor.."/"..server.P_DungeonStatus.VR_floors)
 		end
 	end
 
 	dprint("Generating floor from preset "..t.."...")
-	
+
 	if server.gamemode == GM_VOIDRUN
 		t = VR_floors[$]
 	elseif server.cdungeon
 		t = server.cdungeon.floordata[$]
 	else
 		t = tartarus_floors[$]
-	end	
+	end
 	--t = server.gamemode == GM_VOIDRUN and VR_floors[t] or tartarus_floors[t]
 	server.gentype = GEN_NORMAL
 
@@ -87,7 +87,7 @@ local function DNG_generatefloor(t, floornum)
 
 	local prefix, texture, ceil, range, brightness
 	local usetiles = true
-	
+
 	-- regular internal random dungeons
 	if server.cdungeon == nil
 		ceil = "~PIT"
@@ -96,10 +96,10 @@ local function DNG_generatefloor(t, floornum)
 		range = (t.default and t.default.texturerange) and t.default.texturerange or 0			-- texture random range
 		brightness = (t.default and t.default.brightness) and t.default.brightness or 192
 		server.P_DungeonStatus.noreaper = nil or t.default.noreaper
-		
+
 		DNG_setextradata(t)
-	else	-- custom dungeons	
-		
+	else	-- custom dungeons
+
 		prefix = server.cdungeon.floortextures
 		ceil = server.cdungeon.ceilingtexture
 		texture = R_TextureNumForName(server.cdungeon.startwalltexture)
@@ -108,8 +108,8 @@ local function DNG_generatefloor(t, floornum)
 		usetiles = server.cdungeon.useautotile
 		P_SetupLevelSky(server.cdungeon.skynum)
 	end
-	
-	
+
+
 	server.P_DungeonStatus.beatenboss = 0
 
 	-- VoidRun timer & objectives
@@ -117,12 +117,12 @@ local function DNG_generatefloor(t, floornum)
 		if not (t and t.normalizedfloor)
 			if server.P_DungeonStatus.VR_floor == 0
 				server.P_DungeonStatus.VR_timer = TICRATE*10*60
-				
+
 				-- clauses (ie: skilljammer ...)
 				if server.P_DungeonStatus.VR_clausebuf
 					server.P_DungeonStatus.VR_clause = server.P_DungeonStatus.VR_clausebuf
 					server.P_DungeonStatus.VR_clausebuf = nil
-					
+
 					local notes = {
 						[VE_SKILLJAMMER] = "Oh no! Your skills are all jammed and unreadable...",
 						[VE_ITEMJAMMER] = "Oh no! Your items are all jammed and unreadable...",
@@ -190,14 +190,13 @@ local function DNG_generatefloor(t, floornum)
 		-- start by reseting floor height:
 		s.floorheight = 0
 		s.ceilingpic = ceil
-		
+
 		if not map[i]			-- wall
 			s.floorheight = s.ceilingheight
 
 
-		elseif map[i] == T_ITEM		-- item
-		or map[i] == T_GOLDI		-- gold item (once / party)
-			
+		elseif (map[i] == T_ITEM or map[i] == T_GOLDI) and not (server.P_netstat.buffer.load)		-- item/gold item (once / party): Don't spawn them if we're loading a Marathon save
+
 			local gold = map[i] == T_GOLDI
 
 			local allowgold = nil
@@ -302,7 +301,7 @@ local function DNG_generatefloor(t, floornum)
 						p.mo.angle = ANG1*t.default.spawndir
 					elseif t.spawndir
 						p.mo.angle = ANG1*t.spawndir	-- custom dungeons...
-					end	
+					end
 				end
 				-- by default, teleport everyone to the first spawn found. This is to ensure that everyone at least finds a spawn.
 			end
@@ -399,7 +398,7 @@ local function DNG_generatefloor(t, floornum)
 				ang = t.default.shopdir*ANG1
 			elseif t.shopdir	-- custom dungeons...
 				ang = t.shopdir*ANG1
-			end	
+			end
 
 			r.angle = ang
 			ang =$+ANG1*90
@@ -430,7 +429,7 @@ local function DNG_generatefloor(t, floornum)
 				local curangle = (t.default and t.default.eventdir) and t.default.eventdir*ANG1 or 0
 				if t.eventdir
 					curangle = t.eventdir*ANG1
-				end	-- custom dungeons...	
+				end	-- custom dungeons...
 				local dist = 96
 
 				if #wave == 2
@@ -454,7 +453,7 @@ local function DNG_generatefloor(t, floornum)
 						enm.angle = t.default.eventdir*ANG1
 					elseif t.eventdir
 						enm.angle = t.eventdir*ANG1		-- custom dungeons...
-					end	
+					end
 
 					-- init enemy's standing animation and start it
 					local tbl = enemyList[enm.enemy]
@@ -463,7 +462,7 @@ local function DNG_generatefloor(t, floornum)
 						ANIM_set(enm, enm.anim_stand)
 						if tbl.color
 							enm.color = tbl.color
-						end	
+						end
 
 						if tbl.boss and tbl.endboss
 							finalbossfloor = true
@@ -492,7 +491,7 @@ local function DNG_generatefloor(t, floornum)
 					r.angle = t.default.eventdir*ANG1
 				elseif t.eventdir
 					r.angle = t.eventdir*ANG1	-- custom dungeons...
-				end	
+				end
 			end
 
 		elseif map[i] == T_PIT	-- pit
@@ -907,7 +906,7 @@ local function DNG_generatefloor(t, floornum)
 				sec.floorpic = prefix.."F19"
 			end
 
-		
+
 			if not usetiles
 				sec.floorpic = prefix	-- custom dungeons
 			end
@@ -981,7 +980,7 @@ local function DNG_generatefloor(t, floornum)
 			end
 		end
 	end
-	
+
 	if server.gamemode == GM_VOIDRUN
 	and server.P_DungeonStatus.VR_type == VC_INFILTRATION
 		server.P_DungeonStatus.VR_target = max(1, numitems-1)
@@ -1017,7 +1016,7 @@ local function DNG_setWaves(waves)
 end
 
 rawset(_G, "DNG_updateWave", function()
-	
+
 	if mapheaderinfo[gamemap].tartarus	-- normal gameplay
 	or server.gamemode == GM_VOIDRUN
 	or server.cdungeon
@@ -1027,17 +1026,17 @@ rawset(_G, "DNG_updateWave", function()
 		if server.gamemode == GM_VOIDRUN
 			flr = server.P_DungeonStatus.VR_challenge or 1
 		end
-		
+
 		for i = 0, flr
-			
+
 			if server.cdungeon	-- custom dungeons
-				
+
 				if server.cdungeon.enemies[i]
 					DNG_setWaves(server.cdungeon.enemies[i])
 				end
-				
+
 				server.items = server.cdungeon.itemdrops	-- items cannot change per floor
-				
+
 			elseif server.gamemode == GM_COOP	-- tartarus
 
 				if DNG_waves[i]
@@ -1070,7 +1069,7 @@ rawset(_G, "DNG_updateWave", function()
 		DNG_setWaves(DNG_dungeonwaves[gamemap][server.P_DungeonStatus.section])
 		--server.waves = DNG_dungeonwaves[gamemap][server.P_DungeonStatus.section]
 	end
-	
+
 	if server.roguemode	-- hahahahaha....
 	and server.waves
 		for i = 1, #server.waves
@@ -1086,7 +1085,7 @@ rawset(_G, "DNG_setFloor", function(f)
 
 	--climblines = {}
 	SRB2P_runHook("DungeonNextFloor")
-	
+
 	if server.savelights
 		for i = 0, 2047
 			 sectors[i].lightlevel = server.savelights[i]
@@ -1139,7 +1138,7 @@ rawset(_G, "DNG_setFloor", function(f)
 				return	-- Don't bother generating the floor
 			end
 		end
-	end	
+	end
 
 	DNG_updateWave()
 	server.curpreset = DNG_updateMap()
@@ -1161,64 +1160,64 @@ rawset(_G, "DNG_setFloor", function(f)
 		if leveltime < 10	-- level has just started, so yes
 		or blockfloor[block]	-- we just started a new block (shouldn't happen in MP in theory?)
 			--S_ChangeMusic("BLOCK"..block, true)
-			
+
 			for p in players.iterate do
 				COM_BufInsertText(p, "tunes "..DNG_getTartarusMusic(block))
-			end	
+			end
 			-- this sets the "default map tune".
 			-- yes this is positively stupid.
 		end
-	
+
 	elseif server.cdungeon
 		t[1] = server.cdungeon.name
-		
+
 		--if leveltime < 10
 			for p in players.iterate do
 				COM_BufInsertText(p, "tunes "..server.cdungeon.dungeonmusic)
-			end	
+			end
 		--end
-		
-		
-	
+
+
+
 	elseif server.gamemode == GM_VOIDRUN
 	and server.P_DungeonStatus.VR_timer
-	
+
 		local challengemus = (((server.P_DungeonStatus.VR_challenge-1)/3) +1 )%5
-		
+
 		if not (challengemus%5)
 			challengemus = 5
-		end	
-		
+		end
+
 		challengemus = $ or 1
-		
+
 		local cmusic = "VRCH"..challengemus
 		--S_ChangeMusic(cmusic, true, p, 0, 0, 300)
 		for p in players.iterate do
 			COM_BufInsertText(p, "tunes "..cmusic)
-		end	
+		end
 	end
 
 	if server.P_DungeonStatus.floor
 
 		if server.P_DungeonStatus.floor > (FRACUNIT-1)	-- kind of a hack
 			t[2] = "B"..(server.P_DungeonStatus.floor - (FRACUNIT-1)).."F"
-		
+
 		elseif server.gamemode == GM_VOIDRUN
 			local challenge = (server.P_DungeonStatus.VR_challenge /3) + 1
-			
+
 			local mission = server.P_DungeonStatus.VR_challenge%3 or 3
 			t[1] = "VOID RUN"
 
 			if mission%3 == 0
 				challenge = $-1
-			end	
-			
+			end
+
 			if server.P_DungeonStatus.VR_timer == nil
 				t[2] = mission == 1 and "Starting Area" or "Safe Zone"
-			else	
+			else
 				t[2] = "Challenge "..challenge..", Mission "..mission
 			end
-		
+
 		else
 			t[2] = (server.P_DungeonStatus.floor).."F"
 		end
