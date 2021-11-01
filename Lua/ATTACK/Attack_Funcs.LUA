@@ -21,9 +21,9 @@ end
 -- get random drops from enemies
 rawset(_G, "getRandomDrops", function(mo)
 	--print("get random drops...")
-	local btl = server.P_BattleStatus[mo.battlen]	
+	local btl = server.P_BattleStatus[mo.battlen]
 	if server.gamemode == GM_CHALLENGE return end	-- nope
-	
+
 	local tbl = server.items
 	local newtable = {}
 	if tbl
@@ -32,7 +32,7 @@ rawset(_G, "getRandomDrops", function(mo)
 				newtable[#newtable+1] = v[1]
 			end
 		end
-				
+
 		-- 25% chance to obtain random drop item 3 times
 		for i = 1, 3
 			if P_RandomRange(0, 100) <= 40
@@ -40,72 +40,72 @@ rawset(_G, "getRandomDrops", function(mo)
 				local rng = P_RandomRange(1, #newtable)	-- rng seed
 				local it = newtable[rng]
 				local rare
-							
+
 				-- check if item is a weapon / ring / weapon series
 				if type(it) == "table"
 					if it[1] == "series"
 						local wpn = dropWeaponFromSeries(it[2], server.plentities[mo.battlen])
 						wpn = makeWeapon(wpn, P_RandomRange(0, 3))
-						
+
 						rare = wpn.rarity >= 5
 						btl.r_weapons = $ or {}
-					
+
 						btl.r_weapons[#btl.r_weapons+1] = wpn
 						spawnWeaponDrop(wpn, mo.x, mo.y, mo.z)
-								
+
 					elseif it[1] == "ring"
 						local ring = it[2]
-										
+
 						if ring
 							btl.r_rings = $ or {}
 							btl.r_rings[#btl.r_rings+1] = makeRing(ring, P_RandomRange(0, 3))
 							rare = btl.r_rings[#btl.r_rings].rarity >= 5
 							spawnRingDrop(btl.r_rings[#btl.r_rings], mo.x, mo.y, mo.z)
 						end
-										
+
 					elseif it[1] == "weapon"
 						local wpn = it[2]
 						wpn = makeWeapon(wpn)
-										
+
 						if wpn
 							btl.r_weapons = $ or {}
 							btl.r_weapons[#btl.r_weapons+1] = makeWeapon(wpn, P_RandomRange(0, 3))
 							rare = btl.r_weapons[#btl.r_weapons].rarity >= 5
 							spawnWeaponDrop(btl.r_weapons[#btl.r_weapons], mo.x, mo.y, mo.z)
 						end
-					end	
+					end
 
 					if rare
-						for p in players.iterate 
+						for p in players.iterate
 							if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 								IT_startRareDropAnim(p)
-							end	
+							end
 						end
-					end	
-					
+					end
+
 					continue
-				end							
+				end
 
 				if itemDefs[it] and itemDefs[it].rarity and itemDefs[it].rarity >= 5
-					for p in players.iterate 
+					for p in players.iterate
 						if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 							IT_startRareDropAnim(p)
-						end	
+						end
 					end
 				end
-				
+
 				spawnItemDrop(itemDefs[it], mo.x, mo.y, mo.z)
 				BTL_addResultItem(btl, it, 1)
 			end
-		end	
-	end		
+		end
+	end
 
 	-- enemy specific drops all have their own odds rolled.
 	local enemy = enemyList[mo.enemy]
 	if enemy.r_drops and #enemy.r_drops
-	
+
 		for i = 1, #enemy.r_drops
-			
+
 			if P_RandomRange(0, 100) < enemy.r_drops[i][2]
 				local it = enemy.r_drops[i][1]
 				local rare
@@ -114,54 +114,54 @@ rawset(_G, "getRandomDrops", function(mo)
 					if it[1] == "series"
 						local wpn = dropWeaponFromSeries(it[2], server.plentities[mo.battlen])
 						wpn = makeWeapon(wpn, P_RandomRange(0, 3))
-						
+
 						rare = wpn.rarity >= 5
 						btl.r_weapons = $ or {}
-					
+
 						btl.r_weapons[#btl.r_weapons+1] = wpn
 						spawnWeaponDrop(wpn, mo.x, mo.y, mo.z)
-								
+
 					elseif it[1] == "ring"
 						local ring = it[2]
-										
+
 						if ring
 							btl.r_rings = $ or {}
 							btl.r_rings[#btl.r_rings+1] = makeRing(ring, P_RandomRange(0, 3))
 							rare = btl.r_rings[#btl.r_rings].rarity >= 5
 							spawnRingDrop(btl.r_rings[#btl.r_rings], mo.x, mo.y, mo.z)
 						end
-										
+
 					elseif it[1] == "weapon"
 						local wpn = it[2]
 						wpn = makeWeapon(wpn)
-										
+
 						if wpn
 							btl.r_weapons = $ or {}
 							btl.r_weapons[#btl.r_weapons+1] = makeWeapon(wpn, P_RandomRange(0, 3))
 							rare = btl.r_weapons[#btl.r_weapons].rarity >= 5
 							spawnWeaponDrop(btl.r_weapons[#btl.r_weapons], mo.x, mo.y, mo.z)
 						end
-					end	
+					end
 
 					if rare
-						for p in players.iterate 
+						for p in players.iterate
 							if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 								IT_startRareDropAnim(p)
-							end	
+							end
 						end
-					end	
-					
+					end
+
 					continue
-				end						
-				
+				end
+
 				if itemDefs[it] and itemDefs[it].rarity and itemDefs[it].rarity >= 5
-					for p in players.iterate 
+					for p in players.iterate
 						if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 							IT_startRareDropAnim(p)
-						end	
+						end
 					end
 				end
-				
+
 				spawnItemDrop(itemDefs[it], mo.x, mo.y, mo.z)
 				BTL_addResultItem(btl, it, 1)
 			end
@@ -175,8 +175,8 @@ rawset(_G, "getRandMove", function(mo, restrict, passives)
 	for k,v in pairs(attackDefs)
 		if passives
 			if restrict
-			
-				if not v.norandom				
+
+				if not v.norandom
 				-- Validation
 				and v.type
 				and v.target
@@ -202,18 +202,18 @@ rawset(_G, "getRandMove", function(mo, restrict, passives)
 				if not v.passive
 				and not v.nometronome
 				and v.anim
-				
+
 				-- attack specific softlocks
 				and not v.physical
 				and k ~= "nosp"
 				and k ~= "analysis"
 				and k ~= "full analysis"
-					table.insert(skills, k) 
+					table.insert(skills, k)
 				end
 			end
 		end
 	end
-	
+
 	return skills[P_RandomRange(1, #skills)]
 end)
 
@@ -226,7 +226,7 @@ rawset(_G, "getAttackType", function(mo, attack)
 	local t = attack.type
 	if attack.physical and mo and mo.weapon and mo.weapon.element
 		return mo.weapon.element
-	end	
+	end
 	return t
 end)
 
@@ -240,7 +240,7 @@ rawset(_G, "isAttackTechnical", function(mo, atk, t)
 	local cond = mo.status_condition
 	if not atk return 0 end	-- bruh!
 	t = $ or atk.type
-	
+
 	if not cond return 0 end
 
 	if atk.luckbased return 0 end	-- no!
@@ -290,7 +290,7 @@ rawset(_G, "getAttackAff", function(mo, atk, attacker)
 
 	if not atk return end
 	local atktype = getAttackType(attacker, atk)
-	
+
 	-- element resist/weakness buffs/debuffs
 	local buff = mo.buffs[atktype] and mo.buffs[atktype][1] and mo.buffs[atktype][1] > 0
 	local debuff = mo.buffs[atktype] and mo.buffs[atktype][1] and mo.buffs[atktype][1] < 0
@@ -535,9 +535,9 @@ rawset(_G, "ATK_statusfuncs", {
 						mo.commandflags = $ or 0
 						mo.commandflags = $|CDENY_SKILL|CDENY_PERSONA|CDENY_TACTICS
 					end,
-					
+
 	[COND_FREEZE] = function(mo)
-						
+
 						local btl = server.P_BattleStatus[mo.battlen]
 						local foundturn = 0
 						local i = #btl.turnorder
@@ -547,20 +547,20 @@ rawset(_G, "ATK_statusfuncs", {
 								foundturn = $+1
 								table.remove(btl.turnorder, i)
 							end
-							
+
 							i = $-1
 						end
-						
+
 						for i = 1, foundturn
 							table.insert(btl.turnorder, mo)	-- insert at the end
 						end
-						
+
 					end,
 }
 )
 
 -- boss resistance gained per status
--- 1 res = 2% substracted 
+-- 1 res = 2% substracted
 -- res goes down by 2 each turn
 
 rawset(_G, "ATK_res_per_status", {
@@ -575,7 +575,7 @@ rawset(_G, "ATK_res_per_status", {
 	[COND_DESPAIR] = 6,
 	[COND_RAGE] = 8,
 	[COND_POISON] = 6,
-	[COND_HUNGER] = 10,	
+	[COND_HUNGER] = 10,
 })
 
 rawset(_G, "inflictStatus", function(mo, status)
@@ -599,7 +599,7 @@ rawset(_G, "inflictStatus", function(mo, status)
 		if ATK_statusfuncs[status]
 			ATK_statusfuncs[status](mo)
 		end
-		
+
 		if mo.boss
 			mo.status_res = $ and ($+ (ATK_res_per_status[status] or 1)) or 1
 		end
@@ -611,7 +611,7 @@ rawset(_G, "ATK_curestatusfuncs", {
 						mo.commandflags = $ or 0
 						mo.commandflags = $ & ~(CDENY_SKILL|CDENY_PERSONA|CDENY_TACTICS)
 					end,
-	
+
 	[COND_SHOCK] = 	function(mo)
 						mo.flags2 = $ & ~MF2_DONTDRAW
 					end,
@@ -634,7 +634,7 @@ rawset(_G, "cureStatus", function(mo, msg)
 end)
 
 rawset(_G, "ATK_fieldStartFunc", {
-	
+
 	[FLD_GARUVERSE] = 	function(target)
 							for i = 1, 4
 								local g = P_SpawnMobj(target.x, target.y, target.z + P_RandomRange(0, 120)*FRACUNIT, MT_GARU)
@@ -646,32 +646,32 @@ rawset(_G, "ATK_fieldStartFunc", {
 								g.dist = P_RandomRange(45, 140)
 								--g.tics = 25
 								g.lowquality = true
-								
+
 								target.fieldstate.entities[#target.fieldstate.entities+1] = g
 							end
 						end,
-	
+
 })
 
 rawset(_G, "startField", function(mo, field, turns)
-	
+
 	turns = $ or 3
 	if not mo or not mo.valid return end
 	if not field return end
 	if not mo.hp return end	-- enemy died when trying to start the field
-	
+
 	local field_exist = mo.fieldstate ~= nil
-	
+
 	if field_exist
 		clearField(mo)
-	end	
-	
+	end
+
 	mo.fieldstate = {
 		type = field,
 		turns = turns,
 		entities = {},
 	}
-	
+
 	if ATK_fieldStartFunc[field]
 		ATK_fieldStartFunc[field](mo)
 	end
@@ -680,11 +680,11 @@ end)
 rawset(_G, "clearField", function(mo)
 	if not mo or not mo.valid return end
 	if not mo.fieldstate return end
-	
+
 	for i = 1, #mo.fieldstate.entities do
 		mo.fieldstate.entities[i].fuse = 2
 	end
-	
+
 	--print("Removed field state...")
 	mo.fieldstate = nil
 end)
@@ -832,7 +832,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	if accuracy	-- accuracy checks
 
 		if atk.luckbased and atk.statuschance and atk.status
-			
+
 			local statusbuff = 0
 			for i = 1, #attacker.passiveskills do
 				if attackDefs[attacker.passiveskills[i]]
@@ -844,9 +844,9 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 					end
 				end
 			end
-			
+
 			local bossres = (mo.status_res or 0)*4
-			
+
 			if (P_RandomRange(0, 100) <= atk.statuschance + statusbuff + (attacker.luck - bossres - mo.luck))
 			and not mo.status_condition	-- can't status again if we already got that
 			--and not mo.boss
@@ -876,7 +876,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	if atktype == ATK_HEAL or atktype == ATK_SUPPORT	-- these are not meant to deal any damage.
 		return 1
 	end
-	
+
 	local rage_mult = attacker.status_condition == COND_RAGE and 2 or 1	-- mult atk by 2 if attacker has rage
 	local rage_div = mo.status_condition == COND_RAGE and 2 or 1	-- divide def by 2 if mo has rage
 
@@ -887,7 +887,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		usestat = attacker.magic
 		boost = attacker.mindcharge
 	end
-	
+
 	if atk.physical	-- Use the highest value between str/magic
 		usestat = max(attacker.magic, attacker.strength)
 	end
@@ -899,9 +899,9 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 		local attacker_agility = attacker.agility + attacker.agility*attacker.buffs["agi"][1] / 100
 		local attacked_agility = mo.agility + mo.agility*mo.buffs["agi"][1] / 100
-		
-		local atk_accuracy = atk.accuracy
-		if atk.physical and atk.accuracy < 999
+
+		local atk_accuracy = atk.accuracy or 0
+		if atk.physical and atk.accuracy and atk.accuracy < 999
 		and attacker.weapon
 			atk_accuracy = attacker.weapon.acc
 		end
@@ -962,13 +962,13 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		or (atk.instakill and mo.boss)	-- nope
 			--mo.damagestate = DMG_MISS
 			mo.passivedodge = passive_dodge
-			
+
 			-- eggman's plan B (lol)
 			if atk.instakill
 			and not mo.status_condition	-- can't work if the enemy is already status'd
 				for i = 1, #mo.atk_attacker.passiveskills do
 					local s = mo.atk_attacker.passiveskills[i]
-					
+
 					if attackDefs[s] and attackDefs[s].passive == PSV_PLANB
 					and attackDefs[s].type & atktype
 						s = attackDefs[s]
@@ -978,7 +978,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 							mo.damagestate = DMG_STATUS
 						end
 					end
-				end	
+				end
 			end
 
 			return "miss", false
@@ -1049,9 +1049,9 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		and not mo.guard
 
 			if not mo.down
-				
+
 				if not SRB2P_runHook("GetOneMore", attacker, mo)
-				
+
 					attacker.setonemore = true
 					if server.gamemode == GM_VOIDRUN
 					and server.P_DungeonStatus.VR_type == VC_EXPLOIT
@@ -1104,7 +1104,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 			if mo.weapon
 				addstat = mo.weapon.atk/10
 			end
-			
+
 			basepow = $+ addstat
 		end
 		POW = basepow
@@ -1176,7 +1176,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 			and server.P_DungeonStatus.VR_type == VC_EXPLOIT
 			and mo.enemy
 				server.P_DungeonStatus.VR_score = $+1
-			end			
+			end
 		end
 
 	elseif mo.damagestate == DMG_DRAIN
@@ -1227,52 +1227,52 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	local slayerboost = 0	-- PSV_SLAYER boost
 	local perfectboost = 0	-- PSV_PERFECTIONNIST boost
 	-- for the 2 last types of boost, only keep the highest
-	
-	
+
+
 	-- now apply the boosts to the attack!
 	for i = 1, #attacker.passiveskills
 		local psv = attacker.passiveskills[i]
 		if attackDefs[psv]
 			psv = attackDefs[$]
-			
+
 			-- slayer boosts
 			if psv.passive == PSV_SLAYER
 			and (mo.status_condition and (not psv.status or psv.status & mo.status_condition))
 				-- keep highest
 				slayerboost = max($, psv.power)
-			
+
 			elseif psv.passive == PSV_PERFECTIONNIST
 				local minhp = psv.hits
 				local maxdamage = psv.power
 				local mindamage = psv.accuracy
-				
+
 				-- hack: revert skill cost to calculate how much HP we had before using this skill:
 				local hp = attacker.hp
 				if atk.costtype == CST_HP
 					hp = $ + atk.cost
 				elseif atk.costtype == CST_HPPERCENT
 					hp = $ + attacker.maxhp*atk.costtype / 100
-				end	
-				
+				end
+
 				local hpdiff = 100 - minhp
 				local myhp = max(minhp, hp*100 / attacker.maxhp)
 				local dmgscale = maxdamage - mindamage
-				
+
 				local fsboost = mindamage
 				if myhp > minhp
 					local scale = 100 - myhp
 					--print("scale: "..scale)
 					local finaldamagescale = scale*100 / hpdiff
 					--print("fsscale: "..finaldamagescale)
-					
+
 					fsboost = maxdamage - dmgscale*finaldamagescale / 100
 				end
-				
+
 				-- keep highest
 				perfectboost = max($, fsboost)
 				--print("Perfect keeper boost: "..perfectboost)
-				
-			
+
+
 			-- normal attacks
 			elseif psv.passive == PSV_BOOST
 			and psv.type & atktype
@@ -1290,14 +1290,14 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 			end
 		end
 	end
-	
+
 	if slayerboost
 		dmg = $ + dmg*slayerboost/100
 	end
 	if perfectboost
 		dmg = $ + dmg*(perfectboost-100)/100
 	end
-	
+
 	if boosts and #boosts
 		-- sort it!
 		table.sort(boosts, function(a, b)	return a > b end)
@@ -1331,10 +1331,10 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 				end
 			end
 		end
-		
+
 		local status_hitrate = atk.statuschance + statusbuff + (attacker.luck - mo.luck)*3/4
 		local status_resist_mult = 0
-		
+
 		-- Check for status resistances within the target
 		for i = 1, #mo.passiveskills do
 			if attackDefs[mo.passiveskills[i]]
@@ -1344,17 +1344,17 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 					status_resist_mult = max($, skl.power)
 				end
 			end
-		end	
-		
+		end
+
 		-- Final hitrate for statuses becomes: (BASE HITRATE + (ATTACKER AGILITY - RECEIVER AGILITY)*3/4 + STATUS BOOST)/RESISTANCE
 		status_hitrate = $ - ($*status_resist_mult/100)
-		
+
 		if (P_RandomRange(0, 100) <= status_hitrate)
 		and not (atk.target == TGT_ALLENEMIES and server.gamemode == GM_PVP)	-- do NOT inflict status on multi target moves
 		and not mo.guard	-- guarding immunes against secondary statuses
 			mo.cachestatus = atk.status
 		end
-	end	
+	end
 
 	if mo.endboss and not btl.holdupfinish	-- special case
 
@@ -1400,7 +1400,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 			end
 		end
 	end
-	
+
 	-- check for swordbreaker passives in our party
 	local breaker_passive = 100
 	for i = 1, #mo.allies do
@@ -1411,29 +1411,29 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 				if s.passive == PSV_SWORDBREAKER
 				and s.type & atktype
 				and (not s.accuracy or P_RandomRange(0, 100) <= (s.accuracy or 100))
-				
+
 					breaker_passive = min(100 - s.power, $)
 					mo.swordbreaker = s.name
 				end
-			end	
+			end
 		end
 	end
-	
-	dmg = $* breaker_passive/100	
+
+	dmg = $* breaker_passive/100
 	if crit == nil	-- set crit to false, not nil, for passives if necessary
 		crit = false
-	end	
-	
+	end
+
 	-- Condition damage modifiers;
 	-- Attacker has poison: Multiply damage by 0.85
 	if attacker.status_condition == COND_POISON
 		dmg = $*85/100
 	end
-	
+
 	-- Target has burn, multiply damage by 1.15
 	if mo.status_condition == COND_BURN
 		dmg = $*115/100
-	end	
+	end
 
 	-- triggerdamage passives
 	for i = 1, #attacker.passiveskills
@@ -1448,12 +1448,12 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 			end
 			if crit == nil
 				crit = oldcrit
-			end	
-			
+			end
+
 			--print("New damage "..dmg.." (was "..olddmg..")")
 		end
 	end
-	
+
 	-- ditto, for received damage
 	for i = 1, #mo.passiveskills
 		local psv = mo.passiveskills[i]
@@ -1467,18 +1467,18 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 			end
 			if crit == nil
 				crit = oldcrit
-			end	
-			
+			end
+
 			--print("New damage "..dmg.." (was "..olddmg..")")
 		end
 	end
-	
+
 	-- Okay, we'll now modify the damage with hooks.
 	--           - Spectra making her life easier
 	local newdmg = SRB2P_runHook("ModifyDamage", attacker, mo, dmg)
 	if newdmg
 		dmg = newdmg
-	end	
+	end
 
 	return dmg, crit or (technical and tech_downchance)
 	-- return the damage number. We can use it for whatever purpose now :P
@@ -1489,19 +1489,19 @@ end)
 rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage an object
 	-- set damage to nil to use the sevrer pre-calculated damage!
 	local btl = server.P_BattleStatus[mo.battlen]
-	
+
 	if (mo.enemy and not mo.deathanim and enemyList[mo.enemy].deathanim)
 		return
 	end	-- Shouldn't be damaged, has technically died but is still here, perhaps due to a cutscene?
-	
+
 	-- fallbacks to prevent errors
 	if mo.atk_hitby == nil
 		mo.atk_hitby = BTL_copyAttackDefs(attackDefs["dummy"])	-- make do
 	end
 	if mo.atk_attacker == nil or not mo.atk_attacker.valid
 		mo.atk_attacker = mo	-- we need SOMETHING
-	end	
-	
+	end
+
 	if reset
 		resetDamage(mo)
 	end
@@ -1561,10 +1561,10 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 			VFX_Play(mo, VFX_HEALSELF)	-- don't thank yourself fucking idiot
 		end
 	end
-	
+
 	local atktype = mo.atk_hitby.type
 	local nihilwep
-	
+
 	if mo.atk_hitby.physical and mo.atk_attacker and mo.atk_attacker.weapon and mo.atk_attacker.weapon.element
 		atktype = mo.atk_attacker.weapon.element
 		nihilwep = true	-- draw nihil weapon effects on-hit
@@ -1712,7 +1712,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 					ring.fuse = TICRATE
 				end
 			end
-			
+
 			if nihilwep
 				if atktype == ATK_FIRE
 					playSound(mo.battlen, sfx_fire1)
@@ -1724,9 +1724,9 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						b.state = S_QUICKBOOM1
 						b.scale = FRACUNIT*3
 					end
-					
+
 				elseif atktype == ATK_ICE
-					
+
 					playSound(mo.battlen, sfx_bufu4)
 					for i=1,20
 						local b = P_SpawnMobj(mo.x, mo.y, mo.z+20*FRACUNIT, MT_BUFU_PARTICLE)
@@ -1734,10 +1734,10 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						b.momy = P_RandomRange(-8, 8)*FRACUNIT
 						b.momz = P_RandomRange(-8, 8)*FRACUNIT
 						b.scale = FRACUNIT*3
-					end					
+					end
 
 				elseif atktype == ATK_ELEC
-					
+
 					playSound(mo.battlen, sfx_zio1)
 					for i=1,20
 						local b = P_SpawnMobj(mo.x, mo.y, mo.z+20*FRACUNIT, MT_DUMMY)
@@ -1747,7 +1747,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						b.scale = FRACUNIT*3
 						b.state = S_SSPK1
 					end
-					
+
 				elseif atktype == ATK_WIND
 					playSound(mo.battlen, sfx_wind1)
 					for i = 1, 2
@@ -1759,7 +1759,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						s.scalespeed = FRACUNIT
 						s.tics = TICRATE/3
 					end
-				
+
 				elseif atktype == ATK_PSY
 					playSound(mo.battlen, sfx_s3k83)
 					local psiocolors = {SKINCOLOR_TEAL, SKINCOLOR_YELLOW, SKINCOLOR_PINK, SKINCOLOR_BLACK, SKINCOLOR_WHITE}
@@ -1769,9 +1769,9 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						b.momy = P_RandomRange(-8, 8)*FRACUNIT
 						b.momz = P_RandomRange(-8, 8)*FRACUNIT
 						b.color = psiocolors[P_RandomRange(1, #psiocolors)]
-					end	
-					
-				elseif atktype == ATK_NUCLEAR	
+					end
+
+				elseif atktype == ATK_NUCLEAR
 					playSound(mo.battlen, sfx_megi6)
 					for i=1,20
 						local b = P_SpawnMobj(mo.x, mo.y, mo.z+20*FRACUNIT, MT_DUMMY)
@@ -1799,7 +1799,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						l.destscale = FRACUNIT*6
 						l.scalespeed = speeds[i]
 						l.fuse = fuses[i]
-					end			
+					end
 
 				elseif atktype == ATK_PSY
 					playSound(mo.battlen, sfx_eih4)
@@ -1811,7 +1811,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						b.momz = P_RandomRange(-8, 8)*FRACUNIT
 						b.color = psiocolors[P_RandomRange(1, #psiocolors)]
 					end
-				end	
+				end
 			end
 
 			-- ready Link properties.
@@ -1833,9 +1833,9 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						linkdamage = max($, s.power)
 					end
 				end
-				
+
 				if mo.atk_attacker.attackref
-				and attackDefs[mo.atk_attacker.attackref]	
+				and attackDefs[mo.atk_attacker.attackref]
 				and not attackDefs[mo.atk_attacker.attackref].link
 					return	-- !?
 				end
@@ -1881,7 +1881,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 		and damage > 0
 			mo.status_condition = 0
 			BTL_logMessage(mo.battlen, mo.name.." was woken up!")
-		
+
 		elseif mo.atk_attacker ~= mo
 		and mo.atk_attacker and mo.atk_attacker.valid
 		and mo.atk_attacker and mo.atk_attacker.status_condition == COND_HEX
@@ -1890,7 +1890,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 			mo.atk_attacker.atk_attacker = mo
 			mo.atk_hitby = attackDefs["dummy"]
 			damageObject(mo.atk_attacker, min(mo.atk_attacker.hp-1, damage/2))
-		
+
 		elseif mo.cachestatus
 		and not SAVE_localtable.tutorial
 		and mo.damagestate ~= DMG_DRAIN
@@ -1960,12 +1960,12 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 		if btl.dmg_actor and btl.dmg_actor.plyr and btl.dmg_actor.targets and #btl.dmg_actor.targets
 			fill = $ / #btl.dmg_actor.targets
 		end
-		
+
 		-- lower this by the amount of hits the attack does
 		if mo.atk_hitby and mo.atk_hitby.hits
 			fill = $ / mo.atk_hitby.hits
 		end
-		
+
 		if mo.fieldstate and mo.fieldstate.type == FLD_AGIVERSE
 			fill = $*2
 		end
@@ -2004,9 +2004,9 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 		BTL_logMessage(mo.battlen, mo.swordbreaker.." activated!")
 		mo.swordbreaker = nil
 	end
-	
+
 	local dmgnum = type(damage) == "number"
-	
+
 	if mo.plyr and dmgnum
 		if damage >= 0
 			btl.netstats.damagetaken = $+ damage
@@ -2024,44 +2024,44 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 	and mo and mo.valid	--??
 	and btl.turnorder[1] ~= mo	-- repels, counters...???
 	and mo.hp
-	and mo.damagestate ~= DMG_DRAIN	
-	
-	
+	and mo.damagestate ~= DMG_DRAIN
+
+
 		if mo.fieldstate.type == FLD_GARUVERSE
-		
+
 			playSound(mo.battlen, sfx_heal)
 			mo.atk_attacker.atk_attacker = mo.atk_attacker	--... yes, we need to set this manually and this looks horrible LOL
 			mo.atk_attacker.atk_hitby = BTL_copyAttackDefs(attackDefs["dia"])	-- yeah this is horrible alright.
-			
+
 			local div = 4
 			if mo.atk_hitby.target == TGT_ALLENEMIES
 				div = #mo.allies +5
 			end
-			
+
 			if btl.battlestate == BS_LINK
 				div = $*6
-			end	-- only restore 12.5% of damage dealt with link skills	
-			
-			damageObject(mo.atk_attacker, -(abs(damage)*3/div))	
-		
+			end	-- only restore 12.5% of damage dealt with link skills
+
+			damageObject(mo.atk_attacker, -(abs(damage)*3/div))
+
 		elseif mo.fieldstate.type == FLD_ZIOVERSE
 		and not mo.zionverse_spread	-- flag to make sure we don't endlessly damage everything lol
 		and mo.atk_hitby.target == TGT_ENEMY	-- only single target skills
-			
+
 			-- spread damage to everyone else inflicted with zionverse in my party!
 			for i = 1, #mo.allies do
 				local a = mo.allies[i]
 				if a ~= mo
 				and a.fieldstate
 				and a.fieldstate.type == FLD_ZIOVERSE
-				
+
 					a.atk_attacker = mo.atk_attacker
 					a.atk_hitby = mo.atk_hitby
-					
+
 					a.zionverse_spread = true	-- flag to not spread damage endlessly
 					damageObject(a, damage/5)
 					a.zionverse_spread = nil
-					
+
 					for j = 1, 16
 						local b = P_SpawnMobj(a.x, a.y, a.z, MT_SUPERSPARK)
 						b.momx = P_RandomRange(-32, 32)*b.scale
@@ -2092,7 +2092,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 
 			local exp = mo.expval or enemyList[mo.enemy].r_exp or 1
 			local money = mo.moneyval or enemyList[mo.enemy].r_macca or exp/4
-			
+
 			-- get item drops:
 			/*if enemyList[mo.enemy].r_drops
 				local t = enemyList[mo.enemy].r_drops
@@ -2103,19 +2103,19 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 				end
 			end*/
 			getRandomDrops(mo)
-			
+
 			if mo.extra
 				btl.r_exp = $+ exp*3/2
 				btl.r_money = $+money*3/2
 				return
 			end	-- sequence handled in a separate battlestate
-			
+
 			playSound(mo.battlen, sfx_srip)		-- die monster
 			clearField(mo)			-- clear Fields
 			mo.state = S_INVISIBLE	-- turn invisible
-			
+
 			if not mo.deathanim
-			
+
 				mo.anim = nil			-- stop pain animation
 				mo.flags2 = $|MF2_DONTDRAW
 				explodeShadow(mo)		-- directed by micheal bay
@@ -2127,7 +2127,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 				if mo.enemy
 					local btl = server.P_BattleStatus[mo.battlen]
 					btl.saved_affs[mo.enemy][3] = true	-- enemy was beaten, that means every subsequent type of this enemy can have its stats be displayed in analysis
-				end			
+				end
 			end
 
 			-- give us some exp?
@@ -2161,7 +2161,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 			d.fuse = TICRATE*6
 			P_SetObjectMomZ(d, 10<<FRACBITS)
 			btl.netstats.timesdied = $ +1
-			
+
 			if server.gamemode == GM_VOIDRUN
 				server.P_DungeonStatus.VR_lives = max(0, $-1)
 				BTL_logMessage(mo.battlen, "\x82".."You lost a life!")
