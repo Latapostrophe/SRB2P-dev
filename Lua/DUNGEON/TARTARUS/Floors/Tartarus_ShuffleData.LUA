@@ -300,7 +300,7 @@ rawset(_G, "DNG_skillcards_level", {
 		"evade wind",
 		"evade elec",
 		"evade nuke",
-		"evade psi",
+		"evade psy",
 		"evade bless",
 		"evade curse",
 		"life leech",
