@@ -85,12 +85,13 @@ local function DNG_generatefloor(t, floornum)
 	finalbossfloor = nil
 	local switches = {}		-- table containing switches to be teleported
 
-	local prefix, texture, ceil, range, brightness
+	local prefix, texture, ceil, range, brightness, ceilheight
 	local usetiles = true
 
 	-- regular internal random dungeons
 	if server.cdungeon == nil
 		ceil = "~PIT"
+		ceilheight = 256
 		prefix = (t.default and t.default.floorpic) and t.default.floorpic or "TART_"	-- floortexture prefix
 		texture = (t.default and t.default.walltexture) and R_TextureNumForName(t.default.walltexture) or R_TextureNumForName("TART_W1")	-- default walltexture; will try to get later!
 		range = (t.default and t.default.texturerange) and t.default.texturerange or 0			-- texture random range
@@ -101,6 +102,7 @@ local function DNG_generatefloor(t, floornum)
 	else	-- custom dungeons
 
 		prefix = server.cdungeon.floortextures
+		ceilheight = server.cdungeon.ceilingheight*FRACUNIT
 		ceil = server.cdungeon.ceilingtexture
 		texture = R_TextureNumForName(server.cdungeon.startwalltexture)
 		range = server.cdungeon.texturerange
@@ -147,11 +149,11 @@ local function DNG_generatefloor(t, floornum)
 
 
 	if gen == GEN_DARK
-		brightness = 124	-- low light
+		brightness = $/2	-- low light
 	elseif gen == GEN_DREAD
-		brightness = 142	-- "reaper" light
+		brightness = $*2/3	-- "reaper" light
 	elseif gen == GEN_CLEAR
-		brightness = 192	-- clear light
+		brightness = 255	-- clear light
 	end
 
 
@@ -192,7 +194,18 @@ local function DNG_generatefloor(t, floornum)
 		s.ceilingpic = ceil
 
 		if not map[i]			-- wall
-			s.floorheight = s.ceilingheight
+			if server.cdungeon
+				
+				if server.cdungeon.wallheight
+					s.floorheight = server.cdungeon.wallheight*FRACUNIT
+					s.ceilingheight = s.floorheight
+				end
+				if server.cdungeon.walltoptexture
+					s.floorpic = server.cdungeon.walltoptexture
+				end
+			else
+				s.floorheight = s.ceilingheight
+			end	
 
 
 		elseif (map[i] == T_ITEM or map[i] == T_GOLDI) and not (server.P_netstat.buffer.load)		-- item/gold item (once / party): Don't spawn them if we're loading a Marathon save
@@ -496,7 +509,11 @@ local function DNG_generatefloor(t, floornum)
 
 		elseif map[i] == T_PIT	-- pit
 			s.floorheight = -256*FRACUNIT
-			s.floorpic = "PIT"
+			if server.cdungeon and server.cdungeon.pittexture
+				s.floorpic = server.cdungeon.pittexture
+			else	
+				s.floorpic = "PIT"
+			end	
 
 		elseif map[i] == T_SPIKES	-- spikes
 			s.floorheight = -100*FRACUNIT
@@ -558,6 +575,11 @@ local function DNG_generatefloor(t, floornum)
 
 			dprint("got gate")
 			s.floorheight = FRACUNIT*256
+
+			if server.cdungeon.wallheight
+				s.floorheight = server.cdungeon.wallheight*FRACUNIT
+				s.ceilingheight = s.floorheight
+			end
 
 			local r = P_SpawnMobj(0, 0, 0, MT_SHSWITCH)
 			r.flags = $|MF_NOCLIPTHING

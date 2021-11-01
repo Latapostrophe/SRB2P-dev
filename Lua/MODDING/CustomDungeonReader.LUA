@@ -15,6 +15,26 @@ end)
 	Registers a new custom dungeon from the data supplied in t	
 */
 
+local function validateAnimTable(t)
+	
+	if not t return true end	-- no table is fine too
+	
+	assert(type(t[1]) == "number", "Provided sprite is not a number or is nil.")
+	
+	for i = 2, #t-1
+		assert(type(t[i]) == "number", "Animation frame key "..i.." is not a number.")
+	end
+	
+	if t[1] == SPR_PLAY
+		assert(type(t[#t-1]) == "number", "Provided duration is not a number.")
+		assert(type(t[#t]) == "string", "Animation table uses SPR_PLAY but doesn't assign a proper SPR2_ sprite2.")
+	else
+		assert(type(t[#t]) == "number", "Provided duration is not a number.")
+	end
+	
+	return true
+end
+
 rawset(_G, "P_registerCustomDungeon", function(t)
 	
 	assert(type(t) == "table", "P_registerCustomDungeon: Supplied parameter is not a table?")
@@ -36,18 +56,25 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	t.floors = type(t.floors) == "number" and max($, 1) or 1
 	t.allowinterference = type(t.allowinterference) == "boolean" and $ or false
 	t.skynum = type(t.skynum) == "number" and $ or 1
+	t.maxep = type(t.maxep) == "number" and clamp($, 0, 7) or 0
+	
+	t.ceilingheight = type(t.ceilingheight) == "number" and clamp($, 80, 32767) or 256
+	t.wallheight = type(t.wallheight) == "number" and clamp($, 0, t.ceilingheight) or t.ceilingheight
 	
 	t.armour_adddef = type(t.armour_adddef) == "number" and max(1, $) or 0
 	t.weapon_addpow = type(t.weapon_addpow) == "number" and max(1, $) or 0
 	
 	-- textures:
 	t.floortextures = type(t.floortextures) == "string" and $ or "TART_F"
+	t.pittexture = type(t.pittexture) == "string" and $ or "PIT"
 	t.startwalltexture = type(t.startwalltexture) == "string" and $ or "TART_W1"
 	t.ceilingtexture = type(t.ceilingtexture) == "string" and $ or "~PIT"
 	t.texturerange = type(t.texturerange) == "number" and $ or 1
 	t.brightness = type(t.brightness) == "number" and clamp($, 0, 255) or 224
-	
-	
+
+	t.shadowframes_stop = type(t.shadowframes_stop) == "table" and $ or nil
+	t.shadowframes_move = type(t.shadowframes_move) == "table" and $ or nil
+	t.shadowframes_float = type(t.shadowframes_float) == "table" and $ or nil
 	-- other cool dunegon stuff!
 	t.dungeonmusic = type(t.dungeonmusic) == "string" and $ or 0	-- ???
 	
@@ -57,8 +84,12 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 			assert(type(t.battlemusics[i]) == "string", "One or more battle music is not a string.")
 		end
 	end*/	
-	
-	
+
+	-- validate shadow animations:
+	validateAnimTable(t.shadowframes_stop)
+	validateAnimTable(t.shadowframes_move)
+	validateAnimTable(t.shadowframes_float)
+
 	-- Shuffle time stuff...
 	t.shufflelevel = type(t.shufflelevel) == "number" and clamp($, 1, 10) or 1	-- max level of numbered cards
 	t.shufflepersonas = type(t.shufflepersonas) == "table" and $ or {}
@@ -316,6 +347,14 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 		"armour_adddef",
 		"skynum",
 		"allowinterference",
+		"pittexture",
+		"ceilingheight",
+		"wallheight",
+		"walltoptexture",
+		"maxep",
+		"shadowframes_float",
+		"shadowframes_move",
+		"shadowframes_stop",
 	}
 	
 	for k, p in pairs(t)

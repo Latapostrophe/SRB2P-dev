@@ -745,7 +745,7 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 	battleStatus.running = true			-- battle is now running
 	battleStatus.battletime = 0
 	battleStatus.battlestate = 0
-	battleStatus.emeraldpow_max = server.difficulty
+	battleStatus.emeraldpow_max = (server.cdungeon and server.cdungeon.maxep or server.difficulty)
 	battleStatus.turn = 0
 	battleStatus.turnorder = {}
 	battleStatus.crit_seeds = {}

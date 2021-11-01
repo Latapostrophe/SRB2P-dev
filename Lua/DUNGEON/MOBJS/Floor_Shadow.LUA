@@ -63,7 +63,14 @@ addHook("MobjThinker", function(mo)
 		goldShadowGlow(mo)
 	end
 
-	if server.entrytime return end
+	if server.entrytime
+		
+		if server.cdungeon and server.cdungeon.shadowframes_stop
+			ANIM_set(mo, server.cdungeon.shadowframes_stop, true)
+		end
+		ANIM_handle(mo, true)
+		return
+	end
 
 	if mo.fuse and mo.fuse > 1
 		return
@@ -130,11 +137,18 @@ addHook("MobjThinker", function(mo)
 
 					mo.angle = P_RandomRange(0, 359)*ANG1
 					mo.movetimer = P_RandomRange(3*TICRATE, 6*TICRATE)
+					if server.cdungeon and server.cdungeon.shadowframes_move
+						ANIM_set(mo, server.cdungeon.shadowframes_move, true)
+					end
+					
 				else
 					if mo.movetimer > TICRATE*2/3
 						P_InstaThrust(mo, mo.angle, 2*FRACUNIT)
 					else
 						P_InstaThrust(mo, 0, 0)
+						if server.cdungeon and server.cdungeon.shadowframes_stop
+							ANIM_set(mo, server.cdungeon.shadowframes_stop, true)
+						end
 					end
 					mo.movetimer = $ - 1
 				end
@@ -195,6 +209,8 @@ addHook("MobjThinker", function(mo)
 		mo.flags = $ & ~(MF_PAIN|MF_ENEMY)
 		
 	end
+
+	ANIM_handle(mo, true)
 
 	if server.map and server.map[s] and server.map[s] == T_SPIKES	-- spikes!
 	and mo.z <= 0

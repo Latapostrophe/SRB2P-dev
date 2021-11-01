@@ -68,7 +68,15 @@ addHook("MobjThinker", function(mo)
 		goldShadowGlow(mo)
 	end
 
-	if server.entrytime return end
+	if server.entrytime
+		ANIM_handle(mo, true)
+		
+		if server.cdungeon and server.cdungeon.shadowframes_float
+			ANIM_set(mo, server.cdungeon.shadowframes_float, true)
+		end		
+		
+		return
+	end
 
 	if mo.fuse and mo.fuse > 1
 		return
