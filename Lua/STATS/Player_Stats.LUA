@@ -444,7 +444,7 @@ rawset(_G, "charStats", {
 		anim_evoker = 		{SPR_PLAY, A, 8, "SPR2_SPNG"},
 
 		anim_special1 =		{SPR_PLAY, A, 2, "SPR2_SPNG"},	-- charge
-		anim_sepcial2 =		{SPR_PLAY, A, 2, "SPR2_DASH"},	-- dash
+		anim_special2 =		{SPR_PLAY, A, 2, "SPR2_DASH"},	-- dash
 
 		vfx_summon = {"sfx_mssum1", "sfx_mssum2"},
         vfx_skill = {"sfx_msskl1", "sfx_msskl2"},
