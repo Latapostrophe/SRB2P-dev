@@ -149,9 +149,9 @@ local function DNG_generatefloor(t, floornum)
 
 
 	if gen == GEN_DARK
-		brightness = $/2	-- low light
+		brightness = max(124, $/2)	-- low light
 	elseif gen == GEN_DREAD
-		brightness = $*2/3	-- "reaper" light
+		brightness = max(142, $*2/3)	-- "reaper" light
 	elseif gen == GEN_CLEAR
 		brightness = 255	-- clear light
 	end
@@ -576,7 +576,7 @@ local function DNG_generatefloor(t, floornum)
 			dprint("got gate")
 			s.floorheight = FRACUNIT*256
 
-			if server.cdungeon.wallheight
+			if server.cdungeon and server.cdungeon.wallheight
 				s.floorheight = server.cdungeon.wallheight*FRACUNIT
 				s.ceilingheight = s.floorheight
 			end
