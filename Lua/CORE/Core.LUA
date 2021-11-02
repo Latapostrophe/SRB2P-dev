@@ -1,6 +1,6 @@
 rawset(_G, "srb2p", {
 	name = "SRB2PERSONA",
-	version = "v1.3.0",
+	version = "v1.3.1",
 	verbase = 13,
 	--debug = true,
 	--debugprint = true,
@@ -47,7 +47,7 @@ rawset(_G, "ICO_SKILLCARD", "\x98")
 rawset(_G, "ICO_PERSONA", "\x99")
 rawset(_G, "ICO_KEYITEM", "\x9A")
 
--- +/- 25% per buff/debuff, max 3 buffs (75%) 
+-- +/- 25% per buff/debuff, max 3 buffs (75%)
 rawset(_G, "BUFFSTEP", 25)
 rawset(_G, "MAXBUFFS", 3)
 
@@ -168,12 +168,12 @@ local psv_constants = {
 	"PSV_COND_BLOCK",	-- nullify status condition (odds *0)
 
 	"PSV_COND_BOOST",	-- increase odds of hitting a status condition (odds *1.2)
-	
+
 	"PSV_PERFECTIONNIST",	-- Final damage ranges from hit% to power% depending on remaining HP (100% to accuracy%)
 	"PSV_SLAYER",			-- Increase damage by power% to enemies afflicted with the selected status conditions
-	
+
 	"PSV_SWORDBREAKER",		-- reduces damage of attack of 'type' type by 'power' % 'accuracy'% of the time
-	
+
 	"PSV_PLANB",			-- inflicts 'status' with a 'statuschance' rate when missing an instant kill of 'type'
 
 	"PSV_LINKHITS",		-- Increase power of Link skills initial hits and allows them to hit more often (power for increase (%), accuracy for # hits)
@@ -190,10 +190,10 @@ end
 /*
 	Fields:
 	Get appplied by certain attacks and yield various effect
-	
+
 	Garuverse: Heal 50% of damage you deal
 	Zioverse: Echoes 20% of single target damage onto every other enemy under the effect of zionverse
-	
+
 	UNIMPLEMENTED:
 	Agiverse: Increase EP gained from striking inflicted enemies, and raise odds of critical hits
 	Bufuverse: Enemies can't dodge incoming attacks
