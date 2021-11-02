@@ -143,6 +143,7 @@ end)
 addHook("MapLoad", do
 
 	if not server return end
+	server.blocktrans = nil	-- Make sure to get rid of this value between sessions
 
 	-- NET stuff isn't set??? don't even LOAD, send us back to tartarus!!
 	if not NET_isset()
