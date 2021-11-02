@@ -1098,7 +1098,7 @@ rawset(_G, "BTL_challengebtllist", {
 		description = "Defeat the World Balance once more",
 		difficulty = 5,
 		time = TICRATE*60*15,
-		items = {{"hyperring", 5}, {"snuffsoul", 5}, {"1up", 2}, {"homunculus", 2}, {"dekaja gem", 5}, {"dekunda gem", 5}},
+		items = {{"hyperring", 5}, {"snuffsoul", 5}, {"1up", 2}, {"homunculus", 4}, {"dekaja gem", 5}, {"dekunda gem", 5}},
 		subpersonas = {},
 		music = "VSNQST",
 		level = 75,
