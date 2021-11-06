@@ -879,6 +879,9 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 	local rage_mult = attacker.status_condition == COND_RAGE and 2 or 1	-- mult atk by 2 if attacker has rage
 	local rage_div = mo.status_condition == COND_RAGE and 2 or 1	-- divide def by 2 if mo has rage
+	if mo.boss
+		rage_div = 1	-- Bosses would be too cheesable with this.
+	end	
 
 	local usestat = attacker.strength
 	local boost = (attacker.powercharge and not atk.physical)
@@ -1073,12 +1076,12 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	local USER_ATK
 
 	if isAttackPhysical(atk)
-		USER_ATK = ((usestat*rage_mult) + usestat*(attacker.buffs["atk"][1] + batonbuff) / 100)	*FRACUNIT
+		USER_ATK = max(1, ((usestat*rage_mult) + usestat*(attacker.buffs["atk"][1] + batonbuff) / 100))	*FRACUNIT
 	else
-		USER_ATK = ((usestat*rage_mult) + usestat*(attacker.buffs["mag"][1] + batonbuff) / 100)	*FRACUNIT
+		USER_ATK = max(1, ((usestat*rage_mult) + usestat*(attacker.buffs["mag"][1] + batonbuff) / 100))	*FRACUNIT
 	end
 
-	local ENEMY_DEF = ((mo.endurance/rage_div) + mo.endurance*mo.buffs["def"][1] / 100)	*FRACUNIT
+	local ENEMY_DEF = max(1, (((mo.endurance) + mo.endurance*mo.buffs["def"][1] / 100)/rage_div))	*FRACUNIT
 	if mo.defence	-- wardrings
 		ENEMY_DEF = $ + mo.defence
 	end
