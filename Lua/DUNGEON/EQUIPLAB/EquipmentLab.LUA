@@ -459,7 +459,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				WPT_PSYGLOVES,
 				WPT_HANDSONIC,
 				WPT_GENERICMELEE,
-				WPT_GENRICRANGED,
+				WPT_GENERICRANGED,
 			}
 			
 			for i = 1, #typelookups do
@@ -594,7 +594,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 			WPT_PSYGLOVES,
 			WPT_HANDSONIC,
 			WPT_GENERICMELEE,
-			WPT_GENRICRANGED,
+			WPT_GENERICRANGED,
 		}
 		
 		if inputs["down"] == 1
