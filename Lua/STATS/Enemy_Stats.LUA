@@ -7479,7 +7479,7 @@ rawset(_G, "enemyList", {
 						alt.persona = personaList[persona]
 						local p = alt.persona
 						alt.weak = p.weak or 0
-						alt.resist = p.weak or 0
+						alt.resist = p.resist or 0
 						alt.drain = p.drain or 0
 						alt.block = p.block or 0
 						
