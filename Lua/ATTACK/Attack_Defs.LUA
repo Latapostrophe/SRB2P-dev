@@ -2986,7 +2986,7 @@ rawset(_G, "attackDefs", {
 		name = "Backup Trick",
 		type = ATK_PASSIVE|ATK_CURSE,
 		instakill = true,
-		desc = "When missing a Death based\nattack, grants a chance to inflict\nMHex on the target.",
+		desc = "When missing a Death based\nattack, grants a chance to inflict\nHex on the target.",
 		passive = PSV_PLANB,
 		status = COND_HEX,
 	},
