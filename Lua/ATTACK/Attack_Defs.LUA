@@ -17368,10 +17368,10 @@ rawset(_G, "attackDefs", {
 					-- diff: mo.hp - mo.maxhp/4
 					mo.guaranteedevasion = nil	-- remove guaranteed evasion
 					damageObject(mo, (mo.hp - mo.maxhp/5))
-					mo.strength = 70
-					mo.endurance = 10
-					mo.magic = 70			-- slightly lower stats.
-					mo.agility = 60			-- to make things a bit more fair
+					mo.strength = 65
+					mo.endurance = 8
+					mo.magic = 65			-- slightly lower stats.
+					mo.agility = 55			-- to make things a bit more fair
 
 					-- change my skills:
 					mo.skills = {

@@ -4471,7 +4471,7 @@ rawset(_G, "enemyList", {
 		strength = 80,
 		magic = 80,
 		endurance = 1,
-		luck = 60,
+		luck = 50,
 		agility = 80,
 		melee_natk = "strike_1",	-- enemies don't have crit anims for their attacks.
 		thinker = generalEnemyThinker,
