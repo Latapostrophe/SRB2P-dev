@@ -1162,7 +1162,7 @@ rawset(_G, "BTL_challengebtllist", {
 		unlocks = {UNLOCK_CH_FINISHED},
 		level = 99,
 		superform = true,
-		items = {{"dekaja gem", 10}, {"dekunda gem", 10}},
+		items = {{"dekaja gem", 20}, {"dekunda gem", 20}, {"patra gem", 5}, {"1up", 5}, {"super1up", 3}},
 		waves = {
 					{"batkan"}
 				},

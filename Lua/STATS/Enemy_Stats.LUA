@@ -4466,7 +4466,7 @@ rawset(_G, "enemyList", {
 		name = "BATKAN!!!",
 		skillchance = 100,	-- /100, probability of using a skill
 		level = 999,
-		hp = 99999,
+		hp = 80000,
 		sp = 9999,
 		strength = 80,
 		magic = 80,
@@ -4496,12 +4496,18 @@ rawset(_G, "enemyList", {
 						if mo.hp < mo.maxhp*3/4
 						and not mo.bean_summon
 							mo.bean_summon = true
+							if btl.turnorder[2] == mo
+								table.remove(btl.turnorder, 2)	-- don't attack again
+							end	
 
 							return attackDefs["summon bean"], {mo}
 						end
 
 						if mo.guaranteedevasion
 
+							if btl.turnorder[2] == mo
+								table.remove(btl.turnorder, 2)	-- don't attack again
+							end	
 							return attackDefs["batkan buster"], mo.enemies
 						end
 
@@ -4583,7 +4589,7 @@ rawset(_G, "enemyList", {
 		thinker = generalEnemyThinker,
 		boss = true,
 		endboss = true,
-		turns = 2,
+		turns = 1,
 
 		vfx_skill = {"sfx_bean2"},
 		vfx_hurt = {"sfx_bean7", "sfx_bean8"},

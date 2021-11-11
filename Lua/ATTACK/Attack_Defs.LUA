@@ -16963,10 +16963,10 @@ rawset(_G, "attackDefs", {
 	["fitness"] = {
 		name = "Physical Fitness",
 		type = ATK_ALMIGHTY,
-		power = 3,
+		power = 2,
 		hits = 25,
-		accuracy = 999,
-		critical = 2,
+		accuracy = 80,
+		critical = 1,
 		costtype = CST_HPPERCENT,
 		cost = 20,
 		desc = "BECAUSE YOUR FITNESS\nIS MY BUSINESS",
@@ -17024,11 +17024,11 @@ rawset(_G, "attackDefs", {
 	["kannon"] = {
 		name = "KANNON!!!",
 		type = ATK_ALMIGHTY,
-		power = 2500,
+		power = 1800,
 		accuracy = 999,
 		costtype = CST_SP,
 		cost = 32,
-		critical = 20,
+		critical = 3,
 		desc = "I WILL FIRE A HUGE LASER\nMY TEDDIES!",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -17153,7 +17153,7 @@ rawset(_G, "attackDefs", {
 	["trigonometry"] = {
 		name = "Concentrated Trigonometry",
 		type = ATK_ALMIGHTY,
-		power = 2250,
+		power = 1550,
 		accuracy = 999,
 		costtype = CST_SP,
 		cost = 32,
@@ -17306,10 +17306,6 @@ rawset(_G, "attackDefs", {
 				if timer == 1
 					BTL_logMessage(mo.battlen, mo.name.." is no longer sustained by the Master of Teddehs!")
 					local btl = server.P_BattleStatus[mo.battlen]
-					
-					if btl.turnorder[2] == mo
-						table.remove(btl.turnorder, 2)	-- don't attack again
-					end	
 				end
 
 				if timer >= 10
@@ -17371,16 +17367,18 @@ rawset(_G, "attackDefs", {
 					-- target: mo.maxhp/4
 					-- diff: mo.hp - mo.maxhp/4
 					mo.guaranteedevasion = nil	-- remove guaranteed evasion
-					damageObject(mo, (mo.hp - mo.maxhp/4))
-					mo.strength = 85
-					mo.endurance = 25
-					mo.magic = 85			-- slightly lower stats.
-					mo.agility = 70			-- to make things a bit more fair
+					damageObject(mo, (mo.hp - mo.maxhp/5))
+					mo.strength = 70
+					mo.endurance = 10
+					mo.magic = 70			-- slightly lower stats.
+					mo.agility = 60			-- to make things a bit more fair
 
 					-- change my skills:
 					mo.skills = {
 						"trisagion",
 						"panta rhei",
+						"niflheim",
+						"thunder reign",
 						"kannon",
 						"kannon",
 						"kannon",
@@ -17406,9 +17404,9 @@ rawset(_G, "attackDefs", {
 						"psi boost",
 						"bless boost",
 						"curse boost",
-						"god's hand",
-						"god's hand",
-						"god's hand",
+						"god hand",
+						"god hand",
+						"god hand",
 						"deathbound",
 						"deathbound",
 						"heat riser",
