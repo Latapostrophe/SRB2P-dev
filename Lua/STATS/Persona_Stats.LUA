@@ -314,10 +314,10 @@ rawset(_G, "personaList", {
 		-- STATS (at level 10. so we can have some precision, y'see)
 
 		strength = 12,
-		magic = 7,
+		magic = 6,
 		endurance = 10,
 		luck = 4,
-		agility = 7,
+		agility = 8,
 		weak = ATK_ICE,
 		resist = ATK_ELEC,
 
@@ -329,29 +329,15 @@ rawset(_G, "personaList", {
 		
 			{"lunge", 1}, {"zio", 4},
 			{"dia", 9}, {"tarunda", 14},
-			{"mazio", 18}, {"assault dive", 23},
+			{"dekaja", 18}, {"assault dive", 23},
 			{"teardrop", 27},  {"zionga", 31},
 			
 			{"hard knuckle", 35, "lunge"}, {"diarama", 39, "dia"},
-			{"mazionga", 43, "zio"}, {"matarunda", 46, "tarunda"},
-			{"moondrop", 49, "teardrop"}, {"gigantic fist", 53, "mazio"},
-			{"ziodyne", 57, "assault dive"}, {"iron fist", 61, "zionga"},
-			{"stardrop", 65, "moondrop"}, {"diarahan", 69, "diarama"},
-			{"maziodyne", 74, "mazionga"}, {"megaton raid", 80, "gigantic fist"}
-			
+			{"matarunda", 46, "zio"}, {"moondrop", 49, "teardrop"},
+			{"gigantic fist", 53, "tarunda"}, {"ziodyne", 57, "assault dive"},
+			{"iron fist", 61, "zionga"}, {"stardrop", 65, "moondrop"},
+			{"diarahan", 69, "diarama"}, {"megaton raid", 75, "gigantic fist"}
 		
-			/*{"lunge", 1}, {"zio", 4},
-			{"dia", 11}, {"rakunda", 13},
-			{"tarunda", 16}, {"sukunda", 19},
-			{"assault dive", 22}, {"zionga", 25},
-
-			{"marakunda", 28, "zio"}, {"hard knuckle", 31, "sonic punch"},
-			{"diarama", 35, "dia"}, {"matarunda", 38, "tarunda"},
-			{"gigantic fist", 43, "rakunda"}, {"masukunda", 47, "sukunda"},
-			{"ziodyne", 54, "zionga"}, {"iron fist", 58, "hard knuckle"},
-
-			{"megaton raid", 62, "assault dive"},  {"dekaja", 65, "gigantic fist"},
-			{"diarahan", 67, "diarama"},*/
 		},
 	},
 
