@@ -703,7 +703,7 @@ rawset(_G, "attackDefs", {
 				end
 		end,
 	},
-	
+
 	["brain jack"] = {
 		name = "Brain Jack",
 		type = ATK_SUPPORT,
@@ -720,7 +720,7 @@ rawset(_G, "attackDefs", {
 			for i = 1, #hittargets
 				local target = hittargets[i]
 				local t = timer - (i-1)*6
-				
+
 				if t == 10
 					playSound(mo.battlen, sfx_absorb)
 				end
@@ -1484,7 +1484,7 @@ rawset(_G, "attackDefs", {
 		power = 120,	-- highest damage %
 		hits = 33,		-- HP %
 	},
-	
+
 	["perfect keeper 2"] = {
 		name = "Perfect Keeper II",
 		type = ATK_PASSIVE,
@@ -1504,7 +1504,7 @@ rawset(_G, "attackDefs", {
 		power = 50,
 		accuracy = 20,
 	},
-	
+
 	["merciless slayer"] = {
 		name = "Merciless Slayer",
 		type = ATK_PASSIVE,
@@ -1512,14 +1512,14 @@ rawset(_G, "attackDefs", {
 		passive = PSV_SLAYER,
 		power = 30,
 	},
-	
+
 	["impure reach"] = {
 		name = "Impure Reach",
 		type = ATK_PASSIVE,
 		desc = "Adds 10% success rate to\nall status conditions odds.\nEffect is additive.",
 		passive = PSV_COND_BOOST,
 		power = 10,
-	},		
+	},
 
 	["double link"] = {
 		name = "Double Link",
@@ -1780,7 +1780,7 @@ rawset(_G, "attackDefs", {
 		power = 15,
 		status = COND_SLEEP,
 	},
-	
+
 	["resist sleep"] = {
 		name = "Resist Sleep",
 		type = ATK_PASSIVE,
@@ -1788,7 +1788,7 @@ rawset(_G, "attackDefs", {
 		passive = PSV_COND_RESIST,
 		power = 50,
 		status = COND_SLEEP,
-	},	
+	},
 
 	["null sleep"] = {
 		name = "Null Sleep",
@@ -1807,7 +1807,7 @@ rawset(_G, "attackDefs", {
 		power = 15,
 		status = COND_DIZZY,
 	},
-	
+
 	["resist hex"] = {
 		name = "Resist Hex",
 		type = ATK_PASSIVE,
@@ -1815,7 +1815,7 @@ rawset(_G, "attackDefs", {
 		passive = PSV_COND_RESIST,
 		power = 50,
 		status = COND_HEX,
-	},	
+	},
 
 	["null hex"] = {
 		name = "Null Hex",
@@ -1861,7 +1861,7 @@ rawset(_G, "attackDefs", {
 		power = 15,
 		status = COND_POISON,
 	},
-	
+
 	["resist poison"] = {
 		name = "Resist Poison",
 		type = ATK_PASSIVE,
@@ -1869,7 +1869,7 @@ rawset(_G, "attackDefs", {
 		passive = PSV_COND_RESIST,
 		power = 50,
 		status = COND_POISON,
-	},	
+	},
 
 	["null poison"] = {
 		name = "Null Poison",
@@ -1888,7 +1888,7 @@ rawset(_G, "attackDefs", {
 		power = 15,
 		status = COND_HUNGER,
 	},
-	
+
 	["resist hunger"] = {
 		name = "Resist Hunger",
 		type = ATK_PASSIVE,
@@ -1896,7 +1896,7 @@ rawset(_G, "attackDefs", {
 		passive = PSV_COND_RESIST,
 		power = 50,
 		status = COND_HUNGER,
-	},	
+	},
 
 	["null hunger"] = {
 		name = "Null Hunger",
@@ -1915,7 +1915,7 @@ rawset(_G, "attackDefs", {
 		power = 15,
 		status = COND_RAGE,
 	},
-	
+
 	["resist rage"] = {
 		name = "Resist Rage",
 		type = ATK_PASSIVE,
@@ -1923,7 +1923,7 @@ rawset(_G, "attackDefs", {
 		passive = PSV_COND_RESIST,
 		power = 50,
 		status = COND_HEX,
-	},	
+	},
 
 	["null rage"] = {
 		name = "Null Rage",
@@ -2466,6 +2466,31 @@ rawset(_G, "attackDefs", {
 		passive = PSV_DODGE,
 	},
 
+	-- SPECIAL:
+
+	-- firm stance: 0% dodge part
+	["firm stance"] = {
+		name = "Firm Stance",
+		type = ATK_PASSIVE|ATK_SLASH|ATK_STRIKE|ATK_PIERCE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_CURSE|ATK_BLESS,
+		desc = "Halves all damage taken but\nprevents dodging any agility\nbased attack.",
+		power = -999,
+		implicit = "firm stance.part2",
+		passive = PSV_DODGE,
+	},
+
+	-- firm stance: half damage part
+	["firm stance.part2"] = {
+		name = "Firm Stance 2",
+		type = ATK_PASSIVE,
+		desc = "Halves all damage taken but\nprevents dodging any Agility\nbased attack.",
+		power = -999,
+		passive = PSV_TRIGGERDAMAGE_RECEIVED,
+		anim = 	function(mo, attacker, dmg, crit)
+					dmg = $/2
+					return dmg
+				end,
+	},
+
 	-- BOOST & AMP SKILLS
 
 	["mastery 1"] = {
@@ -2609,7 +2634,7 @@ rawset(_G, "attackDefs", {
 					return dmg
 				end,
 	},
-	
+
 	["equalizer"] = {
 		name = "Equalizer",
 		type = ATK_PASSIVE,
@@ -2621,12 +2646,12 @@ rawset(_G, "attackDefs", {
 					or target.damagestate == DMG_CRITICAL
 						dmg = $*90/100
 					end
-					
-					
+
+
 					dmg = $*105/100
 					return dmg
 				end,
-	},	
+	},
 
 	["ignorance"] = {
 		name = "Ignorance",
@@ -2640,8 +2665,8 @@ rawset(_G, "attackDefs", {
 					end
 					return dmg
 				end,
-	},	
-	
+	},
+
 	["freifi aura"] = {
 		name = "Freifi Aura",
 		type = ATK_PASSIVE,
@@ -2653,12 +2678,12 @@ rawset(_G, "attackDefs", {
 					or target.damagestate == DMG_CRITICAL
 						dmg = $*115/100
 					end
-					
+
 					dmg = $*110/100
-					
+
 					return dmg
 				end,
-	},		
+	},
 
 	["unfathomable darkness"] = {
 		name = "Unfathomable Darkness",
@@ -2671,16 +2696,16 @@ rawset(_G, "attackDefs", {
 					or target.damagestate == DMG_CRITICAL
 						dmg = $*115/100
 					end
-					
+
 					dmg = $*110/100
-					
+
 					if not target.boss and P_RandomRange(0, 100) < 3
 						dmg = 9999
 					end
-					
+
 					return dmg
 				end,
-	},	
+	},
 
 	["precision 1"] = {
 		name = "Precision I",
@@ -2694,7 +2719,7 @@ rawset(_G, "attackDefs", {
 					return dmg
 				end,
 	},
-	
+
 	["precision 2"] = {
 		name = "Precision II",
 		type = ATK_PASSIVE,
@@ -2916,7 +2941,7 @@ rawset(_G, "attackDefs", {
 					return dmg
 				end,
 	},
-	
+
 	-- Nihil weapons skill slots:
 	["void boost 1"] = {
 		name = "Void Boost I",
@@ -2925,7 +2950,7 @@ rawset(_G, "attackDefs", {
 		power = 5,
 		passive = PSV_BOOST,
 	},
-	
+
 	["void boost 2"] = {
 		name = "Void Boost II",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
@@ -2941,7 +2966,7 @@ rawset(_G, "attackDefs", {
 		power = 9,
 		passive = PSV_BOOST,
 	},
-	
+
 	["void boost 4"] = {
 		name = "Void Boost IV",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
@@ -2949,7 +2974,7 @@ rawset(_G, "attackDefs", {
 		power = 12,
 		passive = PSV_BOOST,
 	},
-	
+
 	["void boost 5"] = {
 		name = "Void Boost V",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
@@ -2957,22 +2982,22 @@ rawset(_G, "attackDefs", {
 		power = 14,
 		passive = PSV_BOOST,
 	},
-	
+
 	["void boost 6"] = {
 		name = "Void Boost VI",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
 		desc = "Boost damage by 16%",
 		power = 16,
 		passive = PSV_BOOST,
-	},	
-	
+	},
+
 	["void boost 7"] = {
 		name = "Void Boost VII",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
 		desc = "Boost damage by 18%",
 		power = 18,
 		passive = PSV_BOOST,
-	},	
+	},
 
 	["serene grace"] = {
 		name = "Serene Grace",
@@ -5285,26 +5310,26 @@ rawset(_G, "attackDefs", {
 			local colors = {SKINCOLOR_ORANGE, SKINCOLOR_TEAL, SKINCOLOR_LAVENDER, SKINCOLOR_EMERALD}
 
 			if timer == 20
-				
+
 				local stats = {"atk", "mag", "def", "agi"}
 				local stat_names = {"Physical Attack", "Magic Attack", "Defence", "Agility"}
-				
+
 				local buffstat = P_RandomRange(1, #stats)
 				local debuffstat = buffstat
 				while debuffstat == buffstat
 					debuffstat = P_RandomRange(1, #stats)
 				end
-				
+
 				local str = stat_names[buffstat].." way up!\n"..stat_names[debuffstat].." down!"
-				
+
 				buffstat = stats[$]
 				debuffstat = stats[$]
-				
+
 				buffStat(target, buffstat, 75)
 				buffStat(target, debuffstat, -25)
-				
+
 				BTL_logMessage(target.battlen, str)
-				
+
 				playSound(mo.battlen, sfx_buff)
 
 				for i = 1,16
@@ -6070,7 +6095,7 @@ rawset(_G, "attackDefs", {
 			end
 		end,
 	},
-	
+
 	["assault shot"] = {
 		name = "Assault Shot",
 		type = ATK_PIERCE,
@@ -6088,8 +6113,8 @@ rawset(_G, "attackDefs", {
 				local shot = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
 				shot.state = S_STAB_1_1
 				shot.color = SKINCOLOR_ORANGE
-				shot.scale = FRACUNIT*3			
-				
+				shot.scale = FRACUNIT*3
+
 				playSound(mo.battlen, sfx_hit)
 
 				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
@@ -6111,7 +6136,7 @@ rawset(_G, "attackDefs", {
 				createSplat(mo)
 				localquake(mo.battlen, FRACUNIT*10, 10)
 				damageObject(target)
-				
+
 				for i = 1, 32 do
 					local p = P_SpawnMobj(target.x, target.y, target.z+FRACUNIT*20, MT_DUMMY)
 					p.flags = MF_NOCLIP|MF_NOCLIPHEIGHT|MF_NOGRAVITY
@@ -6129,7 +6154,7 @@ rawset(_G, "attackDefs", {
 			end
 		end,
 	},
-	
+
 	["heavy shot"] = {
 		name = "Heavy Shot",
 		type = ATK_PIERCE,
@@ -6142,22 +6167,22 @@ rawset(_G, "attackDefs", {
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
-			
+
 			if timer >= 15 and timer < 25
 			and leveltime%6 == 0
-			
+
 				local shot = P_SpawnMobj(target.x + P_RandomRange(-60, 60)*mo.scale, target.y + P_RandomRange(-60, 60)*mo.scale, target.z + P_RandomRange(0, 80)*mo.scale, MT_DUMMY)
 				shot.state = S_STAB_1_1
 				shot.color = SKINCOLOR_ORANGE
 				shot.scale = FRACUNIT/2
 				playSound(mo.battlen, sfx_hit)
-			
+
 			elseif timer == 25
 				local shot = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
 				shot.state = S_STAB_1_1
 				shot.color = SKINCOLOR_ORANGE
-				shot.scale = FRACUNIT*5	
-				
+				shot.scale = FRACUNIT*5
+
 				playSound(mo.battlen, sfx_hit)
 
 				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
@@ -6179,7 +6204,7 @@ rawset(_G, "attackDefs", {
 				createSplat(mo)
 				localquake(mo.battlen, FRACUNIT*10, 10)
 				damageObject(target)
-				
+
 				for i = 1, 32 do
 					local p = P_SpawnMobj(target.x, target.y, target.z+FRACUNIT*20, MT_DUMMY)
 					p.flags = MF_NOCLIP|MF_NOCLIPHEIGHT|MF_NOGRAVITY
@@ -6197,7 +6222,7 @@ rawset(_G, "attackDefs", {
 			end
 		end,
 	},
-	
+
 	["pralaya"] = {
 		name = "Pralaya",
 		type = ATK_PIERCE,
@@ -6210,38 +6235,38 @@ rawset(_G, "attackDefs", {
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
-			
+
 			if timer == 15	-- sound
 				playSound(mo.battlen, sfx_bufu5)
 			elseif timer >= 15 and timer <= 40
-				
+
 				for i = 1, 4
 					local angle = target.angle + P_RandomRange(-30, 30)*ANG1
 					local x = target.x + FixedMul(mo.scale, 256*cos(angle))
 					local y = target.y + FixedMul(mo.scale, 256*sin(angle))
 					local z = target.z + P_RandomRange(0, 256)*mo.scale
-					
+
 					local p = P_SpawnMobj(x, y, z, MT_DUMMY)
 					p.flags = MF_NOCLIP|MF_NOCLIPHEIGHT|MF_NOGRAVITY
 					p.state = S_SSPK1
 					p.scale = mo.scale
 					p.colorized = true
 					p.color = SKINCOLOR_ORANGE
-					p.angle = target.angle + P_RandomRange(-30, 30)*ANG1			
+					p.angle = target.angle + P_RandomRange(-30, 30)*ANG1
 					p.fuse = 10
-					
+
 					p.momx = (target.x - p.x)/10
 					p.momy = (target.y - p.y)/10
 					p.momz = (target.z - p.z)/10
-				
+
 				end
-			
+
 			elseif timer == 41
 				playSound(mo.battlen, sfx_bufu6)
 				createSplat(mo)
 				createSplat(mo)
 				localquake(mo.battlen, FRACUNIT*32, 10)
-				damageObject(target)				
+				damageObject(target)
 				for i = 1, 32 do
 					local p = P_SpawnMobj(target.x, target.y, target.z+FRACUNIT*20, MT_DUMMY)
 					p.flags = MF_NOCLIP|MF_NOCLIPHEIGHT|MF_NOGRAVITY
@@ -6253,7 +6278,7 @@ rawset(_G, "attackDefs", {
 					p.momz = P_RandomRange(-24, 24)*mo.scale
 					P_InstaThrust(p, p.angle, mo.scale*64)
 				end
-				
+
 				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
 				d.sprite = SPR_THMP
 				d.frame = A|FF_FULLBRIGHT
@@ -6265,8 +6290,8 @@ rawset(_G, "attackDefs", {
 				d.momz = FRACUNIT*2
 				d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
 				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
-				d.color = SKINCOLOR_ORANGE				
-			
+				d.color = SKINCOLOR_ORANGE
+
 			elseif timer >= 41 and timer < 80
 
 				for i = 1, 8 do
@@ -6280,20 +6305,20 @@ rawset(_G, "attackDefs", {
 					p.momz = P_RandomRange(-12, 12)*mo.scale
 					P_InstaThrust(p, p.angle, mo.scale*32)
 				end
-				
+
 				local p = P_SpawnMobj(target.x + P_RandomRange(-12, 12)*mo.scale, target.y + P_RandomRange(-12, 12)*mo.scale, target.z + P_RandomRange(0, 12)*mo.scale, MT_DUMMY)
 				p.flags = MF_NOCLIP|MF_NOCLIPHEIGHT|MF_NOGRAVITY
 				p.state = S_SSPK1
 				p.scale = mo.scale*2
 				p.colorized = true
 				p.color = SKINCOLOR_ORANGE
-				P_InstaThrust(p, target.angle, -mo.scale*64)				
-			
+				P_InstaThrust(p, target.angle, -mo.scale*64)
+
 			elseif timer == 80
 				return true
-			end	
+			end
 		end,
-	},		
+	},
 
 	["double fang"] = {
 		name = "Double Fang",
@@ -7482,10 +7507,10 @@ rawset(_G, "attackDefs", {
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
-			
+
 			if timer >= 20
 			and timer <= 30
-				
+
 				local zdiff = ((30-20) - (timer - 20))*mo.scale*16
 				local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT + zdiff, MT_DUMMY)
 				b.momx = P_RandomRange(-4, 4)*FRACUNIT
@@ -7494,10 +7519,10 @@ rawset(_G, "attackDefs", {
 				b.state = S_AOADUST1
 				b.frame = A|FF_FULLBRIGHT
 				b.scale = FRACUNIT*3
-				b.destscale = FRACUNIT/12				
-				
+				b.destscale = FRACUNIT/12
+
 			end
-			
+
 			if timer == 30
 				damageObject(target)
 				playSound(mo.battlen, sfx_pstop)
@@ -7530,7 +7555,7 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT*3
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer == 45
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
@@ -7540,14 +7565,14 @@ rawset(_G, "attackDefs", {
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1
 				dbuff.color = SKINCOLOR_LAVENDER
-				dbuff.scale = FRACUNIT*5/2	
-				
+				dbuff.scale = FRACUNIT*5/2
+
 			elseif timer == 75
 				return true
 			end
 		end,
 	},
-	
+
 	["moondrop"] = {
 		name = "Moondrop",
 		type = ATK_STRIKE,
@@ -7560,10 +7585,10 @@ rawset(_G, "attackDefs", {
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
-			
+
 			if timer >= 20
 			and timer <= 30
-				
+
 				local zdiff = ((30-20) - (timer - 20))*mo.scale*16
 				local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT + zdiff, MT_DUMMY)
 				b.momx = P_RandomRange(-4, 4)*FRACUNIT
@@ -7574,7 +7599,7 @@ rawset(_G, "attackDefs", {
 				b.scale = FRACUNIT/3
 				b.destscale = FRACUNIT*12
 			end
-			
+
 			if timer == 30
 				damageObject(target)
 				playSound(mo.battlen, sfx_pstop)
@@ -7607,7 +7632,7 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT*3
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer == 45
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
@@ -7617,14 +7642,14 @@ rawset(_G, "attackDefs", {
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1
 				dbuff.color = SKINCOLOR_LAVENDER
-				dbuff.scale = FRACUNIT*5/2	
-				
+				dbuff.scale = FRACUNIT*5/2
+
 			elseif timer == 75
 				return true
 			end
 		end,
 	},
-	
+
 	["stardrop"] = {
 		name = "Stardrop",
 		type = ATK_STRIKE,
@@ -7637,10 +7662,10 @@ rawset(_G, "attackDefs", {
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
-			
+
 			if timer >= 20
 			and timer <= 30
-				
+
 				local zdiff = ((30-20) - (timer - 20))*mo.scale*16
 				local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT + zdiff, MT_DUMMY)
 				b.momx = P_RandomRange(-4, 4)*FRACUNIT
@@ -7651,7 +7676,7 @@ rawset(_G, "attackDefs", {
 				b.scale = FRACUNIT/3
 				b.destscale = FRACUNIT*12
 			end
-			
+
 			if timer == 30
 				damageObject(target)
 				playSound(mo.battlen, sfx_pstop)
@@ -7684,7 +7709,7 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT*3
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer == 45
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
@@ -7694,13 +7719,13 @@ rawset(_G, "attackDefs", {
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1
 				dbuff.color = SKINCOLOR_LAVENDER
-				dbuff.scale = FRACUNIT*5/2	
-				
+				dbuff.scale = FRACUNIT*5/2
+
 			elseif timer == 75
 				return true
 			end
 		end,
-	},	
+	},
 
 	["lunge"] = {
 		name = "Lunge",
@@ -11808,7 +11833,7 @@ rawset(_G, "attackDefs", {
 					and target.damagestate ~= DMG_BLOCK
 					and target.damagestate ~= DMG_DRAIN
 						startField(target, FLD_GARUVERSE, 4)
-					end	
+					end
 				end
 			end
 			if timer == 75 + 5*(#hittargets-1)
@@ -12304,10 +12329,10 @@ rawset(_G, "attackDefs", {
 						P_InstaThrust(mo, target.angle - ANG1*90, 1*FRACUNIT)
 						mo.savemom = {mo.momx, mo.momy, FRACUNIT/2}
 						ANIM_set(mo, mo.anim_special2, true)
-						
+
 					elseif timer == 40
 						ANIM_set(mo, mo.anim_special1, true)
-						
+
 					elseif timer >= 50 and timer <= 80
 						if mo.anim ~= mo.anim_special1
 							ANIM_set(mo, mo.anim_special1, true)
@@ -12324,7 +12349,7 @@ rawset(_G, "attackDefs", {
 
 							local s = P_SpawnMobj(x, y, z, MT_DUMMY)
 							s.state = S_CHAOSSPEAREXPLOSION1
-							
+
 							if leveltime%10 == 0
 								local shot = P_SpawnMobj(x, y, z, MT_DUMMY)
 								shot.state = S_STAB_1_1
@@ -12343,7 +12368,7 @@ rawset(_G, "attackDefs", {
 								d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
 								d.color = SKINCOLOR_CYAN
 							end
-							
+
 							localquake(mo.battlen, FRACUNIT*20, 10)
 							playSound(mo.battlen, sfx_hit)
 							createSplat(mo)
@@ -13719,7 +13744,7 @@ rawset(_G, "attackDefs", {
 			if target.status_condition == COND_SUPER
 				pp = v.cachePatch(charStats[target.stats] and charStats[target.stats].hudsaoa or "")
 			end
-			
+
 			v.drawScaled((150)<<FRACBITS - t3/3, (80)<<FRACBITS -t3/7, FRACUNIT/2, pp, V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, target.color))
 
 			v.drawScaled((130)<<FRACBITS +t3/3, (80)<<FRACBITS +t3/8, FRACUNIT/2, v.cachePatch("H_BPASS1"), V_SNAPTOLEFT)
@@ -14412,8 +14437,8 @@ rawset(_G, "attackDefs", {
 					and target.damagestate ~= DMG_BLOCK
 					and target.damagestate ~= DMG_DRAIN
 						startField(target, FLD_ZIOVERSE, 4)
-					end						
-					
+					end
+
 				end
 			end
 			if (timer == 60 + (#targets-1)*10)
@@ -14687,11 +14712,11 @@ rawset(_G, "attackDefs", {
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
-			
+
 			if timer == 15
 				playSound(mo.battlen, sfx_zio5)
-			end	
-			
+			end
+
 			if timer >= 16
 			and timer <= 20
 				local s = P_SpawnMobj(target.x, target.y, target.z + target.height/2, MT_THOK)
@@ -14704,34 +14729,34 @@ rawset(_G, "attackDefs", {
 				s.blendmode = AST_ADD
 				s.fuse = 70 - timer
 			end
-			
+
 			if timer >= 16
 			and timer <= 70
 			and leveltime%3 == 0
-			
-			
+
+
 				local range = 60
 				if timer >= 50
 					range = 100
 				end
-			
+
 				local s = P_SpawnMobj(target.x + P_RandomRange(-range, range)*mo.scale, target.y + P_RandomRange(-range, range)*mo.scale, target.z + P_RandomRange(0, 100)*mo.scale, MT_SUPERSPARK)
 			end
-			
+
 			if timer == 50
 			or timer == 70
 				for i = 1, #server.playerlist[mo.battlen]
 					if server.playerlist[mo.battlen][i]
 						P_FlashPal(server.playerlist[mo.battlen][i], 1, 2)
-					end	
+					end
 				end
 				localquake(mo.battlen, FRACUNIT*(timer == 50 and 16 or 32), 10)
 			end
-			
+
 			if timer == 70
 				lightningblast(target, SKINCOLOR_GOLD, FRACUNIT*3)
 				damageObject(target)
-				
+
 				for i = 1, 10
 					local range = 1024
 					local z1 = P_SpawnMobj(target.x + P_RandomRange(-range, range)*mo.scale, target.y + P_RandomRange(-range, range)*mo.scale, target.z, MT_DUMMY)
@@ -14739,11 +14764,11 @@ rawset(_G, "attackDefs", {
 					z1.destscale = target.scale
 					z1.tics = $ + P_RandomRange(-1, 12)
 				end
-			
+
 			elseif timer == 120
 				return true
-			end	
-			
+			end
+
 		end,
 	},
 
@@ -15645,7 +15670,7 @@ rawset(_G, "attackDefs", {
 				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
 				d.color = SKINCOLOR_EMERALD
 			end
-			
+
 			if timer == 16
 			or timer == 18
 			or timer == 20
@@ -15730,13 +15755,13 @@ rawset(_G, "attackDefs", {
 					createSplat(mo)
 				end
 				localquake(mo.battlen, FRACUNIT*10, 10)
-				
+
 				for i=1,20
 				local bb = P_SpawnMobj(target.x, target.y, target.z + FRACUNIT*20, MT_BUFU_PARTICLE)
 					bb.state, bb.scale = i%2 and S_BUFU_PARTICLE_B or S_BUFU_PARTICLE_A, mo.scale
 					bb.momx, bb.momy, bb.momz = P_RandomRange(-3, 3)*FRACUNIT, P_RandomRange(-3, 3)*FRACUNIT, P_RandomRange(7, 14)*FRACUNIT
-				end				
-				
+				end
+
 
 				local s = P_SpawnMobj(target.x, target.y, target.z+40*FRACUNIT, MT_THOK)
 				s.sprite = SPR_SLSH
@@ -15799,15 +15824,15 @@ rawset(_G, "attackDefs", {
 					createSplat(mo)
 				end
 				localquake(mo.battlen, FRACUNIT*10, 10)
-				
+
 				for i=1,20
 					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_DUMMY)
 					b.momx = P_RandomRange(-8, 8)*FRACUNIT
 					b.momy = P_RandomRange(-8, 8)*FRACUNIT
 					b.momz = P_RandomRange(-8, 8)*FRACUNIT
 					b.state = S_SSPK1
-				end		
-				
+				end
+
 
 				local s = P_SpawnMobj(target.x, target.y, target.z+40*FRACUNIT, MT_THOK)
 				s.sprite = SPR_SLSH
@@ -16127,13 +16152,13 @@ rawset(_G, "attackDefs", {
 							local sm = P_SpawnMobj(target.x, target.y, target.z, MT_SMOLDERING)
 							sm.fuse = TICRATE
 							damageObject(target)
-							
+
 							if target.damagestate ~= DMG_MISS
 							and target.damagestate ~= DMG_BLOCK
 							and target.damagestate ~= DMG_DRAIN
 								startField(target, FLD_AGIVERSE, 4)
-							end								
-							
+							end
+
 						end
 					end
 				end
@@ -16708,32 +16733,32 @@ rawset(_G, "attackDefs", {
 				target.bd.scalespeed = FRACUNIT/48
 				target.bd.sprite = SPR_BFDA
 				target.bd.frame = J|FF_FULLBRIGHT
-			
+
 			elseif (timer == 65)
 				playSound(mo.battlen, sfx_bufu2)
 				target.bd.scale = FRACUNIT*2 + FRACUNIT/16
 				target.bd.destscale = target.bd.scale
 				target.bd.frame = K|FF_FULLBRIGHT
-				
+
 				local g = P_SpawnGhostMobj(target.bd)
 				g.destscale = FRACUNIT*4
 				g.scalespeed = FRACUNIT/6
-				
+
 			elseif (timer == 67)
 				target.bd.scale = FRACUNIT*2
 				target.bd.frame = J|FF_FULLBRIGHT
-			
+
 			elseif (timer >= 80 and timer < 90)
 				P_TeleportMove(target.bd, target.x + P_RandomRange(-8, 8)*mo.scale, target.y + P_RandomRange(-8, 8), target.z + 128*mo.scale + P_RandomRange(-8, 8)*mo.scale)
-			
+
 
 			elseif (timer == 90)
-			
+
 				local g = P_SpawnGhostMobj(target.bd)
 				g.destscale = FRACUNIT*4
-				g.scalespeed = FRACUNIT/4	
+				g.scalespeed = FRACUNIT/4
 				localquake(mo.battlen, FRACUNIT*32, 16)
-			
+
 				for i = 1, P_RandomRange(17, 32)
 					local ba = P_SpawnMobj(target.bd.x+(P_RandomRange(-50, 50)*target.bd.scale), target.bd.y+(P_RandomRange(-50, 50)*target.bd.scale), target.bd.z+(P_RandomRange(0, 128)*target.bd.scale), MT_BUFU_PARTICLE)
 					ba.state, ba.scale = S_BUFU_PARTICLE_A, FRACUNIT*7/4
@@ -18160,7 +18185,7 @@ rawset(_G, "attackDefs", {
 							if mo.status_condition == COND_SUPER
 							and charStats[mo.stats] and charStats[mo.stats].hudsaoa
 								pp = v.cachePatch(charStats[mo.stats].hudsaoa)
-							end	
+							end
 							v.drawScaled((-25)<<FRACBITS, (20)<<FRACBITS, FRACUNIT*2/3, pp, V_SNAPTOLEFT|V_SNAPTOBOTTOM, v.getColormap(TC_DEFAULT, mo.color))	-- draw @ full scale
 
 							-- slide text box in your DMs:
@@ -18269,7 +18294,7 @@ rawset(_G, "attackDefs", {
 									if mo.allies[i].status_condition == COND_SUPER
 									and charStats[mo.allies[i].stats] and charStats[mo.allies[i].stats].hudsaoa
 										pp = v.cachePatch(charStats[mo.allies[i].stats].hudsaoa)
-									end	
+									end
 									PDraw(v, xcoord, 30 - 4*i, pp, 0, v.getColormap(TC_DEFAULT, mo.allies[i].color))
 									i = $-1
 								end

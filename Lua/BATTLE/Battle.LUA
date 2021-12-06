@@ -30,7 +30,7 @@ local lives_difficulty = {
 -- man it would be cool if we could modify the way map starts too
 rawset(_G, "BTL_MapLoad", function()
 	if not server return end
-	
+
 	local difficulty_macca = {
 		250,
 		750,
@@ -40,7 +40,7 @@ rawset(_G, "BTL_MapLoad", function()
 		8000,
 		15000,
 	}
-	
+
 	if not server.P_BattleStatus or server.P_BattleStatus.kill
 		server.P_BattleStatus = {}
 
@@ -124,7 +124,7 @@ rawset(_G, "BTL_MapLoad", function()
 					itemsused = 0,
 					itemsbought = 0,
 					itemssold = 0,
-					
+
 					weaponsenhanced = 0,
 					ringsenhanced = 0,
 
@@ -150,14 +150,14 @@ rawset(_G, "BTL_MapLoad", function()
 			local btl = server.P_BattleStatus[i]
 			btl.emeraldpow_max = server.difficulty or 1		-- max emerald power gauge
 		end
-		
+
 		SRB2P_runHook("DungeonStart", server.P_BattleStatus[i])
 	end
 
 	if server.difficulty
 		server.P_BattleStatus.lives = lives_difficulty[server.difficulty]
 	end
-	
+
 	local parsed_from_header = 0
 	for i = 1, 4
 
@@ -174,19 +174,19 @@ rawset(_G, "BTL_MapLoad", function()
 			end
 		end
 	end
-	
+
 	if not parsed_from_header
 		-- parse boss waypoint if possible
 		for m in mobjs.iterate() do
 			if m and m.valid and m.type == MT_BOSS3WAYPOINT
-				
+
 				for i = 1, 4
 					local btl = server.P_BattleStatus[i]
 					local shiftx = (mapheaderinfo[gamemap].arenashiftx or 0)*FRACUNIT *(i-1)
 					local shifty = (mapheaderinfo[gamemap].arenashifty or 0)*FRACUNIT *(i-1)
 					local t = P_SpawnMobj(m.x+shiftx, m.y+shifty, m.z, MT_THOK)
 					t.state = S_INVISIBLE
-					
+
 					btl.arenacenter = t
 				end
 				break
@@ -260,7 +260,7 @@ rawset(_G, "BTL_softReset", function(pn)
 		btl.r_weapons = nil
 		btl.r_rings = nil
 		btl.r_expmultiplier = 0
-		btl.r_moneymultiplier = 0		
+		btl.r_moneymultiplier = 0
 		btl.r_money = 0
 		btl.r_basemoney = 0
 		btl.r_precalculates = {}
@@ -342,7 +342,7 @@ rawset(_G, "BTL_initEnemyAnimsPlayer", function(mo)
 	mo.anim_getup = tbl.anim_getup or tbl.anim_stand
 	mo.anim_death = tbl.anim_death or tbl.anim_stand
 	mo.anim_revive = tbl.anim_revive or tbl.anim_stand
-	
+
 	if tbl.persona
 		mo.persona = personaList[tbl.persona]
 		mo.persona.anim_idle = {SPR_NULL, A, 1}
@@ -378,7 +378,7 @@ rawset(_G, "BTL_initEnemyAnimsPlayer", function(mo)
 			mo["anim_sepcial"..i] = {SPR_PLAY, A, 1}
 		end
 	end
-	
+
 	ANIM_set(mo, mo.anim_stand, true)
 end)
 
@@ -442,7 +442,7 @@ rawset(_G, "BTL_initEnemy", function(mo)
 	BTL_readybuffs(mo)
 
 	mo.melee = enemy.melee_natk
-	
+
 	SRB2P_runHook("EnemyInit", mo)
 
 	return true
@@ -546,24 +546,49 @@ rawset(_G, "BTL_splitSkills", function(v)
 
 	for i = 1, #v.skills
 		local s = v.skills[i]
-		if s and attackDefs[s] and attackDefs[s].type & ATK_PASSIVE	-- skill is passive
-			v.passiveskills[#v.passiveskills+1] = s
-			--dprint("passive skill: "..s)
-		else
+		local implicit_count = 0
 
-			-- is skill elligible in PVP? (keep them all in boss mode, it's fair game)
-			if server.gamemode == GM_PVP and not server.bossmode
-			and attackDefs[s]
-				if attackDefs[s].target == TGT_CASTER	-- mind charge, power charge
-				or attackDefs[s].target == TGT_DEAD		-- recarm, ...
-				or attackDefs[s].luckbased and attackDefs[s].target == TGT_ALLENEMIES
-					dprint("Skill "..s.." deemed too much bullshit for PVP, not adding")
-					continue
+		if s and attackDefs[s]
+
+			-- Add implicit skills (Passive & normal...)
+			local im = s
+			while attackDefs[im].implicit and implicit_count < 8	-- Max 8 implicit skills to avoid endless loops
+				implicit_count = $+1
+
+				local is = attackDefs[im].implicit
+				local isdef = attackDefs[is]
+
+				if is
+					--print("Implicit: "..is)
+					if isdef.type & ATK_PASSIVE
+						v.passiveskills[#v.passiveskills+1] = is
+					else
+						tmp_skill[#tmp_skill+1] = is
+					end
+
+					im = is
 				end
 			end
 
-			tmp_skill[#tmp_skill+1] = s
-			--dprint("skill: "..s)
+			if attackDefs[s].type & ATK_PASSIVE	-- skill is passive
+				v.passiveskills[#v.passiveskills+1] = s
+				--dprint("passive skill: "..s)
+			else
+
+				-- is skill elligible in PVP? (keep them all in boss mode, it's fair game)
+				if server.gamemode == GM_PVP and not server.bossmode
+				and attackDefs[s]
+					if attackDefs[s].target == TGT_CASTER	-- mind charge, power charge
+					or attackDefs[s].target == TGT_DEAD		-- recarm, ...
+					or attackDefs[s].luckbased and attackDefs[s].target == TGT_ALLENEMIES
+						dprint("Skill "..s.." deemed too much bullshit for PVP, not adding")
+						continue
+					end
+				end
+
+				tmp_skill[#tmp_skill+1] = s
+				--dprint("skill: "..s)
+			end
 		end
 	end
 
@@ -688,19 +713,19 @@ end)
 
 -- equips a subpersona
 rawset(_G, "BTL_equipSubPersona", function(mo, subp)
-	
+
 	if mo.subpersona	-- unequip current subpersona if we had one
 		--print("Subp "..mo.subpersona.name.." unequipped")
 		mo.subpersona.equipped = nil
 		mo.subpersona = nil
 	end
-	
+
 	mo.subpersona = subp	-- for starters, this
 	--print("Subp "..mo.subpersona.name.." equipped.")
 	BTL_setupstats(mo, true)	-- set up our stats
 	BTL_initAdditionalSkills(mo, true)	-- set up skills
 	BTL_splitSkills(mo)	-- split passives from normal skills
-	
+
 	if not subp.level	-- cleanse subpersona if it's a non existant one.
 		mo.subpersona = nil
 	else
@@ -709,7 +734,7 @@ rawset(_G, "BTL_equipSubPersona", function(mo, subp)
 			if server.plentities[mo.control.P_party][i] == mo
 				subp.equipped = i
 			end
-		end	
+		end
 	end
 end)
 
@@ -841,9 +866,9 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 					updateUDtable(team1)
 					continue
 				end
-				
+
 				if server.gamemode == GM_COOP and server.difficulty
-					
+
 					local stats_diff = {
 						22,
 						33,
@@ -853,13 +878,13 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 						99,
 						99,
 					}
-					
+
 					local st = stats_diff[server.difficulty] or 99
 					v.agility = st
 					v.luck = st
 				end
 			end
-			
+
 
 			if v.extra
 				v.status_condition = COND_HYPER
@@ -867,8 +892,8 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 				for i = 1, #stats do
 					v[stats[i]] = $+10
 				end
-			end			
-			
+			end
+
 		end
 
 		v.enemies = copyTable(team2)
@@ -1026,7 +1051,7 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 		S_StartSound(nil, sfx_battle, p)	-- IT'S TIME!
 		if server.gamemode ~= GM_VOIDRUN
 			S_StopMusic(p)
-		end	
+		end
 	end
 
 	-- pvp: make the camera start differently from how it does in regular pve battles
@@ -1136,20 +1161,20 @@ rawset(_G, "BTL_mainHandler", function(pn)
 			end
 		end
 	else	-- In voidrun...
-		
+
 		-- boss score:
 		local dng = server.P_DungeonStatus
-		
+
 		if dng.VR_type == VC_BOSS	-- boss event
-		
+
 			-- find the boss, and then set our score relative to how low its HP is
 			local boss = server.plentities[battle.n][1].enemies[1]
-			
+
 			if boss and boss.valid
 				dng.VR_target = boss.maxhp
 				dng.VR_score = boss.maxhp - boss.hp
 			end
-		end	
+		end
 	end
 
 	if battle.transition then battle.transition = $-1 end
@@ -1227,8 +1252,8 @@ local function BTL_BuildTurnOrder_PVP(pn)
 
 		if v.status_condition == COND_FREEZE
 			v.priority = -2	-- frozen fighters act last!
-		end		
-		
+		end
+
 		dummytable[#dummytable+1] = v
 	end
 
@@ -1278,9 +1303,9 @@ end
 
 local function BTL_BuildTurnOrder(pn)
 	--dprint("PN "..pn..": Building turn order...")
-	
+
 	if SRB2P_runHook("BattleTurnOrder", battle) return end
-	
+
 	if server.gamemode == GM_PVP
 		return BTL_BuildTurnOrder_PVP(pn)
 	end
@@ -1298,11 +1323,11 @@ local function BTL_BuildTurnOrder(pn)
 		if not v or not v.valid return end
 		v.acted = nil	-- new turn, new chance
 		v.turnset = nil
-		
+
 		if v.status_condition == COND_FREEZE
 			v.priority = -2	-- frozen fighters act last!
 		end
-		
+
 		dummytable[#dummytable+1] = v
 	end
 
@@ -1535,20 +1560,20 @@ local function BTL_setupPlayerTurn(mo)
 end
 
 local function BTL_VRRevive(pn)
-	
+
 	local btl = server.P_BattleStatus[pn]
 	btl.VR_revives = $ or {}
-	
+
 	if not btl.VR_revivecheck
 	and server.plentities[pn]
-		
+
 		for i = 1, #server.plentities[pn] do
 			local mo = server.plentities[pn][i]
-			
+
 			if mo.hp <= 0
 				btl.VR_revives[#btl.VR_revives+1] = mo
 				mo.VR_revivetimer = 1
-				
+
 				local cam = btl.cam
 				local target = mo
 				local an = ANG1* P_RandomRange(10, 35)
@@ -1557,22 +1582,22 @@ local function BTL_VRRevive(pn)
 				P_TeleportMove(cam, gox, goy, target.z + FRACUNIT*80)	-- teleport the camera to a nice spot
 				cam.angle = R_PointToAngle2(gox, goy, target.x, target.y)
 				cam.aiming = ANG1*(-3)
-				CAM_stop(cam)				
-				
-			end	
+				CAM_stop(cam)
+
+			end
 		end
-		
+
 		btl.VR_revivecheck = true
 	end
-	
+
 	if #btl.VR_revives
 		local unfinished
 		for i = 1, #btl.VR_revives
 			local mo = btl.VR_revives[i]
-			
+
 			mo.VR_revivetimer = $+1
 			local t = mo.VR_revivetimer
-			
+
 			if t < 60
 			and leveltime%3 == 0
 				for j = 1, 32
@@ -1580,34 +1605,34 @@ local function BTL_VRRevive(pn)
 					s.state = S_SSPK1
 					P_InstaThrust(s, 360/32 *j *ANG1, FRACUNIT*40)
 				end
-			end	
-			
+			end
+
 			if t > 20 and t < 60
 				for j = 1, 32
-					
+
 					local s = P_SpawnMobj(mo.x + P_RandomRange(-96, 96)*mo.scale, mo.y + P_RandomRange(-96, 96)*mo.scale, mo.z, MT_DUMMY)
 					s.state = S_SSPK1
 					s.momz = mo.scale*32
 				end
 			end
-			
+
 			if t == 30
 				playSound(mo.battlen, sfx_heal2)
 				resetDamage(mo)
-				mo.atk_hitby = BTL_copyAttackDefs(attackDefs["dummy"])			
+				mo.atk_hitby = BTL_copyAttackDefs(attackDefs["dummy"])
 				revivePlayer(mo)
 				ANIM_set(mo, mo.anim_stand)
 				mo.flags2 = $ & ~MF2_DONTDRAW
 				damageObject(mo, -mo.maxhp)
 			end
-			
+
 			if t < 100
 				unfinished = true
-			end	
+			end
 		end
-		
+
 		return unfinished
-		
+
 	end
 end
 
@@ -1618,15 +1643,15 @@ rawset(_G, "BTL_preturnHandler", function(pn)		-- here, we do stuff with whoever
 	-- (after we build the turn order if necessary)
 
 	if not battle.turnorder[1]
-		
+
 		-- Void run: if players died, revive them now!
 		if server.gamemode == GM_VOIDRUN
 			if BTL_VRRevive(pn) return end
 		end
-		
+
 		battle.turnorder = BTL_BuildTurnOrder(pn)
 	end
-	
+
 	battle.VR_revives = nil
 	battle.VR_revivecheck = nil
 
@@ -1947,7 +1972,7 @@ rawset(_G, "BTL_balanceSkills", function(mo)
 			v = "diarama"
 		end
 	end
-	
+
 	BTL_splitSkills(mo)
 end)
 
@@ -2021,7 +2046,7 @@ addHook("MobjThinker", function(mo)
 	if mo.thinkframe
 		if mo.enemy	-- for enemies
 			enemyList[mo.enemy].thinkframe(mo)
-		end	
+		end
 	end
 
 	-- helper for dodge animation
@@ -2252,7 +2277,7 @@ local function BTL_turnstatusconditions(mo)
 				--btl.battlestate = BS_ENDTURN
 				--mo.t_statustimer = 0
 			end
-			
+
 			if mo.t_curebuffer
 				return true
 			end
@@ -2303,7 +2328,7 @@ local function BTL_turnstatusconditions(mo)
 					return
 				end
 			end
-			
+
 			if mo.t_curebuffer
 				return true
 			end
@@ -2376,7 +2401,7 @@ local function BTL_turnstatusconditions(mo)
 					if a
 					and a.costtype ~= CST_EP
 						brskills[#brskills+1] = mo.skills[i]
-					end	
+					end
 				end
 
 				if not #brskills or P_RandomRange(0, 1)
@@ -2662,9 +2687,9 @@ local function BTL_turnHandler(pn)
 	--if btl.turnorder[2] ~= mo
 	-- for multi-turn enemies, only apply this for their last turn (so we check if the next turn is still this particular enemy)
 	-- statuses and fields will apply multiple times in case of 1-mores however!
-	
+
 		if BTL_turnstatusconditions(mo) return end
-	
+
 		-- field timers:
 		if mo.fieldstate
 			mo.fieldstate.turns = $-1
@@ -2673,8 +2698,8 @@ local function BTL_turnHandler(pn)
 				clearField(mo)
 			end
 		end
-	--end	
-	
+	--end
+
 	-- TODO: make thinkers more accurate
 	if not mo.plyr
 	or mo.thinker
@@ -2696,7 +2721,7 @@ local function BTL_turnHandler(pn)
 				thinker = enemyList[mo.enemy].thinker or generalEnemyThinker
 			elseif mo.thinker
 				thinker = mo.thinker	-- works in singleplayer...
-			
+
 			end
 
 			-- prepare camera for players:
@@ -2706,7 +2731,7 @@ local function BTL_turnHandler(pn)
 				CAM_angle(btl.cam, an)
 				CAM_aiming(btl.cam, ai)
 			end
-			
+
 			-- this is a hack which does set the actual attackdef but we use BTL_setAttack afterwards to undo the issue
 			mo.attack, mo.targets = thinker(mo)
 			for k, p in pairs(attackDefs)
@@ -2714,8 +2739,8 @@ local function BTL_turnHandler(pn)
 					BTL_setAttack(mo, k)
 					break
 				end
-			end	
-			
+			end
+
 			if not mo.targets
 				mo.targets = {mo.enemies[1]}
 			end
@@ -2809,13 +2834,13 @@ local function BTL_turnHandler(pn)
 			btl.battlestate = BS_ENDTURN	-- skip straight to the end of the turn regardless of what you were doing
 			return
 		end
-		
+
 		-- VR timer
 		if server.gamemode == GM_VOIDRUN
 		and not server.P_DungeonStatus.VR_timer
 			btl.battlestate = BS_ENDTURN
 			return
-		end	
+		end
 
 
 		-- you can activate hyper mode literally anywehere granted no one else already has it on!
@@ -2912,7 +2937,7 @@ local function BTL_turnHandler(pn)
 			if mo.weapon and mo.weapon.melee
 				mo.melee = mo.weapon.melee
 			end
-			
+
 			if mo.status_condition == COND_SUPER
 				if charStats[mo.stats].melee_satk
 					mo.melee = charStats[mo.stats].melee_satk	-- super attack
@@ -2950,9 +2975,9 @@ local function BTL_turnHandler(pn)
 							playSound(mo.battlen, sfx_not)
 							if server.P_DungeonStatus.VR_clause == VE_NOSKILLS
 								BTL_logMessage(mo.battlen, "Skills are sealed")
-							else	
+							else
 								BTL_logMessage(mo.battlen, "No usable skills.")
-							end	
+							end
 							return
 						end
 
@@ -2971,18 +2996,18 @@ local function BTL_turnHandler(pn)
 
 						VFX_Play(mo, VFX_SUMMON)
 					elseif act == ACT_ITEM
-					
+
 						BTL_sortItems(btl)	-- in case this wasn't done already
-					
+
 						if not #btl.items
 						or btl.it_section2 < 2
 						or server.P_DungeonStatus.VR_clause == VE_NOITEMS
 							playSound(mo.battlen, sfx_not, mo)
 							if server.P_DungeonStatus.VR_clause == VE_NOITEMS
 								BTL_logMesage(pn, "Items are sealed")
-							else	
+							else
 								BTL_logMessage(pn, "No items")
-							end	
+							end
 							return
 						end
 						while (not btl.items[mo.t_itemselect]) or mo.t_itemselect > btl.it_section2-1
@@ -4297,7 +4322,7 @@ local function BTL_linkHandler(pn)
 			if not mo.hp	-- happens if a link skill killed an enemy.
 			or (mo.enemy and not mo.deathanim and enemyList[mo.enemy].deathanim)	-- Very funny bug that CAN actually happen.
 			-- This happens with Monad final boss where the Link can happen during the cutscene because of that, it's really stupid
-			
+
 				table.remove(btl.linkhits, 1)
 				return
 			end
@@ -4439,29 +4464,29 @@ local function statusConditionEffects(mo)	-- the little animations over the enem
 			an = $+ ANG1*180
 		end
 	end
-	
+
 	-- fields that spawn particles i guess??
 	if mo.fieldstate
-		
+
 		if mo.fieldstate.type == FLD_ZIOVERSE
-			
+
 			if leveltime%2 == 0
-				
+
 				local x = mo.x + P_RandomRange(-64, 64)*mo.scale
 				local y = mo.y + P_RandomRange(-64, 64)*mo.scale
 				local z = mo.z + P_RandomRange(-64, 64)*mo.scale
-				
+
 				P_SpawnMobj(x, y, z, MT_SUPERSPARK)
-				
+
 			end
-			
+
 		elseif mo.fieldstate.type == FLD_AGIVERSE
-			
+
 			local rfac = (mo.maxhp + mo.maxsp) - mo.level
-			
+
 			local ang = (rfac + leveltime)*ANG1*12
 			local zpos = mo.z + 32*mo.scale + 32*sin((rfac + leveltime)*ANG1*8)
-			
+
 			local x = mo.x + 64*cos(ang)
 			local y = mo.y + 64*sin(ang)
 			local f = P_SpawnMobj(x, y, zpos, MT_DUMMY)
@@ -4470,7 +4495,7 @@ local function statusConditionEffects(mo)	-- the little animations over the enem
 			f.frame = $ & ~FF_TRANSMASK
 			f.frame = $|FF_FULLBRIGHT|TR_TRANS20
 			f.scale = mo.scale*5/2
-			
+
 			local g = P_SpawnGhostMobj(f)
 			g.destscale = 1
 			g.scalespeed = FRACUNIT/4
@@ -4904,7 +4929,7 @@ rawset(_G, "BTL_handleStatusConditions", function(pn, timer)
 			if mo.boss
 				damage = min(10, mo.maxsp/50)
 			end
-			
+
 			if mo.sp - damage < 1
 				damage = mo.sp-1
 			end
@@ -5024,7 +5049,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 
 		if v and v.valid and v.deathanim and v.hp <= 0
 			return
-		end	
+		end
 
 		if v and v.valid and v.hu_deadanim and not v.extra and v.hu_deadanim < 13
 			-- deadanim at 13 is considered finished
@@ -5042,7 +5067,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 	local t1, t2 = BTL_deadEnemiescleanse(btl)
 	-- don't forget to use BTL_fullCleanse(btl) to remove dead enemy objects once they aren't needed anymore
 
-	
+
 	-- voidrun: if timer hits 0 at the end of a turn, kill all enemies and end the battle!
 	if server.gamemode == GM_VOIDRUN
 	and server.P_DungeonStatus.VR_timer <= 0
@@ -5050,7 +5075,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			local e = t2[i]
 			e.hp = 0
 			e.flags2 = $ | MF2_DONTDRAW
-			
+
 			local fake = P_SpawnMobj(e.x, e.y, e.z, MT_THOK)
 			fake.sprite = e.sprite
 			fake.angle = e.angle
@@ -5077,7 +5102,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 	if not #t1			-- all players are dead
 	or (server.gamemode == GM_VOIDRUN and server.P_DungeonStatus.VR_lives <= 0)
 	-- do game over sequence
-		
+
 		if server.gamemode == GM_VOIDRUN
 		and server.P_DungeonStatus.VR_lives	-- we still have lives!!
 			btl.turnorder = {}	-- let's cheat, this will force party members to be revived, otherwise things break lol
@@ -5085,7 +5110,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			print("Don't gameover")
 			return
 		end
-		
+
 		if server.gamemode ~= GM_VOIDRUN
 		or server.P_DungeonStatus.VR_lives
 			for p in players.iterate do
@@ -5093,7 +5118,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 					S_FadeOutStopMusic(MUSICRATE*2, p)
 				end
 			end
-		end	
+		end
 
 		if server.gamemode == GM_CHALLENGE
 			btl.battlestate = BS_CHALLENGEEND
@@ -5147,9 +5172,9 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 
 		if server.gamemode == GM_CHALLENGE
 		or (btl.storedwaves and #btl.storedwaves)	-- multi-wave battles
-		
+
 			btl.waven = $+1	-- increase wave and check if we got more!
-			
+
 			if server.gamemode == GM_CHALLENGE
 			and btl.scoremode
 				if btl.waven > #BTL_challengebtllist[btl.challengen].waves
@@ -5164,12 +5189,12 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			if mo and mo.valid
 				mo.setonemore = nil
 			end
-			
+
 			local wave = btl.storedwaves
 			if server.gamemode == GM_CHALLENGE
 				wave = BTL_challengebtllist[btl.challengen].waves
 			end
-			
+
 			if wave[btl.waven]
 				-- There are still waves to be had!
 
@@ -5190,7 +5215,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 				BTL_fullCleanse(btl)
 				return
 			end
-			
+
 			if server.gamemode == GM_CHALLENGE
 
 				for p in players.iterate do
@@ -5207,7 +5232,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 				btl.hudtimer.challengeend = TICRATE*5
 				BTL_fullCleanse(btl)
 				return
-			end	
+			end
 		end
 
 		-- do end of battle screen
@@ -5223,10 +5248,10 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 							VFX_Play(server.plentities[p.P_party][i], VFX_WIN, nil, p)
 						end
 					end
-					
-					if server.gamemode ~= GM_VOIDRUN	
+
+					if server.gamemode ~= GM_VOIDRUN
 						S_FadeOutStopMusic(MUSICRATE, p)
-					end	
+					end
 				end
 			end
 		end
@@ -5238,20 +5263,20 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			btl.hudtimer.mpfinish = TICRATE*6
 			BTL_fullCleanse(btl)
 			btl.netstats.wins = $+1	-- count that as a win!
-			
+
 			-- Do Tartarus specific unlocks etc:
 			if mapheaderinfo[gamemap].tartarus
 			and server.gamemode == GM_COOP
-				
+
 				-- Finished Block 6 / Marathon mode (both work to unlock Monad)
-				
+
 				if server.difficulty >= 6
 				and not srb2p.local_conds[UNLOCK_B7]
 					for p in players.iterate do
 						P_unlock(UNLOCK_B7, p, "The Monad Block is now available from Rogue Mode!")
 					end
 				end
-				
+
 				-- Finsihed block 7:
 				if server.difficulty == 7
 				and not server.marathon	-- ?
@@ -5264,13 +5289,13 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 				and not srb2p.local_conds[UNLOCK_MARATHON_FINISHED]
 					P_unlock(UNLOCK_MARATHON_FINISHED)	-- Silent unlock
 				end
-				
+
 				-- Finished Void Run
 				if server.gamemode == GM_VOIDRUN
 					P_unlock(UNLOCK_VOIDRUN_FINISHED)
 				end
 			end
-			
+
 			return
 		end
 
@@ -5314,7 +5339,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 					end
 				end
 			end
-			
+
 			PLYR_getStats(v, v.level, true)
 		end
 
@@ -5401,18 +5426,18 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 	end
 
 	if not mo.statustimer then mo.statustimer = 0 end
-	
+
 	if btl.turnorder[2] ~= mo	-- ditto, only do that at the end of an enemy's last turn for multi-turn enemies
 	and not btl.skipstatus		-- set after link skills etc
 		if not BTL_handleStatusConditions(pn, mo.statustimer)
 			mo.statustimer = $+1
 			return
 		end
-		
+
 		if mo.status_res
 			mo.status_res = max(0, $-2)
 		end
-	end	
+	end
 
 	mo.skipdowncheck = nil	-- don't forget to remove this
 	mo.batontouch = nil	-- can't baton touch anymore
@@ -5461,9 +5486,9 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 		btl.battlestate = BS_LINK
 		return
 	end
-	
+
 	btl.skipstatus = nil
-	
+
 	if btl.battlestate ~= BS_HOLDUP
 		btl.battlestate = BS_PRETURN	-- bullshit preturn
 	end
@@ -5528,7 +5553,7 @@ local function BTL_endHandler(pn)
 
 	-- handle result music change:
 	if btl.hudtimer.endb == 10
-		
+
 		if server.gamemode ~= GM_VOIDRUN
 			for i = 1, server.P_netstat.teamlen do
 				local p = plist[i]
@@ -5826,19 +5851,19 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 			if not mo.r_forgetselect
 				mo.r_forgetselect = 1	-- start at skill 1 that we will forget:
 			end
-		
+
 			-- handle the inputs here:
 			local inpt = mo.control.mo.P_inputs
-			
+
 			-- check if we want to confirm our choice...
 			if mo.r_askconfirm
-				
+
 				if inpt[BT_USE] == 1
 					S_StartSound(nil, sfx_cancel, mo.control)
 					mo.r_askconfirm = nil
-				
+
 				elseif inpt[BT_JUMP] == 1
-					
+
 					if mo.r_askconfirm == 1	-- new skill
 						mo.newskillnum = mo.r_forgetselect
 						mo.r_forgetselect = nil
@@ -5846,17 +5871,17 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 						mo.r_nskilltimer = nil	-- set timer to nil so we will restart if we need to.
 						table.remove(btl.r_newskillsqueue[mynum], 1)	-- remove first skill.
 						mo.newskillnum = nil
-						mo.r_forgetselect = nil	-- remove both of these to prevent skill flashing				
+						mo.r_forgetselect = nil	-- remove both of these to prevent skill flashing
 					end
 					mo.r_askconfirm = nil
-					
+
 					S_StartSound(nil, sfx_hover, mo.control)
 				end
-				
+
 				return
 			end
-			
-			
+
+
 			if inpt["down"] ==1
 				if not (mo.r_forgetselect%4)	-- at bottom.
 					mo.r_forgetselect = $-3
@@ -5880,13 +5905,13 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 			elseif inpt[BT_JUMP] ==1	-- confirm forget
 				S_StartSound(nil, sfx_hover, mo.control)
 				mo.r_askconfirm = 1
-				
 
-				
+
+
 			elseif inpt[BT_USE] ==1		-- I don't want new skills!
 				S_StartSound(nil, sfx_cancel, mo.control)
 				mo.r_askconfirm = 2
-				
+
 
 			end
 		end
@@ -5911,7 +5936,7 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 				elseif mo.savestats[i] > stats[i]	-- ?????
 					mo.savestats[i] = $-1
 					playsound = true
-				end	
+				end
 			end
 
 			if playsound and consoleplayer == mo.control
@@ -6000,9 +6025,9 @@ rawset(_G, "BTL_levelUpHandler", function(pn)
 		if btl.r_item
 			for i = 1, #btl.r_item
 				BTL_addItem(btl, btl.r_item[i][1], btl.r_item[i][2])
-			end	
+			end
 		end
-		
+
 		if btl.r_weapons
 			for i = 1, #btl.r_weapons
 				local wpn = btl.r_weapons[i]
@@ -6016,7 +6041,7 @@ rawset(_G, "BTL_levelUpHandler", function(pn)
 				addRing(server.plentities[pn][1], ring)
 			end
 		end
-		
+
 	end
 end)
 
@@ -6031,16 +6056,16 @@ rawset(_G, "BTL_levelUpStats", function(mo, level)
 	local persona = mo.persona
 
 	-- start with our HP/SP
-	
+
 	local addhp = charStats[mo.stats].basehp /10
 	local addsp = charStats[mo.stats].basesp /10
-	
+
 	local hpstr = tostring(charStats[mo.stats].basehp)
 	local spstr = tostring(charStats[mo.stats].basesp)
-		
+
 	local hpdec = tonumber(hpstr:sub(hpstr:len(), hpstr:len()))
 	local spdec = tonumber(spstr:sub(spstr:len(), spstr:len()))
-	
+
 	mo.dechp = $ + hpdec
 	mo.decsp = $ + spdec
 
@@ -6048,19 +6073,19 @@ rawset(_G, "BTL_levelUpStats", function(mo, level)
 		addhp = $+1
 		mo.dechp = $-10
 	end
-	
+
 	while mo.decsp >= 10
 		addsp = $+1
 		mo.decsp = $-10
-	end	
-	
+	end
+
 	-- fixed stat growth in void run
 	if server.gamemode == GM_VOIDRUN
 		addhp = 5
 		addsp = 0
 	end
-	
-	mo.maxhp = $ + addhp	
+
+	mo.maxhp = $ + addhp
 	mo.maxsp = $ + addsp
 	mo.realhp = $ + addhp
 	mo.realsp =  $ + addsp
@@ -6069,7 +6094,7 @@ rawset(_G, "BTL_levelUpStats", function(mo, level)
 		mo.hp = $ + addhp
 		mo.sp = $ + addsp
 	end
-	
+
 	-- Calc new player stats (take weapon into consideration)
 	PLYR_getStats(mo, mo.level, true)
 end)
@@ -6173,7 +6198,7 @@ rawset(_G, "BTL_finish", function(pn)
 				v.shuffle_skillcard = nil	-- wipe out
 			end
 		end
-		
+
 		v.saveskills = nil
 	end
 
@@ -6202,7 +6227,7 @@ rawset(_G, "BTL_finish", function(pn)
 
 		--dprint("PN "..pn..": Battle has ended succesfully")
 	end
-	
+
 	-- after vc_repel battles, instantly switch floors
 	if server.gamemode == GM_VOIDRUN
 	and server.P_DungeonStatus.VR_type == VC_REPEL
@@ -6272,10 +6297,10 @@ rawset(_G, "BTL_getPersona", function(pn)
 			end
 			i = $-1
 		end
-	
+
 	elseif server.cdungeon
 		personas = server.cdungeon.shufflepersonas
-	
+
 	else
 		personas = DNG_dungeonpersonas[gamemap][server.P_DungeonStatus.section]
 	end
@@ -6370,14 +6395,14 @@ local function BTL_shuffleHandler(pn)
 
 			local safecard = P_RandomRange(1, 4)	-- this card physically can't be a penalty card
 			local maxcardlevel = 1
-			
+
 			if server.cdungeon
 				maxcardlevel = server.cdungeon.shufflelevel
 			else
 				-- normal
 				maxcardlevel = DNG_maxCardLevel[server.difficulty] or 1
 			end
-			
+
 			for j = 1, 4 do
 				mo.shuffletypes[j] = P_RandomRange(1, safecard == j and 5 or 7)
 
@@ -6386,7 +6411,7 @@ local function BTL_shuffleHandler(pn)
 				if reaperchance
 					mo.shuffletypes[j] = $|1024
 				end
-				
+
 				mo.shufflelevels[j] = P_RandomRange(1, maxcardlevel)	-- !?
 
 				-- subpersona special case:
@@ -6394,7 +6419,7 @@ local function BTL_shuffleHandler(pn)
 					mo.shufflepersonas[j] = BTL_getPersona(pn)
 
 					local dupe = #btl.subpersonas + (mo.shufflepersonas[j] and #mo.shufflepersonas[j] or 0) > btl.subpersonastock
-					
+
 					for f = 1, #chosensubp
 						if chosensubp[f] == mo.shufflepersonas[j]
 							dupe = true
@@ -6601,7 +6626,7 @@ local function BTL_shuffleHandler(pn)
 				elseif ctype == 5	-- gotta award a persona!
 					local psna = c.subpersona
 					mo.shuffle_persona = psna
-					
+
 					psna = P_generateSubPersona(psna)
 					-- check for dupes...
 					local dupe = false
@@ -6609,16 +6634,16 @@ local function BTL_shuffleHandler(pn)
 						if btl.subpersonas[i] and btl.subpersonas[i].int == psna.int
 							dupe = true
 							break
-						end	
+						end
 					end
-					
+
 					if not dupe
 						btl.subpersonas[#btl.subpersonas+1] = psna
 						btl.netstats.subpersonasfound = $+1
 					end
-					
+
 					psna = nil	-- kill that regardless, GC will do the rest
-					
+
 
 				elseif ctype == 6	-- empty card
 					-- nothing, literally nothing!
@@ -7162,7 +7187,7 @@ local function BTL_gameOver(pn)
 					mo.skills = copyTable(mo.saveskills)
 				end
 				server.P_BattleStatus[i].r_wipe = 1	-- instantly clear
-				BTL_finish(i)				
+				BTL_finish(i)
 			end
 
 			server.P_DungeonStatus.gameoverfade = 9		-- quick hack
@@ -7382,7 +7407,7 @@ local function BTL_challengeEndHandler(pn)
 				end
 			end
 		end
-		
+
 		-- check if we unlocked anything new!
 		local c = BTL_challengebtllist[btl.challenge]
 		if c.unlocks
@@ -7392,7 +7417,7 @@ local function BTL_challengeEndHandler(pn)
 				P_unlock(c.unlocks[1], p, c.unlocks[2])
 			end
 		end
-		
+
 		btl.challengesaved = true	-- don't repeat that every frame...
 	end
 
@@ -7495,9 +7520,9 @@ end)
 
 
 COM_AddCommand("d_rigexp", function(p, arg)
-	
+
 	if not cv_debugcheats.value return end
-	
+
 	if not p or not p.P_party return end	-- bruh
 	if not arg return end
 	local btl = server.P_BattleStatus[p.P_party]
@@ -7507,9 +7532,9 @@ COM_AddCommand("d_rigexp", function(p, arg)
 end, 1)
 
 COM_AddCommand("d_endbattle", function(p)
-	
+
 	if not cv_debugcheats.value return end
-	
+
 	if not p or not p.P_party return end	-- bruh
 	local btl = server.P_BattleStatus[p.P_party]
 	if not btl.running return end
@@ -7526,9 +7551,9 @@ COM_AddCommand("d_endbattle", function(p)
 end, 1)
 
 COM_AddCommand("d_getsubpersona", function(p, arg)
-	
+
 	if not cv_debugcheats.value return end
-	
+
 	if not p or not p.P_party return end	-- bruh
 	local btl = server.P_BattleStatus[p.P_party]
 	if not arg return end
@@ -7542,9 +7567,9 @@ COM_AddCommand("d_getsubpersona", function(p, arg)
 end, 1)
 
 COM_AddCommand("d_getskillcard", function(p, arg)
-	
+
 	if not cv_debugcheats.value return end
-	
+
 	if not p or not p.P_party return end
 	local btl = server.P_BattleStatus[p.P_party]
 	if not arg return end
@@ -7576,7 +7601,7 @@ end, 1)
 COM_AddCommand("d_getmacca", function(p, arg)
 
 	if not cv_debugcheats.value return end
-	
+
 	if not p or not p.P_party return end	-- bruh
 	local btl = server.P_BattleStatus[p.P_party]
 	if not arg return end
@@ -7587,21 +7612,21 @@ end, 1)
 COM_AddCommand("d_resetstats", function(p, arg)
 
 	if not cv_debugcheats.value return end
-	
+
 	local list = server.plentities[p.P_party]
 	if not list or not #list return end	-- nigga?
-	
+
 	for i = 1, #list do
 		PLYR_getStats(list[i], list[i].level, true)
-	end	
-		
-end, 1)	
+	end
+
+end, 1)
 
 COM_AddCommand("d_getweapon", function(p, arg)
-	
+
 	if not cv_debugcheats.value return end
 	if not arg return end
-	
+
 	if not weaponsList[arg]
 		CONS_Printf(p, "Weapon '"..arg.."' doesn't exist.")
 		return
@@ -7613,10 +7638,10 @@ COM_AddCommand("d_getweapon", function(p, arg)
 end, 1)
 
 COM_AddCommand("d_getring", function(p, arg)
-	
+
 	if not cv_debugcheats.value return end
 	if not arg return end
-	
+
 	if not ringsList[arg]
 		CONS_Printf(p, "Ring '"..arg.."' doesn't exist.")
 		return
