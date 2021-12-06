@@ -7499,11 +7499,11 @@ rawset(_G, "attackDefs", {
 		name = "Teardrop",
 		type = ATK_STRIKE,
 		power = 65,
-		accuracy = 90,
+		accuracy = 100,
 		costtype = CST_HPPERCENT,
 		cost = 7,
 		critical = 5,
-		desc = "Light Strike damage to \none enemy and lowers\ndefence by 1 stage.",
+		desc = "Light Strike damage to \none enemy and lowers\ndefence by 2 stages.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7560,7 +7560,7 @@ rawset(_G, "attackDefs", {
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
 			and target.damagestate ~= DMG_DRAIN
-				buffStat(target, "def", -BUFFSTEP)	-- negative values lower a stat
+				buffStat(target, "def", -BUFFSTEP*2)	-- negative values lower a stat
 				playSound(mo.battlen, sfx_s3k8c)
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1
@@ -7577,11 +7577,11 @@ rawset(_G, "attackDefs", {
 		name = "Moondrop",
 		type = ATK_STRIKE,
 		power = 120,
-		accuracy = 90,
+		accuracy = 100,
 		costtype = CST_HPPERCENT,
 		cost = 10,
 		critical = 5,
-		desc = "Medium Strike damage to \none enemy and lowers\ndefence by 1 stage.",
+		desc = "Medium Strike damage to \none enemy and lowers\ndefence by 2 stages.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7637,7 +7637,7 @@ rawset(_G, "attackDefs", {
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
 			and target.damagestate ~= DMG_DRAIN
-				buffStat(target, "def", -BUFFSTEP)	-- negative values lower a stat
+				buffStat(target, "def", -BUFFSTEP*2)	-- negative values lower a stat
 				playSound(mo.battlen, sfx_s3k8c)
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1
@@ -7654,11 +7654,11 @@ rawset(_G, "attackDefs", {
 		name = "Stardrop",
 		type = ATK_STRIKE,
 		power = 270,
-		accuracy = 90,
+		accuracy = 100,
 		costtype = CST_HPPERCENT,
 		cost = 14,
 		critical = 5,
-		desc = "Heavy Strike damage to \none enemy and lowers\ndefence by 1 stage.",
+		desc = "Heavy Strike damage to \none enemy and lowers\ndefence by 2 stages.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7714,7 +7714,7 @@ rawset(_G, "attackDefs", {
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
 			and target.damagestate ~= DMG_DRAIN
-				buffStat(target, "def", -BUFFSTEP)	-- negative values lower a stat
+				buffStat(target, "def", -BUFFSTEP*2)	-- negative values lower a stat
 				playSound(mo.battlen, sfx_s3k8c)
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1

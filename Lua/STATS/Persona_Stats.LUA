@@ -339,7 +339,6 @@ rawset(_G, "personaList", {
 			{"gigantic fist", 53, "tarunda"}, {"ziodyne", 57, "assault dive"},
 			{"iron fist", 61, "zionga"}, {"stardrop", 65, "moondrop"},
 			{"diarahan", 69, "diarama"}, {"megaton raid", 75, "gigantic fist"}
-
 		},
 	},
 
