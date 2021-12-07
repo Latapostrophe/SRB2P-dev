@@ -1092,13 +1092,13 @@ rawset(_G, "attackDefs", {
 		name = "Tentarafoo",
 		type = ATK_SUPPORT,
 		power = 0,
-		accuracy = 50,
-		statuschance = 50,
+		accuracy = 40,
+		statuschance = 25,
 		status = COND_DIZZY,
 		costtype = CST_SP,
 		luckbased = true,	-- use luck instead of agility
 		cost = 12,
-		desc = "High chance of inflicting \nDizzy on all enemies.",
+		desc = "Low chance of inflicting \nDizzy on all enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 				for i = 1, #hittargets
@@ -7499,11 +7499,11 @@ rawset(_G, "attackDefs", {
 		name = "Teardrop",
 		type = ATK_STRIKE,
 		power = 65,
-		accuracy = 100,
+		accuracy = 90,
 		costtype = CST_HPPERCENT,
 		cost = 7,
 		critical = 5,
-		desc = "Light Strike damage to \none enemy and lowers\ndefence by 2 stages.",
+		desc = "Light Strike damage to \none enemy and lowers\ndefence by 1 stage.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7560,7 +7560,7 @@ rawset(_G, "attackDefs", {
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
 			and target.damagestate ~= DMG_DRAIN
-				buffStat(target, "def", -BUFFSTEP*2)	-- negative values lower a stat
+				buffStat(target, "def", -BUFFSTEP)	-- negative values lower a stat
 				playSound(mo.battlen, sfx_s3k8c)
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1
@@ -7577,11 +7577,11 @@ rawset(_G, "attackDefs", {
 		name = "Moondrop",
 		type = ATK_STRIKE,
 		power = 120,
-		accuracy = 100,
+		accuracy = 90,
 		costtype = CST_HPPERCENT,
 		cost = 10,
 		critical = 5,
-		desc = "Medium Strike damage to \none enemy and lowers\ndefence by 2 stages.",
+		desc = "Medium Strike damage to \none enemy and lowers\ndefence by 1 stage.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7637,7 +7637,7 @@ rawset(_G, "attackDefs", {
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
 			and target.damagestate ~= DMG_DRAIN
-				buffStat(target, "def", -BUFFSTEP*2)	-- negative values lower a stat
+				buffStat(target, "def", -BUFFSTEP)	-- negative values lower a stat
 				playSound(mo.battlen, sfx_s3k8c)
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1
@@ -7654,11 +7654,11 @@ rawset(_G, "attackDefs", {
 		name = "Stardrop",
 		type = ATK_STRIKE,
 		power = 270,
-		accuracy = 100,
+		accuracy = 90,
 		costtype = CST_HPPERCENT,
 		cost = 14,
 		critical = 5,
-		desc = "Heavy Strike damage to \none enemy and lowers\ndefence by 2 stages.",
+		desc = "Heavy Strike damage to \none enemy and lowers\ndefence by 1 stage.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7714,7 +7714,7 @@ rawset(_G, "attackDefs", {
 			and target.damagestate ~= DMG_MISS		-- make sure we landed the attack
 			and target.damagestate ~= DMG_BLOCK
 			and target.damagestate ~= DMG_DRAIN
-				buffStat(target, "def", -BUFFSTEP*2)	-- negative values lower a stat
+				buffStat(target, "def", -BUFFSTEP)	-- negative values lower a stat
 				playSound(mo.battlen, sfx_s3k8c)
 				local dbuff = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_DUMMY)
 				dbuff.state = S_DBUFF1
@@ -9386,6 +9386,169 @@ rawset(_G, "attackDefs", {
 		end,
 	},
 
+	["psycho force"] = {
+		name = "Psycho Force",
+		type = ATK_PSY,
+		power = 650,
+		accuracy = 95,
+		costtype = CST_SP,
+		cost = 24,
+		desc = "Severe Psy dmg to one enemy.",
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			local psiocolors = {SKINCOLOR_TEAL, SKINCOLOR_YELLOW, SKINCOLOR_PINK, SKINCOLOR_BLACK, SKINCOLOR_WHITE}
+
+			if target.psiodyne and #target.psiodyne
+				-- slow all of these down
+				for i = 1, #target.psiodyne do
+					local f = target.psiodyne[i]
+					if not f or not f.valid continue end
+					local g = P_SpawnGhostMobj(f)
+					g.destscale = 1
+				end
+			end
+
+
+			-- Lift the target
+
+			if timer <= 130
+			and timer > 20
+				target.momz = (target.floorz + FRACUNIT*192 - target.z)/8
+				P_SpawnGhostMobj(target)
+
+			elseif timer > 130
+				target.momz = -32*target.scale
+
+				if P_IsObjectOnGround(target)
+				and not target.tkdamage
+					damageObject(hittargets[1])
+					target.tkdamage = true
+					for i = 1, 3
+						createSplat(mo)
+					end
+					for i = 1,32
+						local dust = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+						dust.angle = ANGLE_90 + ANG1* (11*(i-1))
+						dust.destscale = FRACUNIT*10
+						dust.state = S_AOADUST1
+						dust.frame = A|FF_FULLBRIGHT
+						P_InstaThrust(dust, dust.angle, 20*FRACUNIT)
+
+						local a = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+						a.sprite = SPR_NTHK
+						a.frame = A|FF_FULLBRIGHT
+						a.tics = TICRATE*2
+						a.color = psiocolors[P_RandomRange(1, #psiocolors)]
+						a.flags = $ & ~MF_NOGRAVITY
+						a.momx = P_RandomRange(-16, 16)*target.scale
+						a.momy = P_RandomRange(-16, 16)*target.scale
+						a.momz = P_RandomRange(8, 32)*target.scale
+
+					end
+					playSound(mo.battlen, sfx_pstop)
+					localquake(mo.battlen, FRACUNIT*32, TICRATE/2)
+
+					target.tkdamage = true
+				end
+			end
+
+			if timer == 20
+				target.psiodyne = {}
+				playSound(mo.battlen, sfx_s3k74)
+
+				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				ol.sprite = SPR_NTHK
+				ol.color = psiocolors[P_RandomRange(1, #psiocolors)]
+				ol.scale = 1
+				ol.destscale = FRACUNIT*32
+				ol.scalespeed = FRACUNIT/3
+				ol.frame = B|FF_FULLBRIGHT
+				ol.tics = 20
+
+				-- spawn all the particles
+				for i = 1, 64 do
+					local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+					ol.sprite = SPR_NTHK
+					ol.color = psiocolors[P_RandomRange(1, #psiocolors)]
+					ol.scale = 1
+					ol.destscale = FRACUNIT*2/3
+					ol.frame = A|FF_FULLBRIGHT
+					ol.tics = -1
+					ol.angle = P_RandomRange(0, 359)*ANG1
+
+					local hthrust = P_RandomRange(0, 128)
+					local vthrust = 128-hthrust
+					P_InstaThrust(ol, ol.angle, hthrust*FRACUNIT)
+					ol.momz = vthrust*FRACUNIT
+					ol.savemoms = {ol.momx, ol.momy, ol.momz}
+					target.psiodyne[#target.psiodyne+1] = ol
+				end
+
+			elseif timer >= 20
+			and timer <= 60
+				-- slow all of these down
+				for i = 1, #target.psiodyne do
+					local f = target.psiodyne[i]
+					f.momx = $*80/100
+					f.momy = $*80/100
+					f.momz = $*80/100
+				end
+
+			elseif timer > 60 and timer < 128
+				local t = timer-60
+				local f = target.psiodyne[t]
+				if f and f.valid
+					f.momx = -f.savemoms[1]*2
+					f.momy = -f.savemoms[2]*2
+
+					local hspd = FixedHypot(abs(f.savemoms[1]), abs(f.savemoms[2]))
+
+					f.momz = FixedDiv((target.z - f.z), max(1, hspd))
+					f.fuse = 8
+				end
+
+				if timer > 60 + TICRATE/3
+					-- make impacts
+					if not (leveltime%4)
+
+						local x = target.x + P_RandomRange(-256, 256)*FRACUNIT
+						local y = target.y + P_RandomRange(-256, 256)*FRACUNIT
+						local z = target.z + P_RandomRange(0, 256)*FRACUNIT
+
+						playSound(mo.battlen, sfx_s3k77)
+						localquake(mo.battlen, FRACUNIT*64, 10)
+
+						local ol = P_SpawnMobj(x, y, z, MT_DUMMY)
+						ol.sprite = SPR_NTHK
+						ol.color = psiocolors[P_RandomRange(1, #psiocolors)]
+						ol.scale = 1
+						ol.destscale = FRACUNIT*32
+						ol.scalespeed = FRACUNIT/3
+						ol.frame = B|FF_FULLBRIGHT
+						ol.tics = 20
+						localquake(mo.battlen, 7*FRACUNIT, 2)
+
+						ol = P_SpawnMobj(x, y, z, MT_DUMMY)
+						ol.sprite = SPR_NTHK
+						ol.color = psiocolors[P_RandomRange(1, #psiocolors)]
+						ol.scale = 1
+						ol.destscale = FRACUNIT*32
+						ol.scalespeed = FRACUNIT
+						ol.frame = B|FF_FULLBRIGHT|TR_TRANS50
+						ol.tics = 8
+
+					end
+				end
+
+			elseif timer == 190
+				target.tkdamage = nil	-- reset this
+				return true
+			end
+		end,
+	},
+
 	["ghastly wail"] = {
 		name = "Ghastly Wail",
 		type = ATK_ALMIGHTY,
@@ -10342,7 +10505,7 @@ rawset(_G, "attackDefs", {
 	["kouha"] = {
 		name = "Kouha",
 		type = ATK_BLESS,
-		power = 75,
+		power = 60,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 4,
@@ -10389,7 +10552,7 @@ rawset(_G, "attackDefs", {
 	["makouha"] = {
 		name = "Makouha",
 		type = ATK_BLESS,
-		power = 75,
+		power = 60,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -10440,7 +10603,7 @@ rawset(_G, "attackDefs", {
 	["kouga"] = {
 		name = "Kouga",
 		type = ATK_BLESS,
-		power = 170,
+		power = 140,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 8,
@@ -10493,7 +10656,7 @@ rawset(_G, "attackDefs", {
 	["makouga"] = {
 		name = "Makouga",
 		type = ATK_BLESS,
-		power = 170,
+		power = 140,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -10557,7 +10720,7 @@ rawset(_G, "attackDefs", {
 	["kougaon"] = {
 		name = "Kougaon",
 		type = ATK_BLESS,
-		power = 400,
+		power = 350,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 12,
@@ -10612,7 +10775,7 @@ rawset(_G, "attackDefs", {
 	["makougaon"] = {
 		name = "Makougaon",
 		type = ATK_BLESS,
-		power = 400,
+		power = 350,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -10678,7 +10841,7 @@ rawset(_G, "attackDefs", {
 	["eiha"] = {
 		name = "Eiha",
 		type = ATK_CURSE,
-		power = 75,
+		power = 60,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 4,
@@ -10745,7 +10908,7 @@ rawset(_G, "attackDefs", {
 	["maeiha"] = {
 		name = "Maeiha",
 		type = ATK_CURSE,
-		power = 75,
+		power = 60,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -10818,7 +10981,7 @@ rawset(_G, "attackDefs", {
 	["eiga"] = {
 		name = "Eiga",
 		type = ATK_CURSE,
-		power = 170,
+		power = 140,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 8,
@@ -10902,7 +11065,7 @@ rawset(_G, "attackDefs", {
 	["maeiga"] = {
 		name = "Maeiga",
 		type = ATK_CURSE,
-		power = 170,
+		power = 140,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -10991,7 +11154,7 @@ rawset(_G, "attackDefs", {
 	["eigaon"] = {
 		name = "Eigaon",
 		type = ATK_CURSE,
-		power = 400,
+		power = 350,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 12,
@@ -11145,7 +11308,7 @@ rawset(_G, "attackDefs", {
 	["maeigaon"] = {
 		name = "Maeigaon",
 		type = ATK_CURSE,
-		power = 400,
+		power = 350,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -11848,7 +12011,7 @@ rawset(_G, "attackDefs", {
 		power = 350,
 		accuracy = 95,
 		costtype = CST_SP,
-		cost = 9,
+		cost = 12,
 		desc = "Heavy Wind dmg to one enemy.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -11924,7 +12087,7 @@ rawset(_G, "attackDefs", {
 		power = 140,
 		accuracy = 95,
 		costtype = CST_SP,
-		cost = 6,
+		cost = 8,
 		desc = "Medium Wind dmg to one enemy.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -12040,7 +12203,7 @@ rawset(_G, "attackDefs", {
 		power = 350,
 		accuracy = 90,
 		costtype = CST_SP,
-		cost = 18,
+		cost = 24,
 		desc = "Heavy Wind dmg to all enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
@@ -12097,7 +12260,7 @@ rawset(_G, "attackDefs", {
 		power = 140,
 		accuracy = 90,
 		costtype = CST_SP,
-		cost = 12,
+		cost = 16,
 		desc = "Medium Wind dmg to all enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
@@ -12151,7 +12314,7 @@ rawset(_G, "attackDefs", {
 		power = 60,
 		accuracy = 90,
 		costtype = CST_SP,
-		cost = 6,
+		cost = 8,
 		desc = "Light Wind dmg to all enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
@@ -12208,7 +12371,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		costtype = CST_SP,
 		technical = COND_BURN,
-		cost = 3,
+		cost = 4,
 		desc = "Light Wind dmg to one enemy.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)

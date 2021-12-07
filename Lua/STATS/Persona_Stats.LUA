@@ -146,6 +146,7 @@ rawset(_G, "personaList", {
 					{"mapsio", 34, "psi"}, {"mamakakaja", 38, "makakaja"},
 					{"spirit leech", 42, "spirit drain"}, {"mind charge", 46, "mapsi"},
 					{"psiodyne", 52, "psio"}, {"psy amp", 62}, {"mapsiodyne", 68, "mapsio"},
+					{"psycho force", 77, "psiodyne"}
 				},
 
 		--skills = hacklist,
