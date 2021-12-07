@@ -10342,7 +10342,7 @@ rawset(_G, "attackDefs", {
 	["kouha"] = {
 		name = "Kouha",
 		type = ATK_BLESS,
-		power = 60,
+		power = 75,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 4,
@@ -10389,7 +10389,7 @@ rawset(_G, "attackDefs", {
 	["makouha"] = {
 		name = "Makouha",
 		type = ATK_BLESS,
-		power = 60,
+		power = 75,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -10440,7 +10440,7 @@ rawset(_G, "attackDefs", {
 	["kouga"] = {
 		name = "Kouga",
 		type = ATK_BLESS,
-		power = 140,
+		power = 170,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 8,
@@ -10493,7 +10493,7 @@ rawset(_G, "attackDefs", {
 	["makouga"] = {
 		name = "Makouga",
 		type = ATK_BLESS,
-		power = 140,
+		power = 170,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -10557,7 +10557,7 @@ rawset(_G, "attackDefs", {
 	["kougaon"] = {
 		name = "Kougaon",
 		type = ATK_BLESS,
-		power = 350,
+		power = 400,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 12,
@@ -10612,7 +10612,7 @@ rawset(_G, "attackDefs", {
 	["makougaon"] = {
 		name = "Makougaon",
 		type = ATK_BLESS,
-		power = 350,
+		power = 400,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -10678,7 +10678,7 @@ rawset(_G, "attackDefs", {
 	["eiha"] = {
 		name = "Eiha",
 		type = ATK_CURSE,
-		power = 60,
+		power = 75,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 4,
@@ -10745,7 +10745,7 @@ rawset(_G, "attackDefs", {
 	["maeiha"] = {
 		name = "Maeiha",
 		type = ATK_CURSE,
-		power = 60,
+		power = 75,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -10818,7 +10818,7 @@ rawset(_G, "attackDefs", {
 	["eiga"] = {
 		name = "Eiga",
 		type = ATK_CURSE,
-		power = 140,
+		power = 170,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 8,
@@ -10902,7 +10902,7 @@ rawset(_G, "attackDefs", {
 	["maeiga"] = {
 		name = "Maeiga",
 		type = ATK_CURSE,
-		power = 140,
+		power = 170,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -10991,7 +10991,7 @@ rawset(_G, "attackDefs", {
 	["eigaon"] = {
 		name = "Eigaon",
 		type = ATK_CURSE,
-		power = 350,
+		power = 400,
 		accuracy = 95,
 		costtype = CST_SP,
 		cost = 12,
@@ -11145,7 +11145,7 @@ rawset(_G, "attackDefs", {
 	["maeigaon"] = {
 		name = "Maeigaon",
 		type = ATK_CURSE,
-		power = 350,
+		power = 400,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -11848,7 +11848,7 @@ rawset(_G, "attackDefs", {
 		power = 350,
 		accuracy = 95,
 		costtype = CST_SP,
-		cost = 12,
+		cost = 9,
 		desc = "Heavy Wind dmg to one enemy.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -11924,7 +11924,7 @@ rawset(_G, "attackDefs", {
 		power = 140,
 		accuracy = 95,
 		costtype = CST_SP,
-		cost = 8,
+		cost = 6,
 		desc = "Medium Wind dmg to one enemy.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -12040,7 +12040,7 @@ rawset(_G, "attackDefs", {
 		power = 350,
 		accuracy = 90,
 		costtype = CST_SP,
-		cost = 24,
+		cost = 18,
 		desc = "Heavy Wind dmg to all enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
@@ -12097,7 +12097,7 @@ rawset(_G, "attackDefs", {
 		power = 140,
 		accuracy = 90,
 		costtype = CST_SP,
-		cost = 16,
+		cost = 12,
 		desc = "Medium Wind dmg to all enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
@@ -12151,7 +12151,7 @@ rawset(_G, "attackDefs", {
 		power = 60,
 		accuracy = 90,
 		costtype = CST_SP,
-		cost = 8,
+		cost = 6,
 		desc = "Light Wind dmg to all enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
@@ -12208,7 +12208,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		costtype = CST_SP,
 		technical = COND_BURN,
-		cost = 4,
+		cost = 3,
 		desc = "Light Wind dmg to one enemy.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
