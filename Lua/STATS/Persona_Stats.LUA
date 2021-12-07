@@ -212,9 +212,10 @@ rawset(_G, "personaList", {
 					
 					{"me patra", 28, "dia"}, {"magarula", 34, "garu"},
 					{"garuverse", 37, "magaru"}, {"wind boost", 40, "patra"},
-					{"mediarama", 45, "media"}, {"garudyne", 52, "garula"},
-					{"diarahan", 57, "diarama"}, {"wind amp", 62, "wind boost"},
-					{"mediarahan", 66, "mediarama"}, {"magarudyne", 70, "magarula"}
+					{"mediarama", 45, "media"},	{"samarecarm", 49, "recarm"},
+					{"garudyne", 52, "garula"}, {"diarahan", 57, "diarama"},
+					{"wind amp", 62, "wind boost"}, {"mediarahan", 66, "mediarama"},
+					{"magarudyne", 70, "magarula"}, {"panta rhei", 81, "garudyne"}
 				},
 	},
 
