@@ -1092,13 +1092,13 @@ rawset(_G, "attackDefs", {
 		name = "Tentarafoo",
 		type = ATK_SUPPORT,
 		power = 0,
-		accuracy = 40,
-		statuschance = 25,
+		accuracy = 50,
+		statuschance = 50,
 		status = COND_DIZZY,
 		costtype = CST_SP,
 		luckbased = true,	-- use luck instead of agility
 		cost = 12,
-		desc = "Low chance of inflicting \nDizzy on all enemies.",
+		desc = "High chance of inflicting \nDizzy on all enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 				for i = 1, #hittargets

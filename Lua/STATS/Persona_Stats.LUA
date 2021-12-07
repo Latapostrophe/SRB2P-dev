@@ -109,7 +109,7 @@ rawset(_G, "personaList", {
 					{"rakunda", 10}, {"maeiha", 15},
 					{"life drain", 19}, {"eiga", 23},
 					{"backup trick", 26}, {"curse boost", 33},
-					{"maeiga", 36, "eiha"}, {"marakunda", 40, "rakunda"}, 
+					{"maeiga", 36, "eiha"}, {"marakunda", 40, "rakunda"},
 					{"mudoon", 43, "mudo"}, {"life leech", 47, "life drain"},
 					{"tetraja", 51, "maeiha"}, {"eigaon", 54, "eiga"},
 					{"life siphon", 59, "life leech"}, {"curse amp", 65, "curse boost"},
@@ -164,10 +164,10 @@ rawset(_G, "personaList", {
 		startframe = 0,
 
 		strength = 4,
-		magic = 12,
+		magic = 11,
 		endurance = 6,
 		luck = 10,
-		agility = 7,
+		agility = 8,
 		weak = ATK_FIRE,
 		resist = ATK_ICE|ATK_SLASH,
 		skills = {
@@ -176,12 +176,12 @@ rawset(_G, "personaList", {
 					{"mabufu", 15}, {"bufula", 19},
 					{"diarama", 23}, {"giant slice", 26},
 					{"impure reach", 30, "bufu"},
-					
+
 					{"mabufula", 34, "dia"}, {"merciless slayer", 37, "cleave"},
 					{"tentarafoo", 41, "pulinpa"}, {"ice boost", 45, "mabufu"},
-					{"bufudyne", 52, "bufula"}, {"fatal end", 56, "giant slice"}, 
+					{"bufudyne", 52, "bufula"}, {"fatal end", 56, "giant slice"},
 					{"diarahan", 58, "diarama"}, {"ice amp", 64, "ice boost"},
-					{"mabufudyne", 67, "mabufula"}
+					{"mabufudyne", 67, "mabufula"}, {"niflheim", 75, "bufudyne"},
 				},
 	},
 
@@ -209,7 +209,7 @@ rawset(_G, "personaList", {
 					{"media", 14}, {"patra", 15},
 					{"magaru", 16}, {"diarama", 19},
 					{"garula", 21}, {"recarm", 25},
-					
+
 					{"me patra", 28, "dia"}, {"magarula", 34, "garu"},
 					{"garuverse", 37, "magaru"}, {"wind boost", 40, "patra"},
 					{"mediarama", 45, "media"},	{"samarecarm", 49, "recarm"},
@@ -243,15 +243,15 @@ rawset(_G, "personaList", {
 					{"tarukaja", 11}, {"dekunda", 15},
 					{"mafrei", 18}, {"assault shot", 22},
 					{"freila", 26}, {"swordbreaker", 30},
-					
+
 					{"mafreila", 34, "snap"}, {"matarukaja", 38, "tarukaja"},
 					{"heat wave", 42, "frei"}, {"power charge", 45, "mafrei"},
 					{"heavy shot", 53, "assault shot"}, {"freidyne", 57, "freila"},
 					{"vicious strike", 62, "heat wave"}, {"mafreidyne", 67, "mafreila"},
 					{"pralaya", 75, "heavy shot"}, {"akasha arts", 85, "vicious strike"},
-					
-					
-		
+
+
+
 					/*{"frei", 1}, {"snap", 4},
 					{"sukukaja", 8}, {"tarukaja", 12},
 					{"dekunda", 15}, {"kill rush", 17},
@@ -327,18 +327,18 @@ rawset(_G, "personaList", {
 		anim_atk = 	{SPR_PSN2, D, E, F, G, H, H, H, H, I, J, J, J, J, J, J, 2},
 
 		skills = {
-		
+
 			{"lunge", 1}, {"zio", 4},
 			{"dia", 9}, {"tarunda", 14},
 			{"dekaja", 18}, {"assault dive", 23},
 			{"teardrop", 27},  {"zionga", 31},
-			
+
 			{"hard knuckle", 35, "lunge"}, {"diarama", 39, "dia"},
 			{"matarunda", 46, "zio"}, {"moondrop", 49, "teardrop"},
 			{"gigantic fist", 53, "tarunda"}, {"ziodyne", 57, "assault dive"},
 			{"iron fist", 61, "zionga"}, {"stardrop", 65, "moondrop"},
 			{"diarahan", 69, "diarama"}, {"megaton raid", 75, "gigantic fist"}
-		
+
 		},
 	},
 
@@ -407,7 +407,7 @@ rawset(_G, "personaList", {
 		arcana = nil,			-- Arcana (unused in Beta 1.0.0, can be left nil as well)
 
 		sprite = SPR_PSN0,
-		startframe = 0,			
+		startframe = 0,
 
 		anim_idle = 	{SPR_NULL, A},
 		anim_atk = 		{SPR_NULL, A},
@@ -427,7 +427,7 @@ rawset(_G, "personaList", {
 					{"cleave", 1}, {"skewer", 5},
 					{"counter", 12}, {"toxic slice", 16},
 					{"twin slash", 20}, {"cruel attack", 24},
-					{"sharp edge", 27}, {"gale slash", 31}, 
+					{"sharp edge", 27}, {"gale slash", 31},
 
 					{"counterstrike", 34, "counter"},
 					{"distortion", 40, "cleave"},
@@ -466,7 +466,7 @@ rawset(_G, "personaList", {
 		weak = ATK_BLESS|ATK_NUCLEAR,
 		resist = ATK_PSY,
 		drain = ATK_CURSE,
-	},	
+	},
 
 	["pixie_alt"] = {
 		-- GENERAL
@@ -553,7 +553,7 @@ rawset(_G, "personaList", {
 		agility = 7,
 		skills = {},
 	},
-	
+
 }
 )
 
