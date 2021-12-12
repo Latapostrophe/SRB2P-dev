@@ -9892,6 +9892,8 @@ rawset(_G, "attackDefs", {
 		end,
 	},
 
+	-- Original animation courtesy of @Helius Universe
+	-- Modified slightly to improve quality
 	["die for me"] = {
 		name = "Die For Me!",
 		type = ATK_CURSE,
@@ -9905,75 +9907,118 @@ rawset(_G, "attackDefs", {
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 
-			local function spawnFlame(m, dist, z)
-				local x = m.x + dist*cos(m.angle + ANG1*90) + 24*cos(m.angle)
-				local y = m.y + dist*sin(m.angle + ANG1*90) + 24*sin(m.angle)
-				local f = P_SpawnMobj(x, y, z, MT_THOK)
-				f.state = S_FLAME
-				f.scale = 1
-				f.destscale = FRACUNIT
-				f.colorized = true
-				f.color = SKINCOLOR_PURPLE
-				f.flags = MF_NOGRAVITY|MF_NOCLIPHEIGHT
-				return f
-			end
+			-- yes we can do that...
+			local teddythinker = function(mo)
+				if R_PointToDist2(mo.x,mo.y,mo.targetx,mo.targety)<(FRACUNIT*128)
+					--destroy teddy
+					for i=1,5
+						local s = P_SpawnMobj(mo.x+P_RandomRange(-8,8)*FRACUNIT,mo.y+P_RandomRange(-8,8)*FRACUNIT,mo.z+P_RandomRange(-8,8)*FRACUNIT, MT_DUMMY)
+						s.sprite = SPR_TEDL
+						s.tics = TICRATE
+						s.flags = $ & ~MF_NOGRAVITY
+						s.frame = P_RandomRange(0,4)
+						s.momx = P_RandomRange(-8,8)*FRACUNIT
+						s.momy = P_RandomRange(-8,8)*FRACUNIT
+						s.momz = P_RandomRange(0,16)*FRACUNIT
+						s.angle = FixedAngle(P_RandomRange(0,360)*FRACUNIT)
+					end
 
-			for i = 1, #hittargets
-				local target = hittargets[i]
-				local time = timer - 6*(i-1)
-
-				if time == 10
-					local x = target.x + 48*cos(target.angle)
-					local y = target.y + 48*sin(target.angle)
-					playSound(mo.battlen, sfx_eih2)
-					target.mudo_dum = P_SpawnMobj(x, y, target.z + FRACUNIT*32, MT_DUMMY)
-					target.mudo_dum.state = S_INVISIBLE
-					target.mudo_dum.tics = -1
-					target.mudo_dum.angle = target.angle
-
-					local f = spawnFlame(target.mudo_dum, 0, target.mudo_dum.z + FRACUNIT*48)
-					f.fuse = TICRATE*2
-				elseif time == 15
-					local f = spawnFlame(target.mudo_dum, 48, target.mudo_dum.z)
-					f.fuse = TICRATE*2 -5
-				elseif time == 20
-					local f = spawnFlame(target.mudo_dum, 0, target.mudo_dum.z - FRACUNIT*48)
-					f.fuse = TICRATE*2 -10
-				elseif time == 25
-					local f = spawnFlame(target.mudo_dum, -49, target.mudo_dum.z)
-					f.fuse = TICRATE*2 -15
-
-
-					local m = P_SpawnMobj(target.mudo_dum.x, target.mudo_dum.y, target.z + FRACUNIT*32, MT_DUMMY)
-					m.sprite = SPR_MUDO
-					m.frame = A|FF_TRANS20|FF_FULLBRIGHT|FF_PAPERSPRITE
-					m.angle = target.angle + ANG1*90
-					m.tics = -1
-					m.scale = FRACUNIT*3/2
-					target.mudo = m
-
-					m = P_SpawnMobj(target.mudo_dum.x, target.mudo_dum.y, target.z + FRACUNIT*32, MT_DUMMY)
-					m.sprite = SPR_MUDO
-					m.frame = A|FF_TRANS60|FF_FULLBRIGHT|FF_PAPERSPRITE
-					m.angle = mo.angle + ANG1*90
-					m.destscale = FRACUNIT*8
-					m.scalespeed = FRACUNIT/6
-					m.tics = 8
-				elseif time == 50
-					target.mudo.destscale = 1
-					target.mudo.tics = 20
-				elseif time == 70
-					damageObject(target)
-					target.mudo = nil
-					P_RemoveMobj(target.mudo_dum)
-					target.mudo_dum = nil
+					for i=1,15
+						local s = P_SpawnMobj(mo.x+P_RandomRange(-16,16)*FRACUNIT,mo.y+P_RandomRange(-16,16)*FRACUNIT,mo.z+P_RandomRange(-16,16)*FRACUNIT, MT_DUMMY)
+						s.sprite = SPR_TEDB
+						s.frame = A
+						s.tics = 15
+						s.flags = $ & ~MF_NOGRAVITY
+						s.momx = P_RandomRange(-16,16)*FRACUNIT
+						s.momy = P_RandomRange(-16,16)*FRACUNIT
+						s.momz = P_RandomRange(0,32)*FRACUNIT
+					end
+					P_RemoveMobj(mo)
+					return true
 				end
 			end
 
-			if timer == 110 + (#hittargets-1) *6
+			mo.teddybears = $ or {}
+			local teddys = 15
+			if timer == 1
+				playSound(mo.battlen, sfx_dfms)
+				local avgx, avgy, avgz = 0, 0, 0
+				for i = 1, #hittargets
+					avgx = $ + hittargets[i].x/FRACUNIT
+					avgy = $ + hittargets[i].y/FRACUNIT
+					avgz = $ + hittargets[i].z/FRACUNIT
+				end
+
+				avgx = ($/#hittargets)*FRACUNIT
+				avgy = ($/#hittargets)*FRACUNIT
+				avgz = ($/#hittargets)*FRACUNIT
+
+				for i=1,teddys
+					local speed = FRACUNIT*20
+					local radius = P_RandomRange(512,2048)*FRACUNIT
+					local angle = FixedAngle(P_RandomRange(0,259)*FRACUNIT)
+					local xOffset = cos(angle)
+					local yOffset = sin(angle)
+					local x = avgx+FixedMul(xOffset,radius)
+					local y = avgy+FixedMul(yOffset,radius)
+					local s = P_SpawnMobj(x,y,avgz, MT_DUMMY)
+					s.state = S_TEDDYRUN
+					s.momx = FixedMul(-xOffset,speed)
+					s.momy = FixedMul(-yOffset,speed)
+					s.targetx = avgx
+					s.targety = avgy
+					s.angle = R_PointToAngle2(s.x, s.y, avgx, avgy) --InvAngle(angle)
+					table.insert(mo.teddybears,s)
+				end
+			end
+
+
+			for i=1,#hittargets
+				if timer == (60 + (i-1)*5)
+					damageObject(hittargets[i])
+				end
+			end
+
+			if mo.teddybears and #mo.teddybears
+
+				local i = #mo.teddybears
+				while i~=0
+					if teddythinker(mo.teddybears[i])
+						table.remove(mo.teddybears,i)
+					end
+					i=$-1
+				end
+
+			end
+
+			if timer == 110
+
 				return true
 			end
 		end,
+		hudfunc2 = function(v,mo,timer)
+			local background = v.cachePatch("DFMBG")
+			local backgroundFlags = {V_90TRANS,V_80TRANS,V_70TRANS,V_60TRANS}
+			local curtains = {"CURTAI0","CURTAI1","CURTAI2","CURTAI3","CURTAI4","CURTAI5"}
+			if timer<=15
+				local curtainDuration = 15
+				local progress = FixedDiv(timer<<FRACBITS,curtainDuration<<FRACBITS)
+				drawScreenwidePatch(v, background, nil, backgroundFlags[FixedMul(progress,(#backgroundFlags-1)<<FRACBITS)>>FRACBITS+1])
+				--timer divided by the duration times the number of frames and then converted to integer scale
+
+				local curtain = v.cachePatch(curtains[(FixedMul(progress,(#curtains-1)<<FRACBITS)>>FRACBITS)+1])
+				drawScreenwidePatch(v, curtain)
+			else
+				local curtain = v.cachePatch(curtains[#curtains])
+				local tm = 10
+				if timer > 80
+					tm = max(0, 90 - timer)
+				end
+
+				drawScreenwidePatch(v, background, nil, backgroundFlags[#backgroundFlags] + ((5-(tm/2)) << V_ALPHASHIFT))
+				drawScreenwidePatch(v, curtain, nil, (10-tm) << V_ALPHASHIFT)
+			end
+		end
 	},
 
 	["hama"] = {

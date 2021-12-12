@@ -3,6 +3,11 @@
 
 -- @TODO: ...Organize this file, one day...
 
+-- DFM
+freeslot("SPR_TEDD", "SPR_TEDB", "SPR_TEDL", "S_TEDDYRUN","MT_TEDDY")
+freeslot("sfx_dfms")
+
+states[S_TEDDYRUN] = {SPR_TEDD, FF_ANIMATE, -1, nil, 5, 3, S_TEDDYRUN}
 
 -- Angel
 freeslot("sfx_wngapr")
