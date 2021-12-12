@@ -5281,18 +5281,18 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 				if server.difficulty == 7
 				and not server.marathon	-- ?
 				and not srb2p.local_conds[UNLOCK_B7_FINISHED]
-					P_unlock(UNLOCK_B7_FINISHED)		-- Silent unlock
+					P_unlock(UNLOCK_B7_FINISHED)	-- Silent unlock
 				end
 
 				-- Finished Marathon
 				if server.marathon
 				and not srb2p.local_conds[UNLOCK_MARATHON_FINISHED]
-					P_unlock(UNLOCK_MARATHON_FINISHED)	-- Silent unlock
+					P_unlock(UNLOCK_MR_FINISHED)	-- Silent unlock
 				end
 
 				-- Finished Void Run
 				if server.gamemode == GM_VOIDRUN
-					P_unlock(UNLOCK_VOIDRUN_FINISHED)
+					P_unlock(UNLOCK_VR_FINISHED)	-- Silent unlock
 				end
 			end
 
