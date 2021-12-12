@@ -51,7 +51,7 @@ rawset(_G, "subpersonaList", {
 		lu = 0,
 		skills = {},
 	},
-	
+
 	-- AMADAH SUBPERSONAS
 	["trumpeter"] = {
 		name = "Trumpeter",
@@ -60,14 +60,14 @@ rawset(_G, "subpersonaList", {
 		lv = 69,
 		arcana = ARCANA_JUDGEMENT,
 		weapontype = ATK_NUCLEAR,
-		st = -3,
-		ma = 3,
-		en = 0,
-		ag = 3,
+		st = -5,
+		ma = 2,
+		en = 6,
+		ag = 2,
 		lu = -4,
 		skills = {"megidola", "marakukaja", "freidyne", "heat riser"},
 	},
-	
+
 	["lilith"] = {
 		name = "Lilith",
 		sprite = SPR_SBP2,
@@ -77,12 +77,12 @@ rawset(_G, "subpersonaList", {
 		weapontype = ATK_ELEC,
 		st = -2,
 		ma = 5,
-		en = -1,
-		ag = 0,
-		lu = -4,
+		en = -5,
+		ag = 3,
+		lu = 0,
 		skills = {"ziodyne", "elec break", "sexy dance", "makarakarn"}
 	},
-	
+
 	["archangel"] = {
 		name = "Archangel",
 		sprite = SPR_SBP2,
@@ -90,14 +90,14 @@ rawset(_G, "subpersonaList", {
 		lv = 69,
 		arcana = ARCANA_JUSTICE,
 		weapontype = ATK_BLESS,
-		st = 4,
+		st = 5,
 		ma = -3,
-		en = -3,
+		en = -4,
 		ag = 0,
-		lu = 4,
+		lu = 5,
 		skills = {"mahamaon", "fatal end", "survive death"}
 	},
-	
+
 	["raphael"] = {
 		name = "Raphael",
 		sprite = SPR_SBP2,
@@ -105,14 +105,14 @@ rawset(_G, "subpersonaList", {
 		lv = 69,
 		arcana = ARCANA_LOVERS,
 		weapontype = ATK_SLASH,
-		st = 4,
+		st = 6,
 		ma = -3,
-		en = -2,
-		ag = -2,
+		en = -3,
+		ag = 0,
 		lu = 3,
 		skills = {"deathbound", "matarukaja", "high counter"}
 	},
-	
+
 	["sati"] = {
 		name = "Sati",
 		sprite = SPR_SBP2,
@@ -121,13 +121,13 @@ rawset(_G, "subpersonaList", {
 		arcana = ARCANA_MAGICIAN,
 		weapontype = ATK_FIRE,
 		st = -3,
-		ma = 4,
+		ma = 6,
 		en = -3,
 		ag = 2,
 		lu = 0,
-		skills = {"agiverse", "maragidyne", "me patra", "drain fire"}
+		skills = {"agiverse", "maragidyne", "me patra", "resist fire"}
 	},
-	
+
 	["loki"] = {
 		name = "Loki",
 		sprite = SPR_SBP2,
@@ -136,7 +136,7 @@ rawset(_G, "subpersonaList", {
 		arcana = ARCANA_JUSTICE,
 		weapontype = ATK_ICE,
 		st = 0,
-		ma = 5,
+		ma = 6,
 		en = -4,
 		ag = 3,
 		lu = -5,
@@ -151,13 +151,13 @@ rawset(_G, "subpersonaList", {
 		arcana = ARCANA_HIEROPHANT,
 		weapontype = ATK_BLESS,
 		st = -5,
-		ma = 4,
+		ma = 6,
 		en = -5,
 		ag = 0,
-		lu = 5,
-		skills = {"samsara", "marakunda", "drain bless"}
+		lu = 4,
+		skills = {"samsara", "marakunda", "evade curse"}
 	},
-	
+
 	["alice"] = {
 		name = "Alice",
 		sprite = SPR_SBP2,
@@ -166,13 +166,13 @@ rawset(_G, "subpersonaList", {
 		arcana = ARCANA_DEATH,
 		weapontype = ATK_CURSE,
 		st = -5,
-		ma = 4,
+		ma = 6,
 		en = -5,
 		ag = 0,
-		lu = 5,
-		skills = {"die for me", "marakunda", "repel curse"}
+		lu = 4,
+		skills = {"die for me", "marakunda", "evade bless"}
 	},
-	
+
 	-- HARABAH SUBPERSONAS
 	["mara"] = {
 		name = "Mara",
@@ -459,7 +459,7 @@ rawset(_G, "subpersonaList", {
 		ag = 1,
 		skills = {"hama", "psy boost", "psio", "recarm"},
 	},
-	
+
 	-- YABBASHAH SUBPERSONAS
 	["hua po"] = {
 		name = "Hua Po",
@@ -475,7 +475,7 @@ rawset(_G, "subpersonaList", {
 		en = -1,
 		skills = {"agilao", "patra", "resist freeze"},
 	},
-	
+
 	["orobas"] = {
 		name = "Orobas",
 		sprite = SPR_SBP2,
@@ -490,7 +490,7 @@ rawset(_G, "subpersonaList", {
 		en = -3,
 		skills = {"assault dive", "garula", "wind break"},
 	},
-	
+
 	["leanan sidhe"] = {
 		name = "Leanan Sidhe",
 		sprite = SPR_SBP2,
@@ -505,7 +505,7 @@ rawset(_G, "subpersonaList", {
 		en = -3,
 		skills = {"diarama", "marin karin", "psio", "media"},
 	},
-	
+
 	["king frost"] = {
 		name = "King Frost",
 		sprite = SPR_SBP2,
@@ -520,7 +520,7 @@ rawset(_G, "subpersonaList", {
 		en = 2,
 		skills = {"bufula", "rakukaja", "resist burn"},
 	},
-	
+
 	["queen mab"] = {
 		name = "Queen Mab",
 		sprite = SPR_SBP2,
@@ -535,7 +535,7 @@ rawset(_G, "subpersonaList", {
 		en = -5,
 		skills = {"mazio", "resist poison", "media"},
 	},
-	
+
 	["ares"] = {
 		name = "Ares",
 		sprite = SPR_SBP2,
@@ -550,7 +550,7 @@ rawset(_G, "subpersonaList", {
 		en = 4,
 		skills = {"giant slice", "rakunda", "counter"},
 	},
-	
+
 	["mithra"] = {
 		name = "Mithra",
 		sprite = SPR_SBP2,
@@ -565,7 +565,7 @@ rawset(_G, "subpersonaList", {
 		en = 1,
 		skills = {"mahama", "terror voice", "kouga"},
 	},
-	
+
 	["lilim"] = {
 		name = "Lilim",
 		sprite = SPR_SBP2,
@@ -580,7 +580,7 @@ rawset(_G, "subpersonaList", {
 		en = 0,
 		skills = {"mamudo", "zio", "resist brainwash"},
 	},
-	
+
 	-- ARQA SUBPERSONAS
 	["fortuna"] = {
 		name = "Fortuna",
@@ -596,7 +596,7 @@ rawset(_G, "subpersonaList", {
 		en = 0,
 		skills = {"bufula", "dia", "makakaja"},
 	},
-	
+
 
 	["lamia"] = {
 		name = "Lamia",
