@@ -2496,36 +2496,6 @@ rawset(_G, "attackDefs", {
 	["mastery 1"] = {
 		name = "Mastery I",
 		type = ATK_PASSIVE,
-		desc = "Boost weakness, critical\nand technical damage by 3%",
-		passive = PSV_TRIGGERDAMAGE,
-		anim = 	function(mo, target, dmg, crit)
-					if target.damagestate == DMG_WEAK
-					or target.damagestate == DMG_TECHNICAL
-					or target.damagestate == DMG_CRITICAL
-						dmg = $*103/100
-					end
-					return dmg
-				end,
-	},
-
-	["mastery 2"] = {
-		name = "Mastery II",
-		type = ATK_PASSIVE,
-		desc = "Boost weakness, critical\nand technical damage by 7%",
-		passive = PSV_TRIGGERDAMAGE,
-		anim = 	function(mo, target, dmg, crit)
-					if target.damagestate == DMG_WEAK
-					or target.damagestate == DMG_TECHNICAL
-					or target.damagestate == DMG_CRITICAL
-						dmg = $*107/100
-					end
-					return dmg
-				end,
-	},
-
-	["mastery 3"] = {
-		name = "Mastery III",
-		type = ATK_PASSIVE,
 		desc = "Boost weakness, critical\nand technical damage by 10%",
 		passive = PSV_TRIGGERDAMAGE,
 		anim = 	function(mo, target, dmg, crit)
@@ -2538,38 +2508,38 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
+	["mastery 2"] = {
+		name = "Mastery II",
+		type = ATK_PASSIVE,
+		desc = "Boost weakness, critical\nand technical damage by 17%",
+		passive = PSV_TRIGGERDAMAGE,
+		anim = 	function(mo, target, dmg, crit)
+					if target.damagestate == DMG_WEAK
+					or target.damagestate == DMG_TECHNICAL
+					or target.damagestate == DMG_CRITICAL
+						dmg = $*117/100
+					end
+					return dmg
+				end,
+	},
+
+	["mastery 3"] = {
+		name = "Mastery III",
+		type = ATK_PASSIVE,
+		desc = "Boost weakness, critical\nand technical damage by 25%",
+		passive = PSV_TRIGGERDAMAGE,
+		anim = 	function(mo, target, dmg, crit)
+					if target.damagestate == DMG_WEAK
+					or target.damagestate == DMG_TECHNICAL
+					or target.damagestate == DMG_CRITICAL
+						dmg = $*125/100
+					end
+					return dmg
+				end,
+	},
+
 	["guard 1"] = {
 		name = "Guard I",
-		type = ATK_PASSIVE,
-		desc = "Reduce weakness, critical\nand technical damage received by 3%",
-		passive = PSV_TRIGGERDAMAGE_RECEIVED,
-		anim = 	function(mo, attacker, dmg, crit)
-					if mo.damagestate == DMG_WEAK
-					or mo.damagestate == DMG_CRITICAL
-					or mo.damagestate == DMG_TECHNICAL
-						dmg = $*97/100
-					end
-					return dmg
-				end,
-	},
-
-	["guard 2"] = {
-		name = "Guard II",
-		type = ATK_PASSIVE,
-		desc = "Reduce weakness, critical\nand technical damage received by 7%",
-		passive = PSV_TRIGGERDAMAGE_RECEIVED,
-		anim = 	function(mo, attacker, dmg, crit)
-					if mo.damagestate == DMG_WEAK
-					or mo.damagestate == DMG_CRITICAL
-					or mo.damagestate == DMG_TECHNICAL
-						dmg = $*93/100
-					end
-					return dmg
-				end,
-	},
-
-	["guard 3"] = {
-		name = "Guard III",
 		type = ATK_PASSIVE,
 		desc = "Reduce weakness, critical\nand technical damage received by 10%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
@@ -2583,14 +2553,44 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
+	["guard 2"] = {
+		name = "Guard II",
+		type = ATK_PASSIVE,
+		desc = "Reduce weakness, critical\nand technical damage received by 20%",
+		passive = PSV_TRIGGERDAMAGE_RECEIVED,
+		anim = 	function(mo, attacker, dmg, crit)
+					if mo.damagestate == DMG_WEAK
+					or mo.damagestate == DMG_CRITICAL
+					or mo.damagestate == DMG_TECHNICAL
+						dmg = $*80/100
+					end
+					return dmg
+				end,
+	},
+
+	["guard 3"] = {
+		name = "Guard III",
+		type = ATK_PASSIVE,
+		desc = "Reduce weakness, critical\nand technical damage received by 30%",
+		passive = PSV_TRIGGERDAMAGE_RECEIVED,
+		anim = 	function(mo, attacker, dmg, crit)
+					if mo.damagestate == DMG_WEAK
+					or mo.damagestate == DMG_CRITICAL
+					or mo.damagestate == DMG_TECHNICAL
+						dmg = $*70/100
+					end
+					return dmg
+				end,
+	},
+
 	["last stand"] = {
 		name = "Last Stand",
 		type = ATK_PASSIVE,
-		desc = "Boost damage by 20%\nwhen under 50% HP.",
+		desc = "Boost damage by 30%\nwhen under 50% HP.",
 		passive = PSV_TRIGGERDAMAGE,
 		anim = 	function(mo, target, dmg, crit)
 					if mo.hp < mo.maxhp/2
-						dmg = $*120/100
+						dmg = $*130/100
 					end
 					return dmg
 				end,
@@ -2710,19 +2710,6 @@ rawset(_G, "attackDefs", {
 	["precision 1"] = {
 		name = "Precision I",
 		type = ATK_PASSIVE,
-		desc = "Boost weakness damage by 5%",
-		passive = PSV_TRIGGERDAMAGE,
-		anim = 	function(mo, target, dmg, crit)
-					if target.damagestate == DMG_WEAK
-						dmg = $*105/100
-					end
-					return dmg
-				end,
-	},
-
-	["precision 2"] = {
-		name = "Precision II",
-		type = ATK_PASSIVE,
 		desc = "Boost weakness damage by 10%",
 		passive = PSV_TRIGGERDAMAGE,
 		anim = 	function(mo, target, dmg, crit)
@@ -2733,14 +2720,27 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
-	["precision 3"] = {
-		name = "Precision III",
+	["precision 2"] = {
+		name = "Precision II",
 		type = ATK_PASSIVE,
-		desc = "Boost weakness damage by 15%",
+		desc = "Boost weakness damage by 20%",
 		passive = PSV_TRIGGERDAMAGE,
 		anim = 	function(mo, target, dmg, crit)
 					if target.damagestate == DMG_WEAK
-						dmg = $*115/100
+						dmg = $*120/100
+					end
+					return dmg
+				end,
+	},
+
+	["precision 3"] = {
+		name = "Precision III",
+		type = ATK_PASSIVE,
+		desc = "Boost weakness damage by 30%",
+		passive = PSV_TRIGGERDAMAGE,
+		anim = 	function(mo, target, dmg, crit)
+					if target.damagestate == DMG_WEAK
+						dmg = $*130/100
 					end
 					return dmg
 				end,
@@ -2748,19 +2748,6 @@ rawset(_G, "attackDefs", {
 
 	["might 1"] = {
 		name = "Might I",
-		type = ATK_PASSIVE,
-		desc = "Boost critical damage by 10%",
-		passive = PSV_TRIGGERDAMAGE,
-		anim = 	function(mo, target, dmg, crit)
-					if target.damagestate == DMG_CRITICAL
-						dmg = $*110/100
-					end
-					return dmg
-				end,
-	},
-
-	["might 2"] = {
-		name = "Might II",
 		type = ATK_PASSIVE,
 		desc = "Boost critical damage by 15%",
 		passive = PSV_TRIGGERDAMAGE,
@@ -2772,14 +2759,27 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
-	["might 3"] = {
-		name = "Might III",
+	["might 2"] = {
+		name = "Might II",
 		type = ATK_PASSIVE,
-		desc = "Boost critical damage by 20%",
+		desc = "Boost critical damage by 30%",
 		passive = PSV_TRIGGERDAMAGE,
 		anim = 	function(mo, target, dmg, crit)
 					if target.damagestate == DMG_CRITICAL
-						dmg = $*120/100
+						dmg = $*130/100
+					end
+					return dmg
+				end,
+	},
+
+	["might 3"] = {
+		name = "Might III",
+		type = ATK_PASSIVE,
+		desc = "Boost critical damage by 50%",
+		passive = PSV_TRIGGERDAMAGE,
+		anim = 	function(mo, target, dmg, crit)
+					if target.damagestate == DMG_CRITICAL
+						dmg = $*150/100
 					end
 					return dmg
 				end,
@@ -2787,19 +2787,6 @@ rawset(_G, "attackDefs", {
 
 	["technique 1"] = {
 		name = "Technique I",
-		type = ATK_PASSIVE,
-		desc = "Boost technical damage by 10%",
-		passive = PSV_TRIGGERDAMAGE,
-		anim = 	function(mo, target, dmg, crit)
-					if target.damagestate == DMG_TECHNICAL
-						dmg = $*110/100
-					end
-					return dmg
-				end,
-	},
-
-	["technique 2"] = {
-		name = "Technique II",
 		type = ATK_PASSIVE,
 		desc = "Boost technical damage by 15%",
 		passive = PSV_TRIGGERDAMAGE,
@@ -2811,14 +2798,27 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
-	["technique 3"] = {
-		name = "Technique III",
+	["technique 2"] = {
+		name = "Technique II",
 		type = ATK_PASSIVE,
-		desc = "Boost technical damage by 20%",
+		desc = "Boost technical damage by 25%",
 		passive = PSV_TRIGGERDAMAGE,
 		anim = 	function(mo, target, dmg, crit)
 					if target.damagestate == DMG_TECHNICAL
-						dmg = $*120/100
+						dmg = $*125/100
+					end
+					return dmg
+				end,
+	},
+
+	["technique 3"] = {
+		name = "Technique III",
+		type = ATK_PASSIVE,
+		desc = "Boost technical damage by 35%",
+		passive = PSV_TRIGGERDAMAGE,
+		anim = 	function(mo, target, dmg, crit)
+					if target.damagestate == DMG_TECHNICAL
+						dmg = $*135/100
 					end
 					return dmg
 				end,
@@ -2827,11 +2827,11 @@ rawset(_G, "attackDefs", {
 	["toughness 1"] = {
 		name = "Toughness I",
 		type = ATK_PASSIVE,
-		desc = "Reduce weakness damage\nreceived by 5%",
+		desc = "Reduce weakness damage\nreceived by 20%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_WEAK
-						dmg = $*95/100
+						dmg = $*80/100
 					end
 					return dmg
 				end,
@@ -2840,11 +2840,11 @@ rawset(_G, "attackDefs", {
 	["toughness 2"] = {
 		name = "Toughness II",
 		type = ATK_PASSIVE,
-		desc = "Reduce weakness damage\nreceived by 10%",
+		desc = "Reduce weakness damage\nreceived by 35%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_WEAK
-						dmg = $*90/100
+						dmg = $*65/100
 					end
 					return dmg
 				end,
@@ -2853,11 +2853,11 @@ rawset(_G, "attackDefs", {
 	["toughness 3"] = {
 		name = "Toughness III",
 		type = ATK_PASSIVE,
-		desc = "Reduce weakness damage\nreceived by 15%",
+		desc = "Reduce weakness damage\nreceived by 50%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_WEAK
-						dmg = $*85/100
+						dmg = $*50/100
 					end
 					return dmg
 				end,
@@ -2866,11 +2866,11 @@ rawset(_G, "attackDefs", {
 	["reflex 1"] = {
 		name = "Reflex I",
 		type = ATK_PASSIVE,
-		desc = "Reduce critical damage\nreceived by 5%",
+		desc = "Reduce critical damage\nreceived by 20%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_CRITICAL
-						dmg = $*95/100
+						dmg = $*80/100
 					end
 					return dmg
 				end,
@@ -2879,11 +2879,11 @@ rawset(_G, "attackDefs", {
 	["reflex 2"] = {
 		name = "Reflex II",
 		type = ATK_PASSIVE,
-		desc = "Reduce critical damage\nreceived by 10%",
+		desc = "Reduce critical damage\nreceived by 35%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_CRITICAL
-						dmg = $*90/100
+						dmg = $*65/100
 					end
 					return dmg
 				end,
@@ -2892,11 +2892,11 @@ rawset(_G, "attackDefs", {
 	["reflex 3"] = {
 		name = "Reflex III",
 		type = ATK_PASSIVE,
-		desc = "Reduce critical damage\nreceived by 15%",
+		desc = "Reduce critical damage\nreceived by 50%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_CRITICAL
-						dmg = $*85/100
+						dmg = $*50/100
 					end
 					return dmg
 				end,
@@ -2906,11 +2906,11 @@ rawset(_G, "attackDefs", {
 	["genius 1"] = {
 		name = "Genius I",
 		type = ATK_PASSIVE,
-		desc = "Reduce technical damage\nreceived by 5%",
+		desc = "Reduce technical damage\nreceived by 20%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_TECHNICAL
-						dmg = $*95/100
+						dmg = $*20/100
 					end
 					return dmg
 				end,
@@ -2919,11 +2919,11 @@ rawset(_G, "attackDefs", {
 	["genius 2"] = {
 		name = "Genius II",
 		type = ATK_PASSIVE,
-		desc = "Reduce technical damage\nreceived by 10%",
+		desc = "Reduce technical damage\nreceived by 35%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_TECHNICAL
-						dmg = $*90/100
+						dmg = $*65/100
 					end
 					return dmg
 				end,
@@ -2932,11 +2932,11 @@ rawset(_G, "attackDefs", {
 	["genius 3"] = {
 		name = "Genius III",
 		type = ATK_PASSIVE,
-		desc = "Reduce technical damage\nreceived by 15%",
+		desc = "Reduce technical damage\nreceived by 50%",
 		passive = PSV_TRIGGERDAMAGE_RECEIVED,
 		anim = 	function(mo, attacker, dmg, crit)
 					if mo.damagestate == DMG_TECHNICAL
-						dmg = $*85/100
+						dmg = $*50/100
 					end
 					return dmg
 				end,
@@ -2946,56 +2946,56 @@ rawset(_G, "attackDefs", {
 	["void boost 1"] = {
 		name = "Void Boost I",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
-		desc = "Boost damage by 5%",
-		power = 5,
+		desc = "Boost damage by 10%",
+		power = 10,
 		passive = PSV_BOOST,
 	},
 
 	["void boost 2"] = {
 		name = "Void Boost II",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
-		desc = "Boost damage by 7%",
-		power = 7,
+		desc = "Boost damage by 13%",
+		power = 13,
 		passive = PSV_BOOST,
 	},
 
 	["void boost 3"] = {
 		name = "Void Boost III",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
-		desc = "Boost damage by 9%",
-		power = 9,
+		desc = "Boost damage by 16%",
+		power = 16,
 		passive = PSV_BOOST,
 	},
 
 	["void boost 4"] = {
 		name = "Void Boost IV",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
-		desc = "Boost damage by 12%",
-		power = 12,
+		desc = "Boost damage by 19%",
+		power = 19,
 		passive = PSV_BOOST,
 	},
 
 	["void boost 5"] = {
 		name = "Void Boost V",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
-		desc = "Boost damage by 14%",
-		power = 14,
+		desc = "Boost damage by 22%",
+		power = 22,
 		passive = PSV_BOOST,
 	},
 
 	["void boost 6"] = {
 		name = "Void Boost VI",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
-		desc = "Boost damage by 16%",
-		power = 16,
+		desc = "Boost damage by 25%",
+		power = 25,
 		passive = PSV_BOOST,
 	},
 
 	["void boost 7"] = {
 		name = "Void Boost VII",
 		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
-		desc = "Boost damage by 18%",
-		power = 18,
+		desc = "Boost damage by 30%",
+		power = 30,
 		passive = PSV_BOOST,
 	},
 

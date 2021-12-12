@@ -77,9 +77,9 @@ rawset(_G, "makeWeapon", function(wpn, lvl)
 		ag = w.ag or 0,
 		lu = w.lu or 0,
 	}
-	
+
 	--lvl = 10
-	
+
 	if lvl
 		for i = 1, lvl
 			enhanceWeapon(weapon)
@@ -186,12 +186,12 @@ rawset(_G, "equipWeapon", function(mo, wep, dequip)
 	mo.acc = wep.acc
 	mo.crit = wep.crit
 	mo.weapon = wep
-	
+
 	PLYR_getStats(mo, mo.level, true, true, true)
-	
+
 	if not dequip
 		removeWeapon(mo, wep)	-- remove this
-	end	
+	end
 end)
 
 -- enhances a weapon by +1 level. Does nothing if the level is already 10 (or above ???)
@@ -966,62 +966,62 @@ rawset(_G, "weaponSeries", {})
 
 -- drops a weapon from a series with skewed odds to be more likely to drop equippable weapons by the team that dropped it
 rawset(_G, "dropWeaponFromSeries", function(series, team)
-	
+
 	if not team return end
 	if not series return end
-	
+
 	local weplist = weaponSeries[series]
 	if not weplist return end
-	
+
 	local wep = nil
 	local tries = 3
-	
+
 	while tries
 		wep = weplist[P_RandomRange(1, #weplist)]
 		local twep = makeWeapon(wep)
 		local wt = weaponsList[twep.ref].type
-		
+
 		local special_type_in_team
 		if wt < WPT_HANDSONIC
 			special_type_in_team = true
-		end	
-		
+		end
+
 		for i = 1, #team
 			if canEquipWeapon(team[i], twep)
 				tries = 1	-- we're good
 				special_type_in_team = true
 				break
 			end
-			
+
 			if wt >= WPT_HANDSONIC	-- special weapons
 			and wt == getEquipWeaponType(team[i])
 				special_type_in_team = true
 			end
 		end
-		
+
 		if not special_type_in_team
 			tries = $+1	-- get another weapon.
-		end	
+		end
 		-- othherwise... try again.
 		tries = $-1
 	end
-	
+
 	-- after 3 tries, just give us whatever weapon we dropped
 	return wep
 end)
 
-rawset(_G, "createWeaponSeries", function(name, power, stats, slot, rarity, types, description, elem)
-	
+rawset(_G, "createWeaponSeries", function(name, power, accuracy, stats, slot, rarity, types, description, elem)
+
 	local lname = name:lower()
 	weaponSeries[lname] = {}
-	
+
 	for i = 1, #types do
-		
+
 		local wpt = types[i]
-		
+
 		local wpnname = name.." "..typenames[wpt]
 		local index = wpnname:lower()
-		
+
 		weaponsList[index] = {
 			name = wpnname,
 			wtype = wpt,
@@ -1031,14 +1031,15 @@ rawset(_G, "createWeaponSeries", function(name, power, stats, slot, rarity, type
 			slot = slot,
 			desc = description,
 			element = elem,
+			acc = accuracy,
 		}
-		
+
 		local checkstats = {"st", "ma", "en", "ag", "lu"}
 		for j = 1, #stats do
 			weaponsList[index][checkstats[j]] = stats[j] or 0
 		end
 		table.insert(weaponSeries[lname], index)
-		
+
 		print("Created "..wpnname.." (Added to '"..lname.."'series list)")
 	end
 end)
@@ -1057,11 +1058,11 @@ TIER 1: Drop from Thebel and Arqa
 *5:		Vinquir Series 		(ATK: 40-51,		SLOT: 	Rebellion		Lu +1)
 */
 
-createWeaponSeries("Comun", 320, {}, "reflex 1", 2, defaulttypes, "The Comun series is a slight\nadvancement compared to basic weapons.\nBut many consider them too weak still")
-createWeaponSeries("Rekla", 350, {}, "reflex 1", 3, defaulttypes, "The Rekla series carries\nwith it slightly more consistency\nin its power.")
+createWeaponSeries("Comun", 320, 98, {1, 1, 0, 0, 0}, "reflex 1", 2, defaulttypes, "The Comun series is a slight\nadvancement compared to basic weapons.\nBut many consider them too weak still")
+createWeaponSeries("Rekla", 350, 98, {0, 0, 1, 0, 0}, "reflex 1", 3, defaulttypes, "The Rekla series carries\nwith it slightly more consistency\nin its power.")
 
-createWeaponSeries("Qualz", 370, {0, 0, 1, 0, 0}, "patra", 4, defaulttypes, "A defensive weapon series that\ncan even cure illnesses,\ngiven the power.")
-createWeaponSeries("Vincir", 400, {0, 0, 0, 0, 1}, "rebellion", 5, defaulttypes, "A weapon series worn by the\nvictorious.")
+createWeaponSeries("Qualz", 370, 98, {0, 0, 3, 0, 0}, "patra", 4, defaulttypes, "A defensive weapon series that\ncan even cure illnesses,\ngiven the power.")
+createWeaponSeries("Vincir", 400, 98, {1, 1, 0, 0, 2}, "rebellion", 5, defaulttypes, "A weapon series worn by the\nvictorious.")
 
 
 /*
@@ -1070,7 +1071,7 @@ TIER 2
 
 *1 Lambda Series			(ATK: 35-47		SLOT: Precision I)
 *2 Dia Series				(ATK: 39-52		SLOT: Dia)
-*3 Blue Series				(ATK: 43-58		SLOT: Mabufu)	
+*3 Blue Series				(ATK: 43-58		SLOT: Mabufu)
 *4 Sinnrit Series			(ATK: 45-60		SLOT: Mudo					Lu +1)
 *4 Honlyn Series			(ATK: 45-60		SLOT: Hama					Lu +1)
 
@@ -1080,18 +1081,18 @@ TIER 2
 *6 Strania Series			(ATK: 55-74		SLOT: Might II				St +1	Ag +1)
 */
 
-createWeaponSeries("Lambda", 350, {}, "precision 1", 1, defaulttypes, "An easy to produce series\n, slightly stronger than some of\nits counterparts.")
-createWeaponSeries("Dia", 390, {}, "dia", 2, defaulttypes, "A series named after its\nskill slot.")
-createWeaponSeries("Blue", 430, {}, "mabufu", 3, defaulttypes, "A weapon series that\ncan produce magic similar to ice.")
-createWeaponSeries("Honlyn", 450, {0, 0, 0, 0, 1}, "hama", 4, defaulttypes, "Honlyn Shirit...")
-createWeaponSeries("Sinnrit", 450, {0, 0, 0, 0, 1}, "mudo", 4, defaulttypes, "...Look behind you.")
+createWeaponSeries("Lambda", 350, 90, {}, "precision 1", 1, defaulttypes, "An easy to produce series\n, slightly stronger than some of\nits counterparts.")
+createWeaponSeries("Dia", 390, 80, {0, 1, 0, 0, 0}, "dia", 2, defaulttypes, "A series named after its\nskill slot.")
+createWeaponSeries("Blue", 430, 80, {0, 1, 0, 0, 0}, "mabufu", 3, defaulttypes, "A weapon series that\ncan produce magic similar to ice.")
+createWeaponSeries("Honlyn", 450, 85, {0, 0, 0, 0, 2}, "hama", 4, defaulttypes, "Honlyn Shirit...")
+createWeaponSeries("Sinnrit", 450, 85, {0, 0, 0, 0, 2}, "mudo", 4, defaulttypes, "...Look behind you.")
 
-createWeaponSeries("Gliden", 480, {0, 0, 0, 1, 0}, "zionga", 5, defaulttypes, "A weapon series that could\nalmost shock opponents with\na touch.")
+createWeaponSeries("Gliden", 480, 99, {0, 2, 0, 1, 0}, "zionga", 5, defaulttypes, "A weapon series that could\nalmost shock opponents with\na touch.")
 
 local magictypes = {WPT_MONITOR, WPT_REMOTE, WPT_HAMMER, WPT_HEELS, WPT_PSYGLOVES, WPT_GENERICRANGED}
 local physicaltypes = {WPT_SHOES, WPT_LIMITERS, WPT_CLAWS, WPT_HANDSONIC, WPT_KNUCKLES, WPT_GENERICMELEE}
-createWeaponSeries("Maha", 550, {0, 1, 0, 1, 0}, "precision 2", 6, magictypes, "A weapon imbuded with magic\npowers.")
-createWeaponSeries("Strania", 550, {1, 0, 0, 1, 0}, "might 2", 6, physicaltypes, "A weapon imbuded with sheer\nmight.")
+createWeaponSeries("Maha", 550, 92, {-3, 3, -1, 1, 0}, "precision 2", 6, magictypes, "A weapon imbuded with magic\npowers.")
+createWeaponSeries("Strania", 550, 92, {3, -3, -1, 1, 0}, "might 2", 6, physicaltypes, "A weapon imbuded with sheer\nmight.")
 
 
 /*
@@ -1108,14 +1109,14 @@ TIER 3
 *6 V2-Rekla Series			(ATK 70-94		SLOT: Mastery II			St +1	Ma +1	Ag +1	En +1)
 */
 
-createWeaponSeries("Dion", 450, {0, 0, 0, 1, 0}, "toughness 2", 1, defaulttypes, "Some say the name of this series\nis 'One letter away\nfrom disaster'")
-createWeaponSeries("Alter", 490, {0, 0, 0, 1, 0}, "technique 2", 2, defaulttypes, "Weapons of this series rely\non crafty techniques to be efficient.")
-createWeaponSeries("Red", 550, {0, 0, 0, 1, 0}, "precision 2", 3, defaulttypes, "An upgrade to the 'Blue'\nseries. What it lost in\nmagic proess, it gained in\npotential efficiency.")
-createWeaponSeries("V2-Comun", 610, {0, 0, 1, 1, 0}, "reflex 3", 4, defaulttypes, "A new version of the Comun\nseries. These weapons offer\nhigh defensive options,\nstrangely enough.")
+createWeaponSeries("Dion", 450, 95, {0, 0, 1, 1, 0}, "toughness 2", 1, defaulttypes, "Some say the name of this series\nis 'One letter away\nfrom disaster'")
+createWeaponSeries("Alter", 490, 95, {0, 0, 1, 1, 0}, "technique 2", 2, defaulttypes, "Weapons of this series rely\non crafty techniques to be efficient.")
+createWeaponSeries("Red", 550, 98, {0, 0, 0, 1, 0}, "precision 2", 3, defaulttypes, "An upgrade to the 'Blue'\nseries. What it lost in\nmagic proess, it gained in\npotential efficiency.")
+createWeaponSeries("V2-Comun", 610, 90, {0, 0, 2, 1, 0}, "reflex 3", 4, defaulttypes, "A new version of the Comun\nseries. These weapons offer\nhigh defensive options,\nstrangely enough.")
 
-createWeaponSeries("Vitalis", 650, {1, 0, 0, 1, 0}, "regenerate 2", 5, physicaltypes, "Those who wield this series\ncan find the strength to stand\nback up from any bad beat.")
-createWeaponSeries("Spirita", 650, {0, 1, 1, 0, 0}, "invigorate 1", 5, magictypes, "Those who wield this series\ncan find the resolve to stand\nagainst any problem.")
-createWeaponSeries("V2-Rekla", 700, {1, 1, 1, 1, 0}, "mastery 2", 6, defaulttypes, "A major upgrade to the Rekla\nseries, now with high\noffensive capabilities.")
+createWeaponSeries("Vitalis", 650, 50, {2, 0, 0, 2, 0}, "regenerate 2", 5, physicaltypes, "Those who wield this series\ncan find the strength to stand\nback up from any bad beat.")
+createWeaponSeries("Spirita", 650, 50, {0, 2, 2, 0, 0}, "invigorate 1", 5, magictypes, "Those who wield this series\ncan find the resolve to stand\nagainst any problem.")
+createWeaponSeries("V2-Rekla", 700, 100, {2, 2, 2, 2, 0}, "mastery 2", 6, defaulttypes, "A major upgrade to the Rekla\nseries, now with high\noffensive capabilities.")
 
 
 /*
@@ -1132,13 +1133,13 @@ TIER 4
 *6 Revoluzio Series			(ATK 101-136	SLOT: Equalizer				St +2	Ma +2	Ag +1)	(Weak/Crit/Tech dmg - 25%, All dmg +7%)
 */
 
-createWeaponSeries("Dim", 670, {0, 0, 1, 1, 0}, "guard 1", 2, defaulttypes, "Once a rarity.\nVery common now.")
-createWeaponSeries("Bright", 670, {0, 0, 1, 1, 0}, "mastery 1", 2, defaulttypes, "An offensive counterpart\nto the Dim series.")
-createWeaponSeries("Wilh", 740, {0, 0, 0, 1, 1}, "endure", 3, defaulttypes, "The spirit of a knight\ninhabits this weapon. Never\nyield!")
-createWeaponSeries("Alva", 800, {0, 0, 0, 1, 1}, "technique 3", 4, defaulttypes, "An upgrade to the Alter\nseries. Its core functionality\nremains.")
+createWeaponSeries("Dim", 670, 95, {0, 0, 2, 2, 0}, "guard 2", 2, defaulttypes, "Once a rarity.\nVery common now.")
+createWeaponSeries("Bright", 670, 95, {0, 0, 2, 2, 0}, "mastery 1", 2, defaulttypes, "An offensive counterpart\nto the Dim series.")
+createWeaponSeries("Wilh", 740, 75, {-1, -1, 3, 0, 2}, "endure", 3, defaulttypes, "The spirit of a knight\ninhabits this weapon. Never\nyield!")
+createWeaponSeries("Alva", 800, 85, {0, 0, 0, 2, 2}, "technique 3", 4, defaulttypes, "An upgrade to the Alter\nseries. Its core functionality\nremains.")
 
-createWeaponSeries("Reaver", 910, {1, 1, 0, 1, 0}, "last stand", 5, defaulttypes, "A stylized font reads\n'Never yield' on the\nside.")
-createWeaponSeries("Revoluzio", 1010, {2, 2, 0, 1, 0}, "equalizer", 6, defaulttypes, "Enemies targetted by this\nweapon better have an\nescape plan on the ready.")
+createWeaponSeries("Reaver", 910, 99, {2, 2, -3, 1, 0}, "last stand", 5, defaulttypes, "A stylized font reads\n'Never yield' on the\nside.")
+createWeaponSeries("Revoluzio", 1010, 100, {3, 3, 0, 1, 0}, "equalizer", 6, defaulttypes, "Enemies targetted by this\nweapon better have an\nescape plan on the ready.")
 
 /*
 
@@ -1155,13 +1156,13 @@ TIER 5
 
 */
 
-createWeaponSeries("V2-Vincir", 880, {1, 0, 0, 0, 0}, "might 3", 1, defaulttypes, "A cheap to produce upgrade\nto the Vincir series.")
-createWeaponSeries("Laser", 960, {0, 1, 0, 0, 0}, "precision 3", 2, defaulttypes, "It has laser sights.\nIt's debatable whether it's\nreally useful on\nmelee weapons...")
-createWeaponSeries("Nox", 1070, {0, 2, 0, 0, 0}, "spirit surge", 3, defaulttypes, "A very cheap weapon for the power\nit theoritically allows for.")
+createWeaponSeries("V2-Vincir", 880, 95, {2, 0, 0, 0, 0}, "might 3", 1, defaulttypes, "A cheap to produce upgrade\nto the Vincir series.")
+createWeaponSeries("Laser", 960, 90, {0, 2, 0, 0, 0}, "precision 3", 2, defaulttypes, "It has laser sights.\nIt's debatable whether it's\nreally useful on\nmelee weapons...")
+createWeaponSeries("Nox", 1070, 90, {0, 3, 0, 0, -2}, "spirit surge", 3, defaulttypes, "A very cheap weapon for the power\nit theoritically allows for.")
 
-createWeaponSeries("V2-Dion", 1250, {1, 1, 3, 0, 0}, "guard 3", 5, defaulttypes, "An upgrade to the Dion series.\nMany wonder why it wasn't\nrebranded.")
-createWeaponSeries("V2-Lambda", 1250, {2, 2, 1, 0, 0}, "mastery 3", 5, defaulttypes, "An upgrade to the Lambda\nseries. It's proficient in many\nthings, now.")
-createWeaponSeries("Agil", 1420, {1, 0, 0, 0, 0}, "challenger 2", 6, defaulttypes, "A weapon specifically designed\nto take on tough foes.")
+createWeaponSeries("V2-Dion", 1250, 75, {-1, -1, 5, 0, 0}, "guard 3", 5, defaulttypes, "An upgrade to the Dion series.\nMany wonder why it wasn't\nrebranded.")
+createWeaponSeries("V2-Lambda", 1250, 99, {2, 2, 1, 0, 0}, "mastery 3", 5, defaulttypes, "An upgrade to the Lambda\nseries. It's proficient in many\nthings, now.")
+createWeaponSeries("Agil", 1420, 100, {3, 3, -1, 0, 0}, "challenger 2", 6, defaulttypes, "A weapon specifically designed\nto take on tough foes.")
 
 /*
 
@@ -1175,34 +1176,34 @@ TIER 6
 --- RARE ---
 *5 Awake Series				(ATK 176-237	SLOT: Challenger II			St +3	Ma +3)			(Dmg +20% against bosses)
 *5 Obliance Series			(ATK 176-237	SLOT: Ignorance				St +3	Ma +3)			(Ignore enemy resistances, weak/crit/tech dmg -5%)
-*6 Freifi Series			(ATK 189-255	SLOT: Freifi Aura			All +3 )				(More powerful version of Mastery III, +10% damage against bosses)		
+*6 Freifi Series			(ATK 189-255	SLOT: Freifi Aura			All +3 )				(More powerful version of Mastery III, +10% damage against bosses)
 *7 Buhn Series				(ATK 200-270	SLOT: Unfathomable Darkenss	All +4 )				(Effects of 'Freifi Aura' + chance of instant kill (9999 damage) (5%) on non-boss foes
 
 */
 
-createWeaponSeries("Novel", 1450, {1, 1, 0, 0, 0}, "mastery 2", 1, defaulttypes, "A mass produced, strong\nweapon series. They\nwere made to be very easy\nto maintain, as well.")
-createWeaponSeries("V2-Alter", 1530, {3, 3, 0, 0, 0}, "technique 3", 3, defaulttypes, "The ultimate upgrade to the\nAlter series. It recovers its\norginal branding and maximizes\nits strengths.")
-createWeaponSeries("V2-Vitalis", 1660, {4, 0, 0, 2, 0}, "regenerate 3", 4, physicaltypes, "An upgrade to the Vitalis series.\nIt magnifies recovery on its\nwielder.")
-createWeaponSeries("V2-Spirita", 1660, {0, 4, 2, 0, 0}, "invigorate 2", 4, magictypes, "An upgrade to the Spirita series.\nIt magnifies concentration.")
+createWeaponSeries("Novel", 2200, 85, {-2, -2, -2, -2, -2}, "mastery 2", 1, defaulttypes, "A mass produced, strong\nweapon series. It hits hard as a weapon\but many say it leaves much to be desired\nas a support tool...")
+createWeaponSeries("V2-Alter", 1530, 95, {3, 3, 0, 0, 0}, "technique 3", 3, defaulttypes, "The ultimate upgrade to the\nAlter series. It recovers its\norginal branding and maximizes\nits strengths.")
+createWeaponSeries("V2-Vitalis", 1660, 90, {5, -6, 0, 3, 0}, "regenerate 3", 4, physicaltypes, "An upgrade to the Vitalis series.\nIt magnifies recovery on its\nwielder.")
+createWeaponSeries("V2-Spirita", 1660, 90, {-6, 5, 3, 0, 0}, "invigorate 2", 4, magictypes, "An upgrade to the Spirita series.\nIt magnifies concentration.")
 
-createWeaponSeries("Awake", 1760, {3, 3, 0, 0, 0}, "challenger 2", 5, defaulttypes, "A new, more accessible take\non the Agil series.")
-createWeaponSeries("Obliance", 1760, {3, 3, 0, 0, 0}, "ignorance", 5, defaulttypes, "A unique weapon that requires\nless thought process to use,\nwhen given the power.")
-createWeaponSeries("Freifi", 1890, {3, 3, 3, 3, 3}, "freifi aura", 6, defaulttypes, "The strongest conventional\nseries of weapons.\nThere isn't much competition.")
+createWeaponSeries("Awake", 1760, 100, {3, 3, -3, 0, 0}, "challenger 2", 5, defaulttypes, "A new, more accessible take\non the Agil series.")
+createWeaponSeries("Obliance", 1760, 100, {3, 3, 0, 0, 0}, "ignorance", 5, defaulttypes, "A unique weapon that requires\nless thought process to use,\nwhen given the power.")
+createWeaponSeries("Freifi", 1890, 100, {4, 4, 3, 3, 3}, "freifi aura", 6, defaulttypes, "The strongest conventional\nseries of weapons.\nThere isn't much competition.")
 
-createWeaponSeries("Buhn", 2000, {4, 4, 4, 4, 4}, "unfathomable darkness", 7, defaulttypes, "Honlyn Shirit.\nIt has arrived.")
+createWeaponSeries("Buhn", 2000, 100, {6, 6, 4, 4, 4}, "unfathomable darkness", 7, defaulttypes, "Honlyn Shirit.\nIt has arrived.")
 
 -- VOID RUN SPECIFIC WEAPON SERIES
-createWeaponSeries("Foie", 410, {1, 1, 0, 0, 0}, "precision 2", 3, defaulttypes, "A weapon series capable of producing flames.\nIt's pretty weak.", ATK_FIRE)
-createWeaponSeries("Barta", 410, {1, 1, 0, 0, 0}, "precision 2", 3, defaulttypes, "A weapon series capable of producing snowflakes.\nIt's pretty weak.", ATK_ICE)
-createWeaponSeries("Zan", 410, {1, 1, 0, 0, 0}, "precision 2", 3, defaulttypes, "A weapon series capable of producing gusts.\nIt's pretty weak.", ATK_WIND)
-createWeaponSeries("Zonde", 410, {1, 1, 0, 0, 0}, "precision 2", 3, defaulttypes, "A weapon series capable of producing sparks.\nIt's pretty weak.", ATK_ELEC)
+createWeaponSeries("Foie", 410, 90, {2, 2, 0, 0, -2}, "precision 2", 3, defaulttypes, "A weapon series capable of producing flames.\nIt's pretty weak.", ATK_FIRE)
+createWeaponSeries("Barta", 410, 90, {2, 2, 0, 0, -2}, "precision 2", 3, defaulttypes, "A weapon series capable of producing snowflakes.\nIt's pretty weak.", ATK_ICE)
+createWeaponSeries("Zan", 410, 90, {2, 2, 0, 0, -2}, "precision 2", 3, defaulttypes, "A weapon series capable of producing gusts.\nIt's pretty weak.", ATK_WIND)
+createWeaponSeries("Zonde", 410, 90, {2, 2, 0, 0, -2}, "precision 2", 3, defaulttypes, "A weapon series capable of producing sparks.\nIt's pretty weak.", ATK_ELEC)
 
-createWeaponSeries("Rafoie", 780, {2, 2, 0, 0, 0}, "precision 2", 4, defaulttypes, "A weapon series capable of producing flames.\nIt looks strong.", ATK_FIRE)
-createWeaponSeries("Rabarta", 780, {2, 2, 0, 0, 0}, "precision 2", 4, defaulttypes, "A weapon series capable of producing snowflakes.\nIt looks strong.", ATK_ICE)
-createWeaponSeries("Razan", 780, {2, 2, 0, 0, 0}, "precision 2", 4, defaulttypes, "A weapon series capable of producing gusts.\nIt looks strong.", ATK_WIND)
-createWeaponSeries("Razonde", 780, {2, 2, 0, 0, 0}, "precision 2", 4, defaulttypes, "A weapon series capable of producing sparks.\nIt looks strong.", ATK_ELEC)
+createWeaponSeries("Rafoie", 780, 90, {3, 3, 0, 0, -1}, "precision 2", 4, defaulttypes, "A weapon series capable of producing flames.\nIt looks strong.", ATK_FIRE)
+createWeaponSeries("Rabarta", 780, 90, {3, 3, 0, 0, -1}, "precision 2", 4, defaulttypes, "A weapon series capable of producing snowflakes.\nIt looks strong.", ATK_ICE)
+createWeaponSeries("Razan", 780, 90, {3, 3, 0, 0, -1}, "precision 2", 4, defaulttypes, "A weapon series capable of producing gusts.\nIt looks strong.", ATK_WIND)
+createWeaponSeries("Razonde", 780, 90, {3, 3, 0, 0, -1}, "precision 2", 4, defaulttypes, "A weapon series capable of producing sparks.\nIt looks strong.", ATK_ELEC)
 
-createWeaponSeries("Nafoie", 1250, {3, 3, 0, 0, 0}, "precision 3", 5, defaulttypes, "A weapon series capable of producing flames.\nIt looks strong.", ATK_FIRE)
-createWeaponSeries("Nabarta", 1250, {3, 3, 0, 0, 0}, "precision 3", 5, defaulttypes, "A weapon series capable of producing snowflakes.\nIt looks strong.", ATK_ICE)
-createWeaponSeries("Nazan", 1250, {3, 3, 0, 0, 0}, "precision 3", 5, defaulttypes, "A weapon series capable of producing gusts.\nIt looks strong.", ATK_WIND)
-createWeaponSeries("Nazonde", 1250, {3, 3, 0, 0, 0}, "precision 3", 5, defaulttypes, "A weapon series capable of producing sparks.\nIt looks strong.", ATK_ELEC)
+createWeaponSeries("Nafoie", 1250, 90, {4, 4, 0, 0, 0}, "precision 3", 5, defaulttypes, "A weapon series capable of producing flames.\nIt looks strong.", ATK_FIRE)
+createWeaponSeries("Nabarta", 1250, 90, {4, 4, 0, 0, 0}, "precision 3", 5, defaulttypes, "A weapon series capable of producing snowflakes.\nIt looks strong.", ATK_ICE)
+createWeaponSeries("Nazan", 1250, 90, {4, 4, 0, 0, 0}, "precision 3", 5, defaulttypes, "A weapon series capable of producing gusts.\nIt looks strong.", ATK_WIND)
+createWeaponSeries("Nazonde", 1250, 90, {4, 4, 0, 0, 0}, "precision 3", 5, defaulttypes, "A weapon series capable of producing sparks.\nIt looks strong.", ATK_ELEC)
