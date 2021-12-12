@@ -53,7 +53,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			end
 		end
 	end
-	
+
 	local healChance = P_RandomRange(0, 100)
 
 	if heal	-- we have to try to heal someone!
@@ -219,7 +219,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	if gtarget
 	and btl.turnorder[2] == mo		-- double-turn enemies: only use ghastly wail on our first turn
 									-- WARNING: THIS CODE DOESN'T WORK FOR ENEMIES WITH > 2 TURNS
-	
+
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
 			if a and a.ghastlywail
@@ -403,7 +403,7 @@ rawset(_G, "enemyList", {
 		agility = 1,
 		melee_natk = "strike_1",	-- enemies don't have crit anims for their attacks.
 		thinker = 	function(mo)
-						
+
 						D_startEvent(mo.battlen, "ev_b7_start")
 						return attackDefs["heat riser"], {mo}
 					end,
@@ -494,8 +494,8 @@ rawset(_G, "enemyList", {
 
 		r_drops = {
 			{{"series", "freifi"}, 50},
-			{{"series", "freifi"}, 50},			
-			{{"series", "buhn"}, 10},	
+			{{"series", "freifi"}, 50},
+			{{"series", "buhn"}, 10},
 			{"vessel 2", 100},
 			{"vessel 2", 100},
 			{"vessel 2", 100},
@@ -503,7 +503,7 @@ rawset(_G, "enemyList", {
 			{"soul 2", 100},
 			{"soul 2", 100},
 			{"soul 2", 100},
-			{"soul 2", 100},			
+			{"soul 2", 100},
 			{"ruby", 100},
 			{"ruby", 100},
 			{"ruby", 100},
@@ -511,7 +511,7 @@ rawset(_G, "enemyList", {
 			{"ruby", 80},
 			{"ruby", 80},
 			{"painite", 70},
-			{"painite", 50},		
+			{"painite", 50},
 		},
 
 		anim_stand = 		{SPR_ENM1, G, 10},
@@ -549,8 +549,8 @@ rawset(_G, "enemyList", {
 
 		r_drops = {
 			{{"series", "freifi"}, 50},
-			{{"series", "freifi"}, 50},			
-			{{"series", "buhn"}, 10},	
+			{{"series", "freifi"}, 50},
+			{{"series", "buhn"}, 10},
 			{"vessel 2", 100},
 			{"vessel 2", 100},
 			{"vessel 2", 100},
@@ -558,7 +558,7 @@ rawset(_G, "enemyList", {
 			{"soul 2", 100},
 			{"soul 2", 100},
 			{"soul 2", 100},
-			{"soul 2", 100},			
+			{"soul 2", 100},
 			{"ruby", 100},
 			{"ruby", 100},
 			{"ruby", 100},
@@ -566,7 +566,7 @@ rawset(_G, "enemyList", {
 			{"ruby", 80},
 			{"ruby", 80},
 			{"painite", 70},
-			{"painite", 50},		
+			{"painite", 50},
 		},
 
 		r_exp = 49200,
@@ -582,7 +582,7 @@ rawset(_G, "enemyList", {
 
 		skills = {"maragidyne", "mahamaon", "megidolaon", "evil smile", "ghastly wail", "fire boost", "fire boost", "dekaja", "dekunda"},
 	},
-	
+
 	["maya_boss_monad"] = {
 		name = "Re: Cowardly Maya",
 		skillchance = 100,	-- /100, probability of using a skill
@@ -612,7 +612,7 @@ rawset(_G, "enemyList", {
 			{"soul 2", 100},
 			{"soul 2", 100},
 			{"soul 2", 100},
-			{"soul 2", 100},			
+			{"soul 2", 100},
 			{"ruby", 100},
 			{"ruby", 100},
 			{"ruby", 100},
@@ -620,8 +620,8 @@ rawset(_G, "enemyList", {
 			{"ruby", 80},
 			{"ruby", 80},
 			{"painite", 100},
-			{"painite", 100},		
-		},		
+			{"painite", 100},
+		},
 
 		anim_stand = 		{SPR_ENM1, D, 10},
 		anim_stand_hurt =	{SPR_ENM1, D, 1},
@@ -634,7 +634,7 @@ rawset(_G, "enemyList", {
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
 		skills = {"buchikamashi", "maragidyne", "mabufudyne", "maziodyne", "magarudyne", "mapsiodyne", "mafreidyne", "makougaon", "maeigaon", "megidolaon", "mind charge", "power charge"},
-	},	
+	},
 
 	["maya_monad"] = {
 		name = "Vengeful Maya",
@@ -958,7 +958,7 @@ rawset(_G, "enemyList", {
 		repel = ATK_FIRE|ATK_ICE|ATK_ELEC|ATK_WIND|ATK_PSY|ATK_NUCLEAR,
 		thinker = generalEnemyThinker,
 		r_exp = 2281,
-		
+
 		noroguerandom = true,	-- Don't randomize affinities with rogue mode
 
 		anim_stand = 		{SPR_ENM4, E, 10},
@@ -1128,7 +1128,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -1176,7 +1176,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -1224,7 +1224,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -1273,7 +1273,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -1321,7 +1321,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -1518,7 +1518,7 @@ rawset(_G, "enemyList", {
 		anim_hurt =			{SPR_ENM2, G, 35},
 		anim_getdown =		{SPR_ENM2, G, 1},
 		anim_downloop =		{SPR_ENM2, G, 1},
-		anim_getup =		{SPR_ENM2, G, 1}, 
+		anim_getup =		{SPR_ENM2, G, 1},
 
 		skills = {"fatal end", "gigantic fist", "deathbound", "marakukaja", "marakunda", "survival trick"},
 	},
@@ -1944,7 +1944,7 @@ rawset(_G, "enemyList", {
 													-- unless it's specified like for players.
 		skills = {"triple down", "torrent shot", "megido", "agidyne", "power charge", "mamakanda"},
 	},
-	
+
 	["gene_adamah"] = {
 		name = "Next Gene",
 		skillchance = 95,	-- /100, probability of using a skill
@@ -1975,7 +1975,7 @@ rawset(_G, "enemyList", {
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
 		skills = {"masukukaja", "makajamon", "mafreidyne"},
-	},	
+	},
 
 	["pesce_adamah"] = {
 		name = "Enlightened Pesce",
@@ -2040,7 +2040,7 @@ rawset(_G, "enemyList", {
 													-- unless it's specified like for players.
 		skills = {"vicious strike", "rebellion", "gigantic fist"},
 	},
-	
+
 	["panzer_adamah"] = {
 		name = "Otherwordly Panzer",
 		skillchance = 95,	-- /100, probability of using a skill
@@ -2071,7 +2071,7 @@ rawset(_G, "enemyList", {
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
 		skills = {"high counter", "maragidyne", "deathbound"},
-	},	
+	},
 
 	-- HARABAH ENEMIES
 	["giant_boss1_harabah"] = {
@@ -2102,7 +2102,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -2151,7 +2151,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 90},
 			{"ruby", 90},
 			{"ruby", 90},
@@ -2202,7 +2202,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -2245,7 +2245,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -2290,7 +2290,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -2779,7 +2779,7 @@ rawset(_G, "enemyList", {
 
 		skills = {"mazionga", "ziodyne", "dormina", "elec boost", "diarahan"}
 	},
-	
+
 	["machine_harabah"] = {
 		name = "Dominating Machine",
 		skillchance = 100,
@@ -2808,7 +2808,7 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_ENM5, L, 1},
 
 		skills = {"fatal end", "gale slash", "revolution"}
-	},	
+	},
 
 	-- TZIAH ENEMIES
 
@@ -2838,7 +2838,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 90},
 			{"ruby", 90},
 			{"ruby", 90},
@@ -2884,7 +2884,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 40},
 			{"ruby", 40},
 			{"ruby", 40},
@@ -2929,7 +2929,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -2974,7 +2974,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"emerald", 100},
 			{"diamond", 100},
-			{"diamond", 100},		
+			{"diamond", 100},
 			{"ruby", 40},
 			{"ruby", 40},
 			{"ruby", 40},
@@ -3571,7 +3571,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"diamond", 100},
 			{"diamond", 100},
-			{"diamond", 100},			
+			{"diamond", 100},
 			{"ruby", 80},
 			{"ruby", 80},
 			{"ruby", 80},
@@ -3771,7 +3771,7 @@ rawset(_G, "enemyList", {
 													-- unless it's specified like for players.
 		skills = {"eiga", "freila", "media"},
 	},
-	
+
 	["gene_1"] = {
 		name = "Miss Gene",
 		skillchance = 90,	-- /100, probability of using a skill
@@ -3800,7 +3800,7 @@ rawset(_G, "enemyList", {
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
 		skills = {"mamakakaja"},
-	},	
+	},
 
 	["cupid_2"] = {
 		name = "Envious Cupid",
@@ -4163,7 +4163,7 @@ rawset(_G, "enemyList", {
 		r_exp = 712,
 		r_macca = 600,
 		scale = FRACUNIT*2,
-		
+
 		r_drops = {
 			{{"series", "gliden"}, 100},
 			{{"series", "maha"}, 50},
@@ -4173,7 +4173,7 @@ rawset(_G, "enemyList", {
 			{"emerald", 100},
 			{"ruby", 80},
 			{"ruby", 80},
-		},		
+		},
 
 		anim_stand = 		{SPR_ENM1, L, 10},
 		anim_stand_hurt =	{SPR_ENM1, L, 1},
@@ -4206,7 +4206,7 @@ rawset(_G, "enemyList", {
 		thinker = generalEnemyThinker,
 		r_exp = 150,
 		r_macca = 150,
-		
+
 		r_drops = {
 			{{"series", "gliden"}, 30},
 			{{"series", "maha"}, 7},
@@ -4350,7 +4350,7 @@ rawset(_G, "enemyList", {
 		skills = {"bufula", "psio"},
 		r_exp = 86,
 	},
-	
+
 	["beast_1"] = {
 		name = "Lion of Lies",
 		level = 13,
@@ -4498,7 +4498,7 @@ rawset(_G, "enemyList", {
 							mo.bean_summon = true
 							if btl.turnorder[2] == mo
 								table.remove(btl.turnorder, 2)	-- don't attack again
-							end	
+							end
 
 							return attackDefs["summon bean"], {mo}
 						end
@@ -4507,7 +4507,7 @@ rawset(_G, "enemyList", {
 
 							if btl.turnorder[2] == mo
 								table.remove(btl.turnorder, 2)	-- don't attack again
-							end	
+							end
 							return attackDefs["batkan buster"], mo.enemies
 						end
 
@@ -5126,7 +5126,7 @@ rawset(_G, "enemyList", {
 
 		r_drops = {
 			{{"series", "qualz"}, 80},
-			{{"series", "qualz"}, 80},			
+			{{"series", "qualz"}, 80},
 			{{"series", "vincir"}, 40},
 			{{"series", "vincir"}, 40},
 			{"emerald", 100},
@@ -5171,7 +5171,7 @@ rawset(_G, "enemyList", {
 		scale = FRACUNIT*3/2,
 		r_exp = 44,
 		r_macca = 100,
-		
+
 		r_drops = {
 			{{"series", "qualz"}, 40},
 			{{"series", "vincir"}, 20},
@@ -5222,7 +5222,7 @@ rawset(_G, "enemyList", {
 													-- unless it's specified like for players.
 		skills = {"dia", "garu"},
 	},
-	
+
 	["hablerie_1_postboss"] = {
 		name = "Lying Hablerie",
 		skillchance = 50,	-- /100, probability of using a skill
@@ -5252,7 +5252,7 @@ rawset(_G, "enemyList", {
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
 		skills = {"dia", "garu"},
-	},	
+	},
 
 	["cupid_1"] = {
 		name = "Jealous Cupid",
@@ -6018,11 +6018,11 @@ rawset(_G, "enemyList", {
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
 		skills = {"mabufu"},
-		
+
 		r_drops = {
 			{{"series", "dion"}, 100},
 			{{"series", "dion"}, 100},
-			{{"series", "alter"}, 100},			
+			{{"series", "alter"}, 100},
 			{{"series", "red"}, 100},
 			{{"ring", "ring-0"}, 100},
 			{{"ring", "ring-0"}, 70},
@@ -6047,7 +6047,7 @@ rawset(_G, "enemyList", {
 			{"vr up", 100},
 		},
 	},
-	
+
 	-- VR: BOSS 2
 	["knight_vr"] = {
 		name = "Empty Knight",
@@ -6083,7 +6083,7 @@ rawset(_G, "enemyList", {
 		r_drops = {
 			{{"series", "foie"}, 30},
 			{{"series", "barta"}, 30},
-			{{"series", "zonde"}, 30},			
+			{{"series", "zonde"}, 30},
 			{{"series", "zan"}, 30},
 			{{"ring", "ring-0"}, 100},
 			{{"ring", "ring-0"}, 100},
@@ -6106,13 +6106,13 @@ rawset(_G, "enemyList", {
 			{"mag catalyst 1", 50},
 			{"end catalyst 1", 50},
 			{"agi catalyst 1", 50},
-			{"luk catalyst 1", 50},				
+			{"luk catalyst 1", 50},
 			{"levelcap up", 100},
 			{"levelcap up", 100},
 			{"vr up", 100},
-			{"vr up", 100},			
-		},			
-		
+			{"vr up", 100},
+		},
+
 		r_exp = 450,
 	},
 
@@ -6141,7 +6141,7 @@ rawset(_G, "enemyList", {
 		r_drops = {
 			{{"series", "rafoie"}, 30},
 			{{"series", "rabarta"}, 30},
-			{{"series", "razonde"}, 30},			
+			{{"series", "razonde"}, 30},
 			{{"series", "razan"}, 30},
 			{{"ring", "nox rings"}, 100},
 			{{"ring", "nox rings"}, 50},
@@ -6182,11 +6182,11 @@ rawset(_G, "enemyList", {
 			{"mag catalyst 2", 50},
 			{"end catalyst 2", 50},
 			{"agi catalyst 2", 50},
-			{"luk catalyst 2", 50},				
+			{"luk catalyst 2", 50},
 			{"levelcap up", 100},
 			{"levelcap up", 100},
 			{"vr up", 100},
-			{"vr up", 100},			
+			{"vr up", 100},
 		},
 
 		r_exp = 890,
@@ -6227,7 +6227,7 @@ rawset(_G, "enemyList", {
 		r_drops = {
 			{{"series", "rafoie"}, 30},
 			{{"series", "rabarta"}, 30},
-			{{"series", "razonde"}, 30},			
+			{{"series", "razonde"}, 30},
 			{{"series", "razan"}, 30},
 			{{"ring", "nox rings"}, 100},
 			{{"ring", "nox rings"}, 50},
@@ -6250,7 +6250,7 @@ rawset(_G, "enemyList", {
 			{"psio gem", 100},
 			{"freila gem", 100},
 			{"freila gem", 100},
-			{"freila gem", 100},			
+			{"freila gem", 100},
 			{"vessel 2", 100},
 			{"vessel 2", 50},
 			{"vessel 2", 20},
@@ -6274,9 +6274,9 @@ rawset(_G, "enemyList", {
 			{"mag catalyst 2", 50},
 			{"end catalyst 2", 50},
 			{"agi catalyst 2", 50},
-			{"luk catalyst 2", 50},	
+			{"luk catalyst 2", 50},
 			{"vr up", 100},
-			{"vr up", 100},	
+			{"vr up", 100},
 		},
 
 		r_exp = 890,
@@ -6319,7 +6319,7 @@ rawset(_G, "enemyList", {
 		r_drops = {
 			{{"series", "laser"}, 30},
 			{{"series", "laser"}, 30},
-			{{"series", "nox"}, 30},			
+			{{"series", "nox"}, 30},
 			{{"series", "nox"}, 30},
 			{{"ring", "vitalis rings"}, 100},
 			{{"ring", "spirita rings"}, 100},
@@ -6343,7 +6343,7 @@ rawset(_G, "enemyList", {
 			{"psio gem", 100},
 			{"freila gem", 100},
 			{"freila gem", 100},
-			{"freila gem", 100},			
+			{"freila gem", 100},
 			{"vessel 3", 100},
 			{"vessel 2", 50},
 			{"vessel 2", 20},
@@ -6371,9 +6371,9 @@ rawset(_G, "enemyList", {
 			{"mag catalyst 2", 50},
 			{"end catalyst 2", 50},
 			{"agi catalyst 2", 50},
-			{"luk catalyst 2", 50},				
+			{"luk catalyst 2", 50},
 			{"vr up", 100},
-			{"vr up", 100},	
+			{"vr up", 100},
 		},
 
 		r_exp = 2500,
@@ -6463,10 +6463,10 @@ rawset(_G, "enemyList", {
 		r_drops = {
 			{{"series", "v2-dion"}, 60},
 			{{"series", "v2-dion"}, 60},
-			{{"series", "agil"}, 45},			
+			{{"series", "agil"}, 45},
 			{{"series", "agil"}, 45},
 			{{"ring", "lambda rings"}, 60},
-			{{"ring", "lambda rings"}, 60},			
+			{{"ring", "lambda rings"}, 60},
 			{{"ring", "agil rings"}, 30},
 			{{"ring", "agil rings"}, 30},
 			{"agilao gem", 100},
@@ -6486,18 +6486,18 @@ rawset(_G, "enemyList", {
 			{"psio gem", 100},
 			{"freila gem", 100},
 			{"freila gem", 100},
-			{"freila gem", 100},			
-			{"vessel 3", 100},			
+			{"freila gem", 100},
+			{"vessel 3", 100},
 			{"vessel 2", 50},
 			{"vessel 2", 20},
 			{"vessel 2", 5},
-			{"soul 3", 100},			
+			{"soul 3", 100},
 			{"soul 2", 50},
 			{"soul 2", 20},
 			{"soul 2", 5},
 			{"levelcap up", 100},
 			{"levelcap up", 100},
-			{"levelcap up", 100},	
+			{"levelcap up", 100},
 			{"void booster-s 2", 100},
 			{"void booster-s 2", 100},
 			{"str catalyst 3", 70},
@@ -6509,11 +6509,11 @@ rawset(_G, "enemyList", {
 			{"mag catalyst 2", 50},
 			{"end catalyst 2", 50},
 			{"agi catalyst 2", 50},
-			{"luk catalyst 2", 50},				
+			{"luk catalyst 2", 50},
 			{"void booster-sr", 100},
-			{"void booster-sw", 100},	
+			{"void booster-sw", 100},
 			{"vr up", 100},
-			{"vr up", 100},	
+			{"vr up", 100},
 		},
 
 		color = SKINCOLOR_AETHER,
@@ -6536,7 +6536,7 @@ rawset(_G, "enemyList", {
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
 		r_exp = 5500,
-	},	
+	},
 
 	["angel_vr_2"] = {
 		name = "Angel Replica-0C",
@@ -6628,7 +6628,7 @@ rawset(_G, "enemyList", {
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
 		r_exp = 0,
-	},	
+	},
 
 	["giant_vr_2"] = {
 		name = "Emptier Giant",
@@ -6659,10 +6659,10 @@ rawset(_G, "enemyList", {
 			{{"series", "nazonde"}, 40},
 			{{"series", "v2-dion"}, 60},
 			{{"series", "v2-dion"}, 60},
-			{{"series", "agil"}, 45},			
+			{{"series", "agil"}, 45},
 			{{"series", "agil"}, 45},
 			{{"ring", "lambda rings"}, 60},
-			{{"ring", "lambda rings"}, 60},			
+			{{"ring", "lambda rings"}, 60},
 			{{"ring", "agil rings"}, 30},
 			{{"ring", "agil rings"}, 30},
 			{"agidyne gem", 100},
@@ -6682,12 +6682,12 @@ rawset(_G, "enemyList", {
 			{"psiodyne gem", 100},
 			{"freidyne gem", 100},
 			{"freidyne gem", 100},
-			{"freidyne gem", 100},			
-			{"vessel 3", 100},			
+			{"freidyne gem", 100},
+			{"vessel 3", 100},
 			{"vessel 2", 50},
 			{"vessel 2", 20},
 			{"vessel 2", 5},
-			{"soul 3", 100},			
+			{"soul 3", 100},
 			{"soul 2", 50},
 			{"soul 2", 20},
 			{"soul 2", 5},
@@ -6696,7 +6696,7 @@ rawset(_G, "enemyList", {
 			{"levelcap up", 100},
 			{"levelcap up", 100},
 			{"levelcap up", 100},
-			{"levelcap up", 100},			
+			{"levelcap up", 100},
 			{"void booster-s 1", 100},
 			{"void booster-s 1", 100},
 			{"void booster-s 1", 100},
@@ -6709,11 +6709,11 @@ rawset(_G, "enemyList", {
 			{"mag catalyst 2", 50},
 			{"end catalyst 2", 50},
 			{"agi catalyst 2", 50},
-			{"luk catalyst 2", 50},		
+			{"luk catalyst 2", 50},
 			{"void booster-sr", 100},
-			{"void booster-sw", 100},	
-			{"vr up", 100},	
-			{"vr up", 100},	
+			{"void booster-sw", 100},
+			{"vr up", 100},
+			{"vr up", 100},
 		},
 
 		r_exp = 6000,
@@ -6762,10 +6762,10 @@ rawset(_G, "enemyList", {
 			{{"series", "nazonde"}, 40},
 			{{"series", "v2-dion"}, 60},
 			{{"series", "v2-dion"}, 60},
-			{{"series", "agil"}, 45},			
+			{{"series", "agil"}, 45},
 			{{"series", "agil"}, 45},
 			{{"ring", "lambda rings"}, 60},
-			{{"ring", "lambda rings"}, 60},			
+			{{"ring", "lambda rings"}, 60},
 			{{"ring", "agil rings"}, 30},
 			{{"ring", "agil rings"}, 30},
 			{"agidyne gem", 100},
@@ -6785,18 +6785,18 @@ rawset(_G, "enemyList", {
 			{"psiodyne gem", 100},
 			{"freidyne gem", 100},
 			{"freidyne gem", 100},
-			{"freidyne gem", 100},			
-			{"vessel 3", 100},			
+			{"freidyne gem", 100},
+			{"vessel 3", 100},
 			{"vessel 2", 50},
 			{"vessel 2", 20},
 			{"vessel 2", 5},
-			{"soul 3", 100},			
+			{"soul 3", 100},
 			{"soul 2", 50},
 			{"soul 2", 20},
 			{"soul 2", 5},
 			{"levelcap up", 100},
 			{"levelcap up", 100},
-			{"levelcap up", 100},		
+			{"levelcap up", 100},
 			{"void booster-s 1", 100},
 			{"void booster-s 1", 100},
 			{"void booster-s 1", 100},
@@ -6809,11 +6809,11 @@ rawset(_G, "enemyList", {
 			{"mag catalyst 2", 50},
 			{"end catalyst 2", 50},
 			{"agi catalyst 2", 50},
-			{"luk catalyst 2", 50},		
+			{"luk catalyst 2", 50},
 			{"void booster-sr", 100},
-			{"void booster-sw", 100},	
-			{"vr up", 100},	
-			{"vr up", 100},	
+			{"void booster-sw", 100},
+			{"vr up", 100},
+			{"vr up", 100},
 		},
 
 		r_exp = 8500,
@@ -6859,7 +6859,7 @@ rawset(_G, "enemyList", {
 			{{"series", "awake"}, 60},
 			{{"series", "awake"}, 60},
 			{{"ring", "lambda rings"}, 60},
-			{{"ring", "lambda rings"}, 60},			
+			{{"ring", "lambda rings"}, 60},
 			{{"ring", "awake rings"}, 30},
 			{{"ring", "awake rings"}, 30},
 			{"agidyne gem", 100},
@@ -6879,18 +6879,18 @@ rawset(_G, "enemyList", {
 			{"psiodyne gem", 100},
 			{"freidyne gem", 100},
 			{"freidyne gem", 100},
-			{"freidyne gem", 100},			
-			{"vessel 3", 100},			
+			{"freidyne gem", 100},
+			{"vessel 3", 100},
 			{"vessel 2", 50},
 			{"vessel 2", 20},
 			{"vessel 2", 5},
-			{"soul 3", 100},			
+			{"soul 3", 100},
 			{"soul 2", 50},
 			{"soul 2", 20},
 			{"soul 2", 5},
 			{"levelcap up", 100},
 			{"levelcap up", 100},
-			{"levelcap up", 100},		
+			{"levelcap up", 100},
 			{"void booster-s 1", 100},
 			{"void booster-s 1", 100},
 			{"void booster-s 1", 100},
@@ -6905,9 +6905,9 @@ rawset(_G, "enemyList", {
 			{"agi catalyst 2", 50},
 			{"luk catalyst 2", 50},
 			{"void booster-sr", 100},
-			{"void booster-sw", 100},	
-			{"vr up", 100},	
-			{"vr up", 100},	
+			{"void booster-sw", 100},
+			{"vr up", 100},
+			{"vr up", 100},
 		},
 
 		r_exp = 10000,
@@ -6955,7 +6955,7 @@ rawset(_G, "enemyList", {
 			{{"series", "awake"}, 60},
 			{{"ring", "freifi rings"}, 100},
 			{{"ring", "lambda rings"}, 60},
-			{{"ring", "lambda rings"}, 60},			
+			{{"ring", "lambda rings"}, 60},
 			{{"ring", "awake rings"}, 30},
 			{{"ring", "awake rings"}, 30},
 			{"agidyne gem", 100},
@@ -6975,18 +6975,18 @@ rawset(_G, "enemyList", {
 			{"psiodyne gem", 100},
 			{"freidyne gem", 100},
 			{"freidyne gem", 100},
-			{"freidyne gem", 100},			
-			{"vessel 3", 100},			
+			{"freidyne gem", 100},
+			{"vessel 3", 100},
 			{"vessel 2", 50},
 			{"vessel 2", 20},
 			{"vessel 2", 5},
-			{"soul 3", 100},			
+			{"soul 3", 100},
 			{"soul 2", 50},
 			{"soul 2", 20},
 			{"soul 2", 5},
 			{"levelcap up", 100},
 			{"levelcap up", 100},
-			{"levelcap up", 100},		
+			{"levelcap up", 100},
 			{"void booster-s 1", 100},
 			{"void booster-s 1", 100},
 			{"void booster-s 1", 100},
@@ -7002,9 +7002,9 @@ rawset(_G, "enemyList", {
 			{"agi catalyst 2", 50},
 			{"luk catalyst 2", 50},
 			{"void booster-sr", 100},
-			{"void booster-sw", 100},	
-			{"vr up", 100},	
-			{"vr up", 100},	
+			{"void booster-sw", 100},
+			{"vr up", 100},
+			{"vr up", 100},
 		},
 
 		r_exp = 15000,
@@ -7075,11 +7075,11 @@ rawset(_G, "enemyList", {
 		resist = 0,
 		thinker = generalEnemyThinker,
 		r_exp = 100000,
-		scale = FRACUNIT,		
+		scale = FRACUNIT,
 		noroguerandom = true,	-- Don't randomize affinities with rogue mode
 		noroguebuff = true,		-- Don't buff with rogue mode
 		nopvp = true,
-		
+
 		--target_zoffs = 80,	-- offset for targetting reticle...
 
 		turns = 2,
@@ -7117,7 +7117,7 @@ rawset(_G, "enemyList", {
 				"pralaya",
 				"infinite endure",
 			},
-	},	
+	},
 
 	["mnemesis_2"] = {
 		name = "???",
@@ -7136,10 +7136,10 @@ rawset(_G, "enemyList", {
 		weak = 0,
 		resist = 0,
 		r_exp = 100000,
-		scale = FRACUNIT*2,		
+		scale = FRACUNIT*2,
 		noroguerandom = true,	-- Don't randomize affinities with rogue mode
 		noroguebuff = true,		-- Don't buff with rogue mode
-		
+
 		target_zoffs = 80,	-- offset for targetting reticle...
 
 		turns = 2,
@@ -7181,24 +7181,24 @@ rawset(_G, "enemyList", {
 				"brave blade",
 				"infinite endure",
 			},
-			
-		
+
+
 		thinker =	function(mo)
-						
+
 						mo.thinkturns = $ and $+1 or 1
-						
+
 						if mo.thinkturns == 1
 							return attackDefs["dekaja"], mo.enemies
-						elseif mo.thinkturns == 2	
+						elseif mo.thinkturns == 2
 						or mo.thinkturns%6 == 0
 							return attackDefs["overdrive boost"], {mo}
 						end
-						
+
 						return generalEnemyThinker(mo)
 					end,
-		
+
 	},
-	
+
 	["mnemesis_3"] = {
 		name = "???",
 		skillchance = 100,	-- /100, probability of using a skill
@@ -7215,10 +7215,10 @@ rawset(_G, "enemyList", {
 		weak = 0,
 		resist = 0,
 		r_exp = 100000,
-		scale = FRACUNIT*2,		
+		scale = FRACUNIT*2,
 		noroguerandom = true,	-- Don't randomize affinities with rogue mode
 		noroguebuff = true,		-- Don't buff with rogue mode
-		
+
 		target_zoffs = 80,	-- offset for targetting reticle...
 
 		turns = 1,
@@ -7243,8 +7243,8 @@ rawset(_G, "enemyList", {
 				"masukukaja",
 				"mamakakaja",
 			},
-		
-	},		
+
+	},
 
 	["mnemesis_arm1"] = {
 		name = "Arm - A",
@@ -7262,10 +7262,10 @@ rawset(_G, "enemyList", {
 		weak = 0,
 		block = ATK_FIRE|ATK_ICE|ATK_ELEC|ATK_WIND,
 		r_exp = 0,
-		scale = FRACUNIT*2,		
+		scale = FRACUNIT*2,
 		--noroguerandom = true,	-- Don't randomize affinities with rogue mode
 		noroguebuff = true,		-- Don't buff with rogue mode
-		
+
 		target_zoffs = 60,	-- offset for targetting reticle...
 
 		turns = 1,
@@ -7293,28 +7293,28 @@ rawset(_G, "enemyList", {
 			},
 
 		deathanim = function(mo)
-						
+
 						mo.deathtimer = $ and $+1 or 1
-						
+
 						local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
 						local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
 						local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
-						
+
 						local a = P_SpawnMobj(x, y, z, MT_DUMMY)
 						a.state = S_QUICKBOOM1
-						
+
 						if mo.deathtimer & 1
 							S_StartSound(mo, sfx_pop)
 						end
-						
+
 						if mo.deathtimer >= 30
 							mo.deathanim = nil
 							mo.flags2 = $|MF2_DONTDRAW
 							return	-- deref function
-						end	
+						end
 					end,
-		
-	},	
+
+	},
 
 	["mnemesis_arm2"] = {
 		name = "Arm - B",
@@ -7332,10 +7332,10 @@ rawset(_G, "enemyList", {
 		weak = 0,
 		block = ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE,
 		r_exp = 0,
-		scale = FRACUNIT*2,		
+		scale = FRACUNIT*2,
 		--noroguerandom = true,	-- Don't randomize affinities with rogue mode
 		noroguebuff = true,		-- Don't buff with rogue mode
-		
+
 		target_zoffs = 60,	-- offset for targetting reticle...
 
 		turns = 1,
@@ -7361,29 +7361,29 @@ rawset(_G, "enemyList", {
 				"bless amp",
 				"curse amp",
 			},
-			
+
 		deathanim = function(mo)
-						
+
 						mo.deathtimer = $ and $+1 or 1
-						
+
 						local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
 						local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
 						local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
-						
+
 						local a = P_SpawnMobj(x, y, z, MT_DUMMY)
 						a.state = S_QUICKBOOM1
-						
+
 						if mo.deathtimer & 1
 							S_StartSound(mo, sfx_pop)
 						end
-						
+
 						if mo.deathtimer >= 30
 							mo.deathanim = nil
 							mo.flags2 = $|MF2_DONTDRAW
 							return	-- deref function
-						end	
+						end
 					end,
-		
+
 	},
 
 	["alt"] = {
@@ -7391,7 +7391,7 @@ rawset(_G, "enemyList", {
 		skillchance = 100,	-- /100, probability of using a skill
 		atk = 400,
 		level = 99,
-		hp = 8500,
+		hp = 10000,
 		sp = 99999,
 		strength = 99,
 		magic = 99,
@@ -7405,7 +7405,7 @@ rawset(_G, "enemyList", {
 		r_exp = 1000000,
 		noroguerandom = true,	-- Don't randomize affinities with rogue mode
 		noroguebuff = true,		-- Don't buff with rogue mode
-		
+
 		target_zoffs = 40,	-- offset for targetting reticle...
 
 		persona = "pixie_alt",
@@ -7421,66 +7421,66 @@ rawset(_G, "enemyList", {
 		anim_run =			{SPR_VALT, A, 2},
 		anim_hurt =			{SPR_VALT, C, 35},
 		anim_evoker =		{SPR_VALT, D, E, F, 2},		-- holding evoker to head
-		anim_evoker_shoot =	{SPR_VALT, D, E, F, 2},		-- shooting evoker		
+		anim_evoker_shoot =	{SPR_VALT, D, E, F, 2},		-- shooting evoker
 		anim_getdown =		{SPR_VALT, C, 10},
 		anim_downloop =		{SPR_VALT, C, 10},
 		anim_getup =		{SPR_VALT, C, 10},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
+
 		anim_special1 = 	{SPR_VALT, G, H, 10},
 		anim_special2 =		{SPR_VALT, I, 9999},
-													
+
 		skills = {"heat riser", "eigaon", "psiodyne"},
 
 		deathanim = function(mo)
-						
+
 						mo.deathtimer = $ and $+1 or 1
-						
+
 						if mo.deathtimer == 1
-							
+
 							for p in players.iterate do
 								if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 									S_FadeOutStopMusic(200, p)
 								end
-							end	
-						
+							end
+
 							mo.basecoords = {mo.x, mo.y, mo.z}
 							mo.flags = $|MF_NOCLIPHEIGHT|MF_NOGRAVITY
 							ANIM_set(mo, mo.anim_hurt)
-							
+
 							local cam = server.P_BattleStatus[mo.battlen].cam
 							local destx = mo.x + 192*cos(mo.angle)
 							local desty = mo.y + 192*sin(mo.angle)
 							CAM_goto(cam, destx, desty, mo.z + FRACUNIT*8)
 							CAM_angle(cam, R_PointToAngle2(destx, desty, mo.x, mo.y))
-							
+
 						elseif mo.deathtimer < TICRATE*2
-							
+
 							P_TeleportMove(mo, mo.basecoords[1] + P_RandomRange(-4, 4)*FRACUNIT, mo.basecoords[2] + P_RandomRange(-4, 4)*FRACUNIT, mo.basecoords[3] + P_RandomRange(-4, 4)*FRACUNIT)
 							mo.anim_time = 0
-							
+
 						elseif mo.deathtimer == TICRATE*2
 							P_TeleportMove(mo, mo.basecoords[1], mo.basecoords[2], mo.basecoords[3])
 							ANIM_set(mo, mo.anim_special2)
 							mo.flags = $ & ~(MF_NOCLIPHEIGHT|MF_NOGRAVITY)
-						
+
 						elseif mo.deathtimer == TICRATE*3
 							mo.hp = 1	-- hack
 							mo.deathanim = nil
 							return	-- deref
-							
+
 						end
-						
+
 					end,
-		
+
 		thinker = 	function(mo)
-		
+
 					-- Alt thinker
 					-- This thinker kinda sucks and could maybe use some optimization, but it does its job, I suppose...
-					
+
 					mo.deathanim = true	-- hack since there are isolated cases of this not working?
-					
+
 					local function alt_changePersona(alt, persona, pinch)
 						alt.persona = personaList[persona]
 						local p = alt.persona
@@ -7488,13 +7488,13 @@ rawset(_G, "enemyList", {
 						alt.resist = p.resist or 0
 						alt.drain = p.drain or 0
 						alt.block = p.block or 0
-						
+
 						-- set skill lists:
 						local pskills
-						
+
 						if not pinch
 							pskills = {
-								
+
 								["pixie_alt"] = {
 									"panta rhei",
 									"thunder reign",
@@ -7507,7 +7507,7 @@ rawset(_G, "enemyList", {
 									"dekunda",
 									"patra",
 								},
-								
+
 								["alice_alt"] = {
 									"evil smile",
 									"maeigaon",
@@ -7520,21 +7520,21 @@ rawset(_G, "enemyList", {
 									"psy boost",
 									"psiodyne",
 									"eigaon",
-								},	
-								
+								},
+
 								["kfrost_alt"] = {
-									
+
 									"ice boost",
 									"nuke boost",
 									"niflheim",
 									"mabufudyne",
 									"marakunda",
 									"mafreidyne",
-									"freidyne",
+									"atomic flare",
 								},
-								
+
 								["metatron_alt"] = {
-									
+
 									"hamaon",
 									"megaton raid",
 									"brave blade",
@@ -7543,17 +7543,18 @@ rawset(_G, "enemyList", {
 									"kougaon",
 									"bless boost",
 								},
-							}	
+							}
 						else	-- harder moves
-								
+
 							pskills = {
-								
+
 								["pixie_alt"] = {
 									"panta rhei",
 									"thunder reign",
 									"megidolaon",
 									"magarudyne",
 									"maziodyne",
+									"megidolaon",
 									"mind charge",
 									"elec amp",
 									"wind amp",
@@ -7561,7 +7562,7 @@ rawset(_G, "enemyList", {
 									"dekunda",
 									"patra",
 								},
-								
+
 								["alice_alt"] = {
 									"evil smile",
 									"maeigaon",
@@ -7574,10 +7575,12 @@ rawset(_G, "enemyList", {
 									"psy amp",
 									"psiodyne",
 									"eigaon",
-								},								
+									"die for me",
+									"die for me",
+								},
 
 								["kfrost_alt"] = {
-									
+
 									"ice amp",
 									"nuke amp",
 									"niflheim",
@@ -7586,11 +7589,12 @@ rawset(_G, "enemyList", {
 									"mamakanda",
 									"masukunda",
 									"matarunda",
+									"atomic flare",
 									"mafreidyne",
 								},
-								
+
 								["metatron_alt"] = {
-									
+
 									"mahamaon",
 									"megaton raid",
 									"brave blade",
@@ -7600,57 +7604,57 @@ rawset(_G, "enemyList", {
 									"god hand",
 									"makougaon",
 									"bless amp",
-								},								
-								
+								},
+
 							}
-							
+
 						end
-						
+
 						if pskills[persona]
 							alt.skills = pskills[persona]
 							BTL_splitSkills(alt)
 						end
-						
-						
+
+
 					end
-				
+
 					local enemies = mo.enemies
 					local unfortunate_victim = mo.enemies[P_RandomRange(1, #enemies)]
-					
+
 					local btl = server.P_BattleStatus[mo.battlen]
 					local lastturn = btl.turnorder[2] ~= mo
-					
+
 					-- in case of 1mores, don't advance the AI, cast random skills with the currently equipped Persona
 					if mo.batontouch
 						return generalEnemyThinker(mo)
 					end
-					
+
 					mo.thinkercalls = $ and $+1 or 1	-- calls for current phase
 					mo.totalcalls = $ and $+1 or 1		-- calls for total fight
-					
+
 					mo.phase = $ or 1	-- phase is determined by HP count
-					
-					
+
+
 					local calls = mo.thinkercalls
 					local totalcalls = mo.totalcalls
-					
+
 					-- open the battle with dekaja and heat riser
 					if calls == 1
 						alt_changePersona(mo, "pixie_alt")
 						return attackDefs["dekaja"], enemies
-					
+
 					elseif calls == 2
 						return attackDefs["heat riser"], {mo}
-						
+
 					end
-					
+
 					-- MODE 1: HP > 75%
 					/*
 						In this phase, go soft on the player, do highly telegraphed attacks and only go haywire after 6 turns.
 					*/
-					
+
 					if mo.phase == 1
-						
+
 						-- phase shift
 						if mo.hp < mo.maxhp*3/4	-- under 75% HP
 							alt_changePersona(mo, "pixie_alt")
@@ -7661,69 +7665,69 @@ rawset(_G, "enemyList", {
 							end
 							return attackDefs["heat riser"], {mo}
 						end
-						
+
 						-- turn 1: Metatron phys attacks
 						if calls == 3
 							alt_changePersona(mo, "metatron_alt")
 							return attackDefs["vicious strike"], enemies
-							
+
 						elseif calls == 4
 							return attackDefs["megaton raid"], {unfortunate_victim}
-						
-						
+
+
 						-- turn 2: King Frost ice attacks, marakunda
 						elseif calls == 5
 							alt_changePersona(mo, "kfrost_alt")
 							return attackDefs["niflheim"], {unfortunate_victim}
-							
+
 						elseif calls == 6
 							return attackDefs["marakunda"], enemies
-						
+
 						-- turn 3: Alice, Fire + Death
-						
+
 						elseif calls == 7
 							alt_changePersona(mo, "alice_alt")
 							return attackDefs["trisagion"], {unfortunate_victim}
-							
-						elseif calls == 8	
-							
+
+						elseif calls == 8
+
 							return attackDefs["mudoon"], {unfortunate_victim}
-						
+
 						-- turn 4: Pixie, dekunda, dekaja, prepare for megidolaon next turn.
-						
-						
+
+
 						elseif calls == 9
 							alt_changePersona(mo, "pixie_alt")
 							return attackDefs["dekunda"], {mo}
-							
+
 						elseif calls == 10
 							return attackDefs["dekaja"], enemies
-						
+
 						-- turn 5: Mind charge megidolaon
-						
+
 						elseif calls == 11
 							return attackDefs["mind charge"], {mo}
-							
+
 						elseif calls == 12
 							return attackDefs["megidolaon"], enemies
-						
+
 						-- turn 5+: random persona & attacks until 50% HP
-						
+
 						elseif calls > 12
-							
+
 							if (calls%2)
 								local personas = {"pixie_alt", "alice_alt", "kfrost_alt", "metatron_alt"}
 								alt_changePersona(mo, personas[P_RandomRange(1, #personas)])
-							end	
-							return generalEnemyThinker(mo)						
+							end
+							return generalEnemyThinker(mo)
 						end
-					
+
 					-- MODE 2: condition bitch
 					/*
 						In this phase, harass the player with skills that can potential inflict statuses and follow up with skills
 						that can gain technical damage off of it, after opening with strong mind charged severe damaging spells
 					*/
-					
+
 					elseif mo.phase == 2
 
 						-- phase shift
@@ -7736,122 +7740,122 @@ rawset(_G, "enemyList", {
 							end
 							return attackDefs["heat riser"], {mo}
 						end
-						
+
 						-- Turn 1: Mind Chage -> Panta Rhei
 						if calls == 3
 							alt_changePersona(mo, "pixie_alt")
 							return attackDefs["mind charge"], {mo}
-						
+
 						elseif calls == 4
 							return attackDefs["panta rhei"], {unfortunate_victim}
-							
+
 						-- Turn 2: Mabufudyne -> Vicious Strike
 						elseif calls == 5
 							alt_changePersona(mo, "kfrost_alt")
 							return attackDefs["mabufudyne"], enemies
-						
+
 						elseif calls == 6
 							alt_changePersona(mo, "metatron_alt")
 							return attackDefs["vicious strike"], enemies
-							
+
 						-- Turn 3: Metatron Mahama, Alice Mamudo... yikes!
 						elseif calls == 7
 							return attackDefs["mahama"], enemies
-							
+
 						elseif calls == 8
 							alt_changePersona(mo, "alice_alt")
 							return attackDefs["mamudo"], enemies
-						
+
 						-- Turn 4: Mind Charge -> Thunder Reign
 						elseif calls == 9
 							alt_changePersona(mo, "pixie_alt")
 							return attackDefs["mind charge"], {mo}
-							
+
 						elseif calls == 10
 							return attackDefs["thunder reign"], {unfortunate_victim}
-							
+
 						-- Turn 5: Maragidyne -> Magarudyne
 						elseif calls == 11
 							alt_changePersona(mo, "alice_alt")
 							return attackDefs["maragidyne"], enemies
-							
+
 						elseif calls == 12
 							alt_changePersona(mo, "pixie_alt")
 							return attackDefs["magarudyne"], enemies
-							
+
 						-- Turn 6: Mind Charge -> Niflheim
 						elseif calls == 13
 							alt_changePersona(mo, "pixie_alt")
 							return attackDefs["mind charge"], {mo}
-							
+
 						elseif calls == 14
 							alt_changePersona(mo, "kfrost_alt")
 							return attackDefs["niflheim"], {unfortunate_victim}
-							
+
 						-- Turn 7: Trisagion -> Panta Rhei'
 						elseif calls == 15
 							alt_changePersona(mo, "alice_alt")
 							return attackDefs["trisagion"], {unfortunate_victim}
-							
+
 						elseif calls == 16
 							alt_changePersona(mo, "pixie_alt")
 							return attackDefs["panta rhei"], {unfortunate_victim}
-							
+
 						-- Turn 8: Dekaja, Dekunda
 						elseif calls == 17
 							return attackDefs["dekunda"], {mo}
 						elseif calls == 18
 							return attackDefs["dekaja"], enemies
-							
+
 						-- Turn 9: Mind Charge -> Megidolaon, and then repeat!
 						elseif calls == 19
 							return attackDefs["mind charge"], {mo}
 						elseif calls == 20
 							mo.thinkercalls = 3	-- repeat thinker
 							return attackDefs["megidolaon"], enemies
-							
+
 						end
-					
+
 					-- Final phase: be ungodly
 					elseif mo.phase == 3
-						
+
 						-- Turn 1: Virus Breath -> Blade of Fury
 						if calls == 3
 							alt_changePersona(mo, "alice_alt")
 							return attackDefs["virus breath"], enemies
-							
+
 						elseif calls == 4
 							alt_changePersona(mo, "metatron_alt")
 							return attackDefs["blade of fury"], enemies
-						
+
 						-- Turn 2: Mahamaon, Mamudoon
 						elseif calls == 5
 							return attackDefs["mahamaon"], enemies
-							
+
 						elseif calls == 6
 							alt_changePersona(mo, "alice_alt")
 							return attackDefs["mamudoon"], enemies
-							
+
 						-- Turn 3+: Free wheeling. Change Personas every 2nd turn as usual
 						-- Continue the fight like this
 						elseif calls > 6
-						
+
 							if (calls%2)
 								local personas = {"pixie_alt", "alice_alt", "kfrost_alt", "metatron_alt"}
 								alt_changePersona(mo, personas[P_RandomRange(1, #personas)], true)	-- use pinch phase moves
-							end	
-							return generalEnemyThinker(mo)								
-						
-						end	
+							end
+							return generalEnemyThinker(mo)
+
+						end
 					end
-					
-					
-						
-					
-					
+
+
+
+
+
 					alt_changePersona(mo, "alice_alt")
 					return generalEnemyThinker(mo)	--attackDefs["mamudoon"], enemies
-				end,	
+				end,
 	},
 
 }

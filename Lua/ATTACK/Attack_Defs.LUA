@@ -11447,6 +11447,85 @@ rawset(_G, "attackDefs", {
 		end,
 	},
 
+	["atomic flare"] = {
+		name = "Atomic Flare",
+		type = ATK_NUCLEAR,
+		power = 650,
+		accuracy = 95,
+		costtype = CST_SP,
+		cost = 24,
+		technical = COND_BURN|COND_FREEZE|COND_SHOCK,
+		desc = "Severe Nuke dmg to one enemy.",
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			if timer == 20
+
+				local s = P_SpawnMobj(target.x, target.y, target.z + mo.scale*64, MT_DUMMY)
+				s.color = SKINCOLOR_WHITE
+				s.state = S_MEGISTAR1
+				s.scale = FRACUNIT*4
+				playSound(mo.battlen, sfx_hamas2)
+
+			elseif timer == 40
+				localquake(mo.battlen, FRACUNIT*32, 100)
+				playSound(mo.battlen, sfx_frei1)
+
+			elseif timer > 40
+			and timer < 130
+
+				if leveltime & 1
+					for i = 1, 2
+
+						local s = P_SpawnMobj(target.x, target.y, target.z + mo.scale*64, MT_DUMMY)
+						if i == 1
+							s.z = $ - mo.scale*64
+						else
+							s.z = $ + mo.scale*128
+						end
+
+						s.sprite = SPR_SLAS
+						s.frame = K+(i-1) | FF_FULLBRIGHT | TR_TRANS30
+						s.color = SKINCOLOR_TEAL
+						s.scale = FRACUNIT/8
+						s.destscale = FRACUNIT*9
+						s.scalespeed = FRACUNIT/2
+						s.tics = TICRATE/2
+
+						s.momx = P_RandomRange(-2, 2)*FRACUNIT
+						s.momy = P_RandomRange(-2, 2)*FRACUNIT
+						s.momz = P_RandomRange(-2, 2)*FRACUNIT
+
+					end
+				end
+
+				local ang = R_PointToAngle(target.x, target.y)
+				local angs = {ang + ANG1*120, ang - ANG1*60}
+				local momzs = {-1, 1}
+
+				for i = 1, 2
+					for j = 1, 16
+
+						local boom = P_SpawnMobj(target.x, target.y, target.z + 64*mo.scale, MT_DUMMY)
+						boom.state = S_CQUICKBOOM1
+						boom.color = SKINCOLOR_TEAL
+						boom.angle = angs[i]
+						P_InstaThrust(boom, boom.angle, P_RandomRange(16, 64)*FRACUNIT)
+						boom.momz = P_RandomRange(6, 16)*momzs[i]*FRACUNIT
+						boom.scale = FRACUNIT*3/2
+					end
+				end
+			end
+
+			if timer == 110
+				damageObject(target)
+			elseif timer == 140
+				return true
+			end
+		end,
+	},
+
 	["freidyne"] = {
 		name = "Freidyne",
 		type = ATK_NUCLEAR,

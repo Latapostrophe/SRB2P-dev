@@ -881,7 +881,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	local rage_div = mo.status_condition == COND_RAGE and 2 or 1	-- divide def by 2 if mo has rage
 	if mo.boss
 		rage_div = 1	-- Bosses would be too cheesable with this.
-	end	
+	end
 
 	local usestat = attacker.strength
 	local boost = (attacker.powercharge and not atk.physical)
