@@ -109,8 +109,8 @@ local function DNG_generatefloor(t, floornum)
 		brightness = server.cdungeon.brightness
 		usetiles = server.cdungeon.useautotile
 		P_SetupLevelSky(server.cdungeon.skynum)
+		server.P_DungeonStatus.noreaper = nil or t.noreaper
 	end
-
 
 	server.P_DungeonStatus.beatenboss = 0
 
