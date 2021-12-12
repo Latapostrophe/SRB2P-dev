@@ -114,38 +114,38 @@ local textdata = {
 			{"Alt", "Under normal circumstances, someone *else* would be handling that...", "H_ALT01", SKINCOLOR_BLUE},
 			{"Alt", "We turn scrap into gold, here! ...So long as you have the materials and Macca.", "H_ALT01", SKINCOLOR_BLUE},
 		},
-		
+
 		bye = {
 			{"Alt", "See ya later!", "H_ALT01", SKINCOLOR_BLUE},
 		},
-		
+
 		-- FUSION
-		
+
 		fusion_nopersona = {
 			{"Alt", "You don't have any Sub-Persona...", "H_ALT05", SKINCOLOR_BLUE},
-		},		
+		},
 
 		fusion_noframe = {
 			{"Alt", "You don't have any "..ICO_ITEM.."Nihil Frame...", "H_ALT05", SKINCOLOR_BLUE},
 		},
-		
+
 		choose_persona = {
 			{"Alt", "What Sub-Persona should we try fusing into a weapon?", "H_ALT01", SKINCOLOR_BLUE},
 		},
-		
+
 		confirm_fusion = {
 			{"Alt", "Just to be clear, \x82this will destroy the selected Sub-Persona.\x80\nAre we still good to go?", "H_ALT01", SKINCOLOR_BLUE},
-		},		
+		},
 
 		fusion_success = {
 			{"Alt", "Job well done!", "H_ALT03", SKINCOLOR_BLUE},
 			{"Alt", "And that's that...", "H_ALT03", SKINCOLOR_BLUE},
-		},		
+		},
 
 		fusion_broke = {
 			{"Alt", "You don't have the materials for that...", "H_ALT05", SKINCOLOR_BLUE},
 		},
-		
+
 		fusion_unequip = {
 			{"Alt", "This Sub-Persona is already in use. Should I unequip it and \x82".."destroy it regardless?", "H_ALT01", SKINCOLOR_BLUE},
 		},
@@ -153,7 +153,7 @@ local textdata = {
 		fusion_notyours = {
 			{"Alt", "This Sub-Persona is in use by someone else. You're gonna have to ask them to unequip it themselves...", "H_ALT05", SKINCOLOR_BLUE},
 		},
-		
+
 		-- DESYNTHESIS
 		choose_desynth = {
 			{"Alt", "Breaking things is something I'm actually not bad at!", "H_ALT01", SKINCOLOR_BLUE},
@@ -203,7 +203,7 @@ local textdata = {
 local state_2_textdata = {
 	[ELS_MAIN] = "welcome",
 	[ELS_LEAVE] = "bye",
-	
+
 	[ELS_FUSION_NOPERSONA] = "fusion_nopersona",
 	[ELS_FUSION_NOFRAME] = "fusion_noframe",
 	[ELS_FUSION_SELECTPERSONA] = "choose_persona",
@@ -240,10 +240,10 @@ rawset(_G, "DNG_startEquipLab", function(mo)
 		texttimer = 1,
 		hudtimers = {},
 	}
-	
+
 	if server.gamemode ~= GM_VOIDRUN
 		S_ChangeMusic("SHOP", true, mo.player, nil, nil, 400)
-	end	
+	end
 	mo.equiplab.hudtimers.enter = TICRATE/3	-- start
 
 	-- start the text box
@@ -256,11 +256,11 @@ rawset(_G, "DNG_stopEquipLab", function(mo, nomenu)
 	mo.equiplab = {}	-- empty the table
 	if server.gamemode ~= GM_VOIDRUN
 		S_ChangeMusic(mapmusname, true, mo.player, nil, nil, 400)
-	end	
+	end
 	if not nomenu
 		M_openMenu(mo, "m_selectfacility")
 		return
-	end	
+	end
 	-- default music fades back.
 	PLAY_move(mo.player)	-- allow the player to move again
 end)
@@ -270,7 +270,7 @@ local state_2_textchoices = {
 
 	[ELS_GRIND_CONFIRM] = 2,	-- yes, no
 	[ELS_DESYNTH_CONFIRM] = 2,	-- yes, no
-	
+
 	[ELS_FUSION_CONFIRM] = 2,	-- yes, no
 	[ELS_FUSION_ASKUNEQUIP] = 2,	-- yes, no
 }
@@ -368,7 +368,7 @@ local function DNG_EQLUseMaterials(mo)
 				if it
 					BTL_useItem(btl, it, false)
 				end
-			end	
+			end
 		end
 	end
 end
@@ -380,7 +380,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 	local btl = server.P_BattleStatus[mo.player.P_party]
 	local inputs = mo.P_inputs
 	local p = mo.player
-	
+
 	PLAY_nomove(mo.player)
 
 	local e = mo.equiplab
@@ -419,7 +419,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 					break
 				end
 			end
-		
+
 			e.selectparty = myindex	-- 1- netstat.teamlen
 			e.selectequip = 1		-- 1 = wep, 2 = wardring
 			e.hudtimers.grindstart = 8
@@ -433,7 +433,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 			DNG_changeEQLState(mo, ELS_DESYNTH_SELECTWEP)
 
 		elseif newchoice == ELS_FUSION_SELECTPERSONA
-			
+
 			-- check if we can do that?
 			if #btl.subpersonas < 2	-- unequipped count as a subpersona
 				S_StartSound(nil, sfx_not, mo.player)
@@ -461,14 +461,14 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				WPT_GENERICMELEE,
 				WPT_GENERICRANGED,
 			}
-			
+
 			for i = 1, #typelookups do
-				if getEquipWeaponType(mo.player.maincontrol) == typelookups[i]
+				if getEquipWeaponType(mo.player.maincontrol) & typelookups[i]
 					e.selectequiptype = i
 					break
-				end	
+				end
 			end
-			
+
 			e.selectequip = 2
 			e.hudtimers.weaponfusion = 8
 			e.selectscroll = 0
@@ -480,8 +480,8 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 			DNG_changeEQLState(mo, ELS_LEAVE)
 			e.hudtimers.leave = TICRATE*2
 		end
-		
-	elseif e.state == ELS_LEAVE	
+
+	elseif e.state == ELS_LEAVE
 		if (not e.hudtimers.leave)
 		or inputs[BT_BTNA] == 1
 			DNG_stopEquipLab(mo)
@@ -501,7 +501,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 		or inputs[BT_BTNA] == 1
 			DNG_changeEQLState(mo, ELS_MAIN)
 		end
-	
+
 	elseif e.state == ELS_FUSION_FAIL
 	or e.state == ELS_FUSION_NOTYOURS
 	or e.state == ELS_FUSION_SUCCESS
@@ -509,14 +509,14 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 		if (not e.hudtimers.fusionbroke)
 		or inputs[BT_BTNA] == 1
 			local nextstate = ELS_FUSION_SELECTPERSONA
-			
+
 			-- don't allow going back to the fusion state if we lack the items / personas
 			if #btl.subpersonas < 2 or not BTL_findItem(btl, "nihil frame")
 				nextstate = ELS_MAIN
-			end	
+			end
 			DNG_changeEQLState(mo, ELS_FUSION_SELECTPERSONA)
 		end
-	
+
 	elseif e.state == ELS_FUSION_CONFIRM
 	or e.state == ELS_FUSION_ASKUNEQUIP
 
@@ -528,9 +528,9 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 			if not DNG_EQLCheckNeeds(mo) or e.backupsubp ~= subp
 				DNG_changeEQLState(mo, ELS_FUSION_FAIL)
 				e.hudtimers.fusionbroke = TICRATE*2
-				S_StartSound(nil, sfx_not, mo.player)					
+				S_StartSound(nil, sfx_not, mo.player)
 			end
-			
+
 			-- otheriwise, go to town;
 			-- unequip the persona first if necessary
 			if subp.equipped
@@ -544,27 +544,27 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 					break
 				end
 			end
-			
+
 			subp = nil	-- dereference subp
 			-- get the weapon we previewed!
 			addWeapon(mo, e.weaponpreview)
-			
+
 			-- and go to the success thing
 			e.hudtimers.fusionbroke = TICRATE
 			DNG_EQLUseMaterials(mo)
-			DNG_changeEQLState(mo, ELS_FUSION_SUCCESS)			
+			DNG_changeEQLState(mo, ELS_FUSION_SUCCESS)
 		elseif choice == 2
 			DNG_changeEQLState(mo, ELS_FUSION_SELECTPERSONA)
 			S_StartSound(nil, sfx_cancel, mo.player)
 		end
-		
-	
+
+
 	elseif e.state == ELS_FUSION_SELECTPERSONA
 		local t = btl.subpersonas
 		local maxitems = 8
 		local maxc = #t
 		local minc = 2
-		
+
 		local maxscroll = max(0, maxc-maxitems)
 
 		local wpntypes = {
@@ -581,7 +581,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 			"nihil rapier",
 			"nihil gun",
 		}
-		
+
 		local typelookups = {
 			WPT_SHOES,
 			WPT_MONITOR,
@@ -596,7 +596,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 			WPT_GENERICMELEE,
 			WPT_GENERICRANGED,
 		}
-		
+
 		if inputs["down"] == 1
 		and maxc > 1
 			e.selectequip = $+1
@@ -606,77 +606,77 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 			and maxc > maxitems
 				e.selectscroll = $+1
 			end
-			
+
 			if e.selectequip > maxc
 				e.selectscroll = 0
 				e.selectequip = 2
 			end
 			e.weaponpreview = nil	-- reset preview weapon
-			
+
 			S_StartSound(nil, sfx_hover, p)
 
 		elseif inputs["up"] == 1
 		and maxc > 1
 			e.selectequip = $-1
-			
+
 			if e.selectequip < maxc - (maxitems/2)
 			and e.selectscroll
 				e.selectscroll = $-1
-			end			
-			
+			end
+
 			if e.selectequip < 2
 				e.selectequip = maxc
 				if maxc > maxitems
 					e.selectscroll = maxscroll
-				end				
+				end
 			end
 			e.weaponpreview = nil	-- reset preview weapon
-			
-			S_StartSound(nil, sfx_hover, p)			
-		
+
+			S_StartSound(nil, sfx_hover, p)
+
 		elseif inputs["right"] == 1
 		and maxc > 1
 			e.selectequiptype = $+1
 			-- skip over weapon types we can't use...
 			local canequip
-			
+
 			while (not canequip) and e.selectequiptype <= #wpntypes
 				for i = 1, #server.plentities[mo.player.P_party] do
 					--print(i..": "..getEquipWeaponType(server.plentities[mo.player.P_party][i]).." | "..typelookups[e.selectequiptype])
-					if getEquipWeaponType(server.plentities[mo.player.P_party][i]) == typelookups[e.selectequiptype]
+					if getEquipWeaponType(server.plentities[mo.player.P_party][i]) & typelookups[e.selectequiptype]
 						canequip = true
 						break
-					end	
+					end
 				end
-				
+
 				if not canequip
 					e.selectequiptype = $+1
-				end	
+				end
 			end
-			
+
 			if e.selectequiptype > #wpntypes
 				e.selectequiptype = 1
-				
+
 				-- do it again:
 				canequip = nil
 				while not canequip
 					for i = 1, #server.plentities[mo.player.P_party] do
-						if getEquipWeaponType(server.plentities[mo.player.P_party][i]) == typelookups[e.selectequiptype]
+						if getEquipWeaponType(server.plentities[mo.player.P_party][i]) & typelookups[e.selectequiptype]
 							canequip = true
 							break
-						end	
+						end
 					end
-					
+
 					if not canequip
 						e.selectequiptype = $+1
-					end	
-				end				
+					end
+				end
 			end
-			
+
 			e.weaponpreview = nil	-- reset preview weapon
-			
+
 			S_StartSound(nil, sfx_hover, p)
-		
+
 		elseif inputs["left"] == 1
 		and maxc > 1
 
@@ -684,47 +684,47 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 
 			-- skip over weapon types we can't use...
 			local canequip
-			
+
 			while not canequip and e.selectequiptype > 0
 				for i = 1, #server.plentities[mo.player.P_party] do
-					if getEquipWeaponType(server.plentities[mo.player.P_party][i]) == typelookups[e.selectequiptype]
+					if getEquipWeaponType(server.plentities[mo.player.P_party][i]) & typelookups[e.selectequiptype]
 						canequip = true
 						break
-					end	
+					end
 				end
-				
+
 				if not canequip
 					e.selectequiptype = $-1
 				end
 			end
-			
+
 			if e.selectequiptype < 1
 				e.selectequiptype = #wpntypes
 				-- do it again...
 				canequip = nil
-				
+
 				while not canequip
 					for i = 1, #server.plentities[mo.player.P_party] do
-						if getEquipWeaponType(server.plentities[mo.player.P_party][i]) == typelookups[e.selectequiptype]
+						if getEquipWeaponType(server.plentities[mo.player.P_party][i]) & typelookups[e.selectequiptype]
 							canequip = true
 							break
-						end	
+						end
 					end
-					
+
 					if not canequip
 						e.selectequiptype = $-1
 					end
 				end
-			end		
-			
+			end
+
 			e.weaponpreview = nil	-- reset preview weapon
-			
+
 			S_StartSound(nil, sfx_hover, p)
 
 		elseif inputs[BT_BTNB] == 1
 			S_StartSound(nil, sfx_cancel, p)
 			DNG_changeEQLState(mo, ELS_MAIN)
-		
+
 		elseif inputs[BT_BTNA] == 1
 		and e.weaponpreview
 			-- We must check if the currently selected sub-persona isn't equipped and that we have the materials, first!
@@ -732,7 +732,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 			local wpn = e.weaponpreview
 			if not wpn return end	-- wtf
 			e.backupsubp = subp		-- keep a pointer of that
-			
+
 			-- check for all the items we need first:
 			-- material factors:
 			local fact = 10 + wpn.rarity
@@ -747,13 +747,13 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 					tmp[i] = {e.equipneed[i][1], e.equipneed[i][2]*fact}
 				end
 			end
-			
+
 			e.equipneed = tmp	-- now we're good.
 			-- we couldn't just write to e.equipneed itself or we'd fuck up the internal tables responsible for keeping track of material needs, so we need that copy
-			
+
 			-- check if we have what we need before deciding the state
 			if DNG_EQLCheckNeeds(mo)
-			
+
 				if subp.equipped
 					local plyr = server.plentities[mo.player.P_party][subp.equipped]
 					if plyr.control == mo.player
@@ -774,19 +774,19 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				-- you don't have the materials.
 				DNG_changeEQLState(mo, ELS_FUSION_FAIL)
 				e.hudtimers.fusionbroke = TICRATE*2
-				S_StartSound(nil, sfx_not, mo.player)				
+				S_StartSound(nil, sfx_not, mo.player)
 			end
-						
-		end	
-		
+
+		end
+
 		local persona = btl.subpersonas[e.selectequip]
-		
+
 		-- Generate the preview weapon:
 		if persona
 		and e.weaponpreview == nil
 			e.weaponpreview = makeWeapon(wpntypes[e.selectequiptype])
 			local w = e.weaponpreview
-			
+
 			-- {level upper limit, attack power, rarity}
 			local personaleveltiers = {
 				{11, 350, 1},
@@ -797,7 +797,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				{90, 1900, 6},
 				{256, 2400, 7},
 			}
-			
+
 			local tier = 1
 			for i = 1, #personaleveltiers do
 				if persona.level < personaleveltiers[i][1]
@@ -805,7 +805,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 					break
 				end
 			end
-			
+
 			if tier >= 1 and tier <= #personaleveltiers
 				-- now that we have our tier, apply everything to the weapon:
 				w.rarity = personaleveltiers[tier][3]
@@ -818,11 +818,11 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				local pstat = persona[stats[i]] or 0
 				if pstat < 0
 					pstat = min(0, $+(w.rarity/2))
-				end	-- Negative stats get 1 point off per 2 rarity stars	
-				
+				end	-- Negative stats get 1 point off per 2 rarity stars
+
 				w[stats[i]] = min(w.rarity, pstat)
 			end
-			
+
 			w.element = persona.ref.weapontype or ATK_ALMIGHTY
 			-- slot:
 			w.slot = "void boost "..w.rarity
@@ -985,14 +985,14 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 
 		elseif inputs[BT_BTNA] == 1
 		and e.lastsource	-- make sure we have that available
-			
+
 			-- can we select this?
 			if server.plentities[mo.player.P_party][e.selectparty].control ~= mo.player
 				S_StartSound(nil, sfx_not, mo.player)
 				return
-				
+
 			end
-			
+
 			e.equipneed = equipGrindTiers[getEquipGrindTier(e.lastsource)]
 
 			-- check if we have what we need before deciding the state
