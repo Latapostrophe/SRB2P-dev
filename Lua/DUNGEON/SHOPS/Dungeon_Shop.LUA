@@ -46,13 +46,13 @@ rawset(_G, "DNG_stopShop", function(mo, nomenu)
 	mo.shop = {}	-- empty the table
 	if server.gamemode ~= GM_VOIDRUN
 		S_ChangeMusic(mapmusname, true, mo.player, nil, nil, 400)
-	end	
+	end
 	-- default music fades back.
 	if not nomenu
 		M_openMenu(mo, "m_selectfacility")
 		return
-	end	
-	
+	end
+
 	PLAY_move(mo.player)	-- allow the player to move again
 end)
 
@@ -103,13 +103,13 @@ end
 
 local function SHOP_validateWeapons(mo, source, dest)
 	local party = server.plentities[mo.player.P_party]
-	
+
 	for i = 1, #source
 		for j = 1, #party do
 			if canEquipWeapon(party[j], source[i][1])
 				table.insert(dest, source[i])
 				break
-			end	
+			end
 		end
 	end
 end
@@ -125,7 +125,7 @@ rawset(_G, "DNG_startShop", function(mo, shop)
 	M_closeMenu(mo)	-- close any open menu to avoid conflicts
 	if server.gamemode ~= GM_VOIDRUN
 		S_ChangeMusic("SHOP", true, mo.player, nil, nil, 400)
-	end	
+	end
 
 	-- generate tabs for shit we can buy
 	local items = {}
@@ -145,7 +145,7 @@ rawset(_G, "DNG_startShop", function(mo, shop)
 	validateShopLevel(data.armour, armour, diff)
 	validateShopLevel(data.skillcards, skillcards, diff)
 	validateShopLevel(data.subpersonas, subpersonas, diff)
-	
+
 	SHOP_validateWeapons(mo, weapons, weapons_sorted)
 
 	local shoptabs = {
@@ -705,7 +705,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 					DNG_changeShopState(mo, SS_SELLCONFIRM)
 				end
 			end
-			
+
 		elseif inpt[BT_USE] == 1
 		or choice == -1	-- this only happens if everything somehow sold out
 			S_StartSound(nil, sfx_cancel, mo.player)
@@ -948,6 +948,14 @@ rawset(_G, "DNG_handleShop", function(mo)
 		local choice = handleTextChoices(mo)
 
 		if choice == 1		-- Buy
+
+			-- Check Macca to see if we still have enough (another player may have spent the macca while we were confirming...)
+			if server.P_BattleStatus[mo.player.P_party].macca < mo.shop.moneybuf
+				S_StartSound(nil, sfx_not, mo.player)
+				DNG_changeShopState(mo, SS_CANTBUY)
+				return
+			end
+
 			BTL_getMacca(server.P_BattleStatus[mo.player.P_party], -mo.shop.moneybuf)
 			server.P_BattleStatus[mo.player.P_party].netstats.itemsbought = $+1
 
