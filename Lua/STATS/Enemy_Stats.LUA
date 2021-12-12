@@ -4185,7 +4185,7 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_ENM1, L, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-		skills = {"masukunda", "mafrei", "magaru", "feila", "garula", "snap", "makakaja", "dia", "dekaja", "dekunda"},
+		skills = {"masukunda", "mafrei", "magaru", "freila", "garula", "snap", "makakaja", "dia", "dekaja", "dekunda"},
 	},
 
 	["beetle_boss1"] = {
@@ -4919,7 +4919,7 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_ENM5, S, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-		skills = {"single shot"},
+		skills = {"snap"},
 		r_exp = 89,
 	},
 
@@ -4948,7 +4948,7 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_ENM5, S, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-		skills = {"single shot"},
+		skills = {"snap"},
 		r_exp = 136,
 	},
 
