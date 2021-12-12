@@ -1,5 +1,17 @@
 -- General dungeon stuff:
 
+-- Default reaper timers by difficulty:
+rawset(_G, "reapertimers", {
+
+	0,	-- b1: off
+	9,	-- b2: 9 minutes / floor
+	8,	-- b3: 8 minutes / floor
+	7, 	-- b4 and above: 7 minutes / floor
+	7,
+	7,
+	7,
+})
+
 -- Dungeon shadow flags:
 local shadow_flags = {
 	"SHF_STRONG",		-- Red shadows
@@ -96,48 +108,48 @@ end)
 -- We'll do that by using JSON serialization
 
 rawset(_G, "DNG_loadNewMap", function(mapnum)
-	
+
 	if not server or not server.valid return end
 	if server.buf_battles or server.buf_players or server.buf_dungeon return end	-- already in progress
-	
+
 	server.buf_battles = {}
 	server.buf_players = {}
 	server.buf_dungeon = {}
-	
+
 	for i = 1, 4
 		if server.P_BattleStatus[i]
 			server.buf_battles[i] = SAVE_ArchiveBattle(server.P_BattleStatus[i])
 		end
-		
+
 		if server.plentities[i]
 			server.buf_players[i] = {}
 			for j = 1, server.P_netstat.teamlen
 				if server.plentities[i][j]
 					server.buf_players[i][j] = SAVE_ArchivePlayer(server.plentities[i][j])
 				end
-			end	
+			end
 		end
 	end
-	
+
 	--server.buf_dungeon = SAVE_ArchiveDungeon()
 	--print("Map Load save point created")
 	G_SetCustomExitVars(mapnum, 2)
-	G_ExitLevel()	
+	G_ExitLevel()
 end)
 
 -- Apply the stuff set here if possible
 addHook("MapLoad", do
-	
+
 	if not server or not server.valid return end
-	
+
 	if server.buf_battles
 		--print("Loading map load save point")
 		for i = 1, 4
-			
+
 			if server.P_BattleStatus[i]
 				SAVE_OverwriteObject(server.P_BattleStatus[i], json.decode(server.buf_battles[i]))
 			end
-			
+
 			if server.plentities[i]
 				for j = 1, server.P_netstat.teamlen do
 					if server.plentities[i][j]
@@ -146,10 +158,10 @@ addHook("MapLoad", do
 				end
 			end
 		end
-		
+
 		SAVE_FixUps()	-- Fix subpersona linking
 	end
-	
+
 	server.buf_battles = nil
 	server.buf_players = nil
 	server.buf_dungeon = nil

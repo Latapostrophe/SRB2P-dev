@@ -1,5 +1,7 @@
 -- this handles tartarus, both building and gameplay.
 
+--[[ deprecated
+
 rawset(_G, "cv_reapertimer", CV_RegisterVar({
   name = "d_reapertimer",
   defaultvalue = 6,
@@ -14,7 +16,7 @@ rawset(_G, "cv_reaper", CV_RegisterVar({
   flags = CV_NETVAR,
   PossibleValue = CV_OnOff,
 })
-)
+) ]]--
 
 -- thinker for dungeons
 --addHook("ThinkFrame", do

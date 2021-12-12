@@ -2,7 +2,7 @@
 
 rawset(_G, "cv_turntimer", CV_RegisterVar({
 	name = "turntimer",
-	defaultvalue = 35,
+	defaultvalue = 0,
 	flags = CV_NETVAR|CV_SAVE,
 	PossibleValue = {MIN = 0, MAX = 99},
 }))

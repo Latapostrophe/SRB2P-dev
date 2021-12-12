@@ -220,10 +220,10 @@ rawset(_G, "D_spawnReaper", function()
 
 	DNG_logMessage("Run for your life!")
 	DNG_logMessage("The ".."\x85".."Reaper".."\x80".." has come!")
-	
+
 	if server.gamemode ~= GM_VOIDRUN
 		S_FadeOutStopMusic(MUSICRATE*2)
-	end	
+	end
 
 	-- find somewhere for the reaper to spawn, really, ANY space will do.
 
@@ -261,7 +261,7 @@ local function DNG_tartarusReaper()
 	local d = server.P_DungeonStatus
 	if d.reapertimer ~= nil
 	and not (d.noreaper)
-	and cv_reaper.value
+	--and cv_reaper.value
 	and server.gamemode == GM_COOP
 		d.reapertimer = $-1
 
@@ -283,11 +283,11 @@ local function DNG_tartarusReaper()
 			end
 		end
 	end
-	
+
 	if server.gamemode == GM_VOIDRUN
 	and d.VR_type == VC_INFILTRATION
 	and d.VR_timer ~= nil
-	and not server.reaper	
+	and not server.reaper
 		D_spawnReaper()
 	end
 end
@@ -484,21 +484,21 @@ rawset(_G, "D_tartarusCrawler", function()
 		if server.map[#mo.subsector.sector+1] == T_BOSS	-- miniboss event space
 		and not mo.eventclear
 		--and not (d.savefloor >= d.floor)
-			/*local donealready 
+			/*local donealready
 			for p2 in players.iterate do
 				-- if anyone else in the party has stepped here, don't let me step here
-				
+
 				if p2 and p2.mo and p2.mo.valid and p2.P_party == mo.player.P_party
 				and p2.mo.evt_startbattle
 					donealready = true
 					break
-				end	
+				end
 			end
-			
+
 			-- if we don't do that we can actually softlock the game by having multiple players step on here, oops!
 			if not donealready*/
 			evt_startbattle = true
-			--end	
+			--end
 		end
 
 		if evt_startbattle
@@ -512,7 +512,7 @@ rawset(_G, "D_tartarusCrawler", function()
 					mo2.evt_startbattle = max($, mo.evt_startbattle)
 				else
 					mo2.evt_startbattle = mo.evt_startbattle or 0
-				end	
+				end
 			end
 
 			if not mo.evt_startbattle
@@ -521,7 +521,7 @@ rawset(_G, "D_tartarusCrawler", function()
 			mo.evt_startbattle = $+1
 
 			if mo.evt_startbattle > TICRATE*2
-				
+
 				evt_startbattle = nil	-- don't start 2 battles, lol
 				-- select wave:
 				local wave
@@ -650,14 +650,14 @@ rawset(_G, "D_tartarusCrawler", function()
 				elseif mo2.spr_nfloor >= TICRATE
 					if stairplayers >= totalplayers
 						-- goto next floor
-						
+
 						-- SPECIAL CASE FOR TARTARUS ONLY
 						if (server.gamemode == GM_COOP and gamemap == srb2p.tartarus_play and server.P_DungeonStatus.floor+1) == 112	-- this may need to be a constant
 							DNG_loadNewMap(5)
-							
+
 							return
-						end					
-						
+						end
+
 						if p2 == p
 							for i = 1, 4
 								server.P_BattleStatus[i].netstats.floors = $+1
@@ -749,7 +749,7 @@ rawset(_G, "D_tartarusCrawler", function()
 				if mo.m_savebutton == 1
 					S_StartSound(nil, sfx_select, mo.player)
 				end
-			end	
+			end
 		else
 			mo.m_savebutton = 0
 		end

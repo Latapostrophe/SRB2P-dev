@@ -195,7 +195,7 @@ local function DNG_generatefloor(t, floornum)
 
 		if not map[i]			-- wall
 			if server.cdungeon
-				
+
 				if server.cdungeon.wallheight
 					s.floorheight = server.cdungeon.wallheight*FRACUNIT
 					s.ceilingheight = s.floorheight
@@ -205,7 +205,7 @@ local function DNG_generatefloor(t, floornum)
 				end
 			else
 				s.floorheight = s.ceilingheight
-			end	
+			end
 
 
 		elseif (map[i] == T_ITEM or map[i] == T_GOLDI) and not (server.P_netstat.buffer.load)		-- item/gold item (once / party): Don't spawn them if we're loading a Marathon save
@@ -511,9 +511,9 @@ local function DNG_generatefloor(t, floornum)
 			s.floorheight = -256*FRACUNIT
 			if server.cdungeon and server.cdungeon.pittexture
 				s.floorpic = server.cdungeon.pittexture
-			else	
+			else
 				s.floorpic = "PIT"
-			end	
+			end
 
 		elseif map[i] == T_SPIKES	-- spikes
 			s.floorheight = -100*FRACUNIT
@@ -1248,9 +1248,15 @@ rawset(_G, "DNG_setFloor", function(f)
 		DNG_entryCard(t)
 	end
 
-	if cv_reaper.value
-	and server.gamemode == GM_COOP
-		server.P_DungeonStatus.reapertimer = (cv_reapertimer.value)*TICRATE*60
+	local reapertimer = 0
+	if reapertimers[server.difficulty]
+		reapertimer = reapertimers[server.difficulty]
+	end
+
+	--if cv_reaper.value
+	if server.gamemode == GM_COOP
+	and reapertimer
+		server.P_DungeonStatus.reapertimer = (reapertimer)*TICRATE*60
 
 		if server.gentype == GEN_DREAD
 			server.P_DungeonStatus.reapertimer = TICRATE*30

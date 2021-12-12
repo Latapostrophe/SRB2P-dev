@@ -49,7 +49,7 @@ local function mm_checkTutorial()
 		srb2p.cleared_xdata = nil
 		-- Re-"Unlock" the tutorial by default
 		SYS_CreatePrompt("Hello and welcome back to SRB2P!\nYour \x82".."unlockables save data".."\x80".."\nhas been erased due to the changes\nbrought by this update.\nHave fun with the new content!", PT_NOTIFICATION)
-		
+
 	elseif not srb2p.local_conds[UNLOCK_TUTORIAL]
 		-- bring up the thing:
 		SYS_CreatePrompt("Hello and welcome to SRB2P!\nIt seems this is your first time.\nWould you like to play a tutorial?\n\n(You will be able to play it regardless\nfrom the Singleplayer menu)", PT_YESNO, mm_startTutorial)
@@ -1318,8 +1318,8 @@ local net_opt = {
 local netgameplay_opt = {
 
 	{"Turn timer", 100, 32, CT_CVARNUM, {cv_turntimer, 0, 99}, nil, "Time in seconds for players to take their turn. Disabled if 0."},
-	{"Spawn Reaper", 100, 56, CT_CVAR, cv_reaper, nil, "Spawns the Reaper after a while in netgames"},
-	{"Reaper timer", 100, 68, CT_CVARNUM, {cv_reapertimer, 1, 30}, nil, "Reaper spawn timer (in minutes)"},
+	--{"Spawn Reaper", 100, 56, CT_CVAR, cv_reaper, nil, "Spawns the Reaper after a while in netgames"},
+	--{"Reaper timer", 100, 68, CT_CVARNUM, {cv_reapertimer, 1, 30}, nil, "Reaper spawn timer (in minutes)"},
 }
 
 SYS_menus[SM_TITLE] = {
