@@ -46,6 +46,7 @@ end
 -- choice status CS_
 local choicestatus_const = {
 	"CS_GREYOUT",		-- choice is greyed out and CANNOT be selected.
+	"CS_FAKEGREYOUT",	-- fake grey out, greys out but allows using a funciton anyway (used in beta for NEW GAME / LOAD GAME prompt)
 	"CS_???",			-- choice if greyed out, and all characters are replaced with ?s
 	"CS_HIDDEN",		-- choice isn't displayed and cannot be selected
 }
@@ -516,6 +517,7 @@ rawset(_G, "SYS_handleMenu", function()
 				stoplist = true
 				-- we selected something, let's see if we can do something with it.
 				if not c[6]	-- if the status is different from nil, then something's definitely up and we can't select it.
+				or c[6] == CS_FAKEGREYOUT
 
 					if c[4] == CT_MENUSTATE	-- to a new menu state
 						if SYS_SwitchMenuState(c[5])
@@ -543,6 +545,10 @@ rawset(_G, "SYS_handleMenu", function()
 						m.promptdata = {}		-- this will be pased to SYS_setGameControl
 						m.promptdata[0] = SYS_ControlNames[c[5]]	-- save the name of the control to write to in the first field
 						SYS_CreatePrompt("Press a key for the\nfirst alias.\nPress ESC to abort.", PT_GAMECONTROL, SYS_setGameControl)
+					end
+
+					if c[6] == CS_FAKEGREYOUT
+						S_StartSound(nil, sfx_not)
 					end
 				else
 					S_StartSound(nil, sfx_not)
@@ -596,6 +602,7 @@ rawset(_G, "SYS_drawGenericMenu", function(v, t, choices, curchoice)
 		local color = 0
 
 		if choice[6] == CS_GREYOUT
+		or choice[6] == CS_FAKEGREYOUT
 			color = 16
 		end
 

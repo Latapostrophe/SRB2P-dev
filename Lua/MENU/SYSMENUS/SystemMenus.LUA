@@ -1359,8 +1359,8 @@ SYS_menus[SM_TITLE] = {
 		prev = MS_MAIN,
 		displayflags = V_SNAPTOBOTTOM|V_SNAPTOLEFT,
 		choices = 	{
-						{"Load Game", 64, 100, CT_MENUSTATE, MS_SAVES, CS_GREYOUT, "Load a save file and resume your adventure"},
-						{"New Game", 64,112, CT_FUNCTION, mm_startNewGame, CS_GREYOUT, "A new beginning!"},
+						{"Load Game", 64, 100, CT_PROMPT, {"There is no singleplayer story yet!\nBut you can experience the game\nin quickplay even by yourself!", PT_NOTIFICATION}, CS_FAKEGREYOUT, "Load a save file and resume your adventure"},	-- CT_MENUSTATE: MS_SAVES
+						{"New Game", 64,112, CT_PROMPT, {"There is no singleplayer story yet!\nBut you can experience the game\nin quickplay even by yourself!", PT_NOTIFICATION}, CS_FAKEGREYOUT, "A new beginning!"},	-- CT_FUNCTION: mm_startNewGame
 						{"Tutorial", 64, 124, CT_FUNCTION, mm_startTutorial, nil, "Recommended for people who have never played Persona"},
 					},
 	},
