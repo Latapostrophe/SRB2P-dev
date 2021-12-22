@@ -552,14 +552,14 @@ local function drawPlayerCommands(v, mo)
 		local index = i
 
 		if i == 1
-			
+
 			local atktype = mo.attack.type
 			if mo.weapon and mo.weapon.element
 				atktype = mo.weapon.element
-			end	
-			
+			end
+
 			local lookup = "H_CMD"..string.char(65 + atk_constant_2_num[atktype]-1)
-			
+
 			if v.patchExists(lookup)
 				pp = lookup
 			else
@@ -568,7 +568,7 @@ local function drawPlayerCommands(v, mo)
 		end
 		if (mo.commandflags & 2^(i-1))
 			pp = $.."G"
-		end	
+		end
 
 		if x > -32*FRACUNIT and scale > 1
 			v.drawScaled(x, y, scale, v.cachePatch(pp), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
@@ -628,10 +628,10 @@ local function drawPlayerCommands_Out(v, mo)
 		local atktype = mo.attack.type
 		if mo.weapon and mo.weapon.element
 			atktype = mo.weapon.element
-		end	
-			
+		end
+
 		local lookup = "H_CMD"..string.char(65 + atk_constant_2_num[atktype]-1)
-			
+
 		if v.patchExists(lookup)
 			pp = lookup
 		else
@@ -641,7 +641,7 @@ local function drawPlayerCommands_Out(v, mo)
 
 	if (mo.commandflags & 2^(index-1))
 		pp = $.."G"
-	end	
+	end
 
 	if x > -32*FRACUNIT and scale > 1
 		v.drawScaled(x, y, scale, v.cachePatch(pp), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
@@ -677,14 +677,14 @@ local function drawPlayerCommands_In(v, mo)
 		local index = i
 
 		if i == 1
-			
+
 			local atktype = mo.attack.type
 			if mo.weapon and mo.weapon.element
 				atktype = mo.weapon.element
-			end	
-			
+			end
+
 			local lookup = "H_CMD"..string.char(65 + atk_constant_2_num[atktype]-1)
-			
+
 			if v.patchExists(lookup)
 				pp = lookup
 			else
@@ -693,7 +693,7 @@ local function drawPlayerCommands_In(v, mo)
 		end
 		if (mo.commandflags & 2^(i-1))
 			pp = $.."G"
-		end	
+		end
 
 		if x > -32*FRACUNIT and scale > 1
 			v.drawScaled(x, y, scale, v.cachePatch(pp), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
@@ -754,31 +754,31 @@ rawset(_G, "drawSkillCommand", function(v, x, y, mo, skill, active, have_item, s
 	else
 		atk_type = atk_constant_2_num[skill.type]
 	end
-	
+
 	local unknown
 	if server.gamemode == GM_VOIDRUN
 		if server.P_DungeonStatus.VR_clause == VE_SKILLJAMMER
 		and not have_item
-		
+
 		or have_item
 		and server.P_DungeonStatus.VR_clause == VE_ITEMJAMMER
 			unknown = true
-		end	
+		end
 	end
-	
+
 	if unknown
 		atk_color = SKINCOLOR_GREY
 		atk_type = 0
-		
+
 		skill = {
 			name = "JAMMED",
 			type = 0,
 			power = 0,
 			accuracy = 0,
 		}
-		
+
 	end
-	
+
 	PDraw(v, x+3, y+3, v.cachePatch("ATK_"..atk_type), V_SNAPTOLEFT)
 	-- background
 	PDraw(v, x, y, v.cachePatch("H_ATKBG"), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, atk_color or skill_color[skill.type]))
@@ -1587,7 +1587,7 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 		end
 	end
 
-	if not enemy	-- draw NEXT skill for players
+	if not enemy	-- draw NEXT skill for players and SKILL CARD skill, too
 		local s = charStats[mo.stats]
 		if not s return end
 		local persona = s.persona
@@ -1595,22 +1595,71 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 		persona = personaList[persona]	-- go inside statlist
 
 		local newskill
+		local ypos = 170
+
 		for i = 1, #persona.skills
 			if persona.skills[i][2] > mo.level	-- next new skill
 				newskill = persona.skills[i]
+				ypos = 146
 				break
 			end
 		end
 
+		-- display skill card...
+		if mo.skillcard
+
+			local sctype
+			local scname
+
+			if attackDefs[mo.skillcard]
+				if attackDefs[mo.skillcard].type & ATK_PASSIVE
+					sctype = 15
+				else
+					sctype = atk_constant_2_num[attackDefs[mo.skillcard].type]
+				end
+
+				scname = ICO_SKILLCARD..attackDefs[mo.skillcard].name
+			end
+
+			V_drawString(v, 246, ypos, "SKILL CARD:", "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
+
+			v.drawFill(246, ypos+10, 64, 10, 31|V_SNAPTOBOTTOM|V_SNAPTOLEFT)	-- we need a box o coc riiiiight here
+
+			if sctype
+				v.drawScaled(246*FRACUNIT, (ypos+11)*FRACUNIT, FRACUNIT/4, v.cachePatch("ATK_"..sctype), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
+				v.drawIndex(246*FRACUNIT, (ypos+11)*FRACUNIT, FRACUNIT/4, v.cachePatch("H_ELMF3"), V_SNAPTOBOTTOM|V_SNAPTOLEFT, 31)
+			end
+
+			V_drawString(v, 278, ypos+12, scname, scname:len() <= 10 and "NFNT" or "TFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, "center", 0)	-- skill name
+
+		end
+
 		if not newskill return end
+
+		ypos = 170
+
+		local atype
 		local nskname = newskill[1]
 		if attackDefs[nskname]
+			if attackDefs[nskname].type & ATK_PASSIVE
+				atype = 15
+			else
+				atype = atk_constant_2_num[attackDefs[nskname].type]
+			end
+
 			nskname = attackDefs[$].name
 		end
 
-		V_drawString(v, 246, 170, "NEXT: LV"..newskill[2], "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
-		v.drawFill(246, 180, 64, 10, 31|V_SNAPTOTOP|V_SNAPTOLEFT)	-- we need a box o coc riiiiight here
-		V_drawString(v, 278, 182, nskname, nskname:len() <= 10 and "NFNT" or "TFNT", V_SNAPTOTOP|V_SNAPTOLEFT, "center", 0)	-- skill name
+		V_drawString(v, 246, ypos, "NEXT: LV"..newskill[2], "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
+
+		v.drawFill(246, ypos+10, 64, 10, 31|V_SNAPTOBOTTOM|V_SNAPTOLEFT)	-- we need a box o coc riiiiight here
+
+		if atype
+			v.drawScaled(246*FRACUNIT, (ypos+11)*FRACUNIT, FRACUNIT/4, v.cachePatch("ATK_"..atype), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
+			v.drawIndex(246*FRACUNIT, (ypos+11)*FRACUNIT, FRACUNIT/4, v.cachePatch("H_ELMF3"), V_SNAPTOBOTTOM|V_SNAPTOLEFT, 31)
+		end
+
+		V_drawString(v, 278, ypos+12, nskname, nskname:len() <= 10 and "NFNT" or "TFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, "center", 0)	-- skill name
 	end
 
 	V_drawCommands(v, cmd)
@@ -1754,11 +1803,11 @@ local function drawTactics(v, p, mo)
 		if i == 2	-- PARTY (grey it out)
 			colour = 16
 		elseif i == 3
-			
+
 			if server.P_BattleStatus[mo.battlen].boss
 			or (server.P_BattleStatus[mo.battlen].storedwaves and #server.P_BattleStatus[mo.battlen].storedwaves)	-- voidrun multi-waves
 				colour = 16
-			end	
+			end
 		end
 
 		V_drawString(v, 70 + (i-1)*5, 50 + (i-1)*20, tactic_names[i], "FPIMP" , V_SNAPTOLEFT, "center", colour, 31, FRACUNIT*2/3)
@@ -2370,7 +2419,7 @@ local function drawHoldUp(v, p, c, mo)
 	and charStats[mo.stats].hudsaoa
 		pp = v.cachePatch(charStats[mo.stats].hudsaoa)
 	end
-	
+
 	v.drawScaled((-25 - t2*32)<<FRACBITS, (20)<<FRACBITS, FRACUNIT*2/3, pp, V_SNAPTOLEFT|V_SNAPTOBOTTOM, v.getColormap(TC_DEFAULT, mo.color))	-- draw @ full scale
 
 	-- draw "AOA or RELENT" prompt
@@ -2511,67 +2560,67 @@ local function drawBattleEnd(v, btl)
 		if i > 1
 			maxlen = 236 - i
 		end
-		
+
 		v.drawFill(0, 70+(i-1), maxlen, 1, 135|V_SNAPTOLEFT|V_SNAPTOTOP)
-	end	
-		
+	end
+
 	V_drawString(v, min(postt*64, 124), 71, "ITEMS", "FPIMP", V_SNAPTOLEFT|V_SNAPTOTOP, nil, 31, 137)
 	local ix = min(postt*58, 238)
-	local iy = 74	
-	
+	local iy = 74
+
 	if btl.r_item or btl.r_weapons or btl.r_rings
-		
+
 		if btl.r_item
 			for i = 1, #btl.r_item
 				local itemname = btl.r_item[i][1]
 				local col = ""
-				
+
 				if itemDefs[itemname]
 					if itemDefs[itemname].rarity and itemDefs[itemname].rarity >= 5
 						col = "\x82"
 					end
 					itemname = buildItemName(itemDefs[itemname])
 				end
-				
+
 				V_drawString(v, ix, iy, col..itemname.." x"..btl.r_item[i][2], "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, nil, 0, 31)
 				ix = $-5
 				iy = $+10
 			end
-		end	
-		
+		end
+
 		if btl.r_weapons
 			for i = 1, #btl.r_weapons
 				local itemname = buildWeaponName(btl.r_weapons[i])
 				local col = ""
 				if btl.r_weapons[i].rarity >= 5
 					col = "\x82"
-				end	
-				
+				end
+
 				V_drawString(v, ix, iy, col..itemname, "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, nil, 0, 31)
 				ix = $-5
 				iy = $+10
-			end		
+			end
 		end
-		
+
 		if btl.r_rings
 			for i = 1, #btl.r_rings
 				local itemname = buildRingName(btl.r_rings[i])
 				local col = ""
 				if btl.r_rings[i].rarity >= 5
 					col = "\x82"
-				end	
-				
+				end
+
 				V_drawString(v, ix, iy, col..itemname, "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, nil, 0, 31)
 				ix = $-5
 				iy = $+10
 			end
 		end
-		
+
 	else
 		V_drawString(v, ix, iy, "None", "NFNT", V_SNAPTOLEFT|V_SNAPTOTOP, nil, 0, 31)
 	end
 
-	
+
 	PDraw(v, min(postt*64, 114), 71, v.cachePatch("H_R_ITEM"), V_SNAPTOLEFT|V_SNAPTOTOP)
 
 	-- party member EXP
@@ -2666,21 +2715,21 @@ rawset(_G, "drawLevelUp", function(v, p, battle)
 
 	if not battle.r_levelupqueue[pnum]
 		-- Should realistically only happen in Marathon mode if you load in with holes in the party. This is only a visual bug.
-		
+
 		-- Search for the player with our own 'control' on it
 		for i = 1, server.P_netstat.teamlen
 			if #battle.r_levelupqueue[i]
 			and battle.r_levelupqueue[i][1].control == p
 				pnum = i
 				break
-			end	
+			end
 		end
-		
+
 		-- if despite that we didn't find it...
 		if not battle.r_levelupqueue[pnum]
-			drawWaitScreen(v, 1, ERRORWAITSCREEN)		
+			drawWaitScreen(v, 1, ERRORWAITSCREEN)
 			return	-- uh this shouldn't happen
-		end	
+		end
 	end
 
 	local mo = battle.r_levelupqueue[pnum][1]
@@ -2824,34 +2873,48 @@ rawset(_G, "drawLevelUp", function(v, p, battle)
 
 		if nextskill-- do not draw if no nextskill
 			-- display NEXT skill:
-			V_drawString(v, 246, 174, "NEXT: LV"..nextskill[2], "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0)
-			v.drawFill(246, 184, 64, 10, 135|V_SNAPTOTOP|V_SNAPTOLEFT)	-- we need a box o coc riiiiight here
+			V_drawString(v, 246, 174, "NEXT: LV"..nextskill[2], "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0)
+			v.drawFill(246, 184, 64, 10, 135|V_SNAPTOBOTTOM|V_SNAPTOLEFT)	-- we need a box o coc riiiiight here
 			local nskname = nextskill[1]
 			local sk
+			local atype
+
 			if attackDefs[nskname]
 				sk = attackDefs[nskname]
+
+				if sk.type & ATK_PASSIVE
+					atype = 15
+				else
+					atype = atk_constant_2_num[attackDefs[nskname].type]
+				end
+
 				nskname = attackDefs[$].name
 			end
 
+			if atype
+				v.drawScaled(246*FRACUNIT, 185*FRACUNIT, FRACUNIT/4, v.cachePatch("ATK_"..atype), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
+				v.drawIndex(246*FRACUNIT, 185*FRACUNIT, FRACUNIT/4, v.cachePatch("H_ELMF3"), V_SNAPTOBOTTOM|V_SNAPTOLEFT, 135)
+			end
+
 			if not ((mo.newskillnum or mo.r_forgetselect) and leveltime%4 < 2)
-				V_drawString(v, 278, 186, nskname, nskname:len() <= 10 and "NFNT" or "TFNT", V_SNAPTOTOP|V_SNAPTOLEFT, "center", 31)	-- skill name
+				V_drawString(v, 278, 186, nskname, nskname:len() <= 10 and "NFNT" or "TFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, "center", 31)	-- skill name
 			end
 
 			if mo.r_forgetselect	-- must forget skill, tell player
 				V_drawString(v, 40, 150, "Too many \nskills!\nSelect skill \nto forget. \n".."\x90".."Forget\n".."\x91".."Relent", "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 31)
 
 				-- we have to forget a skill? Draw the properties of our new skill
-				
+
 				if mo.r_askconfirm
 					v.drawFill(160, 90, 160, 30, 135|V_SNAPTORIGHT)
 					local prompts = {
 						"Are you sure you want\nto replace this skill?\nThis cannot be undone",
 						"Are you sure you don't\nwant to learn this skill?\nThis cannot be undone",
 					}
-					
+
 					V_drawString(v, 161, 90, "\x82"..prompts[mo.r_askconfirm] or "", "NFNT", V_SNAPTORIGHT, nil, 0, 31)
 					V_drawString(v, 280, 95, "\x90"..": OK\n".."\x91"..": NO", "NFNT", V_SNAPTORIGHT, nil, 0, 31)
-					
+
 				elseif sk
 
 					v.drawFill(160, 110, 160, 30, 135|V_SNAPTORIGHT)
@@ -3081,7 +3144,7 @@ local mpfinish_stats = {
 		{"Hold Ups", "holdups"},
 		{"All-Out Attacks", "alloutattacks"},
 	},
-	
+
 	[3] = { -- for ITEM STATS
 
 		{"Total Macca earned", "maccaearned"},
@@ -3092,7 +3155,7 @@ local mpfinish_stats = {
 		{"Items Used", "itemsused"},
 		{"Weapons Enhanced", "weaponsenhanced"},
 		{"Rings Enhanced", "ringsenhanced"},
-		
+
 	},
 }
 
@@ -3223,7 +3286,7 @@ local function drawGameOver(v, btl)
 		and btl.n == 1	-- first battle status gets to choose what we do
 			if server.gamemode ~= GM_VOIDRUN
 				V_drawString(v, 160, 10, "\x82".."Press A to retry from last checkpoint", "NFNT", V_SNAPTOTOP, "center", 0, nil)
-			end	
+			end
 			V_drawString(v, 160, 20, "\x82".."Press B to give up", "NFNT", V_SNAPTOTOP, "center", 0, nil)
 		end
 
@@ -3431,79 +3494,79 @@ local tgtx = 65
 
 rawset(_G, "R_drawRareDrop", function(v, p)
 	if p.mo and p.mo.valid and p.mo.r_raredrop
-		
+
 		local t = p.mo.r_raredrop
 		local timetrheshold = 17
-		
+
 		-- display test:
 		local stretch_scales = {
 			{FRACUNIT/4, FRACUNIT*4},
 			{FRACUNIT/2, FRACUNIT*2},
 		}
-		
+
 		local stretch
 		local firsletterpatch
 		local midpatch
-		
+
 		if t < 3
 			raredrop_frame = A
 			stretch = stretch_scales[t]
 			midpatch = "DROP"..(string.char(raredrop_frame+65)).."0"
-			
+
 		elseif t >= timetrheshold
-			
+
 			stretch = {FRACUNIT, FRACUNIT}
 			firsletterpatch = "RDRP_1"
 			rx = $ - ($-tgtx)/3
-			
+
 		else
 			rx = basex
 			stretch = {-cos((t-3)*ANG1*40), FRACUNIT}
-			
+
 			if FixedMul(cos((t-4)*ANG1*40), stretch[1]) < 0	-- different sign, we finished a spin or smth
 				raredrop_frame = possible_frames[N_RandomRange(1, #possible_frames)]
 			end
 			midpatch = "DROP"..(string.char(raredrop_frame+65)).."0"
-			
+
 			if t > timetrheshold-2
 				midpatch = "RDRP_1"	-- prepare to display the "R"
 			end
-			
+
 		end
-			
-		
-		
-		
+
+
+
+
 		if stretch and t < timetrheshold	-- magic number gogo!
-			v.drawStretched(basex << FRACBITS, basey << FRACBITS, abs(stretch[1]*2), stretch[2]*2, v.cachePatch(midpatch), (stretch[1] < 0 and V_FLIP or 0), v.getColormap(TC_DEFAULT, SKINCOLOR_YELLOW)) 
-		
+			v.drawStretched(basex << FRACBITS, basey << FRACBITS, abs(stretch[1]*2), stretch[2]*2, v.cachePatch(midpatch), (stretch[1] < 0 and V_FLIP or 0), v.getColormap(TC_DEFAULT, SKINCOLOR_YELLOW))
+
 		else
 			local dt = t-timetrheshold
-			
+
 			local col = SKINCOLOR_YELLOW
-			
+
 			for i = 1, 2
 				if dt >= 28 + (10*(i-1))
 				and dt <= 28 + (10*(i-1))
 					col = SKINCOLOR_WHITE
 				end
 			end
-			
+
 			if t >= timetrheshold+53
 				stretch[1] = max(0, FRACUNIT - (t-(timetrheshold+53))*FRACUNIT/4)
 			end
-			
-		
+
+
 			if stretch[1]
-				v.drawStretched(rx << FRACBITS, basey << FRACBITS, abs(stretch[1]*2), stretch[2]*2, v.cachePatch(firsletterpatch), (stretch[1] < 0 and V_FLIP or 0), v.getColormap(TC_DEFAULT, col)) 
-			end	
-			
+				v.drawStretched(rx << FRACBITS, basey << FRACBITS, abs(stretch[1]*2), stretch[2]*2, v.cachePatch(firsletterpatch), (stretch[1] < 0 and V_FLIP or 0), v.getColormap(TC_DEFAULT, col))
+			end
+
 			local lets = {2, 1, 3, nil, 4, 1, 5, 6}
 			local lx = rx + 25
 			for i = 1, #lets do
-				
+
 				if lets[i] and (dt-(i*2)) >= i
-					
+
 					local tx = (dt-(i*2))
 					col = SKINCOLOR_YELLOW
 
@@ -3513,16 +3576,16 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 							col = SKINCOLOR_WHITE
 						end
 					end
-					
+
 					local xstretch = min(FRACUNIT, abs(FRACUNIT-(tx*FRACUNIT/4)))
-					
+
 					if t >= timetrheshold+53 +i
 						xstretch = max(0, FRACUNIT - (t-(timetrheshold+53)-i)*FRACUNIT/3)
-					end					
-					
+					end
+
 					if xstretch
 						v.drawStretched(lx << FRACBITS, basey << FRACBITS, abs(xstretch)*3/2, FRACUNIT*3/2, v.cachePatch("RDRP_"..lets[i]), 0, v.getColormap(TC_DEFAULT, col))
-					end	
+					end
 					lx = $ + 24
 				else
 					lx = $ + 12
@@ -3656,7 +3719,7 @@ hud.add(function(v, p, c)
 		end
 
 		drawTransition(v, battle)
-		R_drawRareDrop(v, p)		
+		R_drawRareDrop(v, p)
 		drawEvent(v, p)	-- draw the events
 	else
 		-- reset all local battle vars outside of battle
