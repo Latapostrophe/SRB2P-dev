@@ -593,6 +593,7 @@ rawset(_G, "BTL_splitSkills", function(v)
 	end
 
 	v.skills = copyTable(tmp_skill)
+	table.sort(v.skills, attackSortFunc)
 	-- free some memory:
 	tmp_skill = nil
 end)
@@ -5160,6 +5161,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 				local m = mo.allies_noupdate[i]
 
 				m.skills = copyTable(m.saveskills)
+				table.sort(m.skills, attackSortFunc)	-- re-sort in case we learned something new.
 				-- we don't NEED to remove passiveskills since it'll get reset by the next battle anyway.
 
 				if not m.hp
@@ -5849,7 +5851,17 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 			end
 
 			if not mo.r_forgetselect
-				mo.r_forgetselect = 1	-- start at skill 1 that we will forget:
+				mo.r_forgetselect = 1	-- start at skill 1 that we will forget
+				-- double check to see if we can't select the skill to forget by default:
+				if btl.r_newskillsqueue[mynum][1][3]
+					for i = 1, #mo.skills
+						if mo.skills[i] == btl.r_newskillsqueue[mynum][1][3]
+							mo.r_forgetselect = i -- tell the player to forget *this* skill instead
+							break
+						end
+					end
+				end
+
 			end
 
 			-- handle the inputs here:
@@ -6200,6 +6212,7 @@ rawset(_G, "BTL_finish", function(pn)
 		end
 
 		v.saveskills = nil
+		table.sort(v.skills, attackSortFunc)	-- re-sort ONCE AGAIN after skills have potentially been learnt
 	end
 
 

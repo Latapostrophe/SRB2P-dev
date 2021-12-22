@@ -18856,13 +18856,15 @@ for k,v in pairs(attackDefs)
 	sorted_attackDefs[#sorted_attackDefs+1] = k
 end
 
--- now sort it
-table.sort(sorted_attackDefs,	function(a, b)
-
+-- function to sort attacks
+rawset(_G, "attackSortFunc", function(a, b)
 									local t = attackDefs
 									-- sort by type:
 
-									if t[a].type & ~ATK_PASSIVE ~= t[b].type & ~ATK_PASSIVE
+									if t[a].passive ~= t[b].passive
+										return (not t[a].passive) and t[b].passive
+
+									elseif t[a].type & ~ATK_PASSIVE ~= t[b].type & ~ATK_PASSIVE
 									and t[a].type & ~ATK_PASSIVE and t[b].type & ~ATK_PASSIVE
 										return (t[a].type & ~ATK_PASSIVE or 1) < (t[b].type & ~ATK_PASSIVE or 1)
 
@@ -18876,19 +18878,15 @@ table.sort(sorted_attackDefs,	function(a, b)
 											return t[a].passive < t[b].passive
 
 										elseif t[a].power and t[b].power and t[a].power ~= t[b].power
-											return t[a].power < t[b].power
+											return t[a].power > t[b].power
 
 										elseif t[a].accuracy and t[b].accuracy
-											return t[a].accuracy < t[b].accuracy
+											return t[a].accuracy > t[b].accuracy
 
 										else
-											return a < b
+											return a > b
 
 										end
-
-									elseif t[a].passive ~= t[b].passive
-										return (not t[a].passive) and t[b].passive
-
 
 									elseif t[a].instakill ~= t[b].instakill
 										return (not t[a].instakill) and t[b].instakill
@@ -18897,7 +18895,7 @@ table.sort(sorted_attackDefs,	function(a, b)
 										return (not t[a].status) and t[b].status
 
 									elseif t[a].power ~= t[b].power	-- or by power
-										return (t[a].power or 1) < (t[b].power or 1)
+										return (t[a].power or 1) > (t[b].power or 1)
 									elseif t[a].cost ~= t[b].cost	-- or by cost...
 										return (t[a].cost or 1) < (t[b].cost or 1)
 
@@ -18914,7 +18912,10 @@ table.sort(sorted_attackDefs,	function(a, b)
 									else
 										return a < b
 									end
-								end)
+end)
+
+-- now sort it
+table.sort(sorted_attackDefs, attackSortFunc)
 
 /*for i = 1, #sorted_attackDefs
 	print(sorted_attackDefs[i])

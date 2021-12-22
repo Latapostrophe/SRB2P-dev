@@ -4,31 +4,31 @@
 -- NOTE: Stats cannot go below 2, so the minimum returned will be {2, 2, 2, 2, 2}
 
 rawset(_G, "PLYR_getLv1Stats", function(persona)
-	
+
 	local stats = {persona.strength, persona.magic, persona.endurance, persona.agility, persona.luck}
 	local lv1_stats = {}
-	
+
 	for i = 1, #stats
 		lv1_stats[i] = max(2, (stats[i]-1)/3)
 	end
-	
+
 	return lv1_stats
 end)
 
 -- Gives a Persona's stat growth rates based off its LV1 and LV10 counterparts
--- 
+--
 rawset(_G, "PLYR_getGrowthRates", function(persona)
-	
+
 	local stats = {persona.strength, persona.magic, persona.endurance, persona.agility, persona.luck}
 	local lv1stats = PLYR_getLv1Stats(persona)
 	local lvdiff = 9	-- 10 - 1, base stats are at lv10
-	
+
 	local rates = {}
-	
+
 	for i = 1, #stats do
 		rates[i] = ((stats[i] - lv1stats[i])*1000) / lvdiff	-- *1000 to keep precision
 	end
-	
+
 	return rates
 end)
 
@@ -36,44 +36,44 @@ end)
 -- NOTE: These are the base stats and do not take equipment into account
 
 rawset(_G, "PLYR_getStatsAtLevel", function(persona, level)
-	
+
 	local stats = PLYR_getLv1Stats(persona)
 	local lv1bst = stats[1] + stats[2] + stats[3] + stats[4] + stats[5]	-- Intended: 12 (3*lvl + 9)
-	
+
 	local rates = PLYR_getGrowthRates(persona)
-	
+
 	local lvstats = {}
 	local extrapoints = 0
-	
+
 	for i = 1, #stats do
 		lvstats[i] = ((stats[i]*1000) + (level-1)*rates[i])
 		if lvstats[i]%1000 >= 500	-- round UP!
-			lvstats[i] = $ + 1000 
+			lvstats[i] = $ + 1000
 		end
-		
+
 		lvstats[i] = $/1000
-		
+
 		if lvstats[i] > 99	-- Stats can't normally exceed 99 before bonuses
 			extrapoints = $ + (lvstats[i] - 99)
 			lvstats[i] = 99
 		end
 	end
-	
+
 	-- Award excess points (> 99) to the lowest stat if this happens
 	while extrapoints
-	
+
 		local loweststat = 99
-		local lowestindex = 0	
-	
+		local lowestindex = 0
+
 		for i = 1, #stats do
-			
+
 			if lvstats[i] < loweststat
 				loweststat = lvstats[i]
 				lowestindex = i
-			end	
-			
+			end
+
 		end
-		
+
 		-- give points to the lowest stat
 		if lowestindex
 			lvstats[lowestindex] = $+1
@@ -81,8 +81,8 @@ rawset(_G, "PLYR_getStatsAtLevel", function(persona, level)
 		else		-- this means all our stats are already at 99, just break out
 			extrapoints = 0
 			break
-		end	
-		
+		end
+
 	end
 
 	local bst = lvstats[1] + lvstats[2] + lvstats[3] + lvstats[4] + lvstats[5]
@@ -95,16 +95,16 @@ end)
 -- This takes equipment into account if 'doweapon' is true
 
 rawset(_G, "PLYR_getStats", function(mo, level, doweapon, dobonus)
-	
+
 	local applyto = {"strength", "magic", "endurance", "agility", "luck"}
 	local lvstats = PLYR_getStatsAtLevel(mo.persona, level)
-	
+
 	-- Set stats
 	for i = 1, #lvstats
 		mo["real"..applyto[i]] = lvstats[i]
 		mo[applyto[i]] = lvstats[i]
 	end
-	
+
 	-- Apply weapon bonus
 	if mo.weapon and doweapon
 		mo.strength = max(1, $ + mo.weapon.st)
@@ -113,14 +113,14 @@ rawset(_G, "PLYR_getStats", function(mo, level, doweapon, dobonus)
 		mo.agility = max(1, $ + mo.weapon.ag)
 		mo.luck = max(1, $ + mo.weapon.lu)
 	end
-	
+
 	-- Apply bonus stats	(bonusstrength, etc...)
 	-- Mostly Void Run exclusive
 	for i = 1, #lvstats
 		if mo["bonus"..applyto[i]]
 			mo[applyto[i]] = $ + mo["bonus"..applyto[i]]
 			mo["real"..applyto[i]] = $ + mo["bonus"..applyto[i]]
-		end	
+		end
 	end
 end)
 
@@ -130,22 +130,22 @@ rawset(_G, "PLYR_initStats", function(mo, persona, skin)
 
 	mo.baselevel = mo.level
 	if not skin then skin = mo.skin end
-	
+
 	local mhp = charStats[skin].basehp + (charStats[skin].basehp*(mo.level-1))/10
 	local msp = charStats[skin].basesp + (charStats[skin].basesp*(mo.level-1))/10
-	
+
 	if server.gamemode == GM_VOIDRUN
 		mhp = 60 + (mo.level-1)*5
 		msp = 0
 	end
-	
+
 	mo.maxhp = mhp
 	mo.hp = mo.maxhp
 	mo.realhp = mo.maxhp
 	mo.maxsp = msp
 	mo.sp = mo.maxsp
 	mo.realsp = mo.maxsp	-- realhp/sp is used for equipment that would give you ""negative"" stats when used.
-	
+
 	mo.dechp = 0
 	mo.decsp = 0	-- decimal HP/Sp for leveling up
 
@@ -160,7 +160,7 @@ rawset(_G, "PLYR_initStats", function(mo, persona, skin)
 		mo[applyto2[k]] = v
 		bst = $ + v
 	end
-	
+
 	-- Set the player's Persona stats
 	PLYR_getStats(mo, mo.level)
 end)
@@ -188,6 +188,9 @@ rawset(_G, "PLYR_initSkills", function(mo, persona)
 			end
 		end
 	end
+
+	-- autosort skills
+	table.sort(mo.skills, attackSortFunc)
 end)
 
 rawset(_G, "PLYR_initPersona", function(mo, persona, skin)	-- init stats and skills.
@@ -325,7 +328,7 @@ rawset(_G, "difficulty_atk", {
 
 -- defence increase per difficulty:
 rawset(_G, "difficulty_def", {
-	
+
 	[1] = 0,
 	[2] = 5,
 	[3] = 10,
@@ -425,12 +428,12 @@ rawset(_G, "PLYR_spawn", function(team)
 
 			mo.party = pa	-- keep track of our party #
 			mo.battlen = pa	-- this can be initiated at the same time.
-			
+
 			local setpersona = data.persona or "orpheus"
 			if server.gamemode == GM_VOIDRUN
 				setpersona = "unequipped"
-			end	
-			
+			end
+
 			PLYR_initPersona(mo, setpersona, useskin)
 			PLYR_initAnims(mo, useskin)
 			BTL_readybuffs(mo)
@@ -493,7 +496,7 @@ rawset(_G, "PLYR_spawn", function(team)
 				-- custom dungeons can have their own buff values:
 				mo.weapon.atk = $ + server.cdungeon.weapon_addpow
 				mo.wardring.def = $ + server.cdungeon.armour_adddef
-				
+
 			elseif server.difficulty	-- exploration
 			and server.gamemode == GM_COOP
 				mo.weapon.atk = $ + (difficulty_atk[server.difficulty] or 0)*10
@@ -502,7 +505,7 @@ rawset(_G, "PLYR_spawn", function(team)
 
 			mo.weapon.acc = $ or 95
 			mo.weapon.crit = $ or 5
-			
+
 
 			if server.gamemode == GM_PVP
 			and not server.bossmode	-- keep everything the same for boss mode
@@ -694,7 +697,7 @@ local function PLYR_checkjoincontrol(p)
 	local leastplayers = server.P_netstat.teamlen+1
 	local partytojoin = 0
 	local nameindex	-- if we find a bot with our exact name (rejoining?)
-	
+
 	for i = 1, 4
 		local pa = server.playerlist[i]
 
@@ -702,9 +705,9 @@ local function PLYR_checkjoincontrol(p)
 		or #pa >= server.P_netstat.teamlen	-- full
 			continue	-- don't try
 		end
-		
+
 		for j = 1, server.P_netstat.teamlen do
-			
+
 			-- scan for the actual bot team, if they have a bot with YOUR player name, it means you're rejoining
 			if server.plentities[i][j]
 			and server.plentities[i][j].name == p.name
@@ -712,7 +715,7 @@ local function PLYR_checkjoincontrol(p)
 				partytojoin = i
 				nameindex = j
 			end
-			
+
 		end
 
 		if #pa < leastplayers
@@ -731,36 +734,36 @@ local function PLYR_checkjoincontrol(p)
 			table.insert(server.P_BattleStatus[pa[1].control.battlen].plist, p)
 			dprint("Affected "..p.name.." to running battle "..pa[1].control.battlen)
 		end
-		
+
 		-- on the player list we just joined, check if the boss was cleared to give ourselevs that flag as well:
 		-- (otherwise we'd be able to trigger the boss as well... oops?)
 		if pa[1] and pa[1].mo and pa[1].mo.eventclear
 			p.mo.eventclear = true
-		end	
+		end
 
 		p.P_party = partytojoin
-				
+
 		if nameindex	-- I got somewhere to be!
 			-- iterate table backwards and move everyone from that spot and after to the back
 			local j = server.P_netstat.teamlen
 			local pa = server.playerlist[partytojoin]
-			
+
 			while j > nameindex
 				pa[j] = pa[j-1]
 				j = $-1
 			end
 			pa[nameindex] = p
-		
+
 		else	-- take the first free spot
-		
+
 			for i = 1, server.P_netstat.teamlen
 				if not server.playerlist[partytojoin][i]
 					server.playerlist[partytojoin][i] = p
-					
+
 					return true
 				end
 			end
-		end	
+		end
 	end
 end
 
@@ -819,7 +822,7 @@ rawset(_G, "PLYR_reset", function(pn)	-- reset all battle related variables for 
 
 		-- position stuff
 		mo.defaultcoords = nil
-		
+
 		-- linkstate stuff
 		mo.linkstate = nil
 	end
