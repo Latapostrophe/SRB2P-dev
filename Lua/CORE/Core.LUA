@@ -310,7 +310,7 @@ rawset(_G, "ARCANA_DEVIL", 15)
 rawset(_G, "ARCANA_TOWER", 16)
 rawset(_G, "ARCANA_STAR", 17)
 rawset(_G, "ARCANA_MOON", 18)
-rawset(_G, "ARCANA_STAR", 19)
+rawset(_G, "ARCANA_SUN", 19)
 rawset(_G, "ARCANA_JUDGEMENT", 20)
 rawset(_G, "ARCANA_WORLD", 21)
 
