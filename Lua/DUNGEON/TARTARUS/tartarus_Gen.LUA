@@ -271,7 +271,7 @@ local function DNG_generatefloor(t, floornum)
 			local t = MT_SHEDEW
 
 			if gen == GEN_PERFORATED
-			or not P_RandomRange(0, 4)
+			or not P_RandomRange(0, 3)
 			and not server.gamemode == GM_VOIDRUN	-- no unecessary floating shadows in void run
 				t = MT_FOGSHADOW
 			end

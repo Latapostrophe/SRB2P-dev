@@ -7420,6 +7420,10 @@ rawset(_G, "enemyList", {
 		turns = 2,
 		boss = true,
 		nopvp = true,
+		
+		hudcutin = "ALT_A",
+		color = SKINCOLOR_BLUE,
+		
 		--endboss = true,
 		--personascale = FRACUNIT*2,
 

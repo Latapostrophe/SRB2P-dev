@@ -70,11 +70,11 @@ addHook("MobjThinker", function(mo)
 
 	if server.entrytime
 		ANIM_handle(mo, true)
-		
+
 		if server.cdungeon and server.cdungeon.shadowframes_float
 			ANIM_set(mo, server.cdungeon.shadowframes_float, true)
-		end		
-		
+		end
+
 		return
 	end
 
@@ -185,11 +185,16 @@ addHook("MobjThinker", function(mo)
 					mo.momy = $*(-1)
 					mo.momz = $*(-1)
 					mo.angle = R_PointToAngle2(0, 0, mo.momx, mo.momy)
-				else
-					-- don't hug the floor
-					if mo.z <= mo.floorz + FRACUNIT*32
-						mo.momz = 0
-					end
+				end
+				-- don't hug the floor
+				if mo.z <= mo.floorz + FRACUNIT*32
+				and mo.momz < 0
+					mo.momz = 0
+				end
+				-- don't hug the ceiling either
+				if mo.z >= mo.ceilingz - FRACUNIT*192
+				and mo.momz > 0
+					mo.momz = 0
 				end
 			end
 		end

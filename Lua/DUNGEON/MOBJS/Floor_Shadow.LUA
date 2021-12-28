@@ -64,7 +64,7 @@ addHook("MobjThinker", function(mo)
 	end
 
 	if server.entrytime
-		
+
 		if server.cdungeon and server.cdungeon.shadowframes_stop
 			ANIM_set(mo, server.cdungeon.shadowframes_stop, true)
 		end
@@ -140,7 +140,7 @@ addHook("MobjThinker", function(mo)
 					if server.cdungeon and server.cdungeon.shadowframes_move
 						ANIM_set(mo, server.cdungeon.shadowframes_move, true)
 					end
-					
+
 				else
 					if mo.movetimer > TICRATE*2/3
 						P_InstaThrust(mo, mo.angle, 2*FRACUNIT)
@@ -151,6 +151,19 @@ addHook("MobjThinker", function(mo)
 						end
 					end
 					mo.movetimer = $ - 1
+				end
+
+				-- don't be suicidal:
+				if mo.momx or mo.momy
+
+					-- check where we're gonna end up...
+					local ts = R_PointInSubsector(mo.x + mo.momx*4, mo.y + mo.momy*4)
+					ts = #ts.sector +1
+
+					if server.map and (server.map[ts] == T_PIT or server.map[ts] == T_SPIKES)
+						P_InstaThrust(mo, 0, 0)
+						mo.movetimer = 0
+					end
 				end
 			end
 		else
@@ -195,7 +208,7 @@ addHook("MobjThinker", function(mo)
 			and mo.target and mo.target.valid
 				server.P_DungeonStatus.VR_score = $+1
 			end
-		end	
+		end
 
 		-- fall to your death.
 		mo.notarget = true
@@ -207,7 +220,7 @@ addHook("MobjThinker", function(mo)
 		mo.fuse = TICRATE
 		mo.flags = $|MF_NOCLIPTHING
 		mo.flags = $ & ~(MF_PAIN|MF_ENEMY)
-		
+
 	end
 
 	ANIM_handle(mo, true)
