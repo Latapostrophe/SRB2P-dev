@@ -3,6 +3,9 @@
 
 -- @TODO: ...Organize this file, one day...
 
+-- Psycho Force
+freeslot("SPR_PSID", "sfx_psi")
+
 -- DFM
 freeslot("SPR_TEDD", "SPR_TEDB", "SPR_TEDL", "S_TEDDYRUN","MT_TEDDY")
 freeslot("sfx_dfms")

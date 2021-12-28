@@ -4119,6 +4119,19 @@ rawset(_G, "attackDefs", {
 		target = TGT_ALLENEMIES,
 		accuracy = 100,
 		power = 900,
+
+		hudfunc = 	function(v, mo, timer)
+
+						if timer > 130
+						and timer < 200
+							local t = timer-130
+							local p = "H_ATR"..t/2
+							if v.patchExists(p)
+								drawScreenwidePatch(v, v.cachePatch(p))
+							end
+						end
+					end,
+
 		anim =		function(mo, targets, hittargets, timer)
 
 							local avgx, avgy = 0, 0
@@ -4133,15 +4146,9 @@ rawset(_G, "attackDefs", {
 								mo.megido = {}
 								mo.megiz = mo.z
 
-							elseif timer >= 20 and timer <= 80
+							elseif timer >= 20 and timer < 60
 
-								if timer % 8 == 0
-									local m = P_SpawnMobj(avgx + P_RandomRange(-512, 512)*FRACUNIT, avgy + P_RandomRange(-512, 512)*FRACUNIT, mo.z + FRACUNIT*512, MT_DUMMY)
-									mo.megido[#mo.megido+1] = m
-								end
-							elseif timer >= 80 and timer <= 120
-
-								mo.megiz = $+ FRACUNIT*8
+								mo.megiz = $+ FRACUNIT*16
 								local m = P_SpawnMobj(avgx + P_RandomRange(-512, 512)*FRACUNIT, avgy + P_RandomRange(-512, 512)*FRACUNIT, mo.megiz, MT_DUMMY)
 								m.state = S_MEGISTAR1
 
@@ -4149,9 +4156,28 @@ rawset(_G, "attackDefs", {
 									playSound(mo.battlen, sfx_hamas1)
 								end
 
-							elseif timer >= 130 and timer <= 228
-								if timer == 130
+								if timer == 45
+									local m = P_SpawnMobj(avgx, avgy, mo.floorz, MT_DUMMY)
+									m.state = S_MEGISTAR1
+									m.state = $*2
+									playSound(mo.battlen, sfx_hamas2)
+								end
+
+							elseif timer >= 60 and timer <= 150
+								if timer == 60
 									mo.megido2 = {}
+									mo.megisphere = P_SpawnMobj(avgx, avgy, mo.floorz, MT_DUMMY)
+									mo.megisphere.sprite = SPR_NTHK
+									mo.megisphere.frame = D|FF_FULLBRIGHT
+									mo.megisphere.tics = 150-60
+									mo.megisphere.fuse = 150-60
+									mo.megisphere.scale = $/64
+									mo.megisphere.destscale = FRACUNIT*24
+									mo.megisphere.scalespeed = $*2
+									mo.megisphere.color = SKINCOLOR_WHITE
+
+									local ang = R_PointToAngle(mo.megisphere.x, mo.megisphere.y)
+									P_InstaThrust(mo.megisphere, ang, -FRACUNIT/8)
 								end
 
 								local m
@@ -4189,7 +4215,7 @@ rawset(_G, "attackDefs", {
 									playSound(mo.battlen, sfx_hamas1)
 								end
 
-								if timer == 228
+								if timer == 140
 									for k,v in ipairs(hittargets)
 										damageObject(v)
 									end
@@ -4218,34 +4244,7 @@ rawset(_G, "attackDefs", {
 								end
 							end
 
-							i = mo.megido and #mo.megido or 0
-							while i
-								local m = mo.megido[i]
-								m.momz = -FRACUNIT*64
-								m.scale = FRACUNIT/2
-								m.state = S_MEGITHOK
-
-								if m.z <= mo.z
-									playSound(mo.battlen, sfx_megi5)
-									for j = 1, 32
-										local st = P_SpawnMobj(m.x, m.y, m.z + FRACUNIT*32, MT_DUMMY)
-										st.state = S_MEGITHOK
-										st.flags = $ & ~MF_NOGRAVITY
-										st.momx = P_RandomRange(-128, 128)*FRACUNIT
-										st.momy = P_RandomRange(-128, 128)*FRACUNIT
-										st.momz = P_RandomRange(0, 128)*FRACUNIT
-										st.fuse = TICRATE*4
-										st.scale = FRACUNIT/2
-									end
-									P_RemoveMobj(m)
-									table.remove(mo.megido, i)
-									i = $-1
-									continue
-								end
-								i = $-1
-							end
-
-							if timer == 280
+							if timer == 200
 								return true
 							end
 
@@ -9395,88 +9394,175 @@ rawset(_G, "attackDefs", {
 		cost = 24,
 		desc = "Severe Psy dmg to one enemy.",
 		target = TGT_ENEMY,
+		-- Animation courtesy of @GlithcedPhoenix
+		-- Modified to be slightly shorter
+
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
 
 			local psiocolors = {SKINCOLOR_TEAL, SKINCOLOR_YELLOW, SKINCOLOR_PINK, SKINCOLOR_BLACK, SKINCOLOR_WHITE}
 
-			if target.psiodyne and #target.psiodyne
-				-- slow all of these down
-				for i = 1, #target.psiodyne do
-					local f = target.psiodyne[i]
-					if not f or not f.valid continue end
-					local g = P_SpawnGhostMobj(f)
-					g.destscale = 1
-				end
-			end
-
-
-			-- Lift the target
-
-			if timer <= 130
-			and timer > 20
-				target.momz = (target.floorz + FRACUNIT*192 - target.z)/8
-				P_SpawnGhostMobj(target)
-
-			elseif timer > 130
-				target.momz = -32*target.scale
-
-				if P_IsObjectOnGround(target)
-				and not target.tkdamage
-					damageObject(hittargets[1])
-					target.tkdamage = true
-					for i = 1, 3
-						createSplat(mo)
-					end
-					for i = 1,32
-						local dust = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
-						dust.angle = ANGLE_90 + ANG1* (11*(i-1))
-						dust.destscale = FRACUNIT*10
-						dust.state = S_AOADUST1
-						dust.frame = A|FF_FULLBRIGHT
-						P_InstaThrust(dust, dust.angle, 20*FRACUNIT)
-
-						local a = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
-						a.sprite = SPR_NTHK
-						a.frame = A|FF_FULLBRIGHT
-						a.tics = TICRATE*2
-						a.color = psiocolors[P_RandomRange(1, #psiocolors)]
-						a.flags = $ & ~MF_NOGRAVITY
-						a.momx = P_RandomRange(-16, 16)*target.scale
-						a.momy = P_RandomRange(-16, 16)*target.scale
-						a.momz = P_RandomRange(8, 32)*target.scale
-
-					end
-					playSound(mo.battlen, sfx_pstop)
-					localquake(mo.battlen, FRACUNIT*32, TICRATE/2)
-
-					target.tkdamage = true
-				end
-			end
-
-			if timer == 20
+			if timer == 1
+				target.diamonds = {}
 				target.psiodyne = {}
+				target.diamspeed = 0
+				target.diammom = 0
+				target.diamdist = 100
+				for i = 1,40
+					target.diamonds[i] = "a"
+				end
 				playSound(mo.battlen, sfx_s3k74)
 
-				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
-				ol.sprite = SPR_NTHK
-				ol.color = psiocolors[P_RandomRange(1, #psiocolors)]
-				ol.scale = 1
-				ol.destscale = FRACUNIT*32
-				ol.scalespeed = FRACUNIT/3
-				ol.frame = B|FF_FULLBRIGHT
-				ol.tics = 20
+			elseif timer >= 20 and timer < 60 -- spawn the diamonds in a pattern
 
-				-- spawn all the particles
-				for i = 1, 64 do
+				if timer == 55
+					playSound(mo.battlen, sfx_s3k74)
+				end
+
+				local place = P_RandomRange(1,40)
+				while target.diamonds[place] != "a"
+					place = P_RandomRange(1,40)
+				end
+				local ang = ANG1*18*(place)
+				local z
+				if place <= 20 and place%2 == 0
+					z = 84
+				elseif place%2 == 0
+					z = 40
+				elseif place <= 20
+					z = 68
+				else
+					z = 24
+				end
+				local diam = P_SpawnMobj(target.x - target.diamdist*cos(ang), target.y - target.diamdist*sin(ang), target.z + z*FRACUNIT + target.height/2, MT_DUMMY)
+				diam.sprite = SPR_PSID
+				diam.frame = B|FF_FULLBRIGHT|TR_TRANS20
+				diam.color = psiocolors[P_RandomRange(1,5)]
+				diam.scale = FRACUNIT*3/2
+				diam.angle = ang
+				diam.tics = 110-timer
+				diam.extravalue1 = 20
+				target.diamonds[place] = diam
+
+			elseif timer >= 60 and timer < 110 -- https://www.youtube.com/watch?v=l4mTNQLsD0c
+				if timer == 60
+					playSound(mo.battlen, sfx_s3kc5l)
+				elseif timer == 110
+					playSound(mo.battlen, sfx_s3k74)
+				end
+
+				for j = 1, #target.diamonds
+					local m = target.diamonds[j]
+					if not m or not m.valid
+						j = $-1
+						continue
+					end
+
+					local f = target.diamonds[j]
+					if timer <= 83
+						target.diamspeed = (timer - 59)
+					else
+						target.diamspeed = 24
+					end
+					f.angle = $ + ANG1*target.diamspeed
+
+				end
+			elseif timer == 110
+				for k,v in ipairs(mo.allies)
+					if v and v.control and v.control.valid
+						P_StartQuake(FRACUNIT*20, 40)
+						playSound(mo.battlen, sfx_psi)
+						P_FlashPal(v.control, 5, 10) //v.control, pallette, tics active, 5 is the inverted palette, 4 is the Arma's red flash pal, rest are just white flash excl 0
+					end
+				end
+
+				for k,v in ipairs(mo.enemies)	-- Also perform the check on enemies.
+					if v and v.control and v.control.valid
+						P_StartQuake(FRACUNIT*20, 40)
+						playSound(mo.battlen, sfx_psi)
+						P_FlashPal(v.control, 5, 10) //v.control, pallette, tics active, 5 is the inverted palette, 4 is the Arma's red flash pal, rest are just white flash excl 0
+					end
+				end
+
+				damageObject(target)
+			elseif timer > 110 and timer <= 126 and timer%2 == 0 -- spawn the spiral
+				if timer == 111
+					for i = 1,4
+						playSound(mo.battlen, sfx_s3k4e)
+					end
+				end
+				local cam = server.P_BattleStatus[mo.battlen].cam
+				local hang = cam.angle + ANG1*90
+				for i = 1, 6
+					local place = ((timer-109)/2)
+					local vang = ANG60*(i-1)+place*place*ANG1
+					local dist = 70*place
+					local x = target.x + dist*FixedMul(cos(hang), cos(vang))
+					local y = target.y + dist*FixedMul(sin(hang), cos(vang))
+					local z = (target.z + 100*FRACUNIT) + dist*FixedMul(sin(ANGLE_270), sin(vang))
+					local ol = P_SpawnMobj(x, y, z, MT_THOK)
+					ol.sprite = SPR_NTHK
+					ol.color = psiocolors[place%5+1]
+					ol.scale = 1
+					ol.destscale = FRACUNIT*2
+					ol.frame = A|FF_FULLBRIGHT
+					ol.tics = 15
+					ol = P_SpawnMobj(x, y, z, MT_THOK)
+					ol.sprite = SPR_NTHK
+					ol.color = psiocolors[place%5+1]
+					ol.scale = 1
+					ol.destscale = FRACUNIT*2
+					ol.frame = B|FF_FULLBRIGHT
+					ol.tics = 20
+				end
+			elseif timer == 150
+				return true
+			end
+
+			local j = #target.diamonds
+			while j
+				local diam = target.diamonds[j]
+				if not diam or not diam.valid
+					j = $-1
+					continue
+				end
+				if diam.extravalue1 > 1 and timer%4 == 0 -- this handles the diamonds' blink effect when spawned
+					diam.frame = C|FF_FULLBRIGHT|TR_TRANS20
+					diam.color = psiocolors[P_RandomRange(1,5)]
+					diam.extravalue1 = $ - 1
+				elseif diam.extravalue1 > 1 and timer%2 == 0
+					diam.frame = D|FF_FULLBRIGHT|TR_TRANS20
+					diam.color = psiocolors[P_RandomRange(1,5)]
+					diam.extravalue1 = $ - 1
+				elseif diam.extravalue1 == 1
+					diam.frame = A|FF_FULLBRIGHT|TR_TRANS20
+					diam.color = psiocolors[P_RandomRange(1,5)]
+					diam.extravalue1 = $ - 1
+				end
+				local x, y
+				x = target.x - target.diamdist*cos(diam.angle)
+				y = target.y - target.diamdist*sin(diam.angle)
+				P_TeleportMove(diam, x, y, diam.z)
+
+				j = $-1
+			end
+
+			target.diamdist = $ + target.diammom
+
+			if target.diamdist > 200
+				target.diammom = $ - 1
+			elseif target.diamdist < 200 and timer <= 100
+				target.diammom = $ + 1
+				if target.diamdist < 118 -- spawn a bunch of psiodyne particles when the ring gets close to the target
 					local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
 					ol.sprite = SPR_NTHK
 					ol.color = psiocolors[P_RandomRange(1, #psiocolors)]
 					ol.scale = 1
-					ol.destscale = FRACUNIT*2/3
+					ol.destscale = FRACUNIT/2
 					ol.frame = A|FF_FULLBRIGHT
-					ol.tics = -1
+					ol.tics = 115-timer
 					ol.angle = P_RandomRange(0, 359)*ANG1
+					ol.extravalue1 = 40
 
 					local hthrust = P_RandomRange(0, 128)
 					local vthrust = 128-hthrust
@@ -9485,66 +9571,58 @@ rawset(_G, "attackDefs", {
 					ol.savemoms = {ol.momx, ol.momy, ol.momz}
 					target.psiodyne[#target.psiodyne+1] = ol
 				end
+			end
 
-			elseif timer >= 20
-			and timer <= 60
-				-- slow all of these down
-				for i = 1, #target.psiodyne do
-					local f = target.psiodyne[i]
-					f.momx = $*80/100
-					f.momy = $*80/100
-					f.momz = $*80/100
+			local m = #target.psiodyne
+			while m
+				local ol = target.psiodyne[m]
+				if not ol or not ol.valid
+					m = $-1
+					continue
 				end
 
-			elseif timer > 60 and timer < 128
-				local t = timer-60
-				local f = target.psiodyne[t]
-				if f and f.valid
-					f.momx = -f.savemoms[1]*2
-					f.momy = -f.savemoms[2]*2
+				if ol.extravalue1 == -10
+					local x = target.x + P_RandomRange(-128, 128)*FRACUNIT
+					local y = target.y + P_RandomRange(-128, 128)*FRACUNIT
+					local z = target.z + P_RandomRange(0, 128)*FRACUNIT
 
-					local hspd = FixedHypot(abs(f.savemoms[1]), abs(f.savemoms[2]))
+					playSound(mo.battlen, sfx_s3k77)
+					P_StartQuake(FRACUNIT*10, 10)
 
-					f.momz = FixedDiv((target.z - f.z), max(1, hspd))
-					f.fuse = 8
+					local ai = P_SpawnMobj(x, y, z, MT_DUMMY)
+					ai.sprite = SPR_NTHK
+					ai.color = psiocolors[P_RandomRange(1, #psiocolors)]
+					ai.scale = 1
+					ai.destscale = FRACUNIT*32
+					ai.scalespeed = FRACUNIT/3
+					ai.frame = B|FF_FULLBRIGHT
+					ai.tics = 20
+					P_StartQuake(FRACUNIT*10, 10)
+
+					ai = P_SpawnMobj(x, y, z, MT_DUMMY)
+					ai.sprite = SPR_NTHK
+					ai.color = psiocolors[P_RandomRange(1, #psiocolors)]
+					ai.scale = 1
+					ai.destscale = FRACUNIT*32
+					ai.scalespeed = FRACUNIT
+					ai.frame = B|FF_FULLBRIGHT|TR_TRANS50
+					ai.tics = 8
+				elseif ol.extravalue1 < 0
+					ol.momx = $ + (target.x-ol.x)/64
+					ol.momy = $ + (target.y-ol.y)/64
+					ol.momz = $ + (target.z-ol.z)/64
+					ol.extravalue1 = $ - 1
+				elseif ol.extravalue1 == 0
+					ol.fuse = 11
+					ol.extravalue1 = $ - 1
+				else
+					ol.extravalue1 = $ - 1
+					ol.momx = $*80/100
+					ol.momy = $*80/100
+					ol.momz = $*80/100
 				end
 
-				if timer > 60 + TICRATE/3
-					-- make impacts
-					if not (leveltime%4)
-
-						local x = target.x + P_RandomRange(-256, 256)*FRACUNIT
-						local y = target.y + P_RandomRange(-256, 256)*FRACUNIT
-						local z = target.z + P_RandomRange(0, 256)*FRACUNIT
-
-						playSound(mo.battlen, sfx_s3k77)
-						localquake(mo.battlen, FRACUNIT*64, 10)
-
-						local ol = P_SpawnMobj(x, y, z, MT_DUMMY)
-						ol.sprite = SPR_NTHK
-						ol.color = psiocolors[P_RandomRange(1, #psiocolors)]
-						ol.scale = 1
-						ol.destscale = FRACUNIT*32
-						ol.scalespeed = FRACUNIT/3
-						ol.frame = B|FF_FULLBRIGHT
-						ol.tics = 20
-						localquake(mo.battlen, 7*FRACUNIT, 2)
-
-						ol = P_SpawnMobj(x, y, z, MT_DUMMY)
-						ol.sprite = SPR_NTHK
-						ol.color = psiocolors[P_RandomRange(1, #psiocolors)]
-						ol.scale = 1
-						ol.destscale = FRACUNIT*32
-						ol.scalespeed = FRACUNIT
-						ol.frame = B|FF_FULLBRIGHT|TR_TRANS50
-						ol.tics = 8
-
-					end
-				end
-
-			elseif timer == 190
-				target.tkdamage = nil	-- reset this
-				return true
+				m = $-1
 			end
 		end,
 	},
@@ -15673,10 +15751,10 @@ rawset(_G, "attackDefs", {
 
 			elseif timer == 31
 
+				DoExplosion(target)
 				for i = 1, 3 do
 					local an = (mo.fangle + (i-1)*120)*ANG1
 					local h = P_SpawnMobj(target.x + mo.fdist*cos(an), target.y + mo.fdist*sin(an), target.z, MT_DUMMY)
-					DoExplosion(h)
 					h.state = S_INVISIBLE
 					h.tics = -1
 					mo.columns[#mo.columns+1] = h
@@ -15704,7 +15782,7 @@ rawset(_G, "attackDefs", {
 				end
 				localquake(mo.battlen, FRACUNIT*8, 1)
 
-				if timer <= 240
+				if timer <= 140
 					local an = (mo.fangle + (j-1)*120)*ANG1
 					P_TeleportMove(m, target.x + mo.fdist*cos(an), target.y + mo.fdist*sin(an), target.z)
 				end
@@ -15714,20 +15792,20 @@ rawset(_G, "attackDefs", {
 			end
 
 			if timer >= 31
-				mo.fangle = $ + min(14, ((timer-31)/10))
-				mo.fdist = max(96, $- 2)
+				mo.fangle = $ + min(14, ((timer-31)/4))
+				mo.fdist = max(96, $- 4)
 			end
 
-			if timer == 220
+			if timer == 120
 				DoExplosion(target)
-			elseif timer >= 220 and timer < 240
+			elseif timer >= 120 and timer < 140
 				for i = 1, 12
 					local boom = P_SpawnMobj(target.x + P_RandomRange(-64, 64)*FRACUNIT, target.y + P_RandomRange(-64, 64)*FRACUNIT, target.z, MT_DUMMY)
 					boom.state = S_QUICKBOOM1
 					boom.momz = P_RandomRange(0, 80)*FRACUNIT
 					boom.scale = FRACUNIT*5
 				end
-			elseif timer == 240
+			elseif timer == 140
 				-- delet old shit:
 				mo.fangle = (R_PointToAngle(target.x, target.y)) + ANG1*180
 				mo.columns = {}
@@ -15744,7 +15822,7 @@ rawset(_G, "attackDefs", {
 				end
 
 				damageObject(target)
-			elseif timer == 280
+			elseif timer == 180
 				mo.fangle = nil
 				mo.columns = nil
 				return true
