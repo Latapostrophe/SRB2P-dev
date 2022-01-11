@@ -35,8 +35,21 @@ local function mm_startTutorial()
 	-- ready save localtable loading:
 	SAVE_localtable.party = {"sonic", "amy"}
 	SAVE_localtable.tutorial = true
+	srb2p.storymode = nil
 
 	COM_ImmedExecute("map map"..string.format("%02d", srb2p.tutorial_map).." -force")
+	-- @TODO: D_MapChange to bypass the need for -force
+end
+
+local function mm_startNewGame()
+	SYS_closeMenu()
+	SAVE_localtable.party = {"sonic"}
+	srb2p.storymode = true
+
+	DATE_setDate(5, 4, 1, 2016, 5)
+
+	-- we'll want to disable the usage of the 'map' command in SP regardless as it would severely break the game.
+	COM_ImmedExecute("map map"..string.format("%02d", srb2p.story_startmap).." -force")
 	-- @TODO: D_MapChange to bypass the need for -force
 end
 
@@ -262,6 +275,7 @@ end
 
 local function mm_hostNetGame()
 	print("Starting up server...")
+	srb2p.storymode = nil
 	SYS_closeMenu()
 	SRB2P_startServer()	-- this is atrocious. don't do this. seriously.
 	COM_ImmedExecute("map map"..string.format("%02d", srb2p.tartarus_map))
@@ -275,6 +289,7 @@ local function mm_joinNetGame(text)
 		return
 	end
 
+	srb2p.storymode = nil
 	SYS_closeMenu()
 	print("Joining netgame at "..text.."...")
 	COM_ImmedExecute("connect "..text)
@@ -1360,7 +1375,7 @@ SYS_menus[SM_TITLE] = {
 		displayflags = V_SNAPTOBOTTOM|V_SNAPTOLEFT,
 		choices = 	{
 						{"Load Game", 64, 100, CT_PROMPT, {"There is no singleplayer story yet!\nBut you can experience the game\nin quickplay even by yourself!", PT_NOTIFICATION}, CS_FAKEGREYOUT, "Load a save file and resume your adventure"},	-- CT_MENUSTATE: MS_SAVES
-						{"New Game", 64,112, CT_PROMPT, {"There is no singleplayer story yet!\nBut you can experience the game\nin quickplay even by yourself!", PT_NOTIFICATION}, CS_FAKEGREYOUT, "A new beginning!"},	-- CT_FUNCTION: mm_startNewGame
+						{"New Game", 64,112, CT_PROMPT, {"This will start a new save file.\nIs this okay?", PT_YESNO, mm_startNewGame}, nil, "Start a new Story Mode save."},	-- CT_FUNCTION: mm_startNewGame
 						{"Tutorial", 64, 124, CT_FUNCTION, mm_startTutorial, nil, "Recommended for people who have never played Persona"},
 					},
 	},

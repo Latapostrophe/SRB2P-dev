@@ -2,6 +2,11 @@
 local SAVEVER = "1"
 local qsavefolder = "client/Quickplay/"
 local fileprefix = "srb2p_qsave"
+
+local savefolder = "client/Singleplayer/"
+local storyfileprefix = "srb2p_save",
+
+rawset(_G, "MAXSAVES", 32)
 rawset(_G, "MAXQSAVEFILES", 6)
 
 local keys = {
@@ -14,6 +19,10 @@ local keys = {
 	"SAVEBLOCK_ENDFILE",	-- Stop reading the file
 
 	"SAVEBLOCK_TEAM",		-- for player reading, tell the parser to save the next players in the next team
+
+	-- singleplayer saveblocks...
+	"SAVEBLOCK_DATE",
+	"SAVEBLOCK_STORYDTA",
 }
 
 for i = 1, #keys do
@@ -136,6 +145,14 @@ local function SAVE_NetArchiveRogueSeed(f)
 	end
 end
 
+local function SAVE_ArchiveStoryData(f)
+
+	f:write(SAVEBLOCK_STORYDTA.."\n")
+	f:write(json.encode(srb2p.storydata))
+	f:write("\n")
+	f:write(SAVEBLOCK_END.."\n")
+end
+
 -- Quick saves the game
 rawset(_G, "SAVE_QSaveFile", function(filenum)
 	-- save battle status
@@ -154,6 +171,27 @@ rawset(_G, "SAVE_QSaveFile", function(filenum)
 	f:write(SAVEBLOCK_ENDFILE)
 	f:close()
 end)
+
+-- Story mode save
+rawset(_G, "SAVE_StorySaveFile", function(filenum)
+	-- save battle status
+	local filename = savefolder..storyfileprefix..filenum..".sav2"
+	local f = io.openlocal(filename, "w")
+	-- write file headers
+	f:write(SAVEVER.."\n")	-- save version, used for file compatibility
+
+	-- Write relevant data
+	SAVE_NetArchiveDungeon(f)	-- Net version works here
+	SAVE_NetArchivePlayers(f)	-- //
+	SAVE_NetArchiveBattles(f)	-- //
+
+	SAVE_ArchiveStoryData(f)	-- Most story related stuff; event flags & compendium are there for instance.
+
+	-- SAVING COMPLETE
+	f:write(SAVEBLOCK_ENDFILE)
+	f:close()
+end)
+
 
 /*
 	################################
@@ -220,7 +258,7 @@ local function SAVE_NetUnArchivePlayers(f)
 
 		local p = SAVE_NetUnArchivePlayer(r)	-- Get player table
 		SAVE_OverwriteObject(server.plentities[nteam][teamslot], p)
-		
+
 		teamslot = $+1
 		r = f:read()
 	end
@@ -228,24 +266,24 @@ end
 
 -- Fixes up various oddities such as Sub-Personas & linking them back to their respective player
 rawset(_G, "SAVE_FixUps", function()
-	
+
 	for i = 1, 4
-		
+
 		local btl = server.P_BattleStatus[i]
-		
+
 		for j = 1, #btl.subpersonas
 			local p = btl.subpersonas[j]
-			
+
 			p.ref = subpersonaList[p.int]
-			
+
 			if p.equipped
 				local mo = server.plentities[i][p.equipped]
-				
+
 				if mo.subpersona	-- they... already have one???
 					p.equipped = nil	-- then no, i'm free???
-				else	
+				else
 					mo.subpersona = p	-- link it back
-				end	
+				end
 			end
 		end
 	end
@@ -324,9 +362,9 @@ local function SAVE_getHeader(f, load)
 			if r == nil or r == ""
 				h.text = "\x85".."CORRUPTED: DUNGEON BLOCK INVALID"
 				h.usable = nil	-- NO!
-				return h		
-			end			
-			
+				return h
+			end
+
 			local dng = json.decode(r)
 			h.dng = dng
 			h.text = "Marathon, "..dng.floor.."F"
@@ -344,7 +382,7 @@ local function SAVE_getHeader(f, load)
 			if r == nil or r == ""
 				h.text = "\x85".."CORRUPTED: BATTLE BLOCK INVALID"
 				h.usable = nil	-- NO!
-				return h		
+				return h
 			end
 
 			while r ~= SAVEBLOCK_END
@@ -358,13 +396,13 @@ local function SAVE_getHeader(f, load)
 			local teamnum = 1
 			h.playerlist = {}
 			r = f:read()
-			
+
 			if r == nil or r == ""
 				h.text = "\x85".."CORRUPTED: PLAYER BLOCK INVALID"
 				h.usable = nil	-- NO!
-				return h		
-			end			
-			
+				return h
+			end
+
 			while r ~= SAVEBLOCK_END
 				h.playerlist[teamnum] = $ or {}
 
@@ -436,11 +474,11 @@ rawset(_G, "SAVE_applyFileHeader", function(h)
 			end
 		end
 	end
-	
+
 	if h.rogueseed
 		server.rogueseed = h.rogueseed
-	end	
-	
+	end
+
 	SAVE_FixUps()
 end)
 

@@ -1,7 +1,7 @@
 rawset(_G, "srb2p", {
 	name = "SRB2PERSONA",
-	version = "v1.3.3",
-	verbase = 13,
+	version = "v2.0B",
+	verbase = 20,
 	--debug = true,
 	--debugprint = true,
 
@@ -16,10 +16,20 @@ rawset(_G, "srb2p", {
 	colosseo_map = 3,	-- map for pvp stuff
 	challenge_map = 20,	-- map for void runs
 
+	story_startmap = 21,	-- story start
+	story_levelcap = 30,	-- level cap for story mode
+
 	loading = false,	-- used for special displays
 
 	-- for DISPLAYING save data	(this is clientsided...)
 	fileheaders = {},
+	-- event flags etc
+	storydata = {
+					events = {},		-- event flags
+					compendium = {},	-- compendium data
+					date = {},			-- date
+					itemboxes = {},		-- item boxes opened (so that we can despawn them)
+				},
 
 	-- XDATA tables
 	local_conds = {},		-- used for some unlockables.

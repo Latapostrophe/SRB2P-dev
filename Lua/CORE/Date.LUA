@@ -17,7 +17,49 @@ rawset(_G, "timeofday", {
 	[-2] = "Promised Day"
 })
 
-local save = SAVE_localtable
 
-save.date = {3, 4, 20, 2010, -1}
--- dayname, month, day, year, nextfull
+-- Set default values...
+srb2p.storydata.date = {
+
+	daynum = 3,
+	datemonth = 4,
+	dateday = 4,
+	dateyear = 2010,
+	datetime = -1,
+}
+
+local dat = srb2p.storydata.date
+
+-- sets date in the same order.
+rawset(_G, "DATE_setDate", function(dn, mo, da, ye, ti)
+	dat.daynum = dn or $
+	dat.datemonth = mo or $
+	dat.dateday = da or $
+	dat.dateyear = ye or $
+	dat.datetime = ti or $
+
+end)
+
+-- increments the day:
+rawset(_G, "DATE_nextDay", function()
+
+	-- increments the day name
+	dat.daynum = (($ + 1) % (#days)) or 1	-- x % 8 = x if x < 8, x % 8 = 0 -> 1 if x = 8
+
+	-- increment the day date:
+	dat.dateday = $+1
+	-- Increment the month if it's over...
+	if sdate.dateday > (monthdays[dat.daymonth] or 30)
+		dat.dateday = 1
+		dat.datemonth = $+1
+
+		-- if the year is over, increment it...
+		if dat.daymonth > #months
+			dat.datemonth = 1
+			dat.dateyear = $+1
+		end
+	end
+end)
+
+
+
