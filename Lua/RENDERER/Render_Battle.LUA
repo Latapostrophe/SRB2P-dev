@@ -1590,9 +1590,9 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 	if not enemy	-- draw NEXT skill for players and SKILL CARD skill, too
 		local s = charStats[mo.stats]
 		if not s return end
-		local persona = s.persona
+		local persona = mo.persona
 		if not persona return end	-- what
-		persona = personaList[persona]	-- go inside statlist
+		--persona = personaList[persona]	-- go inside statlist
 
 		local newskill
 		local ypos = 170

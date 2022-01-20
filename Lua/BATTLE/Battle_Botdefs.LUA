@@ -138,6 +138,10 @@ rawset(_G, "PLYR_initStats", function(mo, persona, skin)
 		mhp = 60 + (mo.level-1)*5
 		msp = 0
 	end
+	
+	if srb2p.storymode
+		msp = 0
+	end	
 
 	mo.maxhp = mhp
 	mo.hp = mo.maxhp
@@ -195,10 +199,17 @@ end)
 
 rawset(_G, "PLYR_initPersona", function(mo, persona, skin)	-- init stats and skills.
 	--dprint("Initiating Player entity Persona...")
-
-	if SAVE_localtable.tutorial and persona == "orpheus"	-- very specific check... kinda hacky
-		persona = "orpheus_tutorial"
+	
+	-- special cases for sonic's persona... Kind of hacky.
+	if persona == "orpheus"
+	
+		if SAVE_localtable.tutorial
+			persona = "orpheus_tutorial"
+		elseif srb2p.storymode
+			persona = "story_00"
+		end
 	end
+		
 
 	persona = personaList[$]
 
