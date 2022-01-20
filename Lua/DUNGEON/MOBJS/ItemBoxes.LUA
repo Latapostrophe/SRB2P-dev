@@ -183,6 +183,7 @@ addHook("MobjCollide", function(t, mo)
 				end
 
 				batchqty = 0
+				amount = 1
 			end
 
 

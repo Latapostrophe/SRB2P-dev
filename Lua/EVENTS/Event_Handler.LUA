@@ -359,6 +359,44 @@ rawset(_G, "D_eventHandler", function(pn)
 	end
 end)
 
+-- some in-event functions...
+rawset(_G, "EVT_SetCamByAngle", function(battle, a)
+	for mt in mapthings.iterate do	-- fetch awayviewmobj
+
+		local m = mt.mobj
+		if not m or not m.valid continue end
+
+		if m and m.valid and m.type == MT_ALTVIEWMAN
+		and mt.angle == a
+
+			local cam = battle.cam
+			P_TeleportMove(cam, m.x, m.y, m.z)
+			CAM_goto(cam, cam.x, cam.y, cam.z)
+			return
+		end
+	end
+end)
+
+rawset(_G, "EVT_SetCamByExtrainfo", function(battle, e)
+	for mt in mapthings.iterate do	-- fetch awayviewmobj
+
+		local m = mt.mobj
+		if not m or not m.valid continue end
+
+		if m and m.valid and m.type == MT_ALTVIEWMAN
+		and mt.extrainfo == e
+
+			local cam = battle.cam
+			P_TeleportMove(cam, m.x, m.y, m.z)
+			cam.angle = m.angle
+			CAM_goto(cam, cam.x, cam.y, cam.z)
+			CAM_angle(cam, cam.angle)
+			CAM_aiming(cam, cam.aiming)
+			return
+		end
+	end
+end)
+
 -- event buffer + event progression
 --addHook("ThinkFrame", do
 

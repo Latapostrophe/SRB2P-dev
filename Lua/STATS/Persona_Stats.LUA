@@ -33,7 +33,24 @@ local hacklist = {
 }
 
 rawset(_G, "personaList", {
-
+	
+	["story_00"] = {
+		name = "Sonic",
+		arcana = ARCANA_FOOL,
+		
+		sprite = SPR_NULL,
+		anim_idle = 	{SPR_NULL, A, 1},
+		anim_atk = 		{SPR_NULL, A, 1},
+		
+		strength = 7,
+		magic = 10,
+		endurance = 6,
+		luck = 4,
+		agility = 12,
+		
+		skills = {}
+	},
+	
 	["story_01"] = {
 		name = "???",
 		arcana = ARCANA_DEATH,
