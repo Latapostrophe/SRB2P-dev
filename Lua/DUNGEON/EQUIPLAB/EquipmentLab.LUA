@@ -451,7 +451,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				WPT_SHOES,
 				WPT_MONITOR,
 				WPT_KNUCKLES,
-				WPT_DEVICE,
+				WPT_REMOTE,
 				WPT_LIMITERS,
 				WPT_HAMMER,
 				WPT_CLAWS,
