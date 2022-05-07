@@ -1279,7 +1279,7 @@ local function drawPlayerTarget(v, p, c, mo)
 
 			local atktype = 0
 			if mo.attack
-				atktype = mo.attack.type
+				atktype = getAttackType(mo, mo.attack)
 			end
 
 			-- target is weak to attack we've used before?
@@ -1336,7 +1336,7 @@ local function drawPlayerTarget(v, p, c, mo)
 
 				local atktype = 0
 				if mo.attack
-					atktype = mo.attack.type
+					atktype = getAttackType(mo, mo.attack)
 				end
 
 				-- target is weak to attack we've used before?
