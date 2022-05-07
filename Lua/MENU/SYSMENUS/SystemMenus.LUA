@@ -1104,7 +1104,7 @@ local function mm_drawSkilllist(v, anim, choices, curchoice)
 		[COND_DIZZY]="\x87".."Dizzy",
 		[COND_SILENCE]="\x83".."Silence",
 		[COND_SLEEP]="\x86".."Sleep",
-		[COND_FEAR]="\x89".."Fear",
+		[COND_HEX]="\x89".."Hex",
 		[COND_DESPAIR]="\x89".."Despair",
 		[COND_RAGE]="\x85".."Rage",
 		[COND_HUNGER]="\x83".."Hunger",
