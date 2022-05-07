@@ -1805,7 +1805,7 @@ rawset(_G, "attackDefs", {
 		desc = "Adds 15% to odds of Hex.\nEffect is additive",
 		passive = PSV_COND_BOOST,
 		power = 15,
-		status = COND_DIZZY,
+		status = COND_HEX,
 	},
 
 	["resist hex"] = {
@@ -1820,10 +1820,10 @@ rawset(_G, "attackDefs", {
 	["null hex"] = {
 		name = "Null Hex",
 		type = ATK_PASSIVE,
-		desc = "Nullify odds of being inflicted\nwith Sleep.",
+		desc = "Nullify odds of being inflicted\nwith Hex.",
 		passive = PSV_COND_RESIST,
 		power = 100,
-		status = COND_SLEEP,
+		status = COND_HEX,
 	},
 
 	["despair boost"] = {
@@ -1922,7 +1922,7 @@ rawset(_G, "attackDefs", {
 		desc = "Halves odds of being inflicted\nwith Rage.",
 		passive = PSV_COND_RESIST,
 		power = 50,
-		status = COND_HEX,
+		status = COND_RAGE,
 	},
 
 	["null rage"] = {
