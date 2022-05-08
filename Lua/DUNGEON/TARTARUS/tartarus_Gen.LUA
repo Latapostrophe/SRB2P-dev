@@ -91,7 +91,7 @@ local function DNG_generatefloor(t, floornum)
 	-- regular internal random dungeons
 	if server.cdungeon == nil
 		ceil = "~PIT"
-		ceilheight = 256
+		ceilheight = 256*FRACUNIT
 		prefix = (t.default and t.default.floorpic) and t.default.floorpic or "TART_"	-- floortexture prefix
 		texture = (t.default and t.default.walltexture) and R_TextureNumForName(t.default.walltexture) or R_TextureNumForName("TART_W1")	-- default walltexture; will try to get later!
 		range = (t.default and t.default.texturerange) and t.default.texturerange or 0			-- texture random range
@@ -191,6 +191,7 @@ local function DNG_generatefloor(t, floornum)
 
 		-- start by reseting floor height:
 		s.floorheight = 0
+		s.ceilingheight = ceilheight
 		s.ceilingpic = ceil
 
 		if not map[i]			-- wall
