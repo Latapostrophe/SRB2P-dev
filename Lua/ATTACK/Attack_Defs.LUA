@@ -2011,15 +2011,16 @@ rawset(_G, "attackDefs", {
 		passive = PSV_RESIST,
 		},
 
-	["reseist strike"] = {
+
+	-- VOID SKILLS
+
+	["void strike"] = {
 		name = "Void Strike",
 		type = ATK_PASSIVE|ATK_STRIKE,
 		desc = "Overwrite affinity to block \nStrike skills.",
 		passive = PSV_BLOCK,
-		},
+	},
 
-
-	-- VOID SKILLS
 	["void slash"] = {
 		name = "Void Slash",
 		type = ATK_PASSIVE|ATK_SLASH,
