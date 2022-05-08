@@ -4678,7 +4678,7 @@ local function statusConditionEffects(mo)	-- the little animations over the enem
 			s.tics = TICRATE*3/2
 		end
 
-	elseif mo.status_condtion == COND_HUNGER	-- ez just vore smth lol
+	elseif mo.status_condition == COND_HUNGER	-- ez just vore smth lol
 
 		local thok = P_SpawnMobj(mo.x+P_RandomRange(-40, 40)*FRACUNIT, mo.y+P_RandomRange(-40, 40)*FRACUNIT, mo.z+P_RandomRange(20, 60)*FRACUNIT, MT_DUMMY)
 		thok.sprite = SPR_SUMN
