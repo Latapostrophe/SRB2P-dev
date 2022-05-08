@@ -34,7 +34,13 @@ local function V_getKerning(prefix, char)
 	return V_fontKerning[prefix] and V_fontKerning[prefix][char] or 0
 end
 
+-- Calls C version
 rawset(_G, "V_stringWidth", function(v, str, prefix, flags, scale)
+	return v.genericStringWidth(str, prefix, scale)
+end)
+
+-- Deprecated version of the function
+rawset(_G, "V_stringWidth_deprecated", function(v, str, prefix, flags, scale)
 	str = tostring(str)
 	if not (v and str and prefix) return 0 end
 	scale = $ or FRACUNIT/2
@@ -247,7 +253,13 @@ rawset(_G, "STR_WWToString", function(t)
 	return str
 end)
 
+-- Call C version.
 rawset(_G, "V_drawString", function(v, x, y, str, prefix, flags, alignment, color1, color2, scale)
+	v.genericString(x*FRACUNIT, y*FRACUNIT, str, prefix, flags, alignment or "", color1, color2 or 0, scale)
+end)
+
+-- Old version of drawstring
+rawset(_G, "V_drawString_deprecated", function(v, x, y, str, prefix, flags, alignment, color1, color2, scale)
 
 	if v.genericString
 		v.genericString(x*FRACUNIT, y*FRACUNIT, str, prefix, flags, alignment or "", color1, color2 or 0, scale)
