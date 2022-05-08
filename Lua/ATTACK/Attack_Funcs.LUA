@@ -846,8 +846,24 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 			end
 
 			local bossres = (mo.status_res or 0)*4
+			local status_hitrate = atk.statuschance + statusbuff + (attacker.luck - mo.luck)*3/4 - bossres
+			local status_resist_mult = 0
 
-			if (P_RandomRange(0, 100) <= atk.statuschance + statusbuff + (attacker.luck - bossres - mo.luck))
+			-- Check for status resistances within the target
+			for i = 1, #mo.passiveskills do
+				if attackDefs[mo.passiveskills[i]]
+					local skl = attackDefs[mo.passiveskills[i]]
+					if skl.passive == PSV_COND_RESIST
+					and (atk.status and (not skl.status) or skl.status & atk.status)
+						status_resist_mult = max($, skl.power)
+					end
+				end
+			end
+
+			-- Final hitrate for statuses becomes: (BASE HITRATE + (ATTACKER AGILITY - RECEIVER AGILITY)*3/4 - BOSS RESISTANCE + STATUS BOOST)/RESISTANCE
+			status_hitrate = $ - ($*status_resist_mult/100)
+
+			if (P_RandomRange(0, 100) <= status_hitrate)
 			and not mo.status_condition	-- can't status again if we already got that
 			--and not mo.boss
 				mo.cachestatus = atk.status
