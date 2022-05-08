@@ -45,7 +45,7 @@ f = "EVENTS"
 
 	f = "EVENTS/VoidRun"
 		df("Intro.LUA")
-		
+
 	f = "EVENTS/Marathon"
 		df("TartarusPeak.LUA")
 		df("B7.LUA")
@@ -111,13 +111,13 @@ f = "DUNGEON"
 	df("Dungeon_Handler.LUA")
 	df("Dungeon_Cards.LUA")
 	df("Dungeon_Personas.LUA")
-	
-	f = "DUNGEON/TARTARUS"	
+
+	f = "DUNGEON/TARTARUS"
 		df("Tartarus_Defs.LUA")
 		df("Map_Generator.LUA")
 		df("tartarus_Gen.LUA")
 		df("tartarus_Crawler.LUA")
-		
+
 		f = $.."/FLOORS"
 			df("Tartarus_Floordata.LUA")
 			df("Tartarus_Floors.LUA")
@@ -125,7 +125,7 @@ f = "DUNGEON"
 			df("Tartarus_ShuffleData.LUA")
 			df("Tartarus_Personas.LUA")
 			df("Tartarus_Item_List.LUA")
-			
+
 	f = "DUNGEON/MOBJS"
 		df("ItemBoxes.LUA")
 		df("RingClusters.LUA")
@@ -136,15 +136,15 @@ f = "DUNGEON"
 		df("Ambusher.LUA")
 		df("Reaper.LUA")
 		df("Drops.LUA")
-		
+
 	f = "DUNGEON/SHOPS"
 		df("Dungeon_Shop.LUA")
 		df("VelvetShop_MP.LUA")
 		df("VoidShop.LUA")
-	
+
 	f = "DUNGEON/EQUIPLAB"
 		df("EquipmentLab.LUA")
-	
+
 	f = "DUNGEON/VOIDRUN"
 		df("Voidrun_Defs.LUA")
 		df("Voidrun_Floordata.LUA")
@@ -152,7 +152,7 @@ f = "DUNGEON"
 		df("Voidrun_Wavedefs.LUA")
 		df("Voidrun_Item_List.LUA")
 		df("Voidrun_Handler.LUA")
-		
+
 -- NET
 print("Initiating Netsetup librairies...")
 f = "NET"
@@ -183,5 +183,5 @@ f = "MODDING"
 	df("Hooks.LUA")
 	df("Map_editor.LUA")
 	df("CustomDungeonReader.LUA")
-	
-print("SRB2P Script Initialization complete")	
+
+print("SRB2P Script Initialization complete")

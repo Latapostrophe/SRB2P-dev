@@ -118,8 +118,8 @@ rawset(_G, "SYS_OpenMenu", function(menu)
 
 	--dprint("Opening menu "..menu)
 
-	SRB2P_eatEvent(true)
-	SRB2P_clearEvents()	-- flush event buffer for use in menus
+	SYS_eatEvents(true)
+	SYS_flushEventQueue()	-- flush event buffer for use in menus
 
 	SYS_systemmenu =	{
 		running = true,
@@ -301,7 +301,7 @@ rawset(_G, "SYS_handleMenu", function()
 
 	m.runningfor = $+1
 
-	local eventlist = G_InputList
+	local eventlist = SYS_getEventQueue()
 
 	-- make sure something is there:
 	if not eventlist[1]
@@ -729,8 +729,8 @@ end)
 rawset(_G, "SYS_closeMenu", function()
 	--dprint("Closing menu")
 
-	SRB2P_eatEvent(false)
-	SRB2P_clearEvents()	-- flush event buffer for use in menus
+	SYS_eatEvents(false)
+	SYS_flushEventQueue()	-- flush event buffer for use in menus
 
 	SYS_systemmenu = {
 		running = false,

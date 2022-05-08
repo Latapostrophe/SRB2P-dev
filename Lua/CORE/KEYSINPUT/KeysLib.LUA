@@ -8,6 +8,7 @@
 -- keys from 33 to 127 can be used for input
 -- keys from 128 to 255 are also for the system
 
+
 rawset(_G, "KEY_NULL", 0)
 rawset(_G, "KEY_SPACE", 32)
 rawset(_G, "KEY_BACKSPACE", 8)
@@ -16,6 +17,7 @@ rawset(_G, "KEY_ENTER", 13)
 rawset(_G, "KEY_ESCAPE", 27)
 rawset(_G, "KEY_MINUS", 45)
 rawset(_G, "KEY_EQUALS", 61)
+rawset(_G, "KEY_CONSOLE", 96)
 
 rawset(_G, "KEY_NUMLOCK", 128+ 69)
 rawset(_G, "KEY_SCROLLOCK", 128 +70)
@@ -108,9 +110,80 @@ local prevevent = 0*/
 -- This function picks up inputs in a CLIENTSIDED FASHION. These are in NO WAY SYNCHED.
 -- This should, ABSOLUTELY NOT, be used in the context of NETGAMES.
 
+local G_InputList = {}
+local eat = false
+local shiftdown = false
+local capslock = false
+
+-- flush event queue
+rawset(_G, "SYS_flushEventQueue", function()
+	G_InputList = {}
+end)
+
+-- returns the event at the top of the list
+rawset(_G, "SYS_getEvent", function()
+	return G_InputList[#G_InputList]
+end)
+
+-- returns the whole event queue.
+rawset(_G, "SYS_getEventQueue", function()
+	local t = {}
+	for i = 1, #G_InputList
+		t[i] = G_InputList[i]
+	end
+	return t
+end)
+
+-- set whether or not to continue allowing events to slide through or if we're eating cookies today
+rawset(_G, "SYS_eatEvents", function(val)
+	eat = val
+end)
+
+local function shift_if_possible(key)
+	local ashift = capslock != shiftdown
+	--print("shift: "..tostring(ashift))
+	return ashift and input.shiftKeyNum(key.num) or key.num
+end
+
+-- Builds event queue, this is ran before the frame is rendered.
+addHook("KeyDown", function(key)
+	--print(key.name.."->"..key.num)
+	if not key.repeated
+		local k = shift_if_possible(key)
+
+		-- toggle capslock
+		if k == KEY_CAPSLOCK
+			capslock = (capslock == false) and true or false
+		elseif (k == KEY_RSHIFT or k == KEY_LSHIFT)
+			shiftdown = true
+		end
+
+		G_InputList[#G_InputList+1] = shift_if_possible(key)
+	end
+	-- NEVER EAT THE CONSOLE KEY, NEVER.
+	if key.num ~= KEY_CONSOLE
+		return eat
+	end
+end)
+
+-- keyup to undo shift presses
+addHook("KeyUp", function(key)
+
+	if not key.repeated
+		if key.num == KEY_RSHIFT or key.num == KEY_LSHIFT
+			shiftdown = false
+		end
+	end
+end)
+
+-- flushes event queue after the frame.
+addHook("PostThinkFrame", function()
+	SYS_flushEventQueue()
+end)
+
 -- SYS_ProcessEvent: returns the key that has just been pressed / been held for a while if 'allowhold' is true.
 rawset(_G, "SYS_ProcessEvent", function()
-	local event = SRB2P_getEvent()
+	local event = SYS_getEvent()
 	-- mitigate the need for complex checks
 
 	-- NOTE: This only returns the event at the end of the event list and is not suited for text input.
@@ -160,6 +233,24 @@ rawset(_G, "SYS_menuInput", function(event)
 	end
 
 	return event
+end)
+
+-- returns TRUE if 'mo' is in a state where input normalization can take place.
+rawset(_G, "SYS_shouldNormalize", function(mo)
+
+	if SYS_systemmenu and SYS_systemmenu.running return end
+	if chat_buf return end
+	if not server return end
+	if not mo or not mo.valid or not mo.player or not mo.player.valid return end
+
+	local p = mo.player
+	if p.P_party and server.P_BattleStatus and server.P_BattleStatus[p.P_party].running return true end
+	if p.P_party and server.P_DialogueStatus and server.P_DialogueStatus[p.P_party].running return true end
+	if mo.shop and mo.shop.shopping return true end
+	if mo.equiplab and mo.equiplab.using return true end
+	if mo.fusion return true end
+	if mo.m_menu return true end
+	if NET_running() return true end
 end)
 
 -- game controls:

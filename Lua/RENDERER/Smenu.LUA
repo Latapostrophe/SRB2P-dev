@@ -16,7 +16,7 @@ addHook("PrePreThinkFrameAndPause", function()
 		end
 
 		-- menus:
-		local evts = G_InputList
+		local evts =  SYS_getEventQueue()
 		local controls = SYS_getControls(gc_systemmenu)
 
 		for i = 1, #evts

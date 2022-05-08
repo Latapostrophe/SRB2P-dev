@@ -4,12 +4,6 @@ local displaytime = 0
 hud.add(function(v)
 
 	displaytime = $+1
-	local evt = SRB2P_getEvent()
-
-	if (evt == KEY_ENTER or evt == KEY_JOY1)
-	and displaytime < TICRATE*11
-		displaytime = TICRATE*11
-	end
 
 	if displaytime < TICRATE*10
 		v.drawFill()	-- black background
@@ -79,7 +73,14 @@ end)
 rawset(_G, "TTL_Thinker", function()
 	if gamemap ~= 40 return end	-- not titlemap
 
-	if displaytime < TICRATE*11
+	local evt = SYS_getEvent()
+
+	if (evt == KEY_ENTER or evt == KEY_JOY1)
+	and displaytime < TICRATE*11
+		displaytime = TICRATE*11
+	end
+
+	if displaytime == 2
 		S_ChangeMusic(0)
 	elseif displaytime == TICRATE*11+1
 		S_ChangeMusic("_TITLE", true)

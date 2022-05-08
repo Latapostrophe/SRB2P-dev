@@ -1,12 +1,6 @@
 -- Input detection script
 
 local chat_buf = 0
-rawset(_G, "G_InputList", {})	-- store all inputs this frame for the local player
-
--- lmao this hook name
-addHook("PrePreThinkFrameAndPause", function()
-	G_InputList = {SRB2P_getEventList()}
-end)
 
 -- invert command and cursor memory commands
 local function invertcommand()
@@ -162,12 +156,10 @@ addHook("PlayerCmd", function(p, cmd)
 	if chat_on
 		chat_buf = 4
 	end
-		
-	if server and p and p.mo and ((p.P_party and server.P_BattleStatus and server.P_BattleStatus[p.P_party] and server.P_BattleStatus[p.P_party].running) or (p.mo.shop and p.mo.shop.shopping) or (p.mo.equiplab and p.mo.equiplab.using) or p.mo.m_menu or NET_running() or server.P_DialogueStatus and server.P_DialogueStatus.running)
-	and not (SYS_systemmenu and SYS_systemmenu.running)
-	and not chat_buf
+
+	if SYS_shouldNormalize(p.mo)
 	and cv_stdinput.value
-		local inputs = G_InputList
+		local inputs = SYS_getEventQueue()
 		for i = 1, #inputs do
 			local e = inputs[i]
 			e = SYS_menuInput(e)	-- gamepad input -> keyboard input
