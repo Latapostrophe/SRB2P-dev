@@ -616,6 +616,12 @@ addHook("MobjThinker", function(mo)
 		return
 	end
 
+	-- failsafe for garuverse sometimes being very stubborn and not despawning.......
+	if mo.battlen and not server.P_BattleStatus[mo.battlen]
+		P_RemoveMobj(mo)
+		return
+	end
+
 	if not mo.alivefor then mo.alivefor = 1 else mo.alivefor = min(16, $+2) end
 
 	local sx = mo.x + mo.dist*cos(mo.angle)
