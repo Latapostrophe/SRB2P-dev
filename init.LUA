@@ -9,6 +9,9 @@ print("Starting SRB2P initialization ...")
 
 print("Initializing core files...")
 -- Keys library
+	f = "CORE"
+	df("Globalize.LUA")
+
 	f = "CORE/KEYSINPUT"
 		df("KeysLib.LUA")
 		df("KeyNames.LUA")
