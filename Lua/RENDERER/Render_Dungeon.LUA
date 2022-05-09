@@ -661,7 +661,7 @@ local function R_drawVRTimeOut(v)
 end
 
 hud.add(function(v, p, c)
-
+	if not EnabledHuds["Dungeon"] return end
 	hu_ticker = $+1
 
 	local btl = server.P_BattleStatus[p.P_party]
