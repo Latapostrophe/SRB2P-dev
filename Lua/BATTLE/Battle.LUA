@@ -4906,7 +4906,7 @@ rawset(_G, "BTL_handleStatusConditions", function(pn, timer)
 			damageObject(mo, damage, DMG_NORMAL)
 			if mo.hp == 1
 			or (mo.boss and mo.status_turns > 2)
-				BTL_logMessage(pn, "Aliment cured")
+				BTL_logMessage(pn, "The poison wore off.")
 			end
 		elseif timer >= 75
 			if mo.hp == 1
