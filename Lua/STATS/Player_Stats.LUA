@@ -272,6 +272,9 @@ rawset(_G, "charStats", {
 		wep = "heels_01",
 		weptype = WPT_HEELS,
 
+		overlay = MT_SRB2P_BLAZETAIL,
+		overlaythink = spr2_doblazetail,
+
 		-- ANIMS
 		-- Anims are built like this:
 		-- {SPR_SPRITE, frame1, frame2, frame3, ... , duration between each frame}
@@ -281,13 +284,13 @@ rawset(_G, "charStats", {
 		anim_stand_bored =	{SPR_PLAY, A, B, A, B, A, B, A, B, 10, "SPR2_WAIT"},	-- standing (rare anim)
 		anim_guard = 		{SPR_PLAY, A, 1, "SPR2_WALK"},		-- guarding
 		anim_move =			{SPR_PLAY, A, B, C, D, E, F, G, H, 2, "SPR2_WALK"},		-- moving
-		anim_run =			{SPR_PLAY, A, B, C, D, 2, "SPR2_RUN_"},	-- guess what
-		anim_atk =			{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},	-- attacking
-		anim_aoa_end =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
+		anim_run =			{SPR_PLAY, A, B, C, D, E, 1, "SPR2_RUN_"},	-- guess what
+		anim_atk =			{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},	-- attacking
+		anim_aoa_end =		{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
-		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
-		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets up from down
+		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_CNT1"},		-- knocked down from weakness / crit
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_CNT1"},		-- is down
+		anim_getup =		{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets revived
 		--anim_evoker =		{SPR_CSMN, A, B, 2},	-- holding evoker to head
@@ -480,9 +483,9 @@ rawset(_G, "charStats", {
 	["kanade"] = {
 
 		-- GENERAL
-		
+
 		locked = UNLOCK_ANGEL,
-		
+
 		name = "Kanade",		-- This is only for bots / enemies
 		basehp = 70,			-- base HP for level 1 (Cannot be <= 0)
 		basesp = 20,			-- base SP for level 1 (Can be 0, but not < 0!)
@@ -490,7 +493,7 @@ rawset(_G, "charStats", {
 		melee_natk = "handsonic_melee",	-- normal melee attack
 
 		wep = "blades_01",
-		weptype = WPT_HANDSONIC,		
+		weptype = WPT_HANDSONIC,
 
 		-- ANIMS
 		-- Anims are built like this:

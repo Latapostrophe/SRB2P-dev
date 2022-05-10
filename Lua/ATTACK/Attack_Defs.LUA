@@ -13435,7 +13435,7 @@ rawset(_G, "attackDefs", {
 						CAM_goto(server.P_BattleStatus[mo.battlen].cam, cx, cy, target.z + FRACUNIT*30, 70*FRACUNIT)
 						CAM_angle(server.P_BattleStatus[mo.battlen].cam, R_PointToAngle2(cx, cy, target.x, target.y))
 					elseif timer == 10
-						ANIM_set(mo, mo.anim_atk)
+						ANIM_set(mo, mo.anim_atk, true)
 						P_TeleportMove(mo, target.x + 4*cos(target.angle), target.y + 4*sin(target.angle), target.z + FRACUNIT*256)
 						mo.momz = -FRACUNIT*24
 					elseif timer >=  10
@@ -13449,7 +13449,7 @@ rawset(_G, "attackDefs", {
 							mo.z = target.z + FRACUNIT*32
 							mo.momz = 0
 
-							if leveltime%5 == 0
+							if leveltime%3 == 0
 								createSplat(mo)
 								local shot = P_SpawnMobj(target.x + P_RandomRange(-15, 15)*FRACUNIT, target.y + P_RandomRange(-15, 15)*FRACUNIT, target.z + P_RandomRange(16, 48)*FRACUNIT, MT_DUMMY)
 								playSound(mo.battlen, sfx_rail1)

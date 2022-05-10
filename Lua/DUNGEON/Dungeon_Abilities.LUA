@@ -259,17 +259,17 @@ end
 local spr2numframes = {}
 local function GetSprite2NumFrames(skin, spr2)
 	local frame
-	
+
 	if not spr2numframes[skin]
 		spr2numframes[skin] = {}
 	else
 		frame = spr2numframes[skin][spr2]
 	end
-	
+
 	if frame ~= nil
 		return frame
 	end
-	
+
 	local statenum = S_UNKNOWN
 	local state = states[statenum]
 	local statedef = {
@@ -309,7 +309,7 @@ local SKATE_FLAME_ANIMS = {
 local function UpdateSkateFlame(player, flame)
 	local mo = player.mo
 	local data = mo and SKATE_FLAME_ANIMS[mo.sprite2]
-	
+
 	if not data
 	or mo.sprite ~= SPR_PLAY
 	or mo.eflags & MFE_UNDERWATER
@@ -319,7 +319,7 @@ local function UpdateSkateFlame(player, flame)
 		end
 		return
 	end
-	
+
 	local frame = flame.frame & FF_FRAMEMASK
 	local sprite2 = data & FF_FRAMEMASK
 	local camangle
@@ -328,11 +328,11 @@ local function UpdateSkateFlame(player, flame)
 	else
 		camangle = R_PointToAngle(mo.x, mo.y)
 	end
-	
+
 	flame.flags2 = $ & ~MF2_DONTDRAW | (mo.flags2 & MF2_DONTDRAW)
 	flame.scale = mo.scale
 	flame.color = SKINCOLOR_ORANGE
-	
+
 	if flame.sprite2 ~= sprite2
 		flame.skin = "shadow"
 		flame.sprite = SPR_PLAY
@@ -340,7 +340,7 @@ local function UpdateSkateFlame(player, flame)
 		flame.flags2 = $ & ~(MF2_SLIDEPUSH|MF2_CLASSICPUSH|MF2_LINKDRAW)
 		frame = -1
 	end
-	
+
 	if data & FF_ANIMATE
 		frame = mo.frame & FF_FRAMEMASK
 		flame.flags2 = $ & ~(MF2_SLIDEPUSH|MF2_CLASSICPUSH)
@@ -358,9 +358,9 @@ local function UpdateSkateFlame(player, flame)
 			end
 		end
 	end
-	
+
 	flame.frame = frame | FF_FULLBRIGHT | (leveltime & 1) * FF_TRANS40
-	
+
 	if GetCVar(cv_renderer) == 2
 		P_TeleportMove(flame,
 			mo.x + P_ReturnThrustX(flame, camangle, -mo.scale),
@@ -408,9 +408,9 @@ DNG_Abilities["shadow"] = {
 
 					p.drawangle = angles[angle]
 					P_InstaThrust(mo, angles[angle], 50*mo.scale)
-					
+
 					mo.state = S_PLAY_FALL
-					
+
 					local s = P_SpawnMobj(mo.x, mo.y, mo.z, MT_DUMMY)
 					s.skin = mo.skin
 					s.sprite = mo.sprite
@@ -424,10 +424,10 @@ DNG_Abilities["shadow"] = {
 					s.color = SKINCOLOR_CYAN
 					s.colorized = true
 					s.tics = -1
-					
-					
+
+
 					S_StartSound(mo, sfx_csnap)
-					
+
 					mo.state = S_SHADOW_WARP1
 				end,
 
@@ -457,7 +457,7 @@ DNG_Abilities["shadow"] = {
 					if mo.sprite2 == SPR2_WALK
 						mo.prevwalkframe = mo.frame & FF_FRAMEMASK
 					end
-					
+
 					if mo.sprite2 == SPR2_RUN
 						// lift a different foot depending on the previous walk frame
 						// G H A B for left foot first
@@ -470,7 +470,7 @@ DNG_Abilities["shadow"] = {
 								end
 							end
 						end
-						
+
 						// adjust timing and play sound effects
 						local frame = mo.frame & FF_FRAMEMASK
 						if frame ~= mo.prevrunframe
@@ -478,19 +478,19 @@ DNG_Abilities["shadow"] = {
 							if FixedDiv(p.speed, mo.movefactor) > 52*mo.scale
 								mo.tics = max(1, $ - 1)
 							end
-							
+
 							if frame == 0
 								S_StartSound(mo, sfx_shadsr)
 							elseif frame == GetSprite2NumFrames("shadow", SPR2_RUN)/2
 								S_StartSound(mo, sfx_shadsl)
-							end							
-							
+							end
+
 							mo.prevrunframe = frame
 						end
 					elseif mo.prevrunframes ~= nil and mo.prevrunframes >= 0
 						mo.prevrunframe = -1
 					end
-					
+
 					UpdateSkateFlame(p, p.followmobj)
 
 				end,
@@ -563,32 +563,87 @@ DNG_Abilities["blaze"] = {
 	func =		function(p)
 					local mo = p.mo
 
-					if mo.p_abl
-						P_SetObjectMomZ(mo, -P_GetMobjGravity(mo)*4/5, true)
-						-- spawn fire
-						if (leveltime%2)
-							local spawndistance = 6
-							for i = 1, 2
-								local an = p.drawangle + ANGLE_90*i + ANGLE_90*(i-1)    -- im lazy lol
-								local sx = 4*cos(p.drawangle) + spawndistance*(cos(an))
-								local sy = 4*sin(p.drawangle) + spawndistance*(sin(an))
-
-								local fire = P_SpawnMobjFromMobj(mo, sx, sy, -5*mo.scale, MT_DUMMY)
-								fire.sprite = SPR_FPRT
-								fire.frame = $ & ~FF_TRANSMASK
-								fire.frame = $|FF_FULLBRIGHT|TR_TRANS20
-								fire.tics = TICRATE
-
-								fire.scale = mo.scale*5/4
-								fire.scalespeed = mo.scale/12
-								fire.destscale = 1
-
-								fire.momz = mo.momz + P_RandomRange(-4, -6)*fire.scale
+					--some funny haha fire FX for runnin'
+					local fuckunit = p.mo.scale
+					if P_IsObjectOnGround(p.mo) and (p.speed > FixedMul(p.runspeed, fuckunit))
+					and (p.panim == PA_RUN or p.panim == PA_ROLL) and not p.powers[pw_carry]
+						if leveltime % 2 == 0
+							local fire1 = P_SpawnMobjFromMobj(p.mo, P_ReturnThrustX(p.drawangle+FixedAngle(160*FRACUNIT), 20*FRACUNIT), P_ReturnThrustY(p.drawangle+FixedAngle(160*FRACUNIT), 20*FRACUNIT), 0, MT_BLAZE_RUNFIRE)
+							if p.mo.eflags & MFE_UNDERWATER
+								fire1.state = S_PARTICLE
+								fire1.destscale = 7*p.mo.scale
 							end
+							fire1.color = SKINCOLOR_BLAZING
+							fire1.fuse = 6
+							P_SetObjectMomZ(fire1, 2*fuckunit+fuckunit/2, false)
+							fire1.momx = p.mo.momx*3/4
+							fire1.momy = p.mo.momy*3/4
+							P_Thrust(fire1, R_PointToAngle2(p.mo.x, p.mo.y, fire1.x, fire1.y), 5*fuckunit)
+							fire1.angle = R_PointToAngle2(p.mo.x, p.mo.y, fire1.x, fire1.y)
+							fire1.scale = p.mo.scale - p.mo.scale/5
+							local fire2 = P_SpawnMobjFromMobj(p.mo, P_ReturnThrustX(p.drawangle+FixedAngle(200*FRACUNIT), 20*FRACUNIT), P_ReturnThrustY(p.drawangle+FixedAngle(200*FRACUNIT), 20*FRACUNIT), 0, MT_BLAZE_RUNFIRE)
+							if p.mo.eflags & MFE_UNDERWATER
+								fire2.state = S_PARTICLE
+								fire2.destscale = 7*p.mo.scale
+							end
+							fire2.color = SKINCOLOR_BLAZING
+							fire2.fuse = 6
+							P_SetObjectMomZ(fire2, 2*fuckunit+fuckunit/2, false)
+							fire2.momx = p.mo.momx*3/4
+							fire2.momy = p.mo.momy*3/4
+							P_Thrust(fire2, R_PointToAngle2(p.mo.x, p.mo.y, fire2.x, fire2.y), 5*fuckunit)
+							fire2.angle = R_PointToAngle2(p.mo.x, p.mo.y, fire2.x, fire2.y)
+							fire2.scale = p.mo.scale - p.mo.scale/5
+						end
+					end
+
+					if mo.p_abl
+						P_SetObjectMomZ(mo, -P_GetMobjGravity(mo)*8/9, true)
+
+						if mo.state ~= S_PLAY_BLAZE_HOVER
+							mo.state = S_PLAY_BLAZE_HOVER
+							S_StartSound(mo, sfx_blzhvr)
+						end
+
+						-- spawn fire
+
+						--flames
+						local fuckunit = mo.scale
+						local dist = 19
+						local apart = 8
+						local zheight = 4
+						if not (p.flame1 and p.flame1.valid) and not (p.flame2 and p.flame2.valid)
+							local flame1 = P_SpawnMobjFromMobj(p.mo, P_ReturnThrustX(flame1, p.drawangle+FixedAngle(180*FRACUNIT), dist*FRACUNIT)+
+							P_ReturnThrustX(flame1, p.drawangle+FixedAngle(90*FRACUNIT), apart*fuckunit),
+							P_ReturnThrustY(flame1, p.drawangle+FixedAngle(180*FRACUNIT), dist*fuckunit)+
+							P_ReturnThrustX(flame1, p.drawangle+FixedAngle(90*FRACUNIT), apart*fuckunit),
+							-zheight*fuckunit*P_MobjFlip(p.mo), MT_BLAZE_HOVERFIRE)
+							flame1.invuln = 7
+							flame1.color = SKINCOLOR_BLAZING
+							flame1.target = p.mo
+							flame1.flame1 = true
+							flame1.scale = p.mo.scale --+ p.mo.scale/4
+							p.flame1 = flame1
+							local flame2 = P_SpawnMobjFromMobj(p.mo, P_ReturnThrustX(flame2, p.drawangle+FixedAngle(180*FRACUNIT), dist*FRACUNIT)+
+							P_ReturnThrustX(flame1, p.drawangle+FixedAngle(-90*FRACUNIT), apart*fuckunit),
+							P_ReturnThrustY(flame2, p.drawangle+FixedAngle(180*FRACUNIT), dist*fuckunit)+
+							P_ReturnThrustY(flame1, p.drawangle+FixedAngle(-90*FRACUNIT), apart*fuckunit),
+							-zheight*fuckunit*P_MobjFlip(p.mo), MT_BLAZE_HOVERFIRE)
+							flame2.invuln = 7
+							flame2.color = SKINCOLOR_BLAZING
+							flame2.target = p.mo
+							flame2.flame2 = true
+							flame2.scale = p.mo.scale --+ p.mo.scale/4
+							p.flame2 = flame2
 						end
 
 						if not (p.cmd.buttons & BT_JUMP)
 						or P_IsObjectOnGround(mo)
+						or P_PlayerInPain(p)
+							if not P_IsObjectOnGround(mo)
+								mo.state = S_PLAY_FALL
+							end
+							S_StopSoundByID(mo, sfx_blzhvr)
 							mo.p_abl = false
 						end
 					end
@@ -1153,7 +1208,7 @@ rawset(_G, "AP_angelWings", function(p)
 			local g = P_SpawnGhostMobj(mo)
 			g.tics = 4
 			g.colorized = true
-			
+
 			if mo.ap_wings and #mo.ap_wings	-- little unclean but this will do:
 				for i = 1, 2 do
 					if mo.ap_wings[i] and mo.ap_wings[i].valid
@@ -1280,7 +1335,7 @@ DNG_Abilities["kanade"] = {
 					AP_midFallFrame(p)
 					AP_angelWings(p)
 				end,
-	
+
 	jfunc = 	function(p)
 					local mo = p.mo
 					if p.powers[pw_carry] or P_PlayerInPain(p) return end
@@ -1304,6 +1359,6 @@ DNG_Abilities["kanade"] = {
 						p.ap_savestats = {p.normalspeed, p.thrustfactor, p.jumpfactor}	-- AP_wresetStats
 						p.pflags = $ & ~PF_STARTJUMP	-- kills the momentum cut thing when not holding jump
 					end
-				end,	
-	
+				end,
+
 }

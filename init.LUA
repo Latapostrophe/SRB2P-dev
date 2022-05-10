@@ -33,6 +33,10 @@ f = "CORE"
 	df("JSSave.LUA")
 	df("Date.LUA")
 	df("Freeslots.LUA")
+	f = "CORE/FREESLOT_CHARS"
+		df("Freeslot_Shadow.LUA")
+		df("Freeslot_Kanade.LUA")
+		df("Freeslot_Blaze.LUA")
 
 -- EVENTS
 print("Initializing Events library...")
