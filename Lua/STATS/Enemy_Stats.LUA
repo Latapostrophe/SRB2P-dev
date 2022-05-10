@@ -62,6 +62,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
 			if a.type == ATK_HEAL and a.power	-- this is a healing skill
+			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				if healskill	-- we already have a healing skill chosen... let's see if this new skill is better suited
 					if healskill.targettype == TGT_ALLY and a.targettype == TGT_ALLALLIES and healcount > 1
 						healskill = a
@@ -119,6 +120,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			for i = 1, #mo.skills
 				local a = attackDefs[mo.skills[i]]
 				if a and a.dekunda
+				and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 					dekundaskill = a
 					break
 				end
@@ -148,6 +150,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			for i = 1, #mo.skills
 				local a = attackDefs[mo.skills[i]]
 				if a and a.dekaja
+				and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 					dekajaskill = a
 					break
 				end
@@ -172,6 +175,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
 			if not a
+			or not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				--dprint(mo.skills[i].." is invalid!")
 				continue
 			end
@@ -223,6 +227,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
 			if a and a.ghastlywail
+			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				--dprint("ENEMY LOGIC: Found Ghastly Wail")
 				return a, gtarget
 			end
@@ -252,6 +257,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		and not (mo.mindcharge and isAttackPhysical(a))
 		and not (mo.powercharge and not isAttackPhysical(a))
 		and not ((mo.mindcharge or mo.powercharge) and (not a.power or a.instantkill))
+		and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 			usable_skills[#usable_skills+1] = s
 		end
 	end
