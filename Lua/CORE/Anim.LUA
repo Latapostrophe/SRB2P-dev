@@ -56,15 +56,29 @@ local function ANIM_battle(mo)	-- handle animations in battle
 		end
 	end
 
+	-- knockdown:
+	if mo.anim == mo.anim_getdown
+	and P_IsObjectOnGround(mo)
+	and not mo.downanim
+		ANIM_set(mo, mo.anim_downloop, true)
+	end
+
 	-- getting hurt
 	if ANIM_done(mo, mo.anim_hurt)
-		ANIM_set(mo, mo.anim_stand, true)
+		ANIM_set(mo, mo.down and mo.anim_downloop or mo.anim_stand, true)
 	end
-	
+
+	-- standing while hurt
+	if mo.anim == mo.anim_stand
+	and mo.hp < mo.maxhp/5
+	and mo.anim_stand_hurt
+		ANIM_set(mo, mo.anim_stand_hurt, true)
+	end
+
 	if mo.hp ~= nil and mo.hp <= 0 and mo.deathanim
 		if mo.enemy	-- for enemies
 			enemyList[mo.enemy].deathanim(mo)
-		end	
+		end
 	end
 end
 

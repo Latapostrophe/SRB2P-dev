@@ -3627,6 +3627,7 @@ local function BTL_turnHandler(pn)
 				end
 				-- shoot ourselves and MANIFEST THE PERSONA
 				playSound(mo.battlen, sfx_summon)
+				ANIM_set(mo, mo.anim_evoker_shoot)
 				BTL_updateTargetForAttack(mo)
 				return true
 			elseif (inputs[BT_WEAPONPREV] == 1 or inputs[BT_WEAPONNEXT] == 1)

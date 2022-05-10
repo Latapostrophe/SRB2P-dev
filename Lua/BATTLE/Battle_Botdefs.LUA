@@ -232,6 +232,7 @@ rawset(_G, "PLYR_initAnims", function(mo, skin)
 	mo.anim_death = tbl.anim_death
 	mo.anim_revive = tbl.anim_revive
 	mo.anim_evoker = tbl.anim_evoker
+	mo.anim_evoker_shoot = tbl.anim_evoker_shoot
 	mo.anim = 0
 
 	mo.hudcutin = tbl.hudcutin

@@ -37,12 +37,12 @@ rawset(_G, "charStats", {
 		anim_aoa_end =		{SPR_PLAY, F, E, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_SHIT"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, E, F, 1, "SPR2_ROLL"},		-- gets revived
-		anim_evoker =		{SPR_CSMN, A, B, 2},	-- holding evoker to head
-		anim_evoker_shoot =	{SPR_CSMN, C, 2},		-- shooting evoker
+		anim_evoker =		{SPR_PLAY, A, 2, "SPR2_CSMN"},	-- uses evoker
+		anim_evoker_shoot = {SPR_PLAY, B, A, 2, "SPR2_CSMN"},
 
 		anim_stand_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},		-- standing
 		anim_stand_hurt_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},		-- standing
@@ -125,12 +125,12 @@ rawset(_G, "charStats", {
 		anim_aoa_end =		{SPR_PLAY, F, E, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_CNT1"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, E, F, 1, "SPR2_ROLL"},		-- gets revived
-		anim_evoker =		{SPR_CSMN, I, 2},	-- holding evoker to head
-		anim_evoker_shoot =	{SPR_CSMN, J, 2},		-- shooting evoker
+		anim_evoker =		{SPR_PLAY, A, 2, "SPR2_CSMN"},	-- uses evoker
+		anim_evoker_shoot = {SPR_PLAY, B, A, 2, "SPR2_CSMN"},
 
 		anim_stand_hurt_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},		-- standing
 		anim_stand_bored_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},		-- standing
@@ -204,7 +204,7 @@ rawset(_G, "charStats", {
 		anim_aoa_end =		{SPR_PLAY, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_CNT1"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_RUN_"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, 1, "SPR2_RUN_"},		-- gets revived
@@ -288,7 +288,7 @@ rawset(_G, "charStats", {
 		anim_atk =			{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},	-- attacking
 		anim_aoa_end =		{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
-		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_CNT1"},		-- knocked down from weakness / crit
+		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
 		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_CNT1"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
@@ -364,12 +364,12 @@ rawset(_G, "charStats", {
 		anim_aoa_end =		{SPR_PLAY, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_SHIT"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets revived
-		anim_evoker =		{SPR_CSMN, G, 2},	-- holding evoker to head
-		anim_evoker_shoot =	{SPR_CSMN, H, 2},		-- shooting evoker
+		anim_evoker =		{SPR_PLAY, A, 2, "SPR2_CSMN"},	-- uses evoker
+		anim_evoker_shoot = {SPR_PLAY, B, A, 2, "SPR2_CSMN"},
 
 		anim_special1 = {SPR_PLAY, A, 2, "SPR2_MLEE"}, -- hammer prep
 		anim_special2 = {SPR_PLAY, B, C, D, 2, "SPR2_MLEE"}, -- hammer swing
@@ -440,7 +440,7 @@ rawset(_G, "charStats", {
 		anim_aoa_end =		{SPR_PLAY, E, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_SHIT"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, E, F, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_DEAD"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, E, F, 1, "SPR2_ROLL"},		-- gets revived
@@ -512,7 +512,7 @@ rawset(_G, "charStats", {
 		anim_atk =			{SPR_PLAY, A, B, C, D, 2, "SPR2_ROLL"},			-- attacking
 		anim_aoa_end =		{SPR_PLAY, D, C, B, A, 2, "SPR2_ROLL"},			-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_DEAD"},					-- taking damage
-		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_CNT1"},					-- knocked down from weakness / crit *
+		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_DEAD"},					-- knocked down from weakness / crit *
 		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_CNT1"},					-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},			-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},					-- dies
@@ -597,7 +597,7 @@ rawset(_G, "charStats", {
 		anim_aoa_end =		{SPR_PLAY, F, E, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_SHIT"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, E, F, 1, "SPR2_ROLL"},		-- gets revived
@@ -678,7 +678,7 @@ rawset(_G, "charStats", {
 		anim_aoa_end =		{SPR_PLAY, F, E, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_SHIT"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, E, F, 1, "SPR2_ROLL"},		-- gets revived
@@ -755,12 +755,13 @@ rawset(_G, "charStats", {
 		anim_aoa_end =		{SPR_PLAY, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_SHIT"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, 1, "SPR2_ROLL"},		-- gets revived
 		anim_revive =		{SPR_PLAY, A, B, C, 1, "SPR2_ROLL"},		-- gets revived
-		anim_evoker =		{SPR_CSMN, C, D, 2},	-- uses evoker
+		anim_evoker =		{SPR_PLAY, A, 2, "SPR2_CSMN"},	-- uses evoker
+		anim_evoker_shoot = {SPR_PLAY, B, A, 2, "SPR2_CSMN"},
 
 		anim_special1 = 	{SPR_PLAY, A, 2, "SPR2_FLY"},	-- special animations, 32 slots
 

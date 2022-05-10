@@ -3,6 +3,8 @@
 
 -- @TODO: ...Organize this file, one day...
 
+freeslot("SPR2_SHIT", "SPR2_CSMN")
+
 -- Psycho Force
 freeslot("SPR_PSID", "sfx_psi")
 

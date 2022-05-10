@@ -646,7 +646,7 @@ rawset(_G, "ATK_fieldStartFunc", {
 								g.dist = P_RandomRange(45, 140)
 								--g.tics = 25
 								g.lowquality = true
-								
+
 								g.battlen = target.battlen
 
 								target.fieldstate.entities[#target.fieldstate.entities+1] = g
