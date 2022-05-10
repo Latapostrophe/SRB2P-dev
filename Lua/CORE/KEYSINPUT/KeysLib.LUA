@@ -114,6 +114,7 @@ local G_InputList = {}
 local eat = false
 local shiftdown = false
 local capslock = false
+local pauseflush
 
 -- flush event queue
 rawset(_G, "SYS_flushEventQueue", function()
@@ -159,9 +160,15 @@ addHook("KeyDown", function(key)
 		end
 
 		G_InputList[#G_InputList+1] = shift_if_possible(key)
+		pauseflush = paused and 2 or 0
 	end
 	-- NEVER EAT THE CONSOLE KEY, NEVER.
+	-- OR THE PAUSE KEY, FOR THAT MATTER!
+	local pausek = SYS_getControls(gc_pause)
+
 	if key.num ~= KEY_CONSOLE
+	or key.num == pausek[1]
+	or (pausek[2] and key.num == pausek[2])
 		return eat
 	end
 end)
@@ -179,6 +186,16 @@ end)
 -- flushes event queue after the frame.
 addHook("PostThinkFrame", function()
 	SYS_flushEventQueue()
+end)
+
+-- for pausing...
+addHook("PrePreThinkFrameAndPause", function()
+	if pauseflush
+		pauseflush = $-1
+		if not pauseflush
+			SYS_flushEventQueue()
+		end
+	end
 end)
 
 -- SYS_ProcessEvent: returns the key that has just been pressed / been held for a while if 'allowhold' is true.
