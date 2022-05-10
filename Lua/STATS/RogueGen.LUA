@@ -149,7 +149,7 @@ rawset(_G, "ROGUE_initEnemyStats", function(ename)
 				and p.power == a.power
 				and p.passive == passivetype
 				and a.target == p.target
-				and a.instakill == p.instakill
+				and (a.instakill == p.instakill and a.accuracy == p.accuracy)
 				and (a.hits or 0) == (p.hits or 0)
 				and not a.physical	-- LOL
 				and not a.norogue
