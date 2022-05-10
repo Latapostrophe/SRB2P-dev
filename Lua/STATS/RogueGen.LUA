@@ -152,6 +152,7 @@ rawset(_G, "ROGUE_initEnemyStats", function(ename)
 				and a.instakill == p.instakill
 				and (a.hits or 0) == (p.hits or 0)
 				and not a.physical	-- LOL
+				and not a.norogue
 					newskills[#newskills+1] = k
 					dprint("Found skill "..k)
 					found = true
@@ -164,19 +165,19 @@ rawset(_G, "ROGUE_initEnemyStats", function(ename)
 				continue
 			end
 		end
-		
+
 		cpy.skills = newskills
-	end	
+	end
 
 	-- make em stronger!!
 	cpy.level = $+5	-- (this is only visual)
 	if not cpy.noroguebuff
-		
+
 		local mult = 110
 		if server.marathon
 			mult = marathon_hp_multipliers[server.difficulty]	-- fallback just in case
 		end
-		
+
 		local prevhp = cpy.hp
 		cpy.hp = $*mult/100
 		cpy.sp = $*400/100
@@ -186,7 +187,7 @@ rawset(_G, "ROGUE_initEnemyStats", function(ename)
 		cpy.endurance = $*115/100
 		cpy.luck = $*115/100
 	end
-	
+
 
 	-- and finally, add us to the enemy list... dear god that sucked.
 	enemyList[ename.."__roguemode"] = cpy
