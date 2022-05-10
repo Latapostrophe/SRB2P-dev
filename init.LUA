@@ -188,6 +188,7 @@ f = "RENDERER"
 print("Initializing modding hooks library...")
 f = "MODDING"
 	df("Hooks.LUA")
+	df("HudHooks.LUA")
 	df("Map_editor.LUA")
 	df("CustomDungeonReader.LUA")
 

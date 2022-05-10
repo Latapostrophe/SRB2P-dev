@@ -2,7 +2,7 @@
 local displaytime = 0
 
 hud.add(function(v)
-
+	if not EnabledHuds["Title"] return end
 	displaytime = $+1
 
 	if displaytime < TICRATE*10

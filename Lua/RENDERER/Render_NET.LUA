@@ -425,7 +425,7 @@ local state_2_func = {
 }
 
 hud.add(function(v, p, c)
-
+	if not EnabledHuds["NET"] return end
 	NET_draw_synch(v)
 
 	if not NET_isset() and gamemap ~= srb2p.tartarus_map

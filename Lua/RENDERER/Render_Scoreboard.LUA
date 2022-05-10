@@ -39,7 +39,7 @@ local function drawPlayerInfo(v, p, showhp, ypos)
 end
 
 hud.add(function(v, lp, c)
-	
+	if not EnabledHuds["Scoreboard"] return end
 	if not netgame return end	-- Not in singleplayer.
 	
 	v.fadeScreen(31, 7)

@@ -3596,7 +3596,7 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 end)
 
 hud.add(function(v, p, c)
-
+	if not EnabledHuds["Battle"] return end
 	hud.disable("score")
 	hud.disable("time")
 	hud.disable("rings")
