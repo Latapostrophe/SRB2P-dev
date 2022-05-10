@@ -151,8 +151,8 @@ rawset(_G, "ROGUE_initEnemyStats", function(ename)
 				and a.target == p.target
 				and (a.instakill == p.instakill and a.accuracy == p.accuracy)
 				and (a.hits or 0) == (p.hits or 0)
-				and not a.physical	-- LOL
-				and not a.norogue
+				and not p.physical	-- LOL
+				and not p.norogue
 					newskills[#newskills+1] = k
 					dprint("Found skill "..k)
 					found = true
