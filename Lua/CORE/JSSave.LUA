@@ -28,6 +28,11 @@ end
 
 -- Archive server.P_DungeonStatus
 local function SAVE_NetArchiveDungeon(f)
+
+	if server.marathon
+		server.P_DungeonStatus.difficulty = server.difficulty
+	end
+
 	local dng = json.encode(server.P_DungeonStatus)	-- this can be encoded directly.
 	f:write(SAVEBLOCK_DUNGEON.."\n")
 	f:write(dng.."\n")
@@ -220,7 +225,7 @@ local function SAVE_NetUnArchivePlayers(f)
 
 		local p = SAVE_NetUnArchivePlayer(r)	-- Get player table
 		SAVE_OverwriteObject(server.plentities[nteam][teamslot], p)
-		
+
 		teamslot = $+1
 		r = f:read()
 	end
@@ -228,24 +233,24 @@ end
 
 -- Fixes up various oddities such as Sub-Personas & linking them back to their respective player
 rawset(_G, "SAVE_FixUps", function()
-	
+
 	for i = 1, 4
-		
+
 		local btl = server.P_BattleStatus[i]
-		
+
 		for j = 1, #btl.subpersonas
 			local p = btl.subpersonas[j]
-			
+
 			p.ref = subpersonaList[p.int]
-			
+
 			if p.equipped
 				local mo = server.plentities[i][p.equipped]
-				
+
 				if mo.subpersona	-- they... already have one???
 					p.equipped = nil	-- then no, i'm free???
-				else	
+				else
 					mo.subpersona = p	-- link it back
-				end	
+				end
 			end
 		end
 	end
@@ -324,9 +329,9 @@ local function SAVE_getHeader(f, load)
 			if r == nil or r == ""
 				h.text = "\x85".."CORRUPTED: DUNGEON BLOCK INVALID"
 				h.usable = nil	-- NO!
-				return h		
-			end			
-			
+				return h
+			end
+
 			local dng = json.decode(r)
 			h.dng = dng
 			h.text = "Marathon, "..dng.floor.."F"
@@ -344,7 +349,7 @@ local function SAVE_getHeader(f, load)
 			if r == nil or r == ""
 				h.text = "\x85".."CORRUPTED: BATTLE BLOCK INVALID"
 				h.usable = nil	-- NO!
-				return h		
+				return h
 			end
 
 			while r ~= SAVEBLOCK_END
@@ -358,13 +363,13 @@ local function SAVE_getHeader(f, load)
 			local teamnum = 1
 			h.playerlist = {}
 			r = f:read()
-			
+
 			if r == nil or r == ""
 				h.text = "\x85".."CORRUPTED: PLAYER BLOCK INVALID"
 				h.usable = nil	-- NO!
-				return h		
-			end			
-			
+				return h
+			end
+
 			while r ~= SAVEBLOCK_END
 				h.playerlist[teamnum] = $ or {}
 
@@ -425,8 +430,8 @@ rawset(_G, "SAVE_applyFileHeader", function(h)
 		end
 	end
 
-	-- yes, this is a valid way to do this...
-	server.difficulty = server.P_BattleStatus[1].emeraldpow_max
+	-- as of 1.3.4, try to read what was saved instead of relying on emeraldpow_max as a scapegoat...
+	server.difficulty = h.dng.difficulty or server.P_BattleStatus[1].emeraldpow_max
 
 	-- players
 	if h.playerlist
@@ -436,11 +441,11 @@ rawset(_G, "SAVE_applyFileHeader", function(h)
 			end
 		end
 	end
-	
+
 	if h.rogueseed
 		server.rogueseed = h.rogueseed
-	end	
-	
+	end
+
 	SAVE_FixUps()
 end)
 
