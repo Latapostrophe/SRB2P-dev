@@ -1602,8 +1602,8 @@ end,
 							if i > 1	-- subp 1 is an empty card.
 
 								local subp_c = sp.ref	-- current subpersona data
-								local sprname = sprnames[subp_c.sprite]
-								local sprframe = string.char((subp_c.frame & FF_FRAMEMASK) + 65)
+								local sprname = subp_c.sprite and sprnames[subp_c.sprite] or sprnames[SPR_SBPR]
+								local sprframe = subp_c.frame and string.char((subp_c.frame & FF_FRAMEMASK) + 65) or "A"
 								local patch = v.cachePatch(sprname..sprframe.."0")	-- eg: SUBPA0
 
 								PDraw(v, finalxpos - (timer*48), y, patch)
@@ -1628,8 +1628,7 @@ end,
 						local subp = battle.subpersonas[choice]
 						local dx = 180 - timer*48
 						PDraw(v, dx+20, 20, v.cachePatch("H_SUBP"), V_30TRANS)
-
-						V_drawString(v, dx + 40, 20, subp.ref.name:upper(), "FPIMP", 0, nil, 0, 31)
+						V_drawString(v, dx + 40, 20, subp.ref.name and subp.ref.name:upper() or "INVALID SUB", "FPIMP", 0, nil, 0, 31)
 
 						-- now draw stat bonuses and disadvantages:
 						local stats_subp = {"st", "ma", "en", "ag", "lu"}
@@ -1644,13 +1643,14 @@ end,
 							-- draw a fake stat bar for funsies
 							local checkstat = subp[stats_subp[i]]
 							local str
-							if checkstat < 0
+							if checkstat and checkstat < 0
 								v.drawFill(dx + 62, dy+6, 32, 4, 31)	-- black bg
 								v.drawFill(dx + 60, dy+4, 32, 4, 35)	-- red bar
 								v.drawFill(dx + 60, dy+4, 24, 4, 0)		-- white bar
 								str = "\x85"..checkstat
 
-							elseif checkstat == 0
+							elseif checkstat and checkstat == 0
+							or not checkstat
 
 								v.drawFill(dx + 62, dy+6, 32, 4, 31)	-- black bg
 								v.drawFill(dx + 60, dy+4, 32, 4, 0)		-- white bar
@@ -1664,7 +1664,7 @@ end,
 							end
 
 							V_drawString(v, dx + 60, dy, str, "NFNT", 0, nil, 0, 31)
-							V_drawString(v, dx + 100, dy, "("..max(1, (playerstats[i] + checkstat))..")", "NFNT", 0, nil, 0, 31)
+							V_drawString(v, dx + 100, dy, "("..max(1, (playerstats[i] + (checkstat and checkstat or 0)))..")", "NFNT", 0, nil, 0, 31)
 
 							dy = $ + 10
 						end
@@ -1673,27 +1673,29 @@ end,
 						dy = $+5
 						dx = $+40
 
-						for i = 1, #subp.skills
-							local skillname = subp.skills[i]
+						if subp.skills and #subp.skills
+							for i = 1, #subp.skills
+								local skillname = subp.skills[i]
 
-							local name = "INVALID SKILL"
-							local stype = 1
+								local name = "INVALID SKILL"
+								local stype = 1
 
-							if attackDefs[skillname]
-								name = attackDefs[skillname].name
-								if attackDefs[skillname].type & ATK_PASSIVE
-									stype = 15
-								else
-									stype = atk_constant_2_num[attackDefs[skillname].type]
+								if attackDefs[skillname]
+									name = attackDefs[skillname].name
+									if attackDefs[skillname].type & ATK_PASSIVE
+										stype = 15
+									else
+										stype = atk_constant_2_num[attackDefs[skillname].type]
+									end
 								end
+
+								-- draw the skill, now.
+								v.drawFill(dx, dy, 128, 16, 31)
+								PDraw(v, dx+2, dy, v.cachePatch("ATK_"..stype))
+
+								V_drawString(v, dx+20, dy+4, name, "NFNT", 0, nil, 0, 31)
+								dy = $+18
 							end
-
-							-- draw the skill, now.
-							v.drawFill(dx, dy, 128, 16, 31)
-							PDraw(v, dx+2, dy, v.cachePatch("ATK_"..stype))
-
-							V_drawString(v, dx+20, dy+4, name, "NFNT", 0, nil, 0, 31)
-							dy = $+18
 						end
 						
 
