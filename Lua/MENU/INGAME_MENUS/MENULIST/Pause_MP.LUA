@@ -86,7 +86,7 @@ local function drawMenu_main(v, mo, choice, forcetimer, drawbars)
 	-- little extra...
 	if drawbars
 		renderPartyBars(v, mo.player)
-	end	
+	end
 
 	local cmd = {
 					{BUTT_DPAD, "Select"},
@@ -199,7 +199,7 @@ local function drawPlayerSkillList(v, mo, choice, choice_prev)
 	local desc = skill and skill.desc or "Invalid skill: '"..mo.m_healingskills[choice].."'"
 	if not jammed
 		V_drawString(v, 60, 150, desc, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
-	end	
+	end
 
 	-- draw hit rate and power
 	v.drawFill(0, 182, 450, 8, 135|V_SNAPTOBOTTOM|V_SNAPTOLEFT)
@@ -445,7 +445,7 @@ local function drawPlayerItemList_New(v, mo, choice, choice_prev)
 		"Equipment enhancement materials",
 		"Unique key items"
 	}
-	
+
 	if jammed
 		local categories = {
 			"ERR",
@@ -453,14 +453,14 @@ local function drawPlayerItemList_New(v, mo, choice, choice_prev)
 			"ERR",
 			"ERR",
 		}
-		
+
 		categories_tip = {
 			"Unknown",
 			"Unknown",
 			"Unknown",
 			"Unknown",
 		}
-		
+
 	end
 
 	-- categories!
@@ -505,21 +505,21 @@ local function drawPlayerItemList_New(v, mo, choice, choice_prev)
 	for i = startdisplay, enddisplay
 		local y = STARTY + (i - (startdisplay))*YSTEP
 		local it = btl.items[i]
-		
+
 		if category_start[mo.m_item_section+1] ~= nil
 		and category_start[mo.m_item_section+1]+1 == startdisplay
 			break
-		end	-- fixes a dumb bug	
-		
+		end	-- fixes a dumb bug
+
 		if not it continue end
 		local itdef = itemDefs[it[1]]
 
 		local itemname = itdef and buildItemName(itdef) or "INVALID ITEM ("..it[1]..")"
-		
+
 		if jammed
 			itemname = "JAMMED"
 		end
-		
+
 		if mo.m_menuchoices[mo.m_submenu] == i
 			for j = 1, 12
 				v.drawFill(155-(j-1) + timer*64, y-3+j, 999, 1, 135|V_SNAPTORIGHT|V_SNAPTOTOP)
@@ -527,7 +527,7 @@ local function drawPlayerItemList_New(v, mo, choice, choice_prev)
 
 			local itemdesc = itdef and itdef.desc or "NO DESCRIPTION"
 			local itemrarity = itdef and itdef.rarity or 1	-- whatevs lol
-			
+
 			if jammed
 				itemdesc = ""
 				itemrarity = 0
@@ -546,10 +546,10 @@ local function drawPlayerItemList_New(v, mo, choice, choice_prev)
 			break
 		end
 	end
-	
+
 	-- Blue line
 	v.drawFill(130 + timer*64, 142, 999, 1, 135|V_SNAPTOBOTTOM|V_SNAPTORIGHT)
-	
+
 	if not drawn	-- nothing was drawn there?
 		V_drawString(v, 160 + timer*64, STARTY, "NO ITEMS", "NFNT", V_SNAPTOTOP|V_SNAPTORIGHT, nil, 0, 31)
 	end
@@ -564,8 +564,8 @@ local function m_item_use(mo, itemn)
 	-- remove item from list
 	if BTL_useItem(btl, itemn, true)	-- the item has been used and completely depleted, so, removed.
 		mo.m_useitem = nil
-		mo.m_itemtarget = nil	
-	end	
+		mo.m_itemtarget = nil
+	end
 end
 
 local function m_item_inputs_New(mo)
@@ -597,7 +597,7 @@ local function m_item_inputs_New(mo)
 		mo.m_menuchoices[mo.m_submenu] = max(minc, $-1)	-- go to previous item
 		mo.m_itemscroll = max(0, $-1)			-- undo scrolling
 		mo.m_useitem = nil
-		mo.m_itemtarget = nil	
+		mo.m_itemtarget = nil
 	end
 
 	--if not maxc return end
@@ -667,10 +667,10 @@ local function m_item_inputs_New(mo)
 		and abs(maxc - minc) >= 0
 		and mo.m_menuchoices[mo.m_submenu] >= minc
 		and mo.m_menuchoices[mo.m_submenu] <= maxc
-		
+
 			if mo.m_item_section >= 3	-- only the first 2 sections have consumable items
 				S_StartSound(nil, sfx_not, mo.player)
-			end	
+			end
 
 			-- check what item we're trying to select;
 			local it = btl.items[mo.m_menuchoices[mo.m_submenu]]
@@ -725,7 +725,7 @@ local function m_item_inputs_New(mo)
 			atk = attackDefs[it.attack]
 			if atk
 				alltargets = atk.target == TGT_ALLALLIES
-			end	
+			end
 		end
 
 		if inputs["up"] == 1
@@ -758,7 +758,7 @@ local function m_item_inputs_New(mo)
 			-- special functions
 			if it.menufunc
 				it.menufunc(mo, tgt)
-				m_item_use(mo, mo.m_menuchoices[mo.m_submenu])	-- don't forget to consume the item.			
+				m_item_use(mo, mo.m_menuchoices[mo.m_submenu])	-- don't forget to consume the item.
 				return
 			end
 
@@ -769,10 +769,10 @@ local function m_item_inputs_New(mo)
 				if atk.showsp
 					checks = {"sp", "maxsp"}
 				end
-				
+
 				if tgt.redhp == nil
 					tgt.redhp = tgt.hp	-- just in case.
-				end	
+				end
 
 				-- check if we SHOULD use it
 				if not alltargets
@@ -788,7 +788,7 @@ local function m_item_inputs_New(mo)
 						local p = server.plentities[pa][i]
 						if p.redhp == nil
 							p.redhp = p.hp
-						end	
+						end
 						if p[checks[1]] >= p[checks[2]]
 						and not (atk.soma and p[otherchecks[1]] >= p[otherchecks[2]])	-- soma also checks for SP
 							hpfull = $+1
@@ -813,7 +813,7 @@ local function m_item_inputs_New(mo)
 							DNG_Damage(tgts[i], -9999)
 						else
 							DNG_Damage(tgts[i], -atk.power)
-						end	
+						end
 					end
 
 					VFX_Play(tgts[i].control.mo, tgts[i].control.mo == mo and VFX_HEALSELF or VFX_HEAL)
@@ -928,26 +928,26 @@ local function m_equip_handle(mo)
 				S_StartSound(nil, sfx_not, mo.player)
 			end
 		end
-		
+
 		if inputs[BT_BTNC] == 1
 			-- check what item we have to see if this button should work:
 			if mo.m_equipslot == 1
 				local pm = party[mo.m_equipparty]
-				if pm.weapon and pm.weapon.level >= 10 and pm.weapon.slot
-					
+				if pm.weapon and pm.weapon.slot
+
 					S_StartSound(nil, sfx_select, mo.player)
 					mo.m_viewskillslot = 1
 				end
 			end
 		end
-		
+
 		if inputs[BT_USE] == 1
 		and mo.m_viewskillslot
 			S_StartSound(nil, sfx_cancel, mo.player)
 			mo.m_viewskillslot = nil
 			return true
 		end
-		
+
 	else
 		-- we're in the inventory now
 		local t = inv[mo.m_equipslot]
@@ -959,13 +959,13 @@ local function m_equip_handle(mo)
 		if mo.m_equipinventory > maxc
 			mo.m_equipinventory = maxc
 			mo.m_equipscroll = maxscroll
-			
+
 			-- all weapons are just gone?
 			if not maxc
 				mo.m_equipinventory = 0
 				return	-- undo those variables
 			end
-			
+
 		end
 
 		if inputs["up"] == 1
@@ -1020,8 +1020,8 @@ local function m_equip_handle(mo)
 			if mo.m_equipslot == 1
 				local pm = party[mo.m_equipparty]
 				local wpn = t[mo.m_equipinventory]
-				if wpn and wpn.level >= 10 and wpn.slot
-					
+				if wpn and wpn.slot
+
 					S_StartSound(nil, sfx_select, mo.player)
 					mo.m_viewskillslot = 1
 				end
@@ -1100,7 +1100,7 @@ local function m_equip_hud(v, mo, choice)
 	-- draw arrows to show we can cycle:
 	local str = leveltime%10 < 5 and "<        >" or "<          >"
 	V_drawString(v, -timer*32 +48, 8, "\x82"..str, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, "center", 0, 31)
-	
+
 
 	PDraw(v, -timer*64, 0, v.cachePatch("M_EQUIW2"), V_SNAPTOLEFT|V_SNAPTOTOP|TR_TRANS40)
 	PDraw(v, -timer*64, 0, v.cachePatch("M_EQUIW1"), V_SNAPTOLEFT|V_SNAPTOTOP)
@@ -1115,7 +1115,7 @@ local function m_equip_hud(v, mo, choice)
 	local rng = member.wardring
 
 	-- Write char info and their current equipment
-	V_drawString(v, -timer*64 +8, 30, member.name.." LV"..member.level, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, nil)
+	V_drawString(v, -timer*64 +8, 30, member.name.." LV"..member.level, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
 
 	-- Write equipment:
 	local inventorylist
@@ -1162,8 +1162,8 @@ local function m_equip_hud(v, mo, choice)
 		totalstr = $.."\n"
 	end
 
-	V_drawString(v, -timer*64 +8, 80, "STATS TOTAL: \n", "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, nil)
-	V_drawString(v, -timer*64 +8, 90, totalstr, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, nil, FRACUNIT/3)
+	V_drawString(v, -timer*64 +8, 80, "STATS TOTAL: \n", "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
+	V_drawString(v, -timer*64 +8, 90, totalstr, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31, FRACUNIT/3)
 
 	-- show me my other inventory items...
 	if inventorylist
@@ -1219,10 +1219,15 @@ local function m_equip_hud(v, mo, choice)
 			desc = weaponsList[wep.ref].desc or $
 			readfrom = wep
 		end
-		if readfrom.level >= 10
-		and readfrom.slot
+		--if readfrom.level >= 10
+		if readfrom.slot
 			if attackDefs[readfrom.slot]
-				skillslot = ICO_SKILLCARD..attackDefs[readfrom.slot].name
+				local col = "\x82"
+				if readfrom.level < 10
+					col = "\x86"
+				end
+
+				skillslot = col..ICO_SKILLCARD..attackDefs[readfrom.slot].name
 			else
 				skillslot = ICO_SKILLCARD.."INVALID SKILL"
 			end
@@ -1278,34 +1283,43 @@ local function m_equip_hud(v, mo, choice)
 	if readfrom.element
 		v.drawScaled((65 - timer*96)<<FRACBITS, 159<<FRACBITS, FRACUNIT/4, v.cachePatch("AT2_"..atk_constant_2_num[readfrom.element]), V_SNAPTOLEFT|V_SNAPTOBOTTOM)
 	end
-	
-	if mo.m_viewskillslot
-		v.drawFill(63, 149 + 10*4, skillslot:len()*8 + 4, 12, 135|V_SNAPTOLEFT|V_SNAPTOBOTTOM) 
-		cmd = {
-					{BUTT_B, "Return"},
-		}
-	end
-	
+
 	renderRarity(v, (readfrom.element and 75 or 65) -timer*96, 158, readfrom.rarity, V_SNAPTOBOTTOM|V_SNAPTOLEFT)
 	-- string 1: weapon raw stats
 	V_drawString(v, 65 - timer*96, 150, str, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
 	-- string 2: weapon added stats
 	if not mo.m_viewskillslot
 		V_drawString(v, 138 - timer*96, 158, str2, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
-	end	
+	end
 	-- Show the description
 	V_drawString(v, 185 - timer*96, 158, desc, "TFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
-	
+
 	if mo.m_viewskillslot
-		v.drawFill(63, 148 + 10, 96, 30 +2, 135|V_SNAPTOLEFT|V_SNAPTOBOTTOM) 
+
+		cmd = {
+					{BUTT_B, "Return"},
+		}
+
+		v.fadeScreen(31, 7)
+
+		v.drawFill(63, 149 + 10*4, min(V_stringWidth(v, skillslot, "NFNT")/FRACUNIT +8, 192), 12, 135|V_SNAPTOLEFT|V_SNAPTOBOTTOM)
+		v.drawFill(63, 148 + 10, 192, 30 +2, 135|V_SNAPTOLEFT|V_SNAPTOBOTTOM)
+
+		V_drawString(v, 65 - timer*96, 150 + 10*4, skillslot, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+
 		if attackDefs[readfrom.slot]
-			V_drawString(v, 65 - timer*96, 160, attackDefs[readfrom.slot].desc, "TFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+			V_drawString(v, 65 - timer*96, 160, attackDefs[readfrom.slot].desc, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+		end
+
+		if readfrom.level < 10
+			local str = "\x82When "..buildWeaponName(readfrom).."\nreaches Enhancement Level +10:"
+			V_drawString(v, 65 - timer*96, 138, str, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
 		end
 	end
 
 
 	V_drawCommands(v, cmd)
-	
+
 end
 
 -- initiate main pause menu:
@@ -1540,7 +1554,7 @@ end,
 								mo.m_menuchoices[pc] = maxpc
 							end
 							S_StartSound(nil, sfx_hover, mo.player)
-							
+
 						elseif inputs[BT_JUMP] == 1
 
 							-- check if this subpersona is already in use
@@ -1550,18 +1564,18 @@ end,
 							and mo.m_menuchoices[mo.m_submenu] > 1		-- 1 is always unequipped
 							and server.plentities[mo.player.P_party][subp.equipped].control ~= p	-- Allow equipping anyway if this is my bot.
 							and server.plentities[mo.player.P_party][subp.equipped] ~= bot			-- Still error if we're equipping the same persona on the same bot
-							
+
 							or bot.control ~= mo.player	-- This isn't my bot, I can't control it!
 								S_StartSound(nil, sfx_not, mo.player)
 								return
 							end
-							
+
 							local prev = server.plentities[mo.player.P_party][subp.equipped]	-- Previous bot
 							if prev and prev.valid
 								prev.subpersona = nil
 								prev.equipped = nil
 							end
-							
+
 							if bot.subpersona
 								-- make the previous subp forget about the bot
 								bot.subpersona.equipped = 0
@@ -1695,10 +1709,10 @@ end,
 							V_drawString(v, dx+20, dy+4, name, "NFNT", 0, nil, 0, 31)
 							dy = $+18
 						end
-						
+
 
 						M_drawPartyStatus(v, mo, mo.m_menuchoices["m_partychoice"])
-						
+
 						local cmd = {
 							{BUTT_DPAD, "Select"},
 							{BUTT_A, "Confirm"},
@@ -1840,7 +1854,7 @@ end,
 							break	-- cool!
 						end
 					end
-				end	
+				end
 			elseif choice == 5	-- equipment
 
 				mo.m_equipslot = 1
