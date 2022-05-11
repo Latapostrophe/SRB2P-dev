@@ -6347,11 +6347,11 @@ rawset(_G, "BTL_getPersona", function(pn)
 	or not subpersonaList[choice].frame
 	or not subpersonaList[choice].lv
 	or not subpersonaList[choice].weapontype
-	or not subpersonaList[choice].st
-	or not subpersonaList[choice].ma
-	or not subpersonaList[choice].en
-	or not subpersonaList[choice].ag
-	or not subpersonaList[choice].lu
+	or subpersonaList[choice].st == nil
+	or subpersonaList[choice].ma == nil
+	or subpersonaList[choice].en == nil
+	or subpersonaList[choice].ag == nil
+	or subpersonaList[choice].lu == nil
 		print("\x82".."WARNING: ".."\x80".."Subpersona with uninitialized elements selected, internal name is "..choice)
 		return nil
 	end

@@ -781,10 +781,6 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 
 		local persona = btl.subpersonas[e.selectequip]
 
-		if not subpersonaList[persona] -- If you manage to get here with an invalid subpersona that is on you
-			print("\x82".."WARNING: ".."\x80".."Invalid subpersona selected, check your subpersona inventory/console log for any oddities or warnings.")
-		end
-
 		-- Generate the preview weapon:
 		if persona
 		and e.weaponpreview == nil

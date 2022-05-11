@@ -24,7 +24,7 @@ rawset(_G, "P_generateSubPersona", function(subp)
 		ref = subd,	-- reference from list
 		int = subp,	-- internal name
 		name = subd.name,
-		skills = subd.skills and copyTable(subd.skills) or nil,	-- during fusion, skill can be inherited
+		skills = subd.skills and copyTable(subd.skills) or {},	-- during fusion, skill can be inherited
 		st = subd.st,
 		ma = subd.ma,
 		en = subd.en,
