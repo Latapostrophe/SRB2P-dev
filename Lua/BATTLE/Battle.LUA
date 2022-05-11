@@ -4840,7 +4840,7 @@ local function statusConditionEffects(mo)	-- the little animations over the enem
 		-- super colour:
 		local supercolor = charStats[mo.stats].supercolor_start
 		if supercolor
-			mo.color = supercolor + abs(((leveltime >> 1) % 9) - 4)
+			mo.color = min((supercolor + abs(((leveltime >> 1) % 9) - 4)), #skincolors - 1)
 		else
 			-- super orb
 			local scale = charStats[mo.stats].superorbscale or FRACUNIT*12/10
