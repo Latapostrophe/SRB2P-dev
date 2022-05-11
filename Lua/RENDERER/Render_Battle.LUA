@@ -1877,7 +1877,7 @@ local function drawSubPersonaSelection(v, p, mo)
 
 	PDraw(v, dx, 52, v.cachePatch("H_SUBP"), V_30TRANS)
 
-	V_drawString(v, dx + 40, 52, subp.ref.name:upper(), "FPIMP", 0, nil, 0, 31)
+	V_drawString(v, dx + 40, 52, subp.ref.name and subp.ref.name:upper() or "INVALID SUB", "FPIMP", 0, nil, 0, 31)
 
 	-- now draw stat bonuses and disadvantages:
 	local stats_subp = {"st", "ma", "en", "ag", "lu"}
@@ -1889,13 +1889,14 @@ local function drawSubPersonaSelection(v, p, mo)
 		-- draw a fake stat bar for funsies
 		local checkstat = subp[stats_subp[i]]
 		local str
-		if checkstat < 0
+		if checkstat and checkstat < 0
 			v.drawFill(dx + 62, dy+6, 32, 4, 31)	-- black bg
 			v.drawFill(dx + 60, dy+4, 32, 4, 35)	-- red bar
 			v.drawFill(dx + 60, dy+4, 24, 4, 0)		-- white bar
 			str = "\x85"..checkstat
 
-		elseif checkstat == 0
+		elseif checkstat and checkstat == 0
+		or not checkstat
 
 			v.drawFill(dx + 62, dy+6, 32, 4, 31)	-- black bg
 			v.drawFill(dx + 60, dy+4, 32, 4, 0)		-- white bar
@@ -1909,7 +1910,7 @@ local function drawSubPersonaSelection(v, p, mo)
 		end
 
 		V_drawString(v, dx + 60, dy, str, "NFNT", 0, nil, 0, 31)
-		V_drawString(v, dx + 100, dy, "("..max(1, (mo.savestats[i] + checkstat))..")", "NFNT", 0, nil, 0, 31)
+		V_drawString(v, dx + 100, dy, "("..max(1, (mo.savestats[i] + (checkstat and checkstat or 0)))..")", "NFNT", 0, nil, 0, 31)
 
 		dy = $ + 10
 	end
@@ -1937,8 +1938,8 @@ local function drawSubPersonaSelection(v, p, mo)
 
 		if i > 1	-- unequip is just a blank card, it's a waste to keep going
 			local subp_c = btl.subpersonas[i].ref	-- current subpersona data
-			local sprname = sprnames[subp_c.sprite]
-			local sprframe = string.char((subp_c.frame & FF_FRAMEMASK) + 65)
+			local sprname = subp_c.sprite and sprnames[subp_c.sprite] or sprnames[SPR_SBPR]
+			local sprframe = subp_c.frame and string.char((subp_c.frame & FF_FRAMEMASK) + 65) or "A"
 			local patch = v.cachePatch(sprname..sprframe.."0")	-- eg: SUBPA0
 			v.drawScaled(x, y, scale, patch)
 
@@ -2957,6 +2958,9 @@ local function drawPlayerCutin(v, mo)
 	if not timer return end
 
 	local cutin_face_prefix = mo.hudcutin or "CUTIN_D"
+	if mo.status_condition == COND_SUPER
+		cutin_face_prefix = mo.hudscutin or $
+	end
 
 	for k, i in ipairs(cutinframetime)
 		local checkframe = cutinStart + i
@@ -2964,9 +2968,11 @@ local function drawPlayerCutin(v, mo)
 		if timer <= checkframe
 		and timer >= checkframe2
 			drawScreenwidePatch(v, v.cachePatch((mo.plyr and "CUTIN" or "CUTNE")..k))
-			if k >= 3
+			if k >= 3 and (k-2) <= 3 
 				if v.patchExists(cutin_face_prefix..k-2)
 					drawScreenwidePatch(v, v.cachePatch(cutin_face_prefix..k-2), v.getColormap(TC_DEFAULT, mo.color))
+				else
+					drawScreenwidePatch(v, v.cachePatch("CUTIN_D"..k-2), v.getColormap(TC_DEFAULT, mo.color))
 				end
 			end
 		end

@@ -315,6 +315,10 @@ rawset(_G, "BTL_initEnemyAnims", function(mo)
 		mo.hudcutin = tbl.hudcutin
 	end
 
+	if tbl.hudscutin
+		mo.hudscutin = tbl.hudscutin
+	end
+
 	if tbl.color
 		mo.color = tbl.color
 	end
@@ -363,6 +367,12 @@ rawset(_G, "BTL_initEnemyAnimsPlayer", function(mo)
 		mo.hudcutin = tbl.hudcutin
 	else
 		mo.hudcutin = nil
+	end
+
+	if tbl.hudscutin
+		mo.hudscutin = tbl.hudscutin
+	else
+		mo.hudscutin = nil
 	end
 
 	if tbl.color
@@ -4831,7 +4841,7 @@ local function statusConditionEffects(mo)	-- the little animations over the enem
 		-- super colour:
 		local supercolor = charStats[mo.stats].supercolor_start
 		if supercolor
-			mo.color = supercolor + abs(((leveltime >> 1) % 9) - 4)
+			mo.color = min((supercolor + abs(((leveltime >> 1) % 9) - 4)), #skincolors - 1)
 		else
 			-- super orb
 			local scale = charStats[mo.stats].superorbscale or FRACUNIT*12/10
@@ -6290,7 +6300,13 @@ rawset(_G, "BTL_getSkillCard", function(level)
 
 	-- now, pick a random card from the list:
 	local choice = cards[P_RandomRange(1, #cards)]
-	return choice
+	-- verify if our choice is a valid skill
+	if attackDefs[choice]
+		return choice
+	else
+		print("\x82".."WARNING: ".."\x80".."Invalid skill card detected, internal name is "..choice)
+		return "agi" -- Fallback onto agi, like in the case where the table we got is nil or has no skills
+	end
 end)
 
 rawset(_G, "BTL_getPersona", function(pn)
@@ -6323,6 +6339,23 @@ rawset(_G, "BTL_getPersona", function(pn)
 
 	local choice = personas[P_RandomRange(1, #personas)]
 
+	-- is the subpersona valid...?
+	if not subpersonaList[choice]
+		print("\x82".."WARNING: ".."\x80".."Invalid subpersona selected, internal name is "..choice)
+		return nil -- not a valid subpersona entry
+	elseif not subpersonaList[choice].name
+	or not subpersonaList[choice].sprite
+	or not subpersonaList[choice].frame
+	or not subpersonaList[choice].lv
+	or not subpersonaList[choice].weapontype
+	or subpersonaList[choice].st == nil
+	or subpersonaList[choice].ma == nil
+	or subpersonaList[choice].en == nil
+	or subpersonaList[choice].ag == nil
+	or subpersonaList[choice].lu == nil
+		print("\x82".."WARNING: ".."\x80".."Subpersona with uninitialized elements selected, internal name is "..choice)
+		return nil
+	end
 	-- do we already have it...?
 	for i = 1, #server.P_BattleStatus[pn].subpersonas
 		if server.P_BattleStatus[pn].subpersonas[i].ref == subpersonaList[choice]	-- yep we do.

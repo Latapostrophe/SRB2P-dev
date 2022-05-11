@@ -241,7 +241,14 @@ rawset(_G, "SAVE_FixUps", function()
 		for j = 1, #btl.subpersonas
 			local p = btl.subpersonas[j]
 
-			p.ref = subpersonaList[p.int]
+			if not subpersonaList[p.int]
+				--Invalid subpersona detected
+				print("\x82".."WARNING: ".."\x80".."Invalid subpersona in save file, internal name is "..p.int)
+				print("\x82TO PRESERVE FILE DATA, RELAUNCH THE GAME WITH APPROPRIATE MODS")
+				p.ref = subpersonaList["jack frost"]
+			else
+				p.ref = subpersonaList[p.int]
+			end
 
 			if p.equipped
 				local mo = server.plentities[i][p.equipped]
