@@ -235,6 +235,7 @@ rawset(_G, "PLYR_initAnims", function(mo, skin)
 	mo.anim = 0
 
 	mo.hudcutin = tbl.hudcutin
+	mo.hudscutin = tbl.hudscutin
 	mo.target_zoffs = tbl.target_zoffs or 0
 
 	for i = 1, 32

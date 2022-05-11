@@ -2958,6 +2958,9 @@ local function drawPlayerCutin(v, mo)
 	if not timer return end
 
 	local cutin_face_prefix = mo.hudcutin or "CUTIN_D"
+	if mo.status_condition == COND_SUPER
+		cutin_face_prefix = mo.hudscutin or $
+	end
 
 	for k, i in ipairs(cutinframetime)
 		local checkframe = cutinStart + i
@@ -2965,9 +2968,11 @@ local function drawPlayerCutin(v, mo)
 		if timer <= checkframe
 		and timer >= checkframe2
 			drawScreenwidePatch(v, v.cachePatch((mo.plyr and "CUTIN" or "CUTNE")..k))
-			if k >= 3
+			if k >= 3 and (k-2) <= 3 
 				if v.patchExists(cutin_face_prefix..k-2)
 					drawScreenwidePatch(v, v.cachePatch(cutin_face_prefix..k-2), v.getColormap(TC_DEFAULT, mo.color))
+				else
+					drawScreenwidePatch(v, v.cachePatch("CUTIN_D"..k-2), v.getColormap(TC_DEFAULT, mo.color))
 				end
 			end
 		end

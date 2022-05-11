@@ -315,6 +315,10 @@ rawset(_G, "BTL_initEnemyAnims", function(mo)
 		mo.hudcutin = tbl.hudcutin
 	end
 
+	if tbl.hudscutin
+		mo.hudscutin = tbl.hudscutin
+	end
+
 	if tbl.color
 		mo.color = tbl.color
 	end
@@ -363,6 +367,12 @@ rawset(_G, "BTL_initEnemyAnimsPlayer", function(mo)
 		mo.hudcutin = tbl.hudcutin
 	else
 		mo.hudcutin = nil
+	end
+
+	if tbl.hudscutin
+		mo.hudscutin = tbl.hudscutin
+	else
+		mo.hudscutin = nil
 	end
 
 	if tbl.color
