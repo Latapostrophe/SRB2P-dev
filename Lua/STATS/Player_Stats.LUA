@@ -275,6 +275,8 @@ rawset(_G, "charStats", {
 		overlay = MT_SRB2P_BLAZETAIL,
 		overlaythink = spr2_doblazetail,
 
+		supercolor_start = SKINCOLOR_SUPERRED1,
+
 		-- ANIMS
 		-- Anims are built like this:
 		-- {SPR_SPRITE, frame1, frame2, frame3, ... , duration between each frame}
@@ -298,6 +300,13 @@ rawset(_G, "charStats", {
 
 		anim_evoker = 		{SPR_PLAY, A, 8},
 		anim_evoker_shoot = 		{SPR_PLAY, A, 8},
+
+		anim_stand_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},		-- standing
+		anim_stand_hurt_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},		-- standing
+		anim_stand_bored_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},		-- standing
+		anim_run_super = 	{SPR_PLAY, A, B, 2, "SPR2_RUN_"},	-- run
+		anim_evoker_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},
+		anim_evoker_shoot_super = 	{SPR_PLAY, A, B, C, D, 4, "SPR2_STND"},
 
 		anim_special1 = {SPR_MRSP, A, B, C, D, 2}, -- spindash (revving up)
 		anim_special2 = {SPR_MRSP, A, B, C, D, 1}, -- spindash (faster, revved up)
@@ -329,7 +338,7 @@ rawset(_G, "charStats", {
 		hudspr = "BLAZ",	-- sprite prefix since hud can't retrieve it. yikes
 		aoa_quote = "Don't play with \nfire!",
 
-		tip = "Learns powerful Ice attacks and status skills. She eventually lands aliments more reliably and gains bonus damage when attacking enemies inflicted with them, thanks to that, she can shut down random encounters easily.",
+		tip = "Learns powerful Ice attacks and status skills. She eventually lands ailments more reliably and gains bonus damage when attacking enemies inflicted with them, thanks to that, she can shut down random encounters easily.",
 	},
 
 	["amy"] = {
@@ -403,7 +412,7 @@ rawset(_G, "charStats", {
 		hudspr = "ROSY",	-- sprite prefix since hud can't retrieve it. yikes
 		aoa_quote = "I won't let you \nget in our way!",
 
-		tip = "The ultimate healing support with powerful Wind magic at her disposal. Her high luck makes her unlikely to be shut down by aliments. Magic buffs and Baton Pass make her healing stronger. Mind her low HP.",
+		tip = "The ultimate healing support with powerful Wind magic at her disposal. Her high luck makes her unlikely to be shut down by ailments. Magic buffs and Baton Pass make her healing stronger. Mind her low HP.",
 	},
 
 	["metalsonic"] = {
@@ -792,7 +801,7 @@ rawset(_G, "charStats", {
 		hudspr = "TAIL",	-- sprite prefix since hud can't retrieve it. yikes
 		hudcutin = "TAILS_A",	-- cut in
 
-		tip = "A well-rounded support with Bless, Expel, Psychic and Healing skills. His high Luck make Expel attacks reliable and make him very unlikely to sustain aliments. Mind his low HP and defence.",
+		tip = "A well-rounded support with Bless, Expel, Psychic and Healing skills. His high Luck make Expel attacks reliable and make him very unlikely to sustain ailments. Mind his low HP and defence.",
 
 	},
 
