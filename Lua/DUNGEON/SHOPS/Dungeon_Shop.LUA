@@ -42,14 +42,14 @@ local function validateShopLevel(source, dest, level)
 	end
 end
 
-rawset(_G, "DNG_stopShop", function(mo, nomenu)
+rawset(_G, "DNG_stopShop", function(mo, menu)
 	mo.shop = {}	-- empty the table
 	if server.gamemode ~= GM_VOIDRUN
 		S_ChangeMusic(mapmusname, true, mo.player, nil, nil, 400)
 	end
 	-- default music fades back.
-	if not nomenu
-		M_openMenu(mo, "m_selectfacility")
+	if menu
+		M_openMenu(mo, menu)
 		return
 	end
 
@@ -59,11 +59,25 @@ end)
 local function SHOP_getSellInfo(mo)
 	-- do the same for shit we can sell:
 	local btl = server.P_BattleStatus[mo.player.P_party]
-
-	local sellitems = btl.items
+	
+	-- split btl.items in items and skillcards
+	local items = {}
+	local skillcards = {}
+	for i = 1, #btl.items do
+		local it = itemDefs[btl.items[i][1]]
+		if not it continue end
+		
+		if it.skillcard
+			skillcards[#skillcards+1] = btl.items[i]
+		else
+			items[#items+1] = btl.items[i]
+		end	
+	end
+	
+	local sellitems = items
 	local sellweapons = btl.weapons
 	local sellarmour = btl.armours
-	local sellskillcards = btl.skillcards
+	local sellskillcards = skillcards
 	local sellpersonas = btl.subpersonas
 
 	if #sellpersonas < 2
@@ -138,7 +152,10 @@ rawset(_G, "DNG_startShop", function(mo, shop)
 	local diff = server.difficulty
 	if server.gamemode == GM_VOIDRUN
 		diff = server.P_DungeonStatus.VR_challenge
-	end
+	-- story mode has its own dedicated flag for that.	
+	elseif srb2p.storymode
+		diff = srb2p.storydata.shoplevel or 1
+	end	
 
 	validateShopLevel(data.items, items, diff)
 	validateShopLevel(data.weapons, weapons, diff)
@@ -181,7 +198,10 @@ rawset(_G, "DNG_startShop", function(mo, shop)
 		maxtestchoice = 1,	-- # of max text choices.
 		texttimer = 0,
 		hudtimers = {},
-
+		
+		menuclose = data.menuclose,	-- if set, open this menu when we close.
+		nosell = data.nosell,	-- if true, you can't sell anything here.
+		
 		shopstate = SS_MAIN,
 
 		-- this is used buying:
@@ -202,7 +222,13 @@ rawset(_G, "DNG_startShop", function(mo, shop)
 	}
 
 	mo.shop.hudtimers.inshop = TICRATE/3	-- start
-
+	
+	-- for story mode, we may want to keep track of shop stocks...
+	if data.stocklimit
+	and srb2p.storymode
+		srb2p.storydata.shopstocks[shop] = $ or {}	-- get ready.
+	end
+	
 	-- start the text box
 	if data.textdata and data.textdata.welcome
 		mo.shop.currtextdata = data.textdata.welcome[P_RandomRange(1, #data.textdata.welcome)]
@@ -299,11 +325,12 @@ local function DNG_changeShopState(mo, state)
 		or state == SS_SELLCONFIRM
 			local t = mo.shop.currtextdata[2]
 			local list = mo.shop.tabs[mo.shop.tab]
-			local item = (state == SS_BUYCONFIRM or mo.shop.tab < 4) and list[mo.shop.choice][1] or list[mo.shop.choice]
+			local item = (state == SS_BUYCONFIRM or mo.shop.tab < 5) and list[mo.shop.choice][1] or list[mo.shop.choice]
 			-- bit hacky as usual....
 
 			if mo.shop.tab == 1	-- Items
-				t = t:gsub("%%NAME%%", "\x82"..ICO_ITEM..itemDefs[item].name.."\x80")
+			or mo.shop.tab == 4	-- Skill Cardss
+				t = t:gsub("%%NAME%%", "\x82"..buildItemName(itemDefs[item]).."\x80")
 				t = t:gsub("%%QUANTITY%%", "\x82"..mo.shop.quantity.."\x80")
 				t = t:gsub("%%COST%%", "\x82"..(mo.shop.moneybuf)..currency.."\x80")
 
@@ -317,10 +344,10 @@ local function DNG_changeShopState(mo, state)
 				t = t:gsub("%%QUANTITY%%", "\x82"..mo.shop.quantity.."\x80")
 				t = t:gsub("%%COST%%", "\x82"..(mo.shop.moneybuf)..currency.."\x80")
 
-			elseif mo.shop.tab == 4	-- Skillcards
+			--[[elseif mo.shop.tab == 4	-- Skillcards
 
 				t = t:gsub("%%NAME%%", "\x82"..ICO_SKILLCARD..attackDefs[item].name.."\x80")
-				t = t:gsub("%%COST%%", "\x82"..(mo.shop.moneybuf)..currency.."\x80")
+				t = t:gsub("%%COST%%", "\x82"..(mo.shop.moneybuf)..currency.."\x80")--]]
 
 			elseif mo.shop.tab == 5	-- Subpersonas...
 				if state == SS_BUYCONFIRM
@@ -383,7 +410,7 @@ local function handleShopChoices(mo, table, sell)
 		end
 
 		-- change that to whatever we have!
-		if mo.shop.tab == 1	-- items
+		if (mo.shop.tab == 1 or mo.shop.tab == 4)	-- items/skillcards
 		and maxc
 			-- fine the item:
 			local it = mo.shop.tabs[mo.shop.tab][mo.shop.choice][1]
@@ -396,6 +423,16 @@ local function handleShopChoices(mo, table, sell)
 				end	-- yep.
 			end
 		end
+	else
+		
+		local it = mo.shop.tabs[mo.shop.tab][mo.shop.choice]
+		
+		if mo.shop.tab == 1
+		and srb2p.storymode
+		and srb2p.storydata.shopstocks[mo.shop.shopname]
+		and it[5]
+			maxqty = it[5] - (srb2p.storydata.shopstocks[mo.shop.shopname][mo.shop.choice] or 0)
+		end	
 	end
 
 	mo.shop.quantity = min($, maxqty)
@@ -443,8 +480,9 @@ local function handleShopChoices(mo, table, sell)
 
 	elseif (inpt["right"] == 1 or inpt["right"] > TICRATE/2)
 	and maxc
+	and maxqty
 
-		if mo.shop.tab < 4	-- not skill cards/personas!!
+		if mo.shop.tab < 5	-- not personas!!
 
 			mo.shop.quantity = $+1
 			if mo.shop.quantity > maxqty
@@ -455,8 +493,9 @@ local function handleShopChoices(mo, table, sell)
 
 	elseif (inpt["left"] == 1 or inpt["left"] > TICRATE/2)
 	and maxc
+	and maxqty
 
-		if mo.shop.tab < 4	-- not skill cards/personas!!
+		if mo.shop.tab < 5	-- not personas!!
 
 			mo.shop.quantity = $-1
 			if mo.shop.quantity < 1
@@ -545,6 +584,17 @@ rawset(_G, "DNG_handleShop", function(mo)
 
 	if mo.shop.shopstate == SS_MAIN
 		local choice = handleTextChoices(mo)
+		
+		-- HACK, if you can't sell in this shop, skip the 2nd option (sell)
+		if mo.shop.nosell	-- you can't sell in this shop.
+			if mo.shop.textchoice == 2	-- always gonna be the "sell" option
+				if mo.P_inputs["down"] == 1
+					mo.shop.textchoice = 3
+				else
+					mo.shop.textchoice = 1
+				end	
+			end
+		end
 
 		local choice_to_shopstate = {
 			SS_BUY,
@@ -591,7 +641,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 		end
 
 		if mo.shop.hudtimers.leave == 1
-			DNG_stopShop(mo)
+			DNG_stopShop(mo, mo.shop.menuclose)
 			return
 		end
 
@@ -610,6 +660,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 		if choice and choice ~= -1
 
 			if mo.shop.tab == 1	-- ITEMS
+			or mo.shop.tab == 4	-- SKILL CARDS
 
 				selected = it[1]
 
@@ -659,7 +710,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 					DNG_changeShopState(mo, SS_SELLCONFIRM)
 				end
 
-			elseif mo.shop.tab == 4	-- SKILL CARD
+			--[[elseif mo.shop.tab == 4	-- SKILL CARD
 
 				selected = it
 
@@ -680,7 +731,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 				else
 					S_StartSound(nil, sfx_confir, mo.player)
 					DNG_changeShopState(mo, SS_SELLCONFIRM)
-				end
+				end]]--
 
 			elseif mo.shop.tab == 5	-- SubP
 
@@ -724,6 +775,20 @@ rawset(_G, "DNG_handleShop", function(mo)
 			local duplicate = 0
 
 			if mo.shop.tab == 1	-- ITEM.
+			or mo.shop.tab == 4	-- SKILL CARD.
+			
+				-- 1st tab only:
+				if mo.shop.tab == 1
+					if srb2p.storymode
+					and srb2p.storydata.shopstocks[mo.shop.shopname]
+					and it[5]
+					and (srb2p.storydata.shopstocks[mo.shop.shopname][mo.shop.choice] or 0) > it[5]
+					or not mo.shop.quantity
+						S_StartSound(nil, sfx_not)
+						return
+					end
+				end
+			
 				if it[2]
 					price = it[2]*mo.shop.quantity	-- predefined price
 				else
@@ -744,7 +809,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 					price = evaluateRingPrice(selected)*mo.shop.quantity
 				end
 
-			elseif mo.shop.tab == 4	-- SKILL CARD
+			--[[elseif mo.shop.tab == 4	-- SKILL CARD
 
 				-- check for duplicates:
 				for i = 1, #btl.skillcards do
@@ -755,7 +820,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 					end
 				end
 
-				price = it[2]	-- no other option.
+				price = it[2]	-- no other option. ]]--
 
 			elseif mo.shop.tab == 5	-- SUB-PERSONA
 
@@ -824,6 +889,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 		-- if the item we have selected suddenly disappeared, it's been equipped or sold, so "error" out!
 
 		if mo.shop.tab == 1	-- normal items...
+		or mo.shop.tab == 4	-- skill cards
 			if not mo.shop.choicebuf
 			or mo.shop.choicebuf[2] < mo.shop.quantity
 				-- oops!
@@ -863,7 +929,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 				return
 			end
 
-		elseif mo.shop.tab == 4	-- skillcards
+		--[[elseif mo.shop.tab == 4	-- skillcards
 			local found
 			for i = 1, #btl.skillcards do
 				if btl.skillcards[i] == mo.shop.choicebuf
@@ -876,7 +942,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 				S_StartSound(nil, sfx_not, mo.player)
 				DNG_changeShopState(mo, SS_SOLDOUT)
 				return
-			end
+			end]]--
 		elseif mo.shop.tab == 5	-- Subpersonas
 			local found
 			for i = 2, #btl.subpersonas do
@@ -900,6 +966,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 			server.P_BattleStatus[mo.player.P_party].netstats.itemssold = $+1
 
 			if mo.shop.tab == 1	-- Items
+			or mo.shop.tab == 4	-- Skill Cards
 				-- Use it.
 				for i = 1, #btl.items do
 					if btl.items[i] == mo.shop.choicebuf
@@ -916,12 +983,12 @@ rawset(_G, "DNG_handleShop", function(mo)
 			elseif mo.shop.tab == 3	-- Rings
 				removeRing(mo, mo.shop.choicebuf)
 
-			elseif mo.shop.tab == 4	-- Skill cards
+			--[[elseif mo.shop.tab == 4	-- Skill cards
 				for i = 1, #btl.skillcards do
 					if btl.skillcards[i] == mo.shop.choicebuf
 						table.remove(btl.skillcards, i)
 					end
-				end
+				end]]--
 
 
 			elseif mo.shop.tab == 5	-- Sub-Personas
@@ -964,6 +1031,13 @@ rawset(_G, "DNG_handleShop", function(mo)
 			local elt = list[mo.shop.choice][1]
 
 			if mo.shop.tab == 1	-- Items!
+			or mo.shop.tab == 4	-- Skill Card
+			
+				if srb2p.storymode
+				and srb2p.storydata.shopstocks[mo.shop.shopname]
+					srb2p.storydata.shopstocks[mo.shop.shopname][mo.shop.choice] = $ and $+mo.shop.quantity or mo.shop.quantity
+				end	
+				
 				BTL_addItem(server.P_BattleStatus[mo.player.P_party], elt, mo.shop.quantity)
 
 			elseif mo.shop.tab == 2	-- Weapons
@@ -976,8 +1050,8 @@ rawset(_G, "DNG_handleShop", function(mo)
 					addRing(mo, copyTable(elt))
 				end
 
-			elseif mo.shop.tab == 4	-- Skill Crd!
-				table.insert(server.P_BattleStatus[mo.player.P_party].skillcards, elt)
+			--[[elseif mo.shop.tab == 4	-- Skill Crd!
+				table.insert(server.P_BattleStatus[mo.player.P_party].skillcards, elt)]]--
 
 			elseif mo.shop.tab == 5	-- Sub-Personas
 				table.insert(server.P_BattleStatus[mo.player.P_party].subpersonas, P_generateSubPersona(elt))
@@ -995,7 +1069,7 @@ rawset(_G, "DNG_handleShop", function(mo)
 	return true
 end)
 
-if srb2p.debug
+--if srb2p.debug
 COM_AddCommand("d_shop", function(p, shopname)
 	local mo = p.mo
 	if not mo return end
@@ -1006,4 +1080,4 @@ COM_AddCommand("d_shop", function(p, shopname)
 
 	DNG_startShop(mo, shopname)
 end)
-end
+--end

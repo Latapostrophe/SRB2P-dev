@@ -127,7 +127,10 @@ rawset(_G, "PLAY_nomove", function(p)
 	p.noability = true
 
 	p.SRB2PSTASIS = true
-
+	if p.SRB2PAUTOBRAKE == nil
+		p.SRB2PAUTOBRAKE = p.pflags & PF_AUTOBRAKE
+		p.pflags = $ & ~PF_AUTOBRAKE
+	end	
 end)
 
 rawset(_G, "PLAY_move", function(p)
@@ -150,6 +153,8 @@ rawset(_G, "PLAY_move", function(p)
 	p.accelstart = 112
 	p.acceleration = 42	-- gotta love magic numbers!!!!
 	p.pflags = $ & ~PF_FORCESTRAFE
+	p.pflags = $ | (p.SRB2PAUTOBRAKE or 0)
+	p.SRB2PAUTOBRAKE = nil
 end)
 
 

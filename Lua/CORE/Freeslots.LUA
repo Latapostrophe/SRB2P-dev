@@ -3,6 +3,11 @@
 
 -- @TODO: ...Organize this file, one day...
 
+freeslot("SPR_VBOK")
+
+freeslot("S_PLAY_FAINTED", "SPR2_SHIT")
+states[S_PLAY_FAINTED] = {SPR_PLAY, A|SPR2_SHIT, -1, nil, 0, 0, S_PLAY_STND}
+
 -- Psycho Force
 freeslot("SPR_PSID", "sfx_psi")
 

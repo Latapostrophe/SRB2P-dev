@@ -270,16 +270,20 @@ rawset(_G, "generalEnemyThinker", function(mo)
 	-- we are a retarded enemy and we're too generic to do anything specific!
 	--dprint("Enemy thinker for "..mo.name)
 	-- do we use a skill or our normal attack?
-	local skillchance = enemyList[mo.enemy].skillchance or 50
+	local skillchance = enemyList[mo.enemy].skillchance
+	if skillchance == nil
+		skillchance = 50
+	end	
+	
 	local attack, targets
 	local atarget
 
 	if P_RandomRange(0, 100) <= skillchance and mo.skills and #mo.skills
 	and mo.status_condition ~= COND_RAGE
 	and mo.status_condition ~= COND_SILENCE
-		attack, atarget = smartAttackSelect(mo) or attackDefs[(enemyList[mo.enemy].melee_natk or "slash_1")]
+		attack, atarget = smartAttackSelect(mo) or attackDefs[(mo.melee or "slash_1")]
 	else	-- no skills or not using skills
-		attack = attackDefs[(enemyList[mo.enemy].melee_natk or "slash_1")]	-- default attack
+		attack = attackDefs[(mo.melee or "slash_1")]	-- default attack
 	end
 
 	if not atarget	-- nothing from smart select, do it the yolo way!
@@ -287,7 +291,7 @@ rawset(_G, "generalEnemyThinker", function(mo)
 
 		-- get the target(s) of the attack
 		if not attack
-			attack = attackDefs[(enemyList[mo.enemy].melee_natk or "slash_1")]
+			attack = attackDefs[(mo.melee or "slash_1")]
 		end
 		local skill = attack
 
@@ -7868,6 +7872,280 @@ rawset(_G, "enemyList", {
 					alt_changePersona(mo, "alice_alt")
 					return generalEnemyThinker(mo)	--attackDefs["mamudoon"], enemies
 				end,
+	},
+	
+	
+	-- STORY MODE GARBAGE:
+	["crawla_commander"] = {
+		name = "Crawla Commander",
+		skillchance = 0,	-- /100, probability of using a skill
+		scale = FRACUNIT*2,
+		level = 3,
+		atk = 5,
+		hp = 45,
+		sp = 4,
+		strength = 1,
+		magic = 1,
+		endurance = 2,
+		luck = 1,
+		agility = 1,
+		melee_natk = "strike_1",	-- enemies don't have crit anims for their attacks.
+		weak = 0,
+		thinker = generalEnemyThinker,
+		r_exp = 5,
+		r_macca = 0,
+
+		anim_stand = 		{SPR_CCOM, A, B, 5},
+		anim_stand_hurt =	{SPR_CCOM, A, B, 5},
+		anim_move =			{SPR_CCOM, A, B, 5},
+		anim_run =			{SPR_CCOM, A, B, 5},
+		anim_hurt =			{SPR_CCOM, A, 35},
+		anim_getdown =		{SPR_CCOM, A, 1},
+		anim_downloop =		{SPR_CCOM, A, 1},
+		anim_getup =		{SPR_CCOM, A, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+													
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:											
+	},
+
+	["crawla_b"] = {
+		name = "Blue Crawla",
+		skillchance = 0,	-- /100, probability of using a skill
+		scale = FRACUNIT,
+		level = 1,
+		atk = 3,
+		hp = 25,
+		sp = 2,
+		strength = 1,
+		magic = 1,
+		endurance = 1,
+		luck = 1,
+		agility = 1,
+		melee_natk = "strike_1",	-- enemies don't have crit anims for their attacks.
+		weak = 0,
+		thinker = generalEnemyThinker,
+		r_exp = 2,
+		r_macca = 0,
+
+		anim_stand = 		{SPR_POSS, A, F, 3},
+		anim_stand_hurt =	{SPR_POSS, A, F, 3},
+		anim_move =			{SPR_POSS, A, B, C, D, E, F, 4},
+		anim_run =			{SPR_POSS, A, B, C, D, E, F, 4},
+		anim_hurt =			{SPR_POSS, A, 35},
+		anim_getdown =		{SPR_POSS, A, 1},
+		anim_downloop =		{SPR_POSS, A, 1},
+		anim_getup =		{SPR_POSS, A, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+													
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:											
+	},
+
+	["brak_01"] = {
+		name = "Brak Eggman",
+		skillchance = 0,	-- /100, probability of using a skill
+		scale = FRACUNIT*3/2,
+		level = 5,
+		atk = 2,
+		hp = 300,
+		sp = 200,
+		strength = 2,
+		magic = 2,
+		endurance = 2,
+		luck = 2,
+		agility = 1,
+		melee_natk = "brak_pierce",	-- enemies don't have crit anims for their attacks.
+		weak = 0,
+		thinker = generalEnemyThinker,
+		r_exp = 10,
+		r_macca = 0,
+
+		anim_stand = 		{SPR_BRAK, A, 2},
+		anim_stand_hurt =	{SPR_BRAK, A, 2},
+		anim_move =			{SPR_BRAK, B, C, D, E, F, G, H, 5},
+		anim_run =			{SPR_BRAK, B, C, D, E, F, G, H, 5},
+		anim_hurt =			{SPR_BRAK, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, 2},
+		anim_getdown =		{SPR_BRAK, I, 1},
+		anim_downloop =		{SPR_BRAK, I, 1},
+		anim_getup =		{SPR_BRAK, I, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+													
+		anim_special1 =		{SPR_BRAK, 26, 10},	
+		anim_special2 =		{SPR_BRAK, N, O, P, Q, R, 5},
+		anim_special3 =		{SPR_BRAK, I, 2},
+		anim_special4 =		{SPR_BRAK, H, G, F, E, D, C, B, 6},
+
+		deathanim = function(mo)
+
+			mo.deathtimer = $ and $+1 or 1
+
+			local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
+			local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
+			local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
+
+			local a = P_SpawnMobj(x, y, z, MT_DUMMY)
+			a.state = S_QUICKBOOM1
+			
+			if mo.deathtimer == 1
+				ANIM_set(mo, mo.anim_special2)	-- don't loop
+			end	
+			
+			if mo.deathtimer & 1
+				S_StartSound(mo, sfx_pop)
+			end
+
+			if mo.deathtimer >= 30
+				mo.deathanim = nil
+				--mo.flags2 = $|MF2_DONTDRAW
+				return	-- deref function
+			end
+		end,
+													
+		skills = {"brak_pierce"}	-- necessary to avoid crashes :skull:											
+	},
+
+	["maya_tut"] = {
+		name = "Cowardly Maya",
+		skillchance = 0,	-- /100, probability of using a skill
+		level = 1,
+		atk = 10,
+		hp = 65,
+		sp = 4,
+		strength = 1,
+		magic = 1,
+		endurance = 2,
+		luck = 1,
+		agility = 1,
+		melee_natk = "slash_1",	-- enemies don't have crit anims for their attacks.
+		weak = ATK_WIND|ATK_ELEC|ATK_BLESS|ATK_CURSE|ATK_FIRE|ATK_PSY|ATK_NUCLEAR,
+		thinker = generalEnemyThinker,
+		r_exp = 5,
+		r_macca = 5,
+
+		anim_stand = 		{SPR_ENM1, D, 10},
+		anim_stand_hurt =	{SPR_ENM1, D, 1},
+		anim_move =			{SPR_ENM1, D, 2},
+		anim_run =			{SPR_ENM1, D, 2},
+		anim_hurt =			{SPR_ENM1, D, 35},
+		anim_getdown =		{SPR_ENM1, D, 1},
+		anim_downloop =		{SPR_ENM1, D, 1},
+		anim_getup =		{SPR_ENM1, D, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+		skills = {"slash_1"},
+	},
+
+	["boss_magician"] = {
+		name = "Magician",
+		skillchance = 100,	-- /100, probability of using a skill
+		scale = FRACUNIT*3/2,
+		level = 10,
+		atk = 50,
+		hp = 450,
+		sp = 200,
+		boss = true,
+		strength = 5,
+		magic = 2,
+		endurance = 5,
+		luck = 2,
+		agility = 5,
+		melee_natk = "strike_1",	-- enemies don't have crit anims for their attacks.
+		weak = 0,
+		thinker = generalEnemyThinker,
+		r_exp = 50,
+		r_macca = 50,
+		target_zoffs = 60,	-- offset for targetting reticle...
+
+		deathanim = function(mo)
+
+			mo.deathtimer = $ and $+1 or 1
+
+			local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
+			local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
+			local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
+			
+			if mo.deathtimer % 4 == 0
+				for i = 1, 8
+					local a = P_SpawnMobj(x, y, z, MT_DUMMY)
+					a.sprite = SPR_THOK
+					a.frame = A
+					a.color = i & 1 and SKINCOLOR_RED or SKINCOLOR_BLACK
+					a.momx = P_RandomRange(-24, 24)*FRACUNIT
+					a.momy = P_RandomRange(-24, 24)*FRACUNIT
+					a.momz = P_RandomRange(-24, 24)*FRACUNIT
+				end	
+
+				S_StartSound(mo, sfx_srip)
+			end
+
+			if mo.deathtimer >= TICRATE*3
+				-- story mode: reset sonic's persona to orpheus (we fight this boss with thanatos temporarily...)
+				local pl = mo.enemies[1]	-- sonic...
+				PLYR_initPersona(pl, "orpheus", pl.skin)
+				
+				mo.deathanim = nil
+				mo.flags2 = $|MF2_DONTDRAW
+				return	-- deref function
+			end
+		end,
+
+		anim_stand = 		{SPR_ENM6, A, B, C, B, 8},
+		anim_stand_hurt =	{SPR_ENM6, A, B, C, B, 8},
+		anim_move =			{SPR_ENM6, A, B, C, B, 5},
+		anim_run =			{SPR_ENM6, A, B, C, B, 5},
+		anim_hurt =			{SPR_ENM6, A, 35},
+		anim_getdown =		{SPR_ENM6, A, 1},
+		anim_downloop =		{SPR_ENM6, A, 1},
+		anim_getup =		{SPR_ENM6, A, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+													
+		skills = {"agi"}										
+	},
+	
+	["miniboss_fuzz_1"] = {
+		name = "Bribed Fuzz",
+		skillchance = 100,
+		level = 5,
+		hp = 350,
+		sp = 35,
+		boss = true,
+		scale = FRACUNIT*2,
+		strength = 6,
+		magic = 3,
+		endurance = 6,
+		agility = 2,
+		luck = 1,
+		melee_natk = "pierce_1",
+		weak = ATK_CURSE,
+		thinker = 	function(mo)
+						
+						local btl = server.P_BattleStatus[mo.battlen]
+						
+						if btl.turn%2 == 0
+						and mo.snaptarget and mo.snaptarget.valid
+							return attackDefs["snap"], {mo.snaptarget}
+						else
+							mo.snaptarget = mo.enemies[P_RandomRange(1, #mo.enemies)]
+							return attackDefs["glare"], {mo.snaptarget}
+						end
+						
+					end,
+
+		anim_stand = 		{SPR_ENM5, S, 10},
+		anim_stand_hurt =	{SPR_ENM5, S, 1},
+		anim_move =			{SPR_ENM5, S, 2},
+		anim_run =			{SPR_ENM5, S, 2},
+		anim_hurt =			{SPR_ENM5, S, 35},
+		anim_getdown =		{SPR_ENM5, S, 1},
+		anim_downloop =		{SPR_ENM5, S, 1},
+		anim_getup =		{SPR_ENM5, S, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+		skills = {"snap"},
+		r_exp = 50,
 	},
 
 }

@@ -25,10 +25,16 @@ rawset(_G, "R_drawTextBox", function(v, name, text, portrait, colour, timer, tex
 	-- draw the text box:
 	PDraw(v, 54, y, v.cachePatch("H_TBG"), V_SNAPTOBOTTOM|V_30TRANS)
 	PDraw(v, 54, y, v.cachePatch("H_TBOX"), V_SNAPTOBOTTOM)
+	
+	-- if we have a portrait, draw the arrow.
+	if portrait
+		PDraw(v, 54, y, v.cachePatch("H_TARR"), V_SNAPTOBOTTOM)
+	end			
 
 	-- name
 	if name
-		V_drawString(v, 100, y+10, name, "NFNT", V_SNAPTOBOTTOM, nil, 31, nil)
+		PDraw(v, 54, y, v.cachePatch("H_TNAME"), V_SNAPTOBOTTOM)
+		V_drawString(v, 54+70, y+10, name, "NFNT", V_SNAPTOBOTTOM, "center", 31, nil)
 	end
 
 	-- text:
@@ -46,22 +52,19 @@ rawset(_G, "R_drawTextBox", function(v, name, text, portrait, colour, timer, tex
 	end
 end)
 
-rawset(_G, "drawEvent", function(v, p)
-
-	if not server.plentities or not #server.plentities or not server.skinlist return end	-- wait until we're finished setting up our team in MP
-
-	local evt = server.P_DialogueStatus[p.P_party]
+local function drawevt(v, evt)
 	if not evt.running return end
-	if not evt.event return end
-
-	local cur = eventList[evt.event][evt.eventindex]
+	if not evt.event and not evt.data return end
+	
+	local dta = evt.data or eventList[evt.event]
+	local cur = dta[evt.eventindex]
 
 	-- even hud, back, behind text boxes portrait etc
-	if eventList[evt.event]["hud_back"]
-		eventList[evt.event]["hud_back"](v, evt)
+	if dta["hud_back"]
+		dta["hud_back"](v, evt)
 	end
 
-	if not cur	return end
+	if not cur return end
 
 	if cur[1] == "text"	-- regular shit handling
 	and evt.curtype == "text"
@@ -106,11 +109,66 @@ rawset(_G, "drawEvent", function(v, p)
 		local colour = cur[7] and cur[7][2] or nil
 
 		R_drawTextBox(v, cur[2], cur[3], portrait, colour, tboxtimer, evt.texttime)
+	
+	elseif cur[1] == "item"
+		
+		local fadein = max(0, 5 - evt.ftimer) << V_ALPHASHIFT
+		local scale = FRACUNIT/2 + max(0, 5-evt.ftimer)*(FRACUNIT/2)
+
+		v.drawScaled(115*FRACUNIT, 64*FRACUNIT, scale, v.cachePatch("H_ITGET"), fadein)
+		
+		for i = 1, #cur[2]
+			local t = (evt.ftimer-5) - 5*(i-1)
+			
+			if t >= 0
+				local tbl = cur[2][i]
+				local flag = max(3, 10 - t) << V_ALPHASHIFT
+				local flag2 = max(0, 10-t) << V_ALPHASHIFT
+				
+				local xpos = 160 + (i-1)*5 - max(0, 10-t)*3
+				
+				PDraw(v, xpos, 115 + (i-1)*12, v.cachePatch("H_ITGBG"), flag)
+				local str = "UNDEFINED"
+				
+				if tbl[1] == "item"
+					str = buildItemName(itemDefs[tbl[2]])
+					if tbl[3] and tbl[3] > 1
+						str = $.." x"..tbl[3]
+					end
+					
+				elseif tbl[1] == "weapon"
+					str = buildWeaponName(tbl[2])
+				elseif tbl[1] == "ring"
+					str = buildRingName(tbl[2])
+				elseif tbl[1] == "macca"
+					str = tbl[2]..currency
+				end
+				
+				V_drawString(v, xpos, 110 + (i-1)*12, str, "NFNT", flag2, "center", 0, 31)
+			end
+		end
 	end
 
 	-- event hud: front
-	if eventList[evt.event]["hud_front"]
-		eventList[evt.event]["hud_front"](v, evt)
+	if dta["hud_front"]
+		dta["hud_front"](v, evt)
 	end
+	
+	-- event fade-in (used for post battle stuff etc...)
+	if evt.timers.fadein
+		v.fadeScreen(31, min(10, evt.timers.fadein))
+	end
+end
 
+rawset(_G, "drawEvent", function(v, p)
+
+	if not server.plentities or not #server.plentities or not server.skinlist return end	-- wait until we're finished setting up our team in MP
+
+	-- For each player, draw party-wide and per-player events:
+	drawevt(v, server.P_DialogueStatus[p.P_party])	-- party-wide
+	
+	if p.mo.d_event
+		drawevt(v, p.mo.d_event)				-- per player
+	end	
+	
 end)

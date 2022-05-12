@@ -212,9 +212,10 @@ end, MT_FOGSHADOW)
 addHook("ShouldDamage", function(mo, s)
 	if s and s.type ~= MT_FOGSHADOW return end
 	if not s or not s.valid return end
+	if not mo or not mo.player return end
 
 	if s.scared or (s.fuse and s.fuse > 0)
-	or (server.P_DialogueStatus and server.P_DialogueStatus.running)
+	or (server.P_DialogueStatus and server.P_DialogueStatus[mo.player.P_party].running)
 		return false
 	end
 
@@ -226,6 +227,7 @@ addHook("ShouldDamage", function(mo, s)
 	or mo.startbattle
 	or mo.d_battlebuf
 	or mo.player and mo.player.powers[pw_flashing]
+	or mo.player.SRB2PSTASIS
 		return false
 	end
 

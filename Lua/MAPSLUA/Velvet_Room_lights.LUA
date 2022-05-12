@@ -16,6 +16,7 @@ addHook("ThinkFrame",do
 
 		for i = 1, #velvetsecs
 			local s = velvetsecs[i]
+			if not s or not s.valid return end
 
 			s.floorheight = $-96*FRACUNIT
 			s.ceilingheight = $-96*FRACUNIT

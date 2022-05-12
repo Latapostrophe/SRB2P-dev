@@ -36,6 +36,7 @@ print("Initializing Events library...")
 
 f = "EVENTS"
 	df("Event_Handler.LUA")
+	df("NPC.LUA")
 	--df("gameover.LUA")
 	--df("E001.LUA")
 	--df("E002.LUA")
@@ -83,6 +84,7 @@ print("Initializing menu libraries...")
 f = $.."/MENULIST"
 			df("Menu_NET.LUA")
 			df("Menu_QSave.LUA")
+			df("Menu_SSave.LUA")
 			df("Pause_MP.LUA")
 			df("Pause_SP.LUA")
 			df("SelectShop.LUA")
@@ -136,14 +138,20 @@ f = "DUNGEON"
 		df("Ambusher.LUA")
 		df("Reaper.LUA")
 		df("Drops.LUA")
+		df("Starpost.LUA")
 
 	f = "DUNGEON/SHOPS"
 		df("Dungeon_Shop.LUA")
 		df("VelvetShop_MP.LUA")
 		df("VoidShop.LUA")
+		df("CentralCity_Shops.LUA")
 
 	f = "DUNGEON/EQUIPLAB"
 		df("EquipmentLab.LUA")
+		
+	f = "DUNGEON/FUSIONS"
+		df("FusionLib.LUA")
+		df("SubPFusion.LUA")
 
 	f = "DUNGEON/VOIDRUN"
 		df("Voidrun_Defs.LUA")
@@ -162,7 +170,11 @@ f = "NET"
 -- STORY INIT...
 print("Initializing Story Mode scripts...")
 f = "EVENTS/Story/Episode1"
+	df("SaveStarpost.LUA")
 	df("001_eggbase.LUA")
+	df("002_gfcity.LUA")
+	df("003_velvet.LUA")
+	df("004_moonlitplains.LUA")
 
 -- RENDERER
 print("Initiating HUD rendering...")
@@ -174,6 +186,7 @@ f = "RENDERER"
 	df("Render_Menus.LUA")
 	df("Render_Shop.LUA")
 	df("Render_EqLab.LUA")
+	df("Render_Fusions.LUA")
 	df("Render_Dungeon.LUA")
 	df("Render_SCR.LUA")
 	df("Render_PhysHUD.LUA")
@@ -181,6 +194,11 @@ f = "RENDERER"
 	df("Render_Scoreboard.LUA")
 	df("Smenu.LUA")
 
+-- MAPS
+print("Initializing Map-specific extra Lua scripts...")
+f = "MAPSLUA"
+	df("Velvet_Room_lights.LUA")
+	df("TimeSky.LUA")
 
 -- MODDING
 print("Initializing modding hooks library...")

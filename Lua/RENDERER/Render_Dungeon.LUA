@@ -602,6 +602,33 @@ local function renderSaveButton(v, p)
 	end
 end
 
+local function renderInteractionButton(v, p)
+	
+	if not p.mo.obj_interact return end
+	
+	local timer = p.mo.obj_interact
+	local xscale = FRACUNIT
+	local yscale = FRACUNIT
+	if buttonscales[timer]
+		xscale = buttonscales[timer][1]
+		yscale = buttonscales[timer][2]
+	end
+
+	v.drawStretched(220*FRACUNIT, 90*FRACUNIT, FixedMul(FRACUNIT/2, xscale), FixedMul(FRACUNIT/2, yscale), v.cachePatch("H_SAVE"))
+	if timer > #buttonscales
+		local tt = timer - #buttonscales
+
+		local str = p.mo.obj_interact_dta[1]
+		V_drawString(v, 220, 83, str:sub(1, tt), "FPIMP", 0, "center", 0, 31)
+		
+		if timer > #buttonscales+4
+			tt = timer - #buttonscales - 4
+			str = p.mo.obj_interact_dta[2]
+			V_drawString(v, 230, 93, str:sub(1, tt), "NFNT", 0, "center", 0, 31)
+		end
+	end
+end
+
 local hu_ticker = 0
 
 local cv_titlecard = CV_RegisterVar({
@@ -663,6 +690,20 @@ local function R_drawVRTimeOut(v)
 
 end
 
+local function R_drawFadeDta(v)
+	if server.fadedta
+		
+		local fadelv = 0
+		
+		if server.fadedta.timer > 10
+			fadelv = 20 - server.fadedta.timer
+		else	-- <= 10
+			fadelv = server.fadedta.timer
+		end	
+		v.fadeScreen(server.fadedta.colour, fadelv)
+	end
+end
+
 hud.add(function(v, p, c)
 
 	hu_ticker = $+1
@@ -679,10 +720,28 @@ hud.add(function(v, p, c)
 
 	local cmd
 
-	if renderMenus(v, mo) return true end	-- don't render the rest if we're in a menu
+	if renderMenus(v, mo)
+		drawEvent(v, p)		-- Still draw per-player events, they take priority.
+		renderTitlecard(v)	-- And fades
+		return true
+	end	-- don't render the rest if we're in a menu
+
 	if p.mo and p.mo.valid
-		if R_drawShop(v, p.mo) return true end			-- Also don't render the rest if we're in a shop!!
-		if R_drawEquipLab(v, p.mo) return true end		-- ditto in the equip lab
+		if R_drawShop(v, p.mo)
+			renderTitlecard(v)
+			return true
+		end			-- Also don't render the rest if we're in a shop!!
+		if R_drawEquipLab(v, p.mo)
+			renderTitlecard(v)
+			return true
+		end		-- ditto in the equip lab
+		if R_drawFusions(v, p.mo)
+			renderTitlecard(v)
+			if server.fadedta
+				R_drawFadeDta(v)
+			end
+			return true
+		end	-- AND while doing fusions		
 	end
 
 	if gamemap == srb2p.tartarus_map
@@ -744,6 +803,10 @@ hud.add(function(v, p, c)
 	if mo.m_savebutton
 		renderSaveButton(v, p)
 	end
+	
+	if mo.obj_interact
+		renderInteractionButton(v, p)
+	end	
 
 	R_drawRareDrop(v, p)
 
@@ -760,4 +823,10 @@ hud.add(function(v, p, c)
 		renderBlockTransition(v)
 	end
 
+	drawDateChangeDate(v)
+	drawDateChangeTime(v)
+	
+	if server.fadedta
+		R_drawFadeDta(v)
+	end
 end)
