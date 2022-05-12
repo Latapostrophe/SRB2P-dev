@@ -138,10 +138,10 @@ rawset(_G, "PLYR_initStats", function(mo, persona, skin)
 		mhp = 60 + (mo.level-1)*5
 		msp = 0
 	end
-	
-	if srb2p.storymode
+
+	if srb2p.storymode and not SAVE_getEventFlag("storyinit")
 		msp = 0
-	end	
+	end
 
 	mo.maxhp = mhp
 	mo.hp = mo.maxhp
@@ -199,17 +199,17 @@ end)
 
 rawset(_G, "PLYR_initPersona", function(mo, persona, skin)	-- init stats and skills.
 	--dprint("Initiating Player entity Persona...")
-	
+
 	-- special cases for sonic's persona... Kind of hacky.
 	if persona == "orpheus"
-	
+
 		if SAVE_localtable.tutorial
 			persona = "orpheus_tutorial"
-		elseif srb2p.storymode
+		elseif srb2p.storymode and not SAVE_getEventFlag("storyinit")
 			persona = "story_00"
 		end
 	end
-		
+
 
 	persona = personaList[$]
 
@@ -370,6 +370,148 @@ rawset(_G, "PLYR_resetColour", function(mo)
 	end
 end)
 
+-- Creates a player of skin 'skin', and adds it to party number 'pa' in slot 'i'
+rawset(_G, "PLYR_makePlayer", function(skin, pa, i, level)
+	local mo = P_SpawnMobj(0, 0, 0, MT_PFIGHTER)
+	mo.commandflags = 0
+	mo.skin = skin or "sonic"
+	mo.state = S_PLAY_STND
+	mo.color = skins[mo.skin].prefcolor
+
+	local useskin = mo.skin
+	local data
+
+	if not charStats[mo.skin]
+		print("\x82".."ERROR: ".."\x80".."Skin \'"..mo.skin.."\' has no charStats. Reverting back to Sonic's stats")
+		useskin = "sonic"
+	end
+	data = charStats[useskin]
+
+	mo.name = data.name or "ERRORNAME"
+	mo.level = server.difficulty and difficulty_levels[server.difficulty] or 10	-- for now this is it.
+	mo.levelcap = server.difficulty and difficulty_cap[server.difficulty] or 99	-- levelcap 99 by default
+
+	if srb2p.storymode
+
+		mo.level = level or 1
+		mo.levelcap = srb2p.story_levelcap
+
+	elseif server.gamemode == GM_PVP
+		mo.level = 80
+		if server.bossmode
+			mo.level = min(99, server.bosslevel-3)
+		end
+		mo.levelcap = mo.level
+		-- eventually, allow this to be set dynamically or smth
+	elseif server.gamemode == GM_VOIDRUN
+		mo.level = 1
+		mo.levelcap = 1
+	elseif server.cdungeon	-- custom dungeons
+		mo.level = server.cdungeon.level
+		mo.levelcap = server.cdungeon.levelcap or mo.level	-- whatever exists
+	end
+
+	if server.gamemode == GM_CHALLENGE
+		if BTL_challengebtllist[server.P_netstat.buffer.extradata].level
+			mo.level = BTL_challengebtllist[server.P_netstat.buffer.extradata].level
+		end
+
+		if BTL_challengebtllist[server.P_netstat.buffer.extradata].levelcap
+			mo.levelcap = BTL_challengebtllist[server.P_netstat.buffer.extradata].levelcap
+		elseif not mo.levelcap
+			mo.levelcap = 99
+		end	-- default level cap @ 99
+	end
+
+
+	mo.exp = 0-- set EXP
+	mo.melee = data.melee_natk
+
+	mo.party = pa	-- keep track of our party #
+	mo.battlen = pa	-- this can be initiated at the same time.
+
+	local setpersona = data.persona or "orpheus"
+	if server.gamemode == GM_VOIDRUN
+		setpersona = "unequipped"
+	end
+
+	PLYR_initPersona(mo, setpersona, useskin)
+	PLYR_initAnims(mo, useskin)
+	BTL_readybuffs(mo)
+
+	if data.overlay
+		local o = P_SpawnMobjFromMobj(mo, 0, 0, 0, data.overlay)
+		o.target = mo
+		mo.overlay = o
+		--dprint("Spawned overlay for skin "..mo.skin)
+	end
+
+	local firstvalidp	-- fallback for bots
+	local plist = server.playerlist[pa]
+
+	--for k, p in ipairs(plist)
+	for j = 1, server.P_netstat.teamlen
+		local p = plist[j]
+		if p and p.valid and p.mo and p.mo.valid
+			firstvalidp = p
+			break
+		end
+	end
+
+	-- control player
+	local controlp = (plist[i] and plist[i].valid) and plist[i] or firstvalidp
+
+	dprint("PA #"..pa..": Assigning control of bot "..i.." to "..(controlp and controlp.name or "ERRORNAME"))
+	PLYR_setcontrol(mo, controlp, plist[i] == controlp)	-- assign control to a player
+	mo.plyr = true	-- we are players, not normal enemies.
+	-- this is used for summon animation, and enables control by player.
+	-- EVEN if the player is in an opposing team!
+	mo.coreentity = true
+	-- do not remove on battle end, if we happen to be enemies!
+
+
+	mo.stats = useskin
+	table.insert(server.plentities[pa], mo)
+
+	-- EQUIPMENT. Set it last because we need a bunch of stuff first
+	-- get weapon name
+	local wpn = data.wep
+	if not weaponsList[wpn]
+		wpn = "shoes_01"
+	end	-- you never know...
+
+	equipWeapon(mo, makeWeapon(wpn))
+
+	-- for wardring, use basic ring and don't ever enhance it.
+	equipRing(mo, makeRing("ring_01"))
+
+	-- buff weapon w/ difficulty
+	if server.cdungeon
+		-- custom dungeons can have their own buff values:
+		mo.weapon.atk = $ + server.cdungeon.weapon_addpow
+		mo.wardring.def = $ + server.cdungeon.armour_adddef
+
+	elseif server.difficulty	-- exploration
+	and server.gamemode == GM_COOP
+		mo.weapon.atk = $ + (difficulty_atk[server.difficulty] or 0)*10
+		mo.wardring.def = $ + (difficulty_def[server.difficulty] or 0)*10
+	end
+
+	mo.weapon.acc = $ or 95
+	mo.weapon.crit = $ or 5
+
+
+	if server.gamemode == GM_PVP
+	and not server.bossmode	-- keep everything the same for boss mode
+		mo.sp = $/3
+		mo.maxsp = mo.sp
+		-- more HP but less SP, for balance.
+	end
+
+	return mo
+end)
+
+-- spawns all the players at the start of the game in their default state using a team table given to it.
 rawset(_G, "PLYR_spawn", function(team)
 
 	server.plentities = {}
@@ -383,157 +525,8 @@ rawset(_G, "PLYR_spawn", function(team)
 	for pa = 1, #team
 		for i = 1, #team[pa]
 
-			local mo = P_SpawnMobj(0, 0, 0, MT_PFIGHTER)
-			mo.commandflags = 0
-			mo.skin = team[pa][i] or "sonic"
-			mo.state = S_PLAY_STND
-			mo.color = skins[mo.skin].prefcolor
-
-			local useskin = mo.skin
-			local data
-
-			if not charStats[mo.skin]
-				print("\x82".."ERROR: ".."\x80".."Skin \'"..mo.skin.."\' has no charStats. Reverting back to Sonic's stats")
-				useskin = "sonic"
-			end
-			data = charStats[useskin]
-
-			mo.name = data.name or "ERRORNAME"
-			mo.level = server.difficulty and difficulty_levels[server.difficulty] or 10	-- for now this is it.
-			mo.levelcap = server.difficulty and difficulty_cap[server.difficulty] or 99	-- levelcap 99 by default
-
-			if srb2p.storymode
-
-				mo.level = 1
-				mo.levelcap = srb2p.story_levelcap
-
-			elseif server.gamemode == GM_PVP
-				mo.level = 80
-				if server.bossmode
-					mo.level = min(99, server.bosslevel-3)
-				end
-				mo.levelcap = mo.level
-				-- eventually, allow this to be set dynamically or smth
-			elseif server.gamemode == GM_VOIDRUN
-				mo.level = 1
-				mo.levelcap = 1
-			elseif server.cdungeon	-- custom dungeons
-				mo.level = server.cdungeon.level
-				mo.levelcap = server.cdungeon.levelcap or mo.level	-- whatever exists
-			end
-
-			if server.gamemode == GM_CHALLENGE
-				if BTL_challengebtllist[server.P_netstat.buffer.extradata].level
-					mo.level = BTL_challengebtllist[server.P_netstat.buffer.extradata].level
-				end
-
-				if BTL_challengebtllist[server.P_netstat.buffer.extradata].levelcap
-					mo.levelcap = BTL_challengebtllist[server.P_netstat.buffer.extradata].levelcap
-				elseif not mo.levelcap
-					mo.levelcap = 99
-				end	-- default level cap @ 99
-			end
-
-
-			mo.exp = 0-- set EXP
-			mo.melee = data.melee_natk
-
-			/*mo.atk = data.atk or 30
-			-- increase atk by difficulty factor in multiplayer:
-			mo.atk = $+ (difficulty_atk[server.difficulty] or 0)
-			mo.acc = data.acc or 85
-			mo.crit = data.crit or 3*/
-
-			mo.party = pa	-- keep track of our party #
-			mo.battlen = pa	-- this can be initiated at the same time.
-
-			local setpersona = data.persona or "orpheus"
-			if server.gamemode == GM_VOIDRUN
-				setpersona = "unequipped"
-			elseif server.gamemode == GM_PVP -- Allow characters to use PVP-balanced personas
-			and not server.bossmode --...only in PVP mode!
-				setpersona = data.persona_pvp or $
-			end
-
-			PLYR_initPersona(mo, setpersona, useskin)
-			PLYR_initAnims(mo, useskin)
-			BTL_readybuffs(mo)
-
-			if data.overlay
-				local o = P_SpawnMobjFromMobj(mo, 0, 0, 0, data.overlay)
-				o.target = mo
-				mo.overlay = o
-				--dprint("Spawned overlay for skin "..mo.skin)
-			end
-
-			local firstvalidp	-- fallback for bots
-			local plist = server.playerlist[pa]
-
-			--for k, p in ipairs(plist)
-			for j = 1, server.P_netstat.teamlen
-				local p = plist[j]
-				if p and p.valid and p.mo and p.mo.valid
-					firstvalidp = p
-					break
-				end
-			end
-
-			-- control player
-			local controlp = (plist[i] and plist[i].valid) and plist[i] or firstvalidp
-
-			dprint("PA #"..pa..": Assigning control of bot "..i.." to "..(controlp and controlp.name or "ERRORNAME"))
-			/*if players[i-1]
-				PLYR_setcontrol(mo, players[i-1])
-			end*/
-			PLYR_setcontrol(mo, controlp, plist[i] == controlp)	-- assign control to a player
-			mo.plyr = true	-- we are players, not normal enemies.
-							-- this is used for summon animation, and enables control by player.
-							-- EVEN if the player is in an opposing team!
-			mo.coreentity = true
-							-- do not remove on battle end, if we happen to be enemies!
-
-			-- uncomment this line and change the test entity to any enemy if you want some fun :P
-			/*if i == 2
-				mo.enemy = "test_entity"
-			end*/
-			table.insert(server.plentities[pa], mo)
+			local mo = PLYR_makePlayer(team[pa][i], pa, i)
 			mo.flags2 = $|MF2_DONTDRAW
-			mo.stats = useskin
-
-			-- EQUIPMENT. Set it last because we need a bunch of stuff first
-			-- get weapon name
-			local wpn = data.wep
-			if not weaponsList[wpn]
-				wpn = "shoes_01"
-			end	-- you never know...
-
-			equipWeapon(mo, makeWeapon(wpn))
-
-			-- for wardring, use basic ring and don't ever enhance it.
-			equipRing(mo, makeRing("ring_01"))
-
-			-- buff weapon w/ difficulty
-			if server.cdungeon
-				-- custom dungeons can have their own buff values:
-				mo.weapon.atk = $ + server.cdungeon.weapon_addpow
-				mo.wardring.def = $ + server.cdungeon.armour_adddef
-
-			elseif server.difficulty	-- exploration
-			and server.gamemode == GM_COOP
-				mo.weapon.atk = $ + (difficulty_atk[server.difficulty] or 0)*10
-				mo.wardring.def = $ + (difficulty_def[server.difficulty] or 0)*10
-			end
-
-			mo.weapon.acc = $ or 95
-			mo.weapon.crit = $ or 5
-
-
-			if server.gamemode == GM_PVP
-			and not server.bossmode	-- keep everything the same for boss mode
-				mo.sp = $/3
-				mo.maxsp = mo.sp
-				-- more HP but less SP, for balance.
-			end
 		end
 	end
 end)
@@ -590,6 +583,115 @@ rawset(_G, "PLYR_RemoveFromParty", function(n, k)
 	end
 end)
 
+-- Removes a player from its current party and adds them to the party's reserve.
+rawset(_G, "PLYR_AddToReserve", function(mo)
+	if netgame return end	-- NO.
+	local p = mo.control
+
+	-- don't allow that.
+	if #server.plentities[p.P_party] == 1
+		return
+	end
+
+	local save = {
+		skin = mo.skin,
+		name = mo.name,
+		color = mo.color,
+		level = mo.level,
+		exp = mo.exp,
+		levelcap = mo.levelcap,
+
+		dechp = mo.dechp or 0,
+		decsp = mo.decsp or 0,
+		maxhp = mo.maxhp,
+		maxsp = mo.maxsp,
+		realhp = mo.realhp,
+		realsp = mo.realsp,
+		hp = mo.hp,
+		sp = mo.sp,
+
+		strength = mo.strength,
+		magic = mo.magic,
+		endurance = mo.endurance,
+		agility = mo.agility,
+		luck = mo.luck,
+		realstrength = mo.realstrength,
+		realmagic = mo.realmagic,
+		realendurance = mo.realendurance,
+		realluck = mo.realluck,
+
+		skills = mo.skills,
+		skillcard = mo.skillcard,
+
+		weapon = mo.weapon,
+		wardring = mo.wardring,
+
+		persona = mo.persona,
+
+		-- necessary for the levelup screen.
+		stats = mo.stats,
+		weak = mo.weak,
+		drain = mo.drain,
+		resist = mo.resist,
+		repel = mo.repel,
+		block = mo.block,
+	}
+
+	server.plreserve[#server.plreserve+1] = save
+	-- Take me out of my party...
+
+	local myindex = 0
+	for i = 1, #server.plentities[1]
+		if server.plentities[1][i] == mo
+			myindex = i
+			break
+		end
+	end
+
+	table.remove(server.plentities[1], myindex)
+	P_RemoveMobj(mo)
+
+	-- just to make sure.
+	if not p.control.valid
+		p.control = server.plentities[1][1]
+	end
+	if not p.maincontrol.valid
+		p.maincontrol = server.plentities[1][1]
+	end
+
+	return
+end)
+
+-- Adds a player from the reserve.
+rawset(_G, "PLYR_AddFromReserve", function(n)
+
+	local s = server.plreserve[n]
+	if not s return end	--???
+
+	local newmo = PLYR_makePlayer(s.skin, 1, #server.plentities[1], 1)
+
+	-- reapply values.
+	for k, p in pairs(s)
+		newmo[k] = p
+		print(tostring(k).."="..tostring(p))
+	end
+
+	newmo.flags2 = $ | MF2_DONTDRAW
+end)
+
+COM_AddCommand("reserve", function(p, arg)
+	local pn = tonumber(arg)
+
+	local mo = server.plentities[1][pn]
+	if not mo return end
+
+	PLYR_AddToReserve(mo)
+end)
+
+COM_AddCommand("party", function(p, arg)
+	PLYR_AddFromReserve(tonumber(arg))
+end)
+
 addHook("MapLoad", do
 
 	-- spawn our party at mapload.
@@ -600,6 +702,7 @@ addHook("MapLoad", do
 	-- setup parties:
 	if not server return end
 	server.plentities = {}
+	server.plreserve = $ or {}
 	for i = 1, 4
 		server.plentities[i] = {}
 	end
@@ -849,7 +952,7 @@ rawset(_G, "PLYR_reset", function(pn)	-- reset all battle related variables for 
 	end
 end)
 
-if srb2p.debug
+--if srb2p.debug
 
 COM_AddCommand("p_listplayers", function(p, arg)
 	local arg = tonumber(arg)
@@ -899,5 +1002,5 @@ COM_AddCommand("p_listplayers", function(p, arg)
 		CONS_Printf(p, "BOT #"..i.." ("..mo.name.."): "..name)
 	end
 end)
-end
+--end
 

@@ -22,9 +22,9 @@ ARTISTS:
 	SoapSurfin:		Titlescreen art
 
 	Inazuma:		Shadow The Hedgehog sprites
-	DrStephen:		Dr. Eggman sprites
+	DrStephen:		Dr. Eggman sprites / Fainted Sonic sprite
 	.Luke:			Blaze The Cat sprites
-	
+
 
 MODEL RIPPING:
 	Hero May Cry
@@ -34,7 +34,6 @@ MODEL RIPPING:
 
 PERSONA 3 / 4 MODDING TOOLS:
 	Amicitia community
-	
 
 Sonic Robo Blast 2 belongs to Sonic Team Jr.
 

@@ -1,8 +1,6 @@
 rawset(_G, "srb2p", {
 	name = "SRB2PERSONA",
-	version = "v1.3.4",
-	verbase = 13,
-	version = "v2.0B",
+	version = "v2.0B-12.05.22",
 	verbase = 20,
 	--debug = true,
 	--debugprint = true,
@@ -18,7 +16,7 @@ rawset(_G, "srb2p", {
 	colosseo_map = 3,	-- map for pvp stuff
 	challenge_map = 20,	-- map for void runs
 
-	story_startmap = 21,	-- story start
+	story_startmap = 24, --21,	-- story start
 	story_levelcap = 30,	-- level cap for story mode
 
 	loading = false,	-- used for special displays
@@ -31,6 +29,9 @@ rawset(_G, "srb2p", {
 					compendium = {},	-- compendium data
 					date = {},			-- date
 					itemboxes = {},		-- item boxes opened (so that we can despawn them)
+					checkpoints = {},	-- registered checkpoints
+					emeralds = 0,		-- works like vanilla
+					shopstocks = {},	-- shop stocks
 				},
 
 	-- XDATA tables
@@ -303,33 +304,27 @@ rawset(_G, "MAXSUBPERSONAS", 16)
 
 -- ARCANA_ constants
 
-rawset(_G, "ARCANA_FOOL", 0)
-rawset(_G, "ARCANA_MAGICIAN", 1)
-rawset(_G, "ARCANA_PRIESTRESS", 2)
-rawset(_G, "ARCANA_EMPRESS", 3)
-rawset(_G, "ARCANA_EMPEROR", 4)
-rawset(_G, "ARCANA_HIEROPHANT", 5)
-rawset(_G, "ARCANA_LOVERS", 6)
-rawset(_G, "ARCANA_CHARIOT", 7)
-rawset(_G, "ARCANA_JUSTICE", 8)
-rawset(_G, "ARCANA_HERMIT", 9)
-rawset(_G, "ARCANA_FORTUNE", 10)
-rawset(_G, "ARCANA_STRENGTH", 11)
-rawset(_G, "ARCANA_HANGED", 12)
-rawset(_G, "ARCANA_DEATH", 13)
-rawset(_G, "ARCANA_TEMPERANCE", 14)
-rawset(_G, "ARCANA_DEVIL", 15)
-rawset(_G, "ARCANA_TOWER", 16)
-rawset(_G, "ARCANA_STAR", 17)
-rawset(_G, "ARCANA_MOON", 18)
-rawset(_G, "ARCANA_SUN", 19)
-rawset(_G, "ARCANA_JUDGEMENT", 20)
-rawset(_G, "ARCANA_WORLD", 21)
-
-rawset(_G, "ARCANA_JESTER", 32767)
-rawset(_G, "ARCANA_HUNGER", ARCANA_JESTER + ARCANA_STRENGTH)
-rawset(_G, "ARCANA_AEON", ARCANA_JESTER + ARCANA_JUDGEMENT)
-rawset(_G, "ARCANA_UNIVERSE", ARCANA_JESTER + ARCANA_WORLD)
+rawset(_G, "ARCANA_FOOL", 1)
+rawset(_G, "ARCANA_MAGICIAN", 2)
+rawset(_G, "ARCANA_PRIESTESS", 3)
+rawset(_G, "ARCANA_EMPRESS", 4)
+rawset(_G, "ARCANA_EMPEROR", 5)
+rawset(_G, "ARCANA_HIEROPHANT", 6)
+rawset(_G, "ARCANA_LOVERS", 7)
+rawset(_G, "ARCANA_CHARIOT", 8)
+rawset(_G, "ARCANA_JUSTICE", 9)
+rawset(_G, "ARCANA_HERMIT", 10)
+rawset(_G, "ARCANA_FORTUNE", 11)
+rawset(_G, "ARCANA_STRENGTH", 12)
+rawset(_G, "ARCANA_HANGED", 13)
+rawset(_G, "ARCANA_DEATH", 14)
+rawset(_G, "ARCANA_TEMPERANCE", 15)
+rawset(_G, "ARCANA_DEVIL", 16)
+rawset(_G, "ARCANA_TOWER", 17)
+rawset(_G, "ARCANA_STAR", 18)
+rawset(_G, "ARCANA_MOON", 19)
+rawset(_G, "ARCANA_SUN", 20)
+rawset(_G, "ARCANA_JUDGEMENT", 21)
 
 -- yes good idea lets push uint32 to int32, itll be ok they said
 -- NO IT'S NOT FUCKING OK YOU ABSOLUTE DUMBASS

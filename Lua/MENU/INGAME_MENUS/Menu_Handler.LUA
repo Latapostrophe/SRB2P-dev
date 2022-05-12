@@ -10,6 +10,8 @@ rawset(_G, "M_handleMenu", function(mo)
 	if not mo.m_menu return end			-- no menu, return
 
 	PLAY_nomove(mo.player)
+	-- mid-menu events.
+	if D_runPlayerEvent(mo.player) return end	
 	if mo.editmode return end
 
 	-- menu timers:

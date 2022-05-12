@@ -48,7 +48,7 @@ rawset(_G, "personaList", {
 		luck = 4,
 		agility = 12,
 		
-		skills = {}
+		skills = {{"infinite endure", 1}}
 	},
 	
 	["story_01"] = {
@@ -61,11 +61,11 @@ rawset(_G, "personaList", {
 
 		strength = 25,
 		magic = 25,
-		endurance = 20,
-		luck = 20,
-		agility = 15,
+		endurance = 70,
+		luck = 30,
+		agility = 35,
 
-		skills = {{"eigaon", 1}, {"brave blade", 1}, {"megidola", 1}, {"curse amp", 1}}
+		skills = {{"eigaon", 1}, {"brave blade", 1}, {"megidola", 1}, {"curse amp", 1}, {"regenerate 3", 1}, {"invigorate 3", 1}, {"infinite endure", 1}}
 	},
 
 	["orpheus"] = {

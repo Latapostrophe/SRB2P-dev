@@ -1921,7 +1921,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 
 		-- handle knock down?
 		local gotdown
-		if mo.atk_hitby and (downsyndrome or mo.damagestate == DMG_WEAK)
+		if mo.atk_hitby and (downsyndrome or mo.damagestate == DMG_WEAK or mo.damagestate == DMG_CRITICAL)
 		and not mo.guard
 		and canknockdown
 			playSound(mo.battlen, sfx_crit)
@@ -2113,6 +2113,10 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 
 			local exp = mo.expval or enemyList[mo.enemy].r_exp or 1
 			local money = mo.moneyval or enemyList[mo.enemy].r_macca or exp/4
+			
+			if enemyList[mo.enemy].r_macca == 0	-- specifically 0, not nil
+				money = 0
+			end	
 
 			-- get item drops:
 			/*if enemyList[mo.enemy].r_drops

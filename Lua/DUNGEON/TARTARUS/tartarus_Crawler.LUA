@@ -559,7 +559,7 @@ rawset(_G, "D_tartarusCrawler", function()
 
 				local mus = MUS_PlayRandomBattleMusic("mus_battle_mb")
 				local party = p.P_party
-				BTL_start(party, wave, 2, mus, nil, true)
+				BTL_start(party, wave, 2, mus, nil, true, true, true)
 
 				-- Clear the event garbage
 				for p2 in players.iterate

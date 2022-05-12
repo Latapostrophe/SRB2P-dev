@@ -1,5 +1,7 @@
 shopList["void_shop"] = {
-
+	
+	menuclose = "m_selectfacility",
+	
 	textdata = {		-- data containing text to be displayed at random
 
 		-- text format: {name, text, portrait, colour}
@@ -24,7 +26,7 @@ shopList["void_shop"] = {
 		},
 
 		buycard = {
-			{"Alt", "The %NAME% Skill Card... \nThat'll be %COST%", "H_ALT01", SKINCOLOR_BLUE},
+			{"Alt", "%NAME%... \nAnd you want %QUANTITY%... \nThat'll be %COST%", "H_ALT01", SKINCOLOR_BLUE},
 		},
 
 		buypersona = {
@@ -177,53 +179,53 @@ shopList["void_shop"] = {
 	},
 	
 	skillcards = {
-		{"agi", 250, nil, 9},
-		{"bufu", 250, nil, 9},
-		{"garu", 250, nil, 9},
-		{"zio", 250, nil, 9},
-		{"psi", 250, nil, 9},
-		{"frei", 250, nil, 9},
+		{"sc/ agi", 250, nil, 9},
+		{"sc/ bufu", 250, nil, 9},
+		{"sc/ garu", 250, nil, 9},
+		{"sc/ zio", 250, nil, 9},
+		{"sc/ psi", 250, nil, 9},
+		{"sc/ frei", 250, nil, 9},
 		
-		{"maragi", 700, 6, 15},
-		{"mabufu", 700, 6, 15},
-		{"magaru", 700, 6, 15},
-		{"mazio", 700, 6, 15},
-		{"mafrei", 700, 6, 15},
-		{"mapsi", 700, 6, 15},
+		{"sc/ maragi", 700, 6, 15},
+		{"sc/ mabufu", 700, 6, 15},
+		{"sc/ magaru", 700, 6, 15},
+		{"sc/ mazio", 700, 6, 15},
+		{"sc/ mafrei", 700, 6, 15},
+		{"sc/ mapsi", 700, 6, 15},
 		
-		{"agilao", 700, 6, 18},
-		{"bufula", 700, 6, 18},
-		{"garula", 700, 6, 18},
-		{"zionga", 700, 6, 18},
-		{"psio", 700, 6, 18},
-		{"freila", 700, 6, 18},
+		{"sc/ agilao", 700, 6, 18},
+		{"sc/ bufula", 700, 6, 18},
+		{"sc/ garula", 700, 6, 18},
+		{"sc/ zionga", 700, 6, 18},
+		{"sc/ psio", 700, 6, 18},
+		{"sc/ freila", 700, 6, 18},
 		
-		{"maragion", 2000, 9},
-		{"mabufula", 2000, 9},
-		{"magarula", 2000, 9},
-		{"mazionga", 2000, 9},
-		{"mapsio", 2000, 9},
-		{"mafreila", 2000, 9},
-		
-		
-		{"agidyne", 2250, 15},
-		{"bufudyne", 2250, 15},
-		{"garudyne", 2250, 15},
-		{"ziodyne", 2250, 15},
-		{"psiodyne", 2250, 15},
-		{"freidyne", 2250, 15},
+		{"sc/ maragion", 2000, 9},
+		{"sc/ mabufula", 2000, 9},
+		{"sc/ magarula", 2000, 9},
+		{"sc/ mazionga", 2000, 9},
+		{"sc/ mapsio", 2000, 9},
+		{"sc/ mafreila", 2000, 9},
 		
 		
-		{"maragidyne", 4250, 21},
-		{"mabufudyne", 4250, 21},
-		{"magarudyne", 4250, 21},
-		{"maziodyne", 4250, 21},
-		{"mapsiodyne", 4250, 21},
-		{"mafreidyne", 4250, 21},
+		{"sc/ agidyne", 2250, 15},
+		{"sc/ bufudyne", 2250, 15},
+		{"sc/ garudyne", 2250, 15},
+		{"sc/ ziodyne", 2250, 15},
+		{"sc/ psiodyne", 2250, 15},
+		{"sc/ freidyne", 2250, 15},
 		
-		{"dia", 500},
-		{"diarama", 1500, 6},
-		{"media", 1500, 6},
-		{"mediarama", 7000, 15},
+		
+		{"sc/ maragidyne", 4250, 21},
+		{"sc/ mabufudyne", 4250, 21},
+		{"sc/ magarudyne", 4250, 21},
+		{"sc/ maziodyne", 4250, 21},
+		{"sc/ mapsiodyne", 4250, 21},
+		{"sc/ mafreidyne", 4250, 21},
+		
+		{"sc/ dia", 500},
+		{"sc/ diarama", 1500, 6},
+		{"sc/ media", 1500, 6},
+		{"sc/ mediarama", 7000, 15},
 	},
 }

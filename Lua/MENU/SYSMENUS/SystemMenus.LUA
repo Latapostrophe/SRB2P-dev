@@ -26,12 +26,87 @@ rawset(_G, "cv_musiceditindex", CV_RegisterVar({
   PossibleValue = CV_Natural,
 }))
 
--- quick check for tutorial:
+-- file loading menu...
+local files = {}
+for i = 1, MAXSAVES
+	files[i] = {"SAVE"..i, 0, 0}
+end
 
+local filen = 0
+local function mm_loadSaveGame()
+	-- @TODO: D_MapChange
+	local h = srb2p.fileheaders[filen]
+	
+	if not h.storydta
+		SYS_CreatePrompt("FATAL: Not a storymode file.", PT_NOTIFICATION, nil)
+	elseif not h.storydta.map	
+		SYS_CreatePrompt("FATAL: No saved map", PT_NOTIFICATION, nil)
+	end	
+	
+	SAVE_storyReset()
+	
+	srb2p.storymode = true
+	srb2p.loadfile = h		-- In singleplayer, we can simply apply that directly with no bad consequences.
+	
+	-- setup skin list...
+	SAVE_localtable.party = {}
+	for i = 1, #h.playerlist[1]
+		SAVE_localtable.party[i] = h.playerlist[1][i].skin
+	end	
+	
+	-- load the map
+	COM_ImmedExecute("map "..G_BuildMapName(h.storydta.map).." -force")
+
+end
+
+local function mm_handleFiles(m, choices, curchoice, e)
+		
+	if e == KEY_ENTER	
+		
+		local header = srb2p.fileheaders[curchoice]
+		if not header
+			SYS_CreatePrompt("This file is empty.", PT_NOTIFICATION, nil)
+		elseif not header.usable
+			SYS_CreatePrompt("File is old or corrupt.", PT_NOTIFICATION, nil)
+		else
+			filen = curchoice
+			SYS_CreatePrompt("Are you sure you want to load this file?", PT_YESNO, mm_loadSaveGame)
+		end
+		return true
+	end
+end
+
+local function mm_drawFiles(v, timer, choices, curchoice)
+	
+	if not srb2p.fileheaders or not #srb2p.fileheaders return end
+
+	local fwtimer = (TICRATE/4) - timer
+
+	-- kool visual!!!!
+	v.fadeScreen(31, min(8, fwtimer))
+	PDraw(v, 0, timer*48, v.cachePatch("M_LOAD"), V_SNAPTOLEFT)
+	v.drawFill(64, 0, 1, fwtimer*48, 135|V_SNAPTOLEFT|V_SNAPTOTOP)
+	
+	local scroll = max(0, curchoice-4)
+	local y = 24 - (27*scroll)
+
+	for i = 1, MAXSAVES do
+		local t = max(0, timer - (MAXSAVES-(i-1))/16)	
+		local startx = 80 + (64*t)
+		local skinx = startx + 40	--120
+		R_drawSaveFile(v, startx, y, i, i == curchoice, false)
+
+		y = $+27
+	end	
+end
+
+-- quick check for tutorial:
 
 local function mm_startTutorial()
 	SYS_closeMenu()
-
+	
+	SAVE_storyReset()
+	
 	-- ready save localtable loading:
 	SAVE_localtable.party = {"sonic", "amy"}
 	SAVE_localtable.tutorial = true
@@ -44,6 +119,9 @@ end
 local function mm_startNewGame()
 	SYS_closeMenu()
 	SAVE_localtable.party = {"sonic"}
+	
+	SAVE_storyReset()
+	
 	srb2p.storymode = true
 
 	DATE_setDate(5, 4, 1, 2016, 5)
@@ -224,7 +302,7 @@ local menustates_main = {
 	"MS_SETTINGS",
 
 	"MS_1PLAYER",
-	"MS_SAVESELECT",
+	"MS_SAVES",
 
 	"MS_SETUPPLAYER",
 
@@ -1338,7 +1416,12 @@ local netgameplay_opt = {
 }
 
 SYS_menus[SM_TITLE] = {
-
+	
+	openfunc = 	function()
+						srb2p.storymode = nil
+						SAVE_storyReset()
+				end,
+	
 	openstate = MS_TITLE,
 	openchoice = 1,
 
@@ -1374,11 +1457,22 @@ SYS_menus[SM_TITLE] = {
 		prev = MS_MAIN,
 		displayflags = V_SNAPTOBOTTOM|V_SNAPTOLEFT,
 		choices = 	{
-						{"Load Game", 64, 100, CT_PROMPT, {"There is no singleplayer story yet!\nBut you can experience the game\nin quickplay even by yourself!", PT_NOTIFICATION}, CS_FAKEGREYOUT, "Load a save file and resume your adventure"},	-- CT_MENUSTATE: MS_SAVES
+						{"Load Game", 64, 100, CT_MENUSTATE, MS_SAVES, nil, "Load a save file and resume your adventure"},	-- CT_MENUSTATE: MS_SAVES
 						{"New Game", 64,112, CT_PROMPT, {"This will start a new save file.\nIs this okay?", PT_YESNO, mm_startNewGame}, nil, "Start a new Story Mode save."},	-- CT_FUNCTION: mm_startNewGame
 						{"Tutorial", 64, 124, CT_FUNCTION, mm_startTutorial, nil, "Recommended for people who have never played Persona"},
 					},
 	},
+	
+	[MS_SAVES] = {
+		opentimer = TICRATE/4,
+		prev = MS_1PLAYER,
+		drawfunc = mm_drawFiles,
+		runfunc = mm_handleFiles,		
+		choices = files,
+		openfunc = 	function()
+						srb2p.fileheaders = SAVE_GetFilesHeaders()	-- reset file header display
+					end,
+	},	
 
 	[MS_QUICKPLAY] = {
 		opentimer = TICRATE/4,

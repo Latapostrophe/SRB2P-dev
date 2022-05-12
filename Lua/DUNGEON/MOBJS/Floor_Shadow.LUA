@@ -55,18 +55,40 @@ addHook("MobjThinker", function(mo)
 	end
 
 	if mo.shadowflags & SHF_STRONG	-- make strong shadows flash
-		mo.scale = FRACUNIT*128/100
 		redShadowGlow(mo)
 	end
 
 	if mo.shadowflags & SHF_GOLD
 		goldShadowGlow(mo)
 	end
+	
+	-- scale:
+	if not DNG_isTartarusMap()
+	or mo.shadowflags & SHF_STRONG
+		if mo.cusval == 0
+			mo.scale = $*16/10
+			mo.cusval = 1
+		end	
+	end
+	
+	local frame_anims = {}
+	if server.cdungeon
+		frame_anims = {
+			server.cdungeon.shadowframes_stop,
+			server.cdungeon.shadowframes_move,
+		}
+	
+	elseif DNG_shadowSprites and DNG_shadowSprites[gamemap]
+		frame_anims = {
+			DNG_shadowSprites[gamemap][1],
+			DNG_shadowSprites[gamemap][2]
+		}
+	end	
 
 	if server.entrytime
 
-		if server.cdungeon and server.cdungeon.shadowframes_stop
-			ANIM_set(mo, server.cdungeon.shadowframes_stop, true)
+		if frame_anims and frame_anims[1]
+			ANIM_set(mo, frame_anims[1], true)
 		end
 		ANIM_handle(mo, true)
 		return
@@ -137,8 +159,8 @@ addHook("MobjThinker", function(mo)
 
 					mo.angle = P_RandomRange(0, 359)*ANG1
 					mo.movetimer = P_RandomRange(3*TICRATE, 6*TICRATE)
-					if server.cdungeon and server.cdungeon.shadowframes_move
-						ANIM_set(mo, server.cdungeon.shadowframes_move, true)
+					if frame_anims and frame_anims[2]
+						ANIM_set(mo, frame_anims[2], true)
 					end
 
 				else
@@ -146,8 +168,8 @@ addHook("MobjThinker", function(mo)
 						P_InstaThrust(mo, mo.angle, 2*FRACUNIT)
 					else
 						P_InstaThrust(mo, 0, 0)
-						if server.cdungeon and server.cdungeon.shadowframes_stop
-							ANIM_set(mo, server.cdungeon.shadowframes_stop, true)
+						if frame_anims and frame_anims[1]
+							ANIM_set(mo, frame_anims[1], true)
 						end
 					end
 					mo.movetimer = $ - 1
@@ -186,7 +208,10 @@ addHook("MobjThinker", function(mo)
 				end
 
 				mo.momz = 0
-				mo.z = max(-8*FRACUNIT, mo.floorz)
+				
+				if DNG_isTartarusMap()
+					mo.z = max(-8*FRACUNIT, mo.floorz)
+				end
 			end
 		end
 	end
@@ -247,9 +272,10 @@ end, MT_SHEDEW)
 addHook("ShouldDamage", function(mo, s)
 	if s and s.type ~= MT_SHEDEW return end
 	if not s or not s.valid return end
+	if not mo or not mo.player return end
 
 	if s.scared or (s.fuse and s.fuse > 0)
-	or (server.P_DialogueStatus and server.P_DialogueStatus.running)
+	or (server.P_DialogueStatus and server.P_DialogueStatus[mo.player.P_party].running)
 		return false
 	end
 
@@ -261,6 +287,7 @@ addHook("ShouldDamage", function(mo, s)
 	or mo.startbattle
 	or mo.d_battlebuf
 	or mo.player and mo.player.powers[pw_flashing]
+	or mo.player.SRB2PSTASIS
 		return false
 	end
 

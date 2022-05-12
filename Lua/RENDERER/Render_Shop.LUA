@@ -139,7 +139,8 @@ rawset(_G, "R_drawShop", function(v, mo)
 					v.drawFill(x+16, ty-2, 200, 12, 135)
 
 					if mo.shop.tab == 1
-						-- draw quantity.. (NOT FOR SKILLCARDS/PERSONAS
+					or mo.shop.tab == 4
+						-- draw quantity.. Only for Items/Skillcards
 						local str = "<"..mo.shop.quantity..">"
 						if leveltime%20 < 10
 							str = "< "..mo.shop.quantity.." >"
@@ -151,6 +152,7 @@ rawset(_G, "R_drawShop", function(v, mo)
 
 				-- tab 1: Items
 				if mo.shop.tab == 1
+				or mo.shop.tab == 4	-- Skill Cards too, same shit.
 					-- Item name (quantity)
 					local cost = itemDefs[obj].cost and itemDefs[obj].cost/8 or 0
 					local colour = 0
@@ -242,7 +244,7 @@ rawset(_G, "R_drawShop", function(v, mo)
 
 					ty = $+10
 
-				elseif mo.shop.tab == 4	-- skill cards
+				--[[elseif mo.shop.tab == 4	-- skill cards
 					local atk = attackDefs[elt]
 					if not atk continue end
 
@@ -260,7 +262,7 @@ rawset(_G, "R_drawShop", function(v, mo)
 						V_drawString(v, x+20, lowesty + 64, atk.desc, "NFNT", 0, nil, 0, 31)
 					end
 
-					ty = $+10
+					ty = $+10]]--
 
 				elseif mo.shop.tab == 5	-- sub personas
 
@@ -329,8 +331,8 @@ rawset(_G, "R_drawShop", function(v, mo)
 				if i == mo.shop.choice
 					v.drawFill(x+16, ty-2, 200, 12, 135)
 
-					if mo.shop.tab < 4
-						-- draw quantity.. (NOT FOR SKILLCARDS/PERSONAS
+					if mo.shop.tab < 5
+						-- draw quantity.. (NOT FOR PERSONAS)
 						local str = "<"..mo.shop.quantity..">"
 						if leveltime%20 < 10
 							str = "< "..mo.shop.quantity.." >"
@@ -342,8 +344,23 @@ rawset(_G, "R_drawShop", function(v, mo)
 
 				-- tab 1: Items
 				if mo.shop.tab == 1
+				or mo.shop.tab == 4	-- Skill cards too
 					-- Item name:
-					V_drawString(v, x+20, ty, buildItemName(itemDefs[obj]), "NFNT", 0, nil, 0, 31)
+					
+					local qtys = ""
+					local col = 0
+							
+					if mo.shop.tab == 1
+					and srb2p.storymode
+					and srb2p.storydata.shopstocks and srb2p.storydata.shopstocks[mo.shop.shopname]
+					and elt[5]
+						qtys = "("..(elt[5] - (srb2p.storydata.shopstocks[mo.shop.shopname][i] or 0))..")"
+						if (srb2p.storydata.shopstocks[mo.shop.shopname][i] or 0) >= elt[5] 
+							col = 16
+						end	
+					end	
+						
+					V_drawString(v, x+20, ty, buildItemName(itemDefs[obj]).." "..qtys, "NFNT", 0, nil, col, 31)
 					local cost = elt[2] or itemDefs[obj].cost or 0
 					V_drawString(v, x+170, ty, (i == mo.shop.choice and "x " or "")..(cost)..currency, "NFNT", 0, "right", 0, 31)
 
@@ -434,7 +451,7 @@ rawset(_G, "R_drawShop", function(v, mo)
 					ty = $+10
 
 				-- tab 4: Skill cards
-				elseif mo.shop.tab == 4
+				--[[elseif mo.shop.tab == 4
 					-- Item name:
 					local colour = 0
 					for j = 1, #server.P_BattleStatus[mo.player.P_party].skillcards do
@@ -453,7 +470,7 @@ rawset(_G, "R_drawShop", function(v, mo)
 						V_drawString(v, x+20, lowesty + 64, attackDefs[obj].desc, "NFNT", 0, nil, 0, 31)
 					end
 
-					ty = $+10
+					ty = $+10]]--
 
 				-- PLEASE GIVE ME SWITCH CASES :saddestcat:
 				-- tab 5: Sub-Personas
@@ -512,10 +529,22 @@ rawset(_G, "R_drawShop", function(v, mo)
 
 	if choices and #choices
 		local top = 130 + mo.shop.hudtimers.inshop*16 - 18 - (16*(#choices-1))
+		-- stupid hack #7182940, remove 1 option when selling.
+		if mo.shop.nosell
+		and mo.shop.shopstate == SS_MAIN
+			top = $+16
+		end	
+		
 		local dx = 210
+		local dy = top + (mo.shop.hudtimers.inshop*20 or 0)
+		
 		for i = 1, #choices
 			local c = choices[i]
-			local dy = top + (i-1)*16 + (mo.shop.hudtimers.inshop*20 or 0)
+			
+			-- Hack, if we're in a no-sell shop, then don't display the SELL option, kek.
+			if mo.shop.shopstate == SS_MAIN and mo.shop.nosell and i == 2
+				continue
+			end	
 
 			if mo.shop.textchoice == i
 				PDraw(v, dx, dy, v.cachePatch("H_TBOXS2"), V_SNAPTOBOTTOM)
@@ -524,6 +553,8 @@ rawset(_G, "R_drawShop", function(v, mo)
 				PDraw(v, dx, dy, v.cachePatch("H_TBOXS1"), V_SNAPTOBOTTOM|V_30TRANS)
 				V_drawString(v, dx + 40, dy + 5, c, "NFNT", V_SNAPTOBOTTOM, "center", 0, 31)
 			end
+			
+			dy = $+16
 		end
 	end
 

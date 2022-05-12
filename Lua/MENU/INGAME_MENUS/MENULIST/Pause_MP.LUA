@@ -732,14 +732,16 @@ local function m_item_inputs_New(mo)
 		and not alltargets
 			mo.m_itemtarget = $-1
 			if not mo.m_itemtarget
-				mo.m_itemtarget = server.P_netstat.teamlen
+				--mo.m_itemtarget = server.P_netstat.teamlen
+				mo.m_itemtarget = #server.plentities[mo.player.P_party]
 			end
 			S_StartSound(nil, sfx_hover, mo.player)
 
 		elseif inputs["down"] == 1
 		and not alltargets
 			mo.m_itemtarget = $+1
-			if mo.m_itemtarget > server.P_netstat.teamlen
+			--if mo.m_itemtarget > server.P_netstat.teamlen
+			if mo.m_itemtarget > #server.plentities[mo.player.P_party]
 				mo.m_itemtarget = 1
 			end
 			S_StartSound(nil, sfx_hover, mo.player)

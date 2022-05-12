@@ -102,6 +102,8 @@ rawset(_G, "SAVE_ArchivePlayer", function(mo)
 		maxsp = mo.maxsp,
 		realhp = mo.realhp,
 		realsp = mo.realsp,
+		dechp = mo.dechp or 0,
+		decsp = mo.decsp or 0,
 		hp = mo.hp,
 		sp = mo.sp,
 
@@ -123,6 +125,11 @@ rawset(_G, "SAVE_ArchivePlayer", function(mo)
 
 		--persona = mo.persona
 	}
+	
+	-- for story mode specifically this is relevant
+	if srb2p.storymode
+		save["persona"] = mo.persona
+	end	
 
 	return json.encode(save)
 end)
@@ -151,7 +158,13 @@ local function SAVE_NetArchiveRogueSeed(f)
 end
 
 local function SAVE_ArchiveStoryData(f)
-
+	
+	srb2p.storydata.map = gamemap	-- save the current map.
+	-- save player coordinates
+	if players[0] and players[0].mo and players[0].mo.valid
+		srb2p.storydata.playercoords = {players[0].mo.x, players[0].mo.y, players[0].mo.z, players[0].mo.angle}
+	end	
+	
 	f:write(SAVEBLOCK_STORYDTA.."\n")
 	f:write(json.encode(srb2p.storydata))
 	f:write("\n")
@@ -439,6 +452,143 @@ local function SAVE_getHeader(f, load)
 	return h
 end
 
+-- reads and returns header from a given file for story mode (file must already be opened and ready to read)
+local function SAVE_getStoryHeader(f, load)
+	-- leave header nil for inexistant files, makes it easier
+	if not f
+		return false
+	end
+
+	local h = {}
+	h.usable = true
+
+	local r = f:read()
+	-- these types of files can exist if the host tried to load an empty file.
+	if not r or r == "\n" or r == "EMPTY"
+		return false
+	end
+
+	-- Get save version
+	if r ~= SAVEVER
+		h.text = "\x85".."OLD: SAVE VERSION DOES NOT MATCH"
+		h.usable = nil	-- NO!
+		return h
+	end
+
+
+	while r ~= SAVEBLOCK_ENDFILE
+
+		if r == SAVEBLOCK_DUNGEON
+			-- get floor
+			local r = f:read()
+			if r == nil or r == ""
+				h.text = "\x85".."CORRUPTED: DUNGEON BLOCK INVALID"
+				h.usable = nil	-- NO!
+				return h
+			end
+
+			local dng = json.decode(r)
+			h.dng = dng
+
+		elseif r == SAVEBLOCK_BATTLE
+			local nbattle = 1
+			h.battle = {}
+
+			r = f:read()
+			if r == nil or r == ""
+				h.text = "\x85".."CORRUPTED: BATTLE BLOCK INVALID"
+				h.usable = nil	-- NO!
+				return h
+			end
+
+			while r ~= SAVEBLOCK_END
+				h.battle[nbattle] = SAVE_NetUnArchiveBattle(r)	-- Get decoded battle
+				nbattle = $+1
+				r = f:read()
+			end
+
+		elseif r == SAVEBLOCK_PLAYERS	-- get skin list
+			local teamslot = 1
+			local teamnum = 1
+			h.playerlist = {}
+			r = f:read()
+
+			if r == nil or r == ""
+				h.text = "\x85".."CORRUPTED: PLAYER BLOCK INVALID"
+				h.usable = nil	-- NO!
+				return h
+			end
+
+			while r ~= SAVEBLOCK_END
+				h.playerlist[teamnum] = $ or {}
+
+				if r == SAVEBLOCK_TEAM
+					h.teamlen = $ or teamslot-1
+					teamslot = 1
+					teamnum = $+1
+					r = f:read()
+					continue
+				end
+
+				h.playerlist[teamnum][teamslot] = SAVE_NetUnArchivePlayer(r)
+
+				teamslot = $+1
+				r = f:read()
+			end
+			h.teamlen = $ or teamslot-1	-- just in case
+			
+			h.playerinfo = skins[h.playerlist[1][1].skin].realname.." Lv"..h.playerlist[1][1].level
+		
+		elseif r == SAVEBLOCK_STORYDTA	-- get story data
+			
+			local r = f:read()
+			if r == nil or r == ""
+				h.text = "\x85".."CORRUPTED: STORYDATA BLOCK INVALID"
+				h.usable = nil	-- NO!
+				return h
+			end
+
+			local story = json.decode(r)
+			h.storydta = story
+			h.text = "???"
+			
+			if story.map
+				local mapheader = mapheaderinfo[story.map]
+				if mapheader.entryname
+					h.text = mapheader.entryname
+				end
+				if mapheader.entryfloor
+					h.text = $..", "..mapheader.entryfloor
+				end	
+			end
+			
+		end
+		
+		r = f:read()
+	end
+	return h
+end
+
+-- get all headers for story files:
+-- do this once when opening any file menu, not continuously as this is a huge performance sink
+rawset(_G, "SAVE_GetFilesHeaders", function()
+
+	local headers = {}
+	for i = 1, MAXSAVES
+		local filename = savefolder..storyfileprefix..i..".sav2"
+
+		local f = io.openlocal(filename, "r")
+		if not f
+			continue
+		end
+		-- leave header nil for inexistant files, makes it easier
+		--print(filename)
+		headers[i] = SAVE_getStoryHeader(f)
+	end
+
+	return headers
+end)
+
 -- LOCALLY get all headers for quicksave files.
 rawset(_G, "SAVE_GetQFilesHeaders", function()
 
@@ -490,6 +640,16 @@ rawset(_G, "SAVE_applyFileHeader", function(h)
 	if h.rogueseed
 		server.rogueseed = h.rogueseed
 	end
+	
+	if h.storydta
+		srb2p.storydata = h.storydta
+		
+		if h.storydta.playercoords
+			P_TeleportMove(players[0].mo, h.storydta.playercoords[1], h.storydta.playercoords[2], h.storydta.playercoords[3])
+			players[0].mo.angle = h.storydta.playercoords[4]
+		end
+		
+	end	
 
 	SAVE_FixUps()
 end)
@@ -505,4 +665,87 @@ rawset(_G, "SAVE_getNetgameFileHeader", function(filenum)
 	io.open(filename, "r", function(f)
 		server.netgamefile = SAVE_getHeader(f)
 	end)
+end)
+
+
+-- STORY MODE SPECIFIC SHITE
+
+rawset(_G, "SAVE_storyReset", function()
+	
+	srb2p.storydata.events = {}
+	srb2p.storydata.compendium = {}
+	srb2p.storydata.itemboxes = {}
+	srb2p.storydata.checkpoints = {}
+	srb2p.storydata.shopstocks = {}
+	srb2p.storydata.emeralds = 0
+end)
+
+rawset(_G, "SAVE_getNumEmeralds", function()
+	local emeralds = 0
+	
+	for i = 1, 7 do
+		if srb2p.storydata.emeralds & (1 << (i-1))
+			emeralds = $+1
+		end	
+	end
+	
+	return emeralds
+end)
+
+-- EVENT FLAGS
+-- Story specific (evt flags etc)
+rawset(_G, "SAVE_setEventFlag", function(eventflag)
+	srb2p.storydata.events[eventflag] = true
+end)
+
+rawset(_G, "SAVE_getEventFlag", function(eventflag)
+	return srb2p.storydata.events[eventflag]
+end)
+
+-- ITEM BOXES
+-- this item box has been obtained, mark it so we don't respawn it when reloading maps
+rawset(_G, "SAVE_setItemBox", function(it)
+	srb2p.storydata.itemboxes = $ or {}	-- init table if necessary
+	srb2p.storydata.itemboxes[tostring(gamemap)] = $ or {}
+	
+	if not it or not it.spawnpoint
+		print("SAVE_setItemBox: No valid item box/spawnpoint")
+		return
+	end
+	
+	-- export keys as strings as json encoding does not allow for holes in normal arrays,
+	-- this will make it treat it as an object rather than an array.
+	srb2p.storydata.itemboxes[tostring(gamemap)][tostring(it.spawnpoint.angle)] = true
+end)
+
+rawset(_G, "SAVE_checkItemBox", function(n)
+	srb2p.storydata.itemboxes = $ or {}	-- init table if necessary
+	srb2p.storydata.itemboxes[tostring(gamemap)] = $ or {}	
+	
+	return srb2p.storydata.itemboxes[tostring(gamemap)][tostring(n)]
+end)
+
+
+-- CHECKPOINTS
+rawset(_G, "SAVE_registerCheckpoint", function(it)
+	
+	srb2p.storydata.checkpoints = $ or {}
+	srb2p.storydata.checkpoints[tostring(gamemap)] = $ or {}
+	
+	if not it or not it.spawnpoint
+		print("SAVE_registerCheckpoint: No valid starpost/spawnpoint")
+		return
+	end
+	
+	-- checkpoints work in increments of 360 deg just like in vanilla.
+	srb2p.storydata.checkpoints[tostring(gamemap)][tostring((it.spawnpoint.angle/360) +1)] = true
+end)
+
+rawset(_G, "SAVE_checkCheckpoint", function(n)
+	
+	srb2p.storydata.checkpoints = $ or {}
+	srb2p.storydata.checkpoints[tostring(gamemap)] = $ or {}
+	
+	-- checkpoints work in increments of 360 deg just like in vanilla.
+	return srb2p.storydata.checkpoints[tostring(gamemap)][tostring(n)]
 end)

@@ -3309,6 +3309,212 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
+	["heal_sp_item_5"] = {
+		name = "Heal 5 SP",
+		type = ATK_HEAL,
+		target = TGT_ALLY,
+		costtype = CST_SP,
+		cost = 0,
+		norandom = true,	-- Don't allow this move to be selected in random pvp skills
+		power = 5,
+		showsp = true,	-- tell the game to display sp bars
+		desc = "5 SP recovery to 1 ally.",
+		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
+						local target = targets[n]
+						if target.sp >= target.maxsp
+							BTL_logMessage(targets[1].battlen, "No further effects.")
+							return true
+						end
+					end,
+		anim = 	function(mo, targets, hittargets, timer)
+					local target = hittargets[1]
+					if timer == 20
+						damageSP(target, -5)
+						playSound(mo.battlen, sfx_heal)
+					elseif timer == 60
+						return true
+					end
+				end,
+		},
+
+	["heal_sp_item_10"] = {
+		name = "Heal 10 SP",
+		type = ATK_HEAL,
+		target = TGT_ALLY,
+		costtype = CST_SP,
+		cost = 0,
+		norandom = true,	-- Don't allow this move to be selected in random pvp skills
+		power = 10,
+		showsp = true,	-- tell the game to display sp bars
+		desc = "10 SP recovery to 1 ally.",
+		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
+						local target = targets[n]
+						if target.sp >= target.maxsp
+							BTL_logMessage(targets[1].battlen, "No further effects.")
+							return true
+						end
+					end,
+		anim = 	function(mo, targets, hittargets, timer)
+					local target = hittargets[1]
+					if timer == 20
+						damageSP(target, -10)
+						playSound(mo.battlen, sfx_heal)
+					elseif timer == 60
+						return true
+					end
+				end,
+		},
+
+	["heal_sp_item_15"] = {
+		name = "Heal 15 SP",
+		type = ATK_HEAL,
+		target = TGT_ALLY,
+		costtype = CST_SP,
+		cost = 0,
+		norandom = true,	-- Don't allow this move to be selected in random pvp skills
+		power = 15,
+		showsp = true,	-- tell the game to display sp bars
+		desc = "5 SP recovery to 1 ally.",
+		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
+						local target = targets[n]
+						if target.sp >= target.maxsp
+							BTL_logMessage(targets[1].battlen, "No further effects.")
+							return true
+						end
+					end,
+		anim = 	function(mo, targets, hittargets, timer)
+					local target = hittargets[1]
+					if timer == 20
+						damageSP(target, -15)
+						playSound(mo.battlen, sfx_heal)
+					elseif timer == 60
+						return true
+					end
+				end,
+		},
+
+	["heal_hp_item_15"] = {
+		name = "Heal 15 HP",
+		type = ATK_HEAL,
+		target = TGT_ALLY,
+		costtype = CST_SP,
+		cost = 0,
+		norandom = true,	-- Don't allow this move to be selected in random pvp skills
+		power = 15,
+		desc = "15 HP recovery to 1 ally.",
+		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
+						local target = targets[n]
+						if target.hp >= target.maxhp
+							BTL_logMessage(targets[1].battlen, "No further effects.")
+							return true
+						end
+					end,
+		anim = 	function(mo, targets, hittargets, timer)
+					local target = hittargets[1]
+					if timer == 20
+						damageObject(target, -15)
+						playSound(mo.battlen, sfx_heal)
+					elseif timer == 60
+						return true
+					end
+				end,
+		},
+
+	["heal_hp_item_35"] = {
+		name = "Heal 35 HP",
+		type = ATK_HEAL,
+		target = TGT_ALLY,
+		costtype = CST_SP,
+		cost = 0,
+		norandom = true,	-- Don't allow this move to be selected in random pvp skills
+		power = 35,
+		desc = "35 HP recovery to 1 ally.",
+		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
+						local target = targets[n]
+						if target.hp >= target.maxhp
+							BTL_logMessage(targets[1].battlen, "No further effects.")
+							return true
+						end
+					end,
+		anim = 	function(mo, targets, hittargets, timer)
+					local target = hittargets[1]
+					if timer == 20
+						damageObject(target, -35)
+						playSound(mo.battlen, sfx_heal)
+					elseif timer == 60
+						return true
+					end
+				end,
+		},
+
+	["heal_hp_item_30_all"] = {
+		name = "Heal 30 HP (All)",
+		type = ATK_HEAL,
+		costtype = CST_SP,
+		target = TGT_ALLALLIES,
+		cost = 0,
+		power = 30,
+		desc = "30 HP recovery to all allies",
+		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
+						local noheal = 0
+						for i = 1, #targets
+							if targets[i].hp >= targets[i].maxhp
+								noheal = $+1
+							end
+						end
+						if noheal >= #targets
+							BTL_logMessage(targets[1].battlen, "No further effects.")
+							return true
+						end
+					end,
+		anim = 	function(mo, targets, hittargets, timer)
+					for i = 1, #hittargets do
+						local target = hittargets[1]
+						if timer == 20 + (i-1)*6
+							damageObject(target, -30)
+							playSound(mo.battlen, sfx_heal)
+						end
+					end	
+					if timer == 60 + (#hittargets-1)*6
+						return true
+					end
+				end,
+		},
+
+	["heal_hp_item_50_all"] = {
+		name = "Heal 30 HP (All)",
+		type = ATK_HEAL,
+		costtype = CST_SP,
+		target = TGT_ALLALLIES,
+		cost = 0,
+		power = 30,
+		desc = "30 HP recovery to all allies",
+		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
+						local noheal = 0
+						for i = 1, #targets
+							if targets[i].hp >= targets[i].maxhp
+								noheal = $+1
+							end
+						end
+						if noheal >= #targets
+							BTL_logMessage(targets[1].battlen, "No further effects.")
+							return true
+						end
+					end,
+		anim = 	function(mo, targets, hittargets, timer)
+					for i = 1, #hittargets do
+						local target = hittargets[1]
+						if timer == 20 + (i-1)*6
+							damageObject(target, -50)
+							playSound(mo.battlen, sfx_heal)
+						end
+					end	
+					if timer == 60 + (#hittargets-1)*6
+						return true
+					end
+				end,
+		},
+
 	["heal_sp_0"] = {
 		name = "Heal SP 0",
 		type = ATK_HEAL,
@@ -5713,6 +5919,30 @@ rawset(_G, "attackDefs", {
 		end,
 	},
 
+	["glare"] = {
+		name = "Glare",
+		type = ATK_SUPPORT,
+		power = 1,
+		accuracy = 999,
+		costtype = CST_HP,
+		cost = 0,
+		norogue = true,
+		norandom = true,	-- Don't allow this move to be selected in random pvp skills
+		physical = true,	-- not a skill
+		anim_norepel = true,	-- do not bounce back our ANIMATION
+		desc = "hostility",
+		target = TGT_ENEMY,
+		anim = 	function(mo, targets, hittargets, timer)
+					local target = targets[1]
+					
+					if timer <= 1
+						BTL_logMessage(mo.battlen, mo.name.." glares at "..target.name.."...")
+					elseif timer == TICRATE
+						return true
+					end	
+				end,
+	},
+
 	["strike_1"] = {
 		name = "Strike Attack",
 		type = ATK_STRIKE,
@@ -5782,6 +6012,150 @@ rawset(_G, "attackDefs", {
 					end
 				end,
 	},
+
+	["brak_pierce"] = {
+		name = "Gatling",
+		type = ATK_PIERCE,
+		power = 1,
+		hits = 3,
+		accuracy = 1000,
+		costtype = CST_HP,
+		cost = 0,
+		norandom = true,	-- Don't allow this move to be selected in random pvp skills
+		physical = true,	-- not a skill
+		anim_norepel = true,	-- do not bounce back our ANIMATION
+		desc = "3x Regular attack using the \npierce attribute.",
+		target = TGT_ENEMY,
+		anim = 	function(mo, targets, hittargets, timer)
+				
+				local target = hittargets[1]
+				
+				if timer == 10
+					ANIM_set(mo, mo.anim_special1, true)
+					
+				elseif timer >= 15 and timer%3 == 0 and timer < 60
+					local rndx = target.x + P_RandomRange(-64, 64)*target.scale
+					local rndy = target.y + P_RandomRange(-64, 64)*target.scale
+					local rndz = target.z + P_RandomRange(0, 128)*target.scale
+					
+					local shot = P_SpawnMobj(rndx, rndy, rndz, MT_DUMMY)
+					shot.state = S_STAB_1_1
+					shot.color = SKINCOLOR_ORANGE
+					shot.scale = FRACUNIT
+					playSound(mo.battlen, sfx_hit)
+
+					local d = P_SpawnMobj(rndx, rndy, rndz+128*FRACUNIT, MT_THOK)
+					d.sprite = SPR_THMP
+					d.frame = A|FF_FULLBRIGHT
+					d.scale = FRACUNIT/4
+					d.destscale = FRACUNIT
+					d.scalespeed = FRACUNIT/12
+					d.fuse = TICRATE-10
+					d.tics = d.fuse
+					d.momz = FRACUNIT*2
+					d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+					d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+					d.color = SKINCOLOR_ORANGE
+				end
+				
+				if timer-5 > 15 and (timer-5) %3 == 0 and timer < 60
+					playSound(mo.battlen, sfx_rail1)
+					createSplat(mo)
+					localquake(mo.battlen, FRACUNIT*10, 10)
+				end
+				
+				if timer == 25
+				or timer == 32
+				or timer == 39
+					damageObject(target)
+				end	
+
+				if timer == 80
+					return true
+				end	
+		end,
+	},	
+
+	["brak_msl"] = {
+		name = "Missile Shot",
+		type = ATK_PIERCE,
+		power = 210,
+		hits = 0,
+		accuracy = 1000,
+		costtype = CST_HP,
+		cost = 0,
+		norandom = true,	-- Don't allow this move to be selected in random pvp skills
+		physical = true,	-- not a skill
+		anim_norepel = true,	-- do not bounce back our ANIMATION
+		desc = "Regular attack using the \npierce attribute.",
+		target = TGT_ENEMY,
+		anim = 	function(mo, targets, hittargets, timer)
+				
+				local target = hittargets[1]
+				
+				if timer == 20
+					ANIM_set(mo, mo.anim_special1, true)
+					
+					local xpos = mo.x + P_ReturnThrustX(mo, mo.angle, FixedMul(64*FRACUNIT, mo.scale)) + P_ReturnThrustX(mo, mo.angle+ANGLE_270, FixedMul(32*FRACUNIT, mo.scale))
+					local ypos = mo.y + P_ReturnThrustY(mo, mo.angle, FixedMul(64*FRACUNIT, mo.scale)) + P_ReturnThrustY(mo, mo.angle+ANGLE_270, FixedMul(32*FRACUNIT, mo.scale))
+					
+					mo.msl = P_SpawnXYZMissile(mo, target, MT_CYBRAKDEMON_MISSILE, xpos, ypos, mo.z + 144*mo.scale);
+				
+				elseif mo.msl and mo.msl.valid
+					
+					if R_PointToDist2(mo.msl.x, mo.msl.y, target.x, target.y) < 80*target.scale
+					and not mo.msl.fusing
+					
+						P_InstaThrust(mo.msl, 0, 0)
+						mo.msl.momz = 0
+						mo.msl.fusing = true
+						mo.msl.fuse = 10
+						
+						local s = P_SpawnMobj(mo.msl.x, mo.msl.y, mo.msl.z, MT_DUMMY)
+						s.color = SKINCOLOR_WHITE
+						s.state = S_MEGISTAR1
+						s.scale = $*2 + P_RandomRange(0, 65535)
+						playSound(mo.battlen, sfx_hamas1)
+						
+					elseif mo.msl.fusing 
+						
+						if mo.msl.fuse == 1
+							local boom = P_SpawnMobj(target.x, target.y, target.z, MT_BOSSEXPLODE)
+							boom.scale = FRACUNIT*4
+							boom.state = S_PFIRE1
+							playSound(mo.battlen, sfx_fire2)
+							playSound(mo.battlen, sfx_fire1)
+							damageObject(target)
+
+							localquake(mo.battlen, FRACUNIT*32, 8)
+
+							for i = 1, 8
+								local smoke = P_SpawnMobj(boom.x, boom.y, boom.z, MT_SMOKE)
+								smoke.scale = FRACUNIT*6
+								smoke.momx = P_RandomRange(-5, 5)*FRACUNIT
+								smoke.momy = P_RandomRange(-5, 5)*FRACUNIT
+								smoke.momz = P_RandomRange(3, 6)*FRACUNIT
+							end
+
+							local sm = P_SpawnMobj(target.x, target.y, target.z, MT_SMOLDERING)
+							sm.fuse = TICRATE/2
+							sm.scale = target.scale*3/2
+
+							mo.msl = nil	--- deref
+							mo.msltimer = 30
+								
+						end
+					end
+					
+				elseif mo.msltimer
+					mo.msltimer = $-1
+					if not mo.msltimer
+						mo.msltimer = nil	-- deref
+						return true
+					end	
+				end
+			end,
+	},	
 
 	["pierce_1"] = {
 		name = "Pierce Attack",
@@ -18996,6 +19370,64 @@ end)
 -- now sort it
 table.sort(sorted_attackDefs, attackSortFunc)
 
-/*for i = 1, #sorted_attackDefs
-	print(sorted_attackDefs[i])
-end*/
+-- Add all Skill Card items...
+rawset(_G, "ATK_makeSkillCard", function(atk)
+	local atkd = attackDefs[atk]
+	if not atkd return end	-- doesn't exist.
+	
+	local rarity = 3
+	local cost = 300
+	
+	if atkd.power 
+		rarity = max(rarity, min(6, rarity + (atkd.power/80 -1)))
+		cost = 2*atkd.power
+	end			
+	
+	itemDefs["sc/ "..atk] = {
+		name = atkd.name,
+		desc = atkd.desc,
+		menuonly = true,
+		skillcard = true,
+		skill = atk,
+		rarity = rarity,
+		cost = cost,
+
+		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
+						-- user: player mo in dungeon
+						-- mo: actual entity it was used on (will be a table if it's multi target)
+						
+						-- Generate the event...
+						local it = itemDefs["sc/ "..atk]
+						local text = "Use \x82"..buildItemName(it).."\x80?"
+						if mo.skillcard
+							text = $.."\n\x82The currently equipped "..buildItemName(itemDefs["sc/ "..mo.skillcard]).." will be ".."\x85".."overwritten."
+						end
+						
+						user.player.d_skillcard = it.skill
+						user.player.d_skillcardon = mo
+						
+						local evtdta = {
+							[1] = {"text", nil, text, {{"Yes", 2}, {"No", 4}}},
+							
+							-- Equip it
+							[2] = {"use_skillcard"},
+							
+							-- Don't (give the item back)
+							[4] = {"cancel_skillcard"},
+							
+							["hud_back"] = 	function(v)
+												v.fadeScreen(31, 5)
+											end,
+						}
+						
+						D_startPlayerEvent(user.player, evtdta)
+					end,
+		
+	}
+	
+end)
+
+
+for i = 1, #sorted_attackDefs
+	ATK_makeSkillCard(sorted_attackDefs[i])
+end

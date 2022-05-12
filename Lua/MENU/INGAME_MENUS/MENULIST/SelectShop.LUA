@@ -1,6 +1,6 @@
 -- Simple menu to select between the facilities at the Velvet Room door
 
-local choices = {"LEAVE", "VELVET\n   SHOP", "VELVET\n    LAB"}
+local choices = {"LEAVE", "VELVET\n   SHOP", "VELVET\n    LAB", "SUB PERSONA\n          FUSION"}
 
 local function drawFacilitySelect(v, mo)
 
@@ -27,6 +27,11 @@ local function drawFacilitySelect(v, mo)
 		local scale = FRACUNIT/2
 		local opacity = max(0, 9 - (fwtimer)) << V_ALPHASHIFT
 		
+		-- Multiplayer doesn't have fusion
+		if i > 2 and not srb2p.storymode
+			continue
+		end	
+		
 		if timers.fclose
 			if i == mo.m_fchoice
 				scale = FRACUNIT/2 + (TICRATE*1/3 - timers.fclose)*(FRACUNIT)
@@ -47,7 +52,7 @@ local function drawFacilitySelect(v, mo)
 			
 		elseif i == 1
 			x = 160 - 30 - fwtimer*6
-			y = 100
+			y = 110
 			
 			tx = x - 45
 			ty = y - 10
@@ -55,11 +60,20 @@ local function drawFacilitySelect(v, mo)
 			
 		elseif i == 2
 			x = 160 + 30 + fwtimer*6
-			y = 100
+			y = 110
 			
 			tx = x - 30
 			ty = y - 10
 			tflag = nil
+
+		elseif i == 3
+			x = 160
+			y = 100 - fwtimer*5
+			
+			tx = x - 75
+			ty = y - 10
+			tflag = nil
+			
 		end
 		
 		v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, v.cachePatch("H_SLS"..(i)), opacity)
@@ -93,11 +107,27 @@ M_menus["m_selectfacility"] = {
 								local inpts = mo.P_inputs
 								
 								local choices = {"down", "left", "right"}
+								-- in story moe, allow fusions
+								if srb2p.storymode
+									choices = {"down", "left", "right", "up"}
+								end
+								
+								if mo.player.awayviewtics
+									mo.player.awayviewtics = TICRATE*60*60*60
+								end	
 								
 								if mo.m_hudtimers.fclose == 1
 									M_closeMenu(mo)	
 									
-									if mo.m_fchoice == 1
+									-- leave
+									if mo.m_fchoice == 0
+										if srb2p.storymode
+										and server.obj_velvet_map
+											D_startEvent(1, "ev_velvetroom_leave1")
+										end
+										
+									-- shop
+									elseif mo.m_fchoice == 1
 										local shoptype = "velvet_shop_mp1"
 
 										if server.gamemode == GM_VOIDRUN
@@ -107,9 +137,13 @@ M_menus["m_selectfacility"] = {
 										end	
 
 										DNG_startShop(mo, shoptype)	
-										
+									
+									-- eq lab
 									elseif mo.m_fchoice == 2
 										DNG_startEquipLab(mo)
+										
+									elseif mo.m_fchoice == 3
+										DNG_startFusion(mo)
 									end
 								end
 								

@@ -12,7 +12,9 @@
 */
 
 -- generate a neutral subpersona that can then be accessed
-rawset(_G, "P_generateSubPersona", function(subp)
+-- subp: reference in subpersonaList
+-- lv: set which level to generate the subpersona at. if nil, generates at the default subpersona level.
+rawset(_G, "P_generateSubPersona", function(subp, lv)
 
 	local subd = subpersonaList[subp]
 	if not subd
@@ -20,22 +22,77 @@ rawset(_G, "P_generateSubPersona", function(subp)
 		return
 	end
 
+	local uselv = lv or subd.lv
+
+	local skillslist = {}
+	if subd.skills
+		for i = 1, #subd.skills
+
+			local skd = subd.skills[i]
+			if type(skd) == "table"
+
+				if uselv >= skd[2]
+					skillslist[#skillslist+1] = skd[1]
+				end
+			else
+				skillslist[#skillslist+1] = skd
+			end
+		end
+	end
+
 	local subp_t = {
 		ref = subd,	-- reference from list
 		int = subp,	-- internal name
 		name = subd.name,
-		skills = subd.skills and copyTable(subd.skills) or {},	-- during fusion, skill can be inherited
-		st = subd.st,
-		ma = subd.ma,
-		en = subd.en,
-		ag = subd.ag,
-		lu = subd.lu,
-		level = subd.lv,
+		skills = skillslist,	-- during fusion, skill can be inherited
+		st = subd.st or 0,
+		ma = subd.ma or 0,
+		en = subd.en or 0,
+		ag = subd.ag or 0,
+		lu = subd.lu or 0,
+		level = uselv,
 		exp = 0,
 		equipped = nil,
 	}
+
 	return subp_t
 end)
+
+-- register a SubPersona to the compendium...
+-- overwrites existing entry if it exists.
+-- does nothing outside of story mode or if subp is nil.
+
+rawset(_G, "P_registerSubPersona", function(subp)
+	if not srb2p.storymode return end
+	if not subp return end
+
+	-- check if the subpersona already has an entry in the compendium:
+	local t = srb2p.storydata.compendium
+	local index
+
+	for i = 1, #t do
+		-- if so and the new entry has a higher level or more skills, replace it.
+		if t[i] and t[i].name == subp.name
+		and (t[i].level < subp.level or (t[i].level == subp.level and t[i].exp < subp.exp) or #t[i].skills < #subp.skills)
+			index = i
+			break
+		end
+	end
+
+	-- replace index with #t+1 if we don't have a value.
+	index = $ or #t+1
+
+	t[index] = subp
+end)
+
+-- Generate and THEN register a subpersona.
+rawset(_G, "P_generateAndRegisterSubPersona", function(subn, lv)
+	local subp = P_generateSubPersona(subn, lv)
+	P_registerSubPersona(subp)
+	return subp
+end)
+
+
 
 freeslot("SPR_SBPR", "SPR_SBP2")
 
@@ -284,7 +341,7 @@ rawset(_G, "subpersonaList", {
 		sprite = SPR_SBP2,
 		frame = C,
 		lv = 56,
-		arcana = ARCANA_AEON,
+		arcana = ARCANA_SUN,
 		weapontype = ATK_ELEC,
 		st = 0,
 		ma = 0,
@@ -397,7 +454,7 @@ rawset(_G, "subpersonaList", {
 		en = 2,
 		lu = 0,
 		ag = -1,
-		skills = {"kill rush", "tarukaja", "freila"},
+		skills = {"kill rush", "tarukaja", {"freila", 42}, {"gale slash", 43}},
 	},
 
 	["pale rider"] = {
@@ -481,7 +538,7 @@ rawset(_G, "subpersonaList", {
 		sprite = SPR_SBP2,
 		frame = K,
 		lv = 24,
-		arcana = ARCANA_HEIROPHANT,
+		arcana = ARCANA_HIEROPHANT,
 		weapontype = ATK_WIND,
 		st = 2,
 		ma = 1,
@@ -716,7 +773,7 @@ rawset(_G, "subpersonaList", {
 		en = -2,
 		ag = 3,
 		lu = 0,
-		skills = {"dia", "zio"}
+		skills = {"zio", {"dia", 3}, {"patra", 4}, {"agi", 5}, {"garu", 6}, {"frei", 7}, {"kouha", 8}}
 	},
 
 	["nata taishi"] = {

@@ -7,6 +7,8 @@ rawset(_G, "buildItemName", function(it)
 	
 	if it.key
 		ico = "\x9A"
+	elseif it.skillcard
+		ico = ICO_SKILLCARD
 	elseif it.menuonly
 		ico = "\xAA"
 	elseif it.attack and attackDefs[it.attack]	-- can be used in battle
@@ -930,6 +932,21 @@ rawset(_G, "itemDefs", {
 	},
 
 	-- Special items
+	
+	["velvet_wallet"] = {
+		name = "Velvet Wallet",
+		desc = "A wallet that allows you to substitute\nany currency for Macca. There's no \nway its insides are euclidean...",
+		key = true,
+		rarity = 6,
+	},	
+
+	["velvet_key"] = {
+		name = "Velvet Key",
+		desc = "A strange blue key that allows you \nto enter the Velvet Room.",
+		key = true,
+		rarity = 6,
+	},	
+	
 	["medal_depths"] = {
 		name = "Depths Medal",
 		desc = "Gold plated medal awarded to those who\nhave challenged the depths.\nSomeone might be interrested in it.",
@@ -1056,7 +1073,193 @@ rawset(_G, "itemDefs", {
 		cost = 4000,
 		rarity = 5,
 	},
+	
+	-- Food items (Healing items)
+	["minute soubrette"] = {
+		name = "Min. Soubrette",
+		desc = "5 SP recovery to an ally.\nA popular apple juice brand.\nHigh in sugar.",
+		attack = "heal_sp_item_5",
+		cost = 20,
+		rarity = 1,
+	},	
 
+	["nep bull"] = {
+		name = "Nep Bull",
+		desc = "5 SP recovery to an ally.\nThe can is made of\n100% recycled assets.",
+		attack = "heal_sp_item_5",
+		cost = 20,
+		rarity = 1,
+	},	
+
+	["3up"] = {
+		name = "3-UP",
+		desc = "5 SP recovery to an ally.\n3 whole lives? That\nmoon's too good to be true...",
+		attack = "heal_sp_item_5",
+		cost = 20,
+		rarity = 1,
+	},
+
+	["loh brew"] = {
+		name = "Loh Brew",
+		desc = "5 SP recovery to an ally.\nIt's sour, but it sure wakes you up.",
+		attack = "heal_sp_item_5",
+		cost = 20,
+		rarity = 1,
+	},
+
+	["chaos cola"] = {
+		name = "Chaos Cola",
+		desc = "10 SP recovery to an ally.\nLimited 'Chao in Space 3' edition!",
+		attack = "heal_sp_item_10",
+		cost = 35,
+		rarity = 1,
+	},
+
+	["spirite"] = {
+		name = "Spirite",
+		desc = "10 SP recovery to an ally.\nLemon Lime. Surprisingly\nrefreshing...",
+		attack = "heal_sp_item_10",
+		cost = 35,
+		rarity = 1,
+	},
+
+	["peach rings"] = {
+		name = "Peach Rings",
+		desc = "10 SP recovery to an ally.\nIts flavour refuels\nthe spirit.",
+		attack = "heal_sp_item_10",
+		cost = 35,
+		rarity = 1,
+	},
+
+	["soul cider"] = {
+		name = "Soul Cider",
+		desc = "15 SP recovery to an ally.\nIt's apple juice... mixed with alcohol?",
+		attack = "heal_sp_item_15",
+		cost = 50,
+		rarity = 1,
+	},
+
+	["coffee thermos"] = {
+		name = "Coffee Thermos",
+		desc = "15 SP recovery to an ally.\nHomemade coffee.\nIt's still warm thanks to the thermos...",
+		attack = "heal_sp_item_15",
+		cost = 50,
+		rarity = 1,
+	},
+
+	["cookie"] = {
+		name = "Cookie",
+		desc = "15 HP recovery to an ally.\nSomeone else might like it...\nBut you can always keep it to yourself...",
+		cost = 10,
+		attack = "heal_hp_item_15",
+		rarity = 1,
+	},
+
+	["ham sandwich"] = {
+		name = "Ham Sandwich",
+		desc = "15 HP recovery to an ally.\nHam and butter, a timeless classic.",
+		cost = 10,
+		attack = "heal_hp_item_15",
+		rarity = 1,
+	},
+
+	["chilli dog"] = {
+		name = "Chilli Dog",
+		desc = "15 HP recovery to an ally.\nVery spicy, just as I like it...",
+		cost = 10,
+		attack = "heal_hp_item_15",
+		rarity = 1,
+	},
+
+	["onion rings"] = {
+		name = "Onion Rings",
+		desc = "15 HP recovery to an ally.\nNot recommended for a healthy diet.",
+		cost = 10,
+		attack = "heal_hp_item_15",
+		rarity = 1,
+	},
+
+	["blue bnnui"] = {
+		name = "Blue Bnnui",
+		desc = "15 HP recovery to an ally.\nAn ice cream with a\npeculiar shape...",
+		cost = 10,
+		attack = "heal_hp_item_15",
+		rarity = 1,
+	},
+
+	["chaos candy"] = {
+		name = "Chaos Candy",
+		desc = "15 HP recovery to an ally.\nSour candy shaped like\na Chaos Emerald.",
+		cost = 10,
+		attack = "heal_hp_item_15",
+		rarity = 1,
+	},
+
+	["ham sandwich xl"] = {
+		name = "Ham Sandwich XL",
+		desc = "35 HP recovery to an ally.\nFor bigger cravings.",
+		cost = 25,
+		attack = "heal_hp_item_35",
+		rarity = 1,
+	},
+
+	["chilli dog xl"] = {
+		name = "Chilli Dog XL",
+		desc = "35 HP recovery to an ally.\nThis is way too spicy...",
+		cost = 25,
+		attack = "heal_hp_item_35",
+		rarity = 1,
+	},
+
+	["grilled fsteak"] = {
+		name = "Grilled Fsteak",
+		desc = "35 HP recovery to an ally.\nAppreciated by true warriors.",
+		cost = 25,
+		attack = "heal_hp_item_35",
+		rarity = 1,
+	},
+
+	["donut"] = {
+		name = "Donut",
+		desc = "35 HP recovery to an ally.\nJelly-filled. Does not\nresemble a donut...",
+		cost = 25,
+		attack = "heal_hp_item_35",
+		rarity = 1,
+	},
+
+	["aperispheres"] = {
+		name = "Aperispheres",
+		desc = "30 HP recovery to all allies.\nCheese with various flavours with\nsome trivia facts in each packaging.",
+		cost = 50,
+		attack = "heal_hp_item_30_all",
+		rarity = 1,
+	},
+
+	["pepperoni pizza"] = {
+		name = "Pepperoni Pizza",
+		desc = "30 HP recovery to all allies.\nThe objective best kind of pizza.",
+		cost = 50,
+		attack = "heal_hp_item_30_all",
+		rarity = 1,
+	},
+
+	["fullmoon pizza"] = {
+		name = "Fullmoon Pizza",
+		desc = "50 HP recovery to all allies.\nOnly purcheasable during full moons.\nHas extra pepperoni, too...",
+		cost = 50,
+		attack = "heal_hp_item_50_all",
+		rarity = 1,
+	},
+
+	["lifesavers"] = {
+		name = "Lifesavers",
+		desc = "Revive 1 ally with half HP.\nYou want to scream\n'Oh yeah baby!' at their sight.",
+		attack = "recarm",
+		nouse = true,
+		cost = 150,
+		rarity = 1,
+	},
+	
 	-- Revival items
 
 	["1up"] = {
