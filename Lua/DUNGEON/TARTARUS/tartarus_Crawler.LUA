@@ -39,6 +39,7 @@ local function DNG_check_stairs_uncovered(p, n)
 	if server.map[n] == T_EXIT
 	and not server.P_DungeonStatus.stairsfound
 		server.P_DungeonStatus.stairsfound = true
+		VFX_Play(p.mo,VFX_TARTARUS_SPRING)
 		DNG_logMessage("\x82"..p.name.."\x80".." found the ".."\x83".."Spring".."\x80".."!")
 	end
 end
@@ -314,7 +315,7 @@ addHook("ShouldDamage", function(mo, inflictor)
 		mo.spikehits = $+1
 
 		if mo.player.maincontrol and mo.player.maincontrol.hp > 1
-			VFX_Play(mo, mo.spikehits < 7 and VFX_HURT or VFX_HURTX)			-- big pain
+			VFX_Play(mo, mo.spikehits < 7 and VFX_TARTARUS_SPIKE or VFX_TARTARUS_CRITSPIKE)	-- big pain(falls back onto hurt and hurtx)
 			S_StartSound(mo, sfx_s3kb9)		-- rings
 
 			-- spill fake rings
@@ -772,7 +773,7 @@ rawset(_G, "D_tartarusCrawler", function()
 				ring.fuse = TICRATE
 			end
 
-			VFX_Play(mo, VFX_DIE)			-- big pain
+			VFX_Play(mo, VFX_TARTARUS_SPIKEPIT)			-- big pain(fallsback to VFX_DIE)
 			DNG_Damage(p.maincontrol, p.maincontrol.maxhp/10)
 
 			local h = P_SpawnMobj(mo.x, mo.y, mo.z, MT_DUMMY)
@@ -823,7 +824,7 @@ rawset(_G, "D_tartarusCrawler", function()
 		and mo.z < -((p.pflags & PF_JUMPED or mo.p_abl or p.climbing) and 128 or 2)*FRACUNIT -- you fell (tm)
 		and not mo.spr_pit
 			S_StartSound(mo, sfx_s3k51)
-			VFX_Play(mo, VFX_DIE)
+			VFX_Play(mo, VFX_TARTARUS_PIT) -- Fallsback onto VFX_DIE
 			mo.spr_pit = TICRATE
 
 			emotionBubble(mo, EMOTE_SURPRISED, 128*FRACUNIT)

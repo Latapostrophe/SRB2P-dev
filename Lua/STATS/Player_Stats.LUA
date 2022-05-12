@@ -262,7 +262,7 @@ rawset(_G, "charStats", {
 		basehp = 55,			-- base HP for level 1
 		basesp = 42,
 		persona = "penthesilea",
-		persona_pvp = "penthesilea_pvp",
+		persona_pvp = "penthesilea",
 		melee_natk = "blaze_atk1",	-- normal melee attack
 
 		atk = 30,
@@ -349,7 +349,7 @@ rawset(_G, "charStats", {
 		basehp = 45,			-- base HP for level 1
 		basesp = 50,
 		persona = "io",
-		persona_pvp = "io_pvp",
+		persona_pvp = "io",
 		melee_natk = "amy_atk1",	-- normal melee attack
 
 		atk = 35,
@@ -423,7 +423,7 @@ rawset(_G, "charStats", {
 		basehp = 70,					-- base HP for level 1
 		basesp = 30,
 		persona = "palladion",
-		persona_pvp = "palladion_pvp",
+		persona_pvp = "palladion",
 		melee_natk = "metal_atk1",	-- normal melee attack
 
 		atk = 40,
@@ -580,7 +580,7 @@ rawset(_G, "charStats", {
 		basehp = 65,			-- base HP for level 1
 		basesp = 30,
 		persona = "hermes",
-		persona_pvp = "hermes_pvp",
+		persona_pvp = "hermes",
 		melee_natk = "shadow_atk1",	-- normal melee attack
 
 		supercolor_start = SKINCOLOR_SUPERTAN1,
@@ -661,7 +661,7 @@ rawset(_G, "charStats", {
 		basehp = 70,			-- base HP for level 1
 		basesp = 30,
 		persona = "polydeuces",
-		persona_pvp = "polydeuces_pvp",
+		persona_pvp = "polydeuces",
 		melee_natk = "knuckles_atk1",	-- normal melee attack
 
 		supercolor_start = SKINCOLOR_SUPERRED1,
@@ -735,7 +735,7 @@ rawset(_G, "charStats", {
 		basehp = 50,			-- base HP for level 1
 		basesp = 45,
 		persona = "nemesis",
-		persona_pvp = "nemesis_pvp",
+		persona_pvp = "nemesis",
 		melee_natk = "tails_atk1",	-- normal melee attack
 
 		overlay = MT_SRB2P_TAILSOVERLAY,
