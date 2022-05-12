@@ -166,6 +166,11 @@ f = "NET"
 	df("Net_Team.LUA")
 	df("Net_Resynch.LUA")
 
+-- STORY INIT...
+print("Initializing Story Mode scripts...")
+f = "EVENTS/Story/Episode1"
+	df("001_eggbase.LUA")
+
 -- RENDERER
 print("Initiating HUD rendering...")
 f = "RENDERER"

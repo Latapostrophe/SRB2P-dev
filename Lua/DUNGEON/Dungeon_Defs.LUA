@@ -1,5 +1,31 @@
 -- General dungeon stuff:
 
+-- Story mode: Deterministic item tables
+/*
+	DNG_itemBoxes[mapnum] = {
+
+		-- item boxes with NO ANGLE use the AREA DROP TABLE
+
+		[1] = {	-- ITEM BOX ANGLE.
+			{"itemname", quantity},
+			{{"weapon", "weaponname"}, quantity},
+			[...] -- same as item odds, but odds are quantity instead.
+		},
+	}
+
+
+	DNG_areaDropTables[mapnum] = {
+
+		-- Generally 1, but dungeons can have multiple "areas"
+		[areanum] = {
+			-- works the same as tartarus drop tables
+		},
+
+	}
+*/
+rawset(_G, "DNG_itemBoxes", {})
+rawset(_G, "DNG_areaDropTables", {})
+
 -- Default reaper timers by difficulty:
 rawset(_G, "reapertimers", {
 
@@ -106,6 +132,8 @@ end)
 -- So let's not lose that data.
 -- Load a new map while keeping all our status.
 -- We'll do that by using JSON serialization
+
+-- Data saved in srb2p. will be carried over as it is local and not tied to mobjs.
 
 rawset(_G, "DNG_loadNewMap", function(mapnum)
 

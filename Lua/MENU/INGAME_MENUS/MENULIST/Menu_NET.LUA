@@ -303,10 +303,10 @@ local function drawMenu_customDungeons(v, mo, choice, forcetimer)
 	-- difficulty
 	local difficulty = header.gensize
 	local sx = 320 - 50 + t*32
-	
+
 	for i = 1, 6
 		local pname = "RSTAR1"
-		
+
 		if i > difficulty
 			pname = "RSTAR0"
 		end
@@ -437,11 +437,11 @@ local function drawMenu_terminal(v, mo, choice, forcetimer)
 	addy = $/2
 
 	if not blocks return end	-- wait a bit
-	
+
 	if not monad
 		mo.m_menuchoices[mo.m_submenu] = max(1, $)	-- can happen if you use rogue mode and then go back to normal mode.
-	end	
-	
+	end
+
 	-- set addy thru some hack
 	local inpt = mo.P_inputs
 	local tchoice = choice	-- temp choice used for calc
@@ -849,9 +849,9 @@ M_menus["mpselect_main"] = {
 		server.netgamefile = nil
 		server.bossmode = nil
 		server.cdungeon = nil
-		
+
 	end,
-	
+
 	mpselect_cdungeon = {
 		opentimer = TICRATE/3,
 		closetimer = TICRATE/3,
@@ -860,14 +860,14 @@ M_menus["mpselect_main"] = {
 		dynchoices = true,
 		prev = "mpselect_mainmenu",
 		drawer = drawMenu_customDungeons,
-		
+
 		confirmfunc = function(mo)
 							mo.P_inputs[BT_JUMP] = 2	-- skip input
 							server.cdungeon = P_getCustomDungeon(mo.m_menuchoices[mo.m_submenu])
 							if not server.cdungeon
 								return	-- ?????
 							end
-							
+
 							NET_begin()
 							server.P_netstat.buffer = {
 								map = srb2p.customdungeon_map,
@@ -877,10 +877,10 @@ M_menus["mpselect_main"] = {
 							}
 							M_closeMenu(mo)
 		end,
-		
-		
+
+
 	},
-	
+
 	mpselect_mainmenu = {
 		opentimer = TICRATE/3,
 		closetimer = TICRATE/3,
@@ -903,7 +903,7 @@ M_menus["mpselect_main"] = {
 		confirmfunc = 		function(mo)
 								mo.m_voidtexttimer = 0
 								--mo.m_voidtextboxtimer = TICRATE/2
-								
+
 								-- custom dungeons: check if we have any of those little shits loaded
 								if mo.m_menuchoices[mo.m_submenu] == 5
 									if not P_getCustomDungeon(1)	-- no dungeon
@@ -911,15 +911,15 @@ M_menus["mpselect_main"] = {
 										return true
 									end
 								end
-								
+
 								-- count custom battles:
 								mo.m_dynchoices = 0
 								local i = 1
 								while P_getCustomDungeon(i)
 									mo.m_dynchoices = i
 									i = $+1
-								end	
-								
+								end
+
 							end,
 	},
 
@@ -962,7 +962,7 @@ M_menus["mpselect_main"] = {
 				maxparties = 2,
 			}
 			M_closeMenu(mo)
-			
+
 			--server.bossmode = nil
 			return true
 		end,

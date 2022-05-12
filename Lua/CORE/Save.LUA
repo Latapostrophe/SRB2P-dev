@@ -1,4 +1,8 @@
 /*
+
+	THIS IS MOSTLY DEPRECATED, CHECK JSSAVE FOR NORMAL GAME SAVING
+	This is still used for a few settings file
+
 	Script for save data functions
 
 	@NOTE: Save data is local and cannot be used in netgames under any circumstance.

@@ -2,6 +2,11 @@
 local SAVEVER = "1"
 local qsavefolder = "client/Quickplay/"
 local fileprefix = "srb2p_qsave"
+
+local savefolder = "client/Singleplayer/"
+local storyfileprefix = "srb2p_save",
+
+rawset(_G, "MAXSAVES", 32)
 rawset(_G, "MAXQSAVEFILES", 6)
 
 local keys = {
@@ -14,6 +19,10 @@ local keys = {
 	"SAVEBLOCK_ENDFILE",	-- Stop reading the file
 
 	"SAVEBLOCK_TEAM",		-- for player reading, tell the parser to save the next players in the next team
+
+	-- singleplayer saveblocks...
+	"SAVEBLOCK_DATE",
+	"SAVEBLOCK_STORYDTA",
 }
 
 for i = 1, #keys do
@@ -141,6 +150,14 @@ local function SAVE_NetArchiveRogueSeed(f)
 	end
 end
 
+local function SAVE_ArchiveStoryData(f)
+
+	f:write(SAVEBLOCK_STORYDTA.."\n")
+	f:write(json.encode(srb2p.storydata))
+	f:write("\n")
+	f:write(SAVEBLOCK_END.."\n")
+end
+
 -- Quick saves the game
 rawset(_G, "SAVE_QSaveFile", function(filenum)
 	-- save battle status
@@ -159,6 +176,27 @@ rawset(_G, "SAVE_QSaveFile", function(filenum)
 	f:write(SAVEBLOCK_ENDFILE)
 	f:close()
 end)
+
+-- Story mode save
+rawset(_G, "SAVE_StorySaveFile", function(filenum)
+	-- save battle status
+	local filename = savefolder..storyfileprefix..filenum..".sav2"
+	local f = io.openlocal(filename, "w")
+	-- write file headers
+	f:write(SAVEVER.."\n")	-- save version, used for file compatibility
+
+	-- Write relevant data
+	SAVE_NetArchiveDungeon(f)	-- Net version works here
+	SAVE_NetArchivePlayers(f)	-- //
+	SAVE_NetArchiveBattles(f)	-- //
+
+	SAVE_ArchiveStoryData(f)	-- Most story related stuff; event flags & compendium are there for instance.
+
+	-- SAVING COMPLETE
+	f:write(SAVEBLOCK_ENDFILE)
+	f:close()
+end)
+
 
 /*
 	################################
