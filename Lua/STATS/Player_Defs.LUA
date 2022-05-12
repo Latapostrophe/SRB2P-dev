@@ -35,6 +35,12 @@ local vfx_const = {
 	"VFX_TARTARUS_PIT",			-- pit
 	"VFX_TARTARUS_ITEM",		-- item
 	"VFX_TARTARUS_SPRING",		-- found spring
+	"VFX_TARTARUS_SPIKE",		-- Spiked
+	"VFX_TARTARUS_CRITSPIKE",	-- REALLY spiked
+	"VFX_TARTARUS_ENCOUNTER",	-- Neutral Advantage
+	"VFX_TARTARUS_ADVANTAGE",	-- Player Advantage
+	"VFX_TARTARUS_AMBUSHED",	-- Enemy Advantage 
+	"VFX_TARTARUS_SPIKEPIT",	-- pit with spikes
 }
 
 for i = 1, #vfx_const
@@ -64,6 +70,12 @@ local vfx_const_2_t = {
 	[VFX_TARTARUS_PIT] = "vfx_tartarus_pit",
 	[VFX_TARTARUS_ITEM] = "vfx_tartarus_item",
 	[VFX_TARTARUS_SPRING] = "vfx_tartarus_spring",
+	[VFX_TARTARUS_SPIKE] = "vfx_tartarus_spike",
+	[VFX_TARTARUS_CRITSPIKE] = "vfx_tartarus_critspike",
+	[VFX_TARTARUS_ENCOUNTER] = "vfx_tartarus_encounter",
+	[VFX_TARTARUS_ADVANTAGE] = "vfx_tartarus_advantage",
+	[VFX_TARTARUS_AMBUSHED] = "vfx_tartarus_ambushed",
+	[VFX_TARTARUS_SPIKEPIT] = "vfx_tartarus_spikepit",
 }
 
 -- big dick privileges: these specific VFX_ don't care about the timer when used
@@ -71,6 +83,12 @@ local bigdickprivileges = {
 	[VFX_HURTX] = true,
 	[VFX_AOADO] = true,
 	[VFX_DIE] = true,
+	[VFX_TARTARUS_PIT] = true,
+	[VFX_TARTARUS_SPIKE] = true,
+	[VFX_TARTARUS_CRITSPIKE] = true,
+	[VFX_TARTARUS_ENCOUNTER] = true,
+	[VFX_TARTARUS_ADVANTAGE] = true,
+	[VFX_TARTARUS_AMBUSHED] = true,
 }
 
 -- VFX_freeslotC: freeslots all the fields above for a character stat
@@ -161,6 +179,22 @@ rawset(_G, "VFX_Play", function(mo, v, stats, p)
 	end
 
 	local t = stats[vfx_const_2_t[v]]
+	-- We need to fallback in certain cases, specifically anything related to tartarus specific vfx
+	if v >= 19 and not t -- Make sure we are only doing this for tartarus specific vfx
+		if v == VFX_TARTARUS_PIT
+		or v == VFX_TARTARUS_SPIKEPIT
+			t = stats[vfx_const_2_t[VFX_DIE]]
+		elseif v == VFX_TARTARUS_SPIKE
+			t = stats[vfx_const_2_t[VFX_HURT]]
+		elseif v == VFX_TARTARUS_CRITSPIKE
+			t = stats[vfx_const_2_t[VFX_HURTX]]
+		--Do nothing for VFX_TARTARUS_ITEM
+		--Do nothing for VFX_TARTARUS_SPRING
+		--Do nothing for VFX_TARTARUS_ENCOUNTER
+		--Do nothing for VFX_TARTARUS_ADVANTAGE
+		--Do nothing for VFX_TARTARUS_AMBUSHED
+		end
+	end
 	if not t or not #t return end	-- no table
 
 	-- pick random sound

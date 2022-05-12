@@ -350,7 +350,12 @@ addHook("ShouldDamage", function(mo, s)
 		if adv == 1	-- padvan
 			emotionBubble(s, EMOTE_SURPRISED)
 		end
-
+		-- Make the player play appropriate encounter vfx(if they have it defined)
+		if adv == 1
+			VFX_Play(mo, VFX_TARTARUS_ADVANTAGE)
+		else
+			VFX_Play(mo, VFX_TARTARUS_ENCOUNTER)
+		end
 
 	elseif adv == 2
 		local oldang = mo.angle
@@ -363,6 +368,8 @@ addHook("ShouldDamage", function(mo, s)
 		s.momz = -mo.momz
 
 		emotionBubble(mo, EMOTE_SURPRISED)
+		-- Make the player play appropriate encounter vfx(if they have it defined)
+		VFX_Play(mo, VFX_TARTARUS_AMBUSHED)
 	end
 
 	S_StartSound(mo, sfx_phys)

@@ -434,6 +434,9 @@ rawset(_G, "PLYR_spawn", function(team)
 			local setpersona = data.persona or "orpheus"
 			if server.gamemode == GM_VOIDRUN
 				setpersona = "unequipped"
+			elseif server.gamemode == GM_PVP -- Allow characters to use PVP-balanced personas
+			and not server.bossmode --...only in PVP mode!
+				setpersona = data.pvp_persona or $
 			end
 
 			PLYR_initPersona(mo, setpersona, useskin)

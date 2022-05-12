@@ -142,6 +142,7 @@ addHook("MobjCollide", function(t, mo)
 			
 			spawnItemDrop(it, t.x, t.y, t.z)
 		end
+		VFX_Play(mo, VFX_TARTARUS_ITEM) -- after all that, play a sound effect if applicable
 	else
 		DNG_logMessage("\x82"..mo.player.name.."\x80".." found an empty box...")
 	end
