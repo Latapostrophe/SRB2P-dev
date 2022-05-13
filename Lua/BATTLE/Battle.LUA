@@ -6340,20 +6340,33 @@ rawset(_G, "BTL_getPersona", function(pn)
 	local choice = personas[P_RandomRange(1, #personas)]
 
 	-- is the subpersona valid...?
-	if not subpersonaList[choice]
+	local subp = subpersonaList[choice]
+	if not subp
 		print("\x82".."WARNING: ".."\x80".."Invalid subpersona selected, internal name is "..choice)
 		return nil -- not a valid subpersona entry
-	elseif not subpersonaList[choice].name
-	or not subpersonaList[choice].sprite
-	or not subpersonaList[choice].frame
-	or not subpersonaList[choice].lv
-	or not subpersonaList[choice].weapontype
-	or subpersonaList[choice].st == nil
-	or subpersonaList[choice].ma == nil
-	or subpersonaList[choice].en == nil
-	or subpersonaList[choice].ag == nil
-	or subpersonaList[choice].lu == nil
+	elseif not subp.name
+	or subp.sprite == nil -- Values at 0 trip the not condition, we have to specify that we want to catch *nil* values
+	or subp.frame == nil
+	or subp.lv == nil
+	or subp.weapontype == nil
+	or subp.st == nil
+	or subp.ma == nil
+	or subp.en == nil
+	or subp.ag == nil
+	or subp.lu == nil
 		print("\x82".."WARNING: ".."\x80".."Subpersona with uninitialized elements selected, internal name is "..choice)
+		-- Ugly, so lets keep this verbose data to a dprint
+		dprint("Listing stats...")
+		dprint("Name: "..(subp.name or "nil"))
+		dprint("Sprite: "..(subp.sprite == nil and "nil" or subp.sprite))
+		dprint("Frame: "..(subp.frame == nil and "nil" or subp.frame))
+		dprint("Level: "..(subp.lv == nil and "nil" or subp.lv))
+		dprint("Weapon Type: "..(subp.weapontype == nil and "nil" or subp.weapontype))
+		dprint("Strength: "..(subp.st == nil and "nil" or subp.st))
+		dprint("Magic: "..(subp.ma == nil and "nil" or subp.ma))
+		dprint("Endurance: "..(subp.en == nil and "nil" or subp.en))
+		dprint("Agility: "..(subp.ag == nil and "nil" or subp.ag))
+		dprint("Luck: "..(subp.lu == nil and "nil" or subp.lu))
 		return nil
 	end
 	-- do we already have it...?
