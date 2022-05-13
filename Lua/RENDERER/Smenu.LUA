@@ -2,6 +2,7 @@
 -- Also runs the handlers and checks for it as this is more convenient
 
 hud.add(function(v)
+	if not EnabledHuds["SystemMenu"] return end
 	SYS_drawMenu(v)
 end)
 
