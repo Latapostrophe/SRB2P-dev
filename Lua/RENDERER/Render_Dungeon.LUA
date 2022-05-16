@@ -89,6 +89,8 @@ local function renderLog(v, by)
 
 	local size = FRACUNIT/2
 	local addy = 10
+	local log_limit = 7 -- Only render this amount of logs at a time
+	local logs_rendered = 0
 	if v.width() >= 1280 and v.height() >= 768
 		size = FRACUNIT/3
 		addy = 6
@@ -96,8 +98,11 @@ local function renderLog(v, by)
 	end
 
 	for i = #DNG_log, 1, -1 do
+		logs_rendered = $ + 1
+		if logs_rendered > log_limit break end
 		local m = DNG_log[i]
-		V_drawString(v, 318, by - addy*(i-1) + r_y, m[1], "NFNT", V_SNAPTORIGHT, "right", 0, 31, size)
+		local log_y = #DNG_log <= log_limit and by - addy*(i-1) + r_y or by - addy*(log_limit - logs_rendered) + r_y
+		V_drawString(v, 318, log_y, m[1], "NFNT", V_SNAPTORIGHT, "right", 0, 31, size)
 		if not server.entrytime
 			m[2] = $-1
 		end			-- don't remove time during entry cards
