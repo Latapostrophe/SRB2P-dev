@@ -347,7 +347,16 @@ local function m_skill_inputs(mo)
 				VFX_Play(m.control.mo, m.control.mo == mo and VFX_HEALSELF or VFX_HEAL)
 			end
 			if consoleplayer.P_party == pa
-				DNG_logMessage("\x82"..b.name.."\x80".." healed the party!")
+				for i = 1, #server.plentities[pa] -- Is everyone fully healed? Let's only note down when someone heals the party to full health
+					local m = server.plentities[pa][i]
+					if m.hp+skill.power < m.maxhp
+						break	-- SOMEONE still needs healing
+					end
+
+					if i == #server.plentities[pa]	-- everyone is healed
+						DNG_logMessage("\x82"..b.name.."\x80".." healed the party!")
+					end
+				end
 			end
 
 			-- consume SP:
@@ -368,7 +377,9 @@ local function m_skill_inputs(mo)
 
 			if tgt.control == consoleplayer
 			and consoleplayer.mo ~= mo
-				DNG_logMessage("\x82"..b.name.."\x80".." healed you.")
+				if tgt.hp + skill.power > tgt.maxhp -- Only log this message when you are fully healed
+					DNG_logMessage("\x82"..b.name.."\x80".." healed you.")
+				end
 				S_StartSound(nil, sfx_heal, tgt.control)
 			end
 			VFX_Play(tgt.control.mo, tgt.control.mo == mo and VFX_HEALSELF or VFX_HEAL)
