@@ -286,7 +286,7 @@ rawset(_G, "charStats", {
 		anim_stand_bored =	{SPR_PLAY, A, B, A, B, A, B, A, B, 10, "SPR2_WAIT"},	-- standing (rare anim)
 		anim_guard = 		{SPR_PLAY, A, 1, "SPR2_WALK"},		-- guarding
 		anim_move =			{SPR_PLAY, A, B, C, D, E, F, G, H, 2, "SPR2_WALK"},		-- moving
-		anim_run =			{SPR_PLAY, A, B, C, D, E, 1, "SPR2_RUN_"},	-- guess what
+		anim_run =			{SPR_PLAY, A, B, C, D, 1, "SPR2_RUN_"},	-- guess what
 		anim_atk =			{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},	-- attacking
 		anim_aoa_end =		{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
