@@ -241,10 +241,9 @@ local function m_skill_inputs(mo)
 
 	-- return
 	if inputs[BT_USE] == 1
-	and not mo.m_exitmenu
+	and not mo.m_hudtimers.sclosemenu
 		mo.m_hudtimers.sclosemenu = 8
 		mo.m_prevmenu = "m_main"
-		mo.m_exitmenu = true
 		S_StartSound(nil, sfx_cancel, mo.player)
 	end
 
@@ -700,10 +699,9 @@ local function m_item_inputs_New(mo)
 			S_StartSound(nil, sfx_select, mo.player)
 		-- return
 		elseif inputs[BT_USE] == 1
-		and not mo.m_exitmenu
+		and not mo.m_hudtimers.sclosemenu
 			mo.m_hudtimers.sclosemenu = 8
 			mo.m_prevmenu = "m_main"
-			mo.m_exitmenu = true
 			S_StartSound(nil, sfx_cancel, mo.player)
 		end
 
@@ -1383,7 +1381,7 @@ end,
 
 			-- return
 			if inputs[BT_USE] == 1
-			and not mo.m_exitmenu
+			and not (mo.m_hudtimers.sclosemenu or mo.m_hudtimers.m_stats_undo)
 				if mo.m_showskills
 					S_StartSound(nil, sfx_cancel, mo.player)
 					mo.m_showskills = nil
@@ -1391,12 +1389,10 @@ end,
 				elseif mo.m_showstats
 					mo.m_hudtimers.m_stats_undo = TICRATE*2/3
 					S_StartSound(nil, sfx_cancel, mo.player)
-					mo.m_exitmenu = true
 					return true	-- stop right there criminal scum
 				else
 					mo.m_hudtimers.sclosemenu = 8
 					mo.m_prevmenu = "m_main"
-					mo.m_exitmenu = true
 					S_StartSound(nil, sfx_cancel, mo.player)
 				end
 			end
@@ -1405,12 +1401,11 @@ end,
 			or mo.m_showstats	-- still no
 				if mo.m_hudtimers.m_stats_undo == 1	-- last frame, cancel everything
 					mo.m_showstats = nil
-					mo.m_exitmenu = nil
 				end
 
 				if not mo.m_showskills
 					if inputs[BT_JUMP] == 1	-- check moves
-					and not mo.m_exitmenu
+					and not mo.m_hudtimers.m_stats_undo
 						mo.m_showskills = 1
 						S_StartSound(nil, sfx_select, mo.player)
 						return true
@@ -1468,6 +1463,7 @@ end,
 
 			local choice = mo.m_menuchoices[mo.m_submenu]
 			if inputs[BT_JUMP] == 1
+			and not mo.m_hudtimers.sclosemenu
 				mo.m_hudtimers.m_stats = TICRATE*2/3
 				mo.m_showstats = choice
 				S_StartSound(nil, sfx_select, mo.player)
@@ -1613,12 +1609,11 @@ end,
 							S_StartSound(nil, sfx_qsumon, mo.player)
 							subp.equipped = mynum	-- we're done here!
 						elseif inputs[BT_USE] == 1
-						and not mo.m_exitmenu
+						and not mo.m_hudtimers.sclosemenu
 							mo.m_hudtimers.sclosemenu = 8
 							mo.m_prevmenu = "m_main"
 							S_StartSound(nil, sfx_cancel, mo.player)
 							mo.m_main_subp = 0
-							mo.m_exitmenu = true
 						end
 					end,
 
@@ -1775,7 +1770,6 @@ end,
 		},
 		-- function to run continuously whilst this menu is opened
 		runfunc = function(mo)
-			mo.m_exitmenu = nil
 			if mo.m_main_renderangle
 				if mo.m_main_renderangle > 0
 					mo.m_main_renderangle = $-1
