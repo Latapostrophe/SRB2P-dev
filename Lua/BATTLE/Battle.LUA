@@ -2363,6 +2363,8 @@ local function BTL_turnstatusconditions(mo)
 				if mo.status_turns >= 4
 					cureStatus(mo)
 					mo.t_statustimer = 0
+					mo.t_forcecontrol = nil
+					return
 				end
 				-- attack, attack, ATTACK
 				btl.battlestate = BS_ACTION
