@@ -1908,13 +1908,13 @@ local function BTL_skillCostDepletion(mo)
 			btl.emeraldpow = $- cost*100
 		end
 
-	elseif skill.costtype == CST_SPU	-- SP Units aren't used anymore... but maybe one day? LOL
-		if mo.sp < 250*cost
+	elseif skill.costtype == CST_SPPERCENT
+		if mo.sp <= mo.maxsp*cost/100
 			playSound(mo.battlen, sfx_not)
 			BTL_logMessage(mo.battlen, "Insufficient SP")
 			return
 		else
-			mo.losesp = cost*250
+			mo.losesp = mo.maxsp*cost/100
 		end
 	end
 

@@ -185,8 +185,8 @@ rawset(_G, "drawPlayerBar", function(v, x, y, mo, flags)
 	if atk and mo.status_condition ~= COND_SUPER	-- super has no cost
 		if atk.costtype == CST_SP
 			atkcost = atk.cost
-		elseif atk.costtype == CST_SPU
-			atkcost = atk.cost *250
+		elseif atk.costtype == CST_SPPERCENT
+			atkcost = atk.cost * mo.maxsp / 100
 		end
 	end
 
@@ -249,7 +249,7 @@ rawset(_G, "drawPlayerBar", function(v, x, y, mo, flags)
 		-- get skill:
 		if mo.attack.costtype == CST_HP or mo.attack.costtype == CST_HPPERCENT
 			flashtype = 1
-		elseif mo.attack.costtype == CST_SP or mo.attack.costtype == CST_SPU
+		elseif mo.attack.costtype == CST_SP or mo.attack.costtype == CST_SPPERCENT
 			flashtype = 2
 		end
 	end
@@ -839,38 +839,36 @@ rawset(_G, "drawSkillCommand", function(v, x, y, mo, skill, active, have_item, s
 
 	if not skill.cost or unknown return end	-- nothing to draw here
 
-	if skill.costtype ~= CST_SPU
-		if skill.costtype == CST_HPPERCENT
-			cost = skill.cost*mo.maxhp/100
+	if skill.costtype == CST_HPPERCENT
+		cost = skill.cost*mo.maxhp/100
 
-		elseif skill.costtype == CST_EP	-- emerald power
+	elseif skill.costtype == CST_EP	-- emerald power
+		cost = skill.cost
+		pp = {"C_EP"}
+	elseif skill.costtype == CST_SP
+	or skill.costtype == CST_SPPERCENT
+
+		pp = {"H_SP", 181}
+		if skill.costtype == CST_SP
 			cost = skill.cost
-			pp = {"C_EP"}
-		else
-			cost = skill.cost
-			if skill.costtype == CST_SP
-				pp = {"H_SP", 181}
-			end
+		elseif skill.costtype == CST_SPPERCENT
+			cost = skill.cost*mo.maxsp/100
 		end
-
-		if mo.status_condition == COND_SUPER
-			cost = 0	-- hack
-		end
-
-		V_drawString(v, x+32, y+12, cost, "FPNUM", V_SNAPTOLEFT, "right", ((skill.costtype == CST_EP and 112 or skill.costtype == CST_SP and 181 or 131) + (not active and 3 or 0)), 31)
-		v.drawIndex((x+35)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
-
-		if pp[2]	-- palette index: SP, or HP
-			v.drawIndex((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, pp[2] + (not active and 3 or 0))
-		else	-- for emerald power, use normal colours and draw
-			v.drawScaled((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, ep_colors[cost]))
-		end
-	else
-		cost = min(4, skill.cost)
-		v.drawIndex((x+20)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch("H_SPU"), V_SNAPTOLEFT, 31)
-		v.drawIndex((x+19)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch("H_SPU"), V_SNAPTOLEFT, 194 + (not active and 3 or 0))
-		PDraw(v, x+36, y+12, v.cachePatch("H_SPU_"..cost), V_SNAPTOLEFT)
 	end
+
+	if mo.status_condition == COND_SUPER
+		cost = 0	-- hack
+	end
+
+	V_drawString(v, x+32, y+12, cost, "FPNUM", V_SNAPTOLEFT, "right", ((skill.costtype == CST_EP and 112 or (skill.costtype == CST_SP or skill.costtype == CST_SPPERCENT) and 181 or 131) + (not active and 3 or 0)), 31)
+	v.drawIndex((x+35)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
+
+	if pp[2]	-- palette index: SP, or HP
+		v.drawIndex((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, pp[2] + (not active and 3 or 0))
+	else	-- for emerald power, use normal colours and draw
+		v.drawScaled((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, ep_colors[cost]))
+	end
+
 
 	if owner
 		local patch = charStats[owner.stats].icon
@@ -2968,7 +2966,7 @@ local function drawPlayerCutin(v, mo)
 		if timer <= checkframe
 		and timer >= checkframe2
 			drawScreenwidePatch(v, v.cachePatch((mo.plyr and "CUTIN" or "CUTNE")..k))
-			if k >= 3 and (k-2) <= 3 
+			if k >= 3 and (k-2) <= 3
 				if v.patchExists(cutin_face_prefix..k-2)
 					drawScreenwidePatch(v, v.cachePatch(cutin_face_prefix..k-2), v.getColormap(TC_DEFAULT, mo.color))
 				else
