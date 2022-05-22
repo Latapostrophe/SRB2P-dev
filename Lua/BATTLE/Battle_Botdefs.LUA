@@ -794,6 +794,7 @@ rawset(_G, "PLYR_reset", function(pn)	-- reset all battle related variables for 
 		mo.t_target = 1
 
 		mo.hp = max($, 1)
+		mo.redhp = mo.hp
 
 		mo.guard = nil
 
