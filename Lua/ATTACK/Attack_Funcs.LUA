@@ -1822,7 +1822,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 						l.fuse = fuses[i]
 					end
 
-				elseif atktype == ATK_PSY
+				elseif atktype == ATK_CURSE
 					playSound(mo.battlen, sfx_eih4)
 					local psiocolors = {SKINCOLOR_BLACK, SKINCOLOR_WHITE, SKINCOLOR_RED}
 					for i=1,20
