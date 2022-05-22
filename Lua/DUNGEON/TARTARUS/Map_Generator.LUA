@@ -482,9 +482,9 @@ local function MAP_pits()
 			and P_RandomRange(0, 100) <= (diff_pitchance[difficulty] or 2)*pitfact
 				map[i] = T_PIT
 
-				if server.P_DungeonStatus.floor >= FRACUNIT
+				--[[if server.P_DungeonStatus.floor >= FRACUNIT
 					map[i] = T_SPIKES
-				end	-- use spike pits for monad
+				end	-- use spike pits for monad]]
 				success = $+1
 			end
 		end
