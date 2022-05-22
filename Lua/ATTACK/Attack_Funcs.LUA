@@ -910,6 +910,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	end
 
 	if atk.physical	-- Use the highest value between str/magic
+	or (atk.costtype == CST_EP)
 		usestat = max(attacker.magic, attacker.strength)
 	end
 
