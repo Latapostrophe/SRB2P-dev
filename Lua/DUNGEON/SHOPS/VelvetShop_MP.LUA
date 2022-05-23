@@ -243,6 +243,12 @@ shopList["velvet_shop_mp1"] = {
 		{"eigaon", 1500, 6},
 		{"maeigaon", 3000, 7},
 
+		{"gry", 700, 2, 4},
+		{"magry", 1600, 3, 5},
+		{"gryla", 1300, 4, 5},
+		{"magryla", 2800, 5, 6},
+		{"grydyne", 2500, 6},
+		{"magrydyne", 4500, 7},
 	},
 
 	-- sub persona sell tables
