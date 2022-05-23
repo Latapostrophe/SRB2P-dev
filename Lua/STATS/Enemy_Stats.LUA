@@ -48,7 +48,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		if a.hp < a.maxhp/2
 			--dprint("ENEMY LOGIC: Weakened ally, searching for healing skills...")
 			healcount = $+1	-- # of allies we have to heal
-			if heal and a.hp < heal.hp
+			if not heal or heal and a.hp < heal.hp
 				heal = a
 			end
 		end
@@ -277,15 +277,20 @@ rawset(_G, "generalEnemyThinker", function(mo)
 	--dprint("Enemy thinker for "..mo.name)
 	-- do we use a skill or our normal attack?
 	local skillchance = enemyList[mo.enemy].skillchance or 50
-	local attack, targets
-	local atarget
 
-	if P_RandomRange(0, 100) <= skillchance and mo.skills and #mo.skills
+	-- specifically allow enemies with 0 skill chance to do normals every turn.
+	if enemyList[mo.enemy].skillchance == 0
+		skillchance = 0
+	end
+
+	local attack, atarget = smartAttackSelect(mo)
+	local targets
+
+	if not (attack and P_RandomRange(1, 100) <= skillchance and mo.skills and #mo.skills
 	and mo.status_condition ~= COND_RAGE
-	and mo.status_condition ~= COND_SILENCE
-		attack, atarget = smartAttackSelect(mo) or attackDefs[(enemyList[mo.enemy].melee_natk or "slash_1")]
-	else	-- no skills or not using skills
+	and mo.status_condition ~= COND_SILENCE)	-- no skills or not using skills
 		attack = attackDefs[(enemyList[mo.enemy].melee_natk or "slash_1")]	-- default attack
+		atarget = nil
 	end
 
 	if not atarget	-- nothing from smart select, do it the yolo way!
@@ -7426,10 +7431,10 @@ rawset(_G, "enemyList", {
 		turns = 2,
 		boss = true,
 		nopvp = true,
-		
+
 		hudcutin = "ALT_A",
 		color = SKINCOLOR_BLUE,
-		
+
 		--endboss = true,
 		--personascale = FRACUNIT*2,
 
@@ -7499,7 +7504,10 @@ rawset(_G, "enemyList", {
 
 					mo.deathanim = true	-- hack since there are isolated cases of this not working?
 
-					local function alt_changePersona(alt, persona, pinch)
+					local function alt_changePersona(alt, persona)
+
+						local pinch = (alt.phase == 3)
+
 						alt.persona = personaList[persona]
 						local p = alt.persona
 						alt.weak = p.weak or 0
@@ -7524,6 +7532,7 @@ rawset(_G, "enemyList", {
 									"dekaja",
 									"dekunda",
 									"patra",
+									"almighty amp",
 								},
 
 								["alice_alt"] = {
@@ -7538,6 +7547,7 @@ rawset(_G, "enemyList", {
 									"psy boost",
 									"psiodyne",
 									"eigaon",
+									"almighty amp",
 								},
 
 								["kfrost_alt"] = {
@@ -7573,9 +7583,12 @@ rawset(_G, "enemyList", {
 									"magarudyne",
 									"maziodyne",
 									"megidolaon",
+									"magarudyne",
+									"maziodyne",
 									"mind charge",
 									"elec amp",
 									"wind amp",
+									"almighty amp",
 									"dekaja",
 									"dekunda",
 									"patra",
@@ -7595,6 +7608,9 @@ rawset(_G, "enemyList", {
 									"eigaon",
 									"die for me",
 									"die for me",
+									"black viper",
+									"black viper",
+									"almighty amp",
 								},
 
 								["kfrost_alt"] = {
@@ -7666,6 +7682,39 @@ rawset(_G, "enemyList", {
 
 					end
 
+					-- if there are barriers or players are super, use some targetted almighty...~
+					local numbarriers = 0
+					local barriertarget
+
+					for i = 1, #enemies do
+						local en = enemies[i]
+						if en.tetrakarn or en.makarakarn or en.status_condition == COND_SUPER
+							barriertarget = en
+							numbarriers = $+1
+						end
+					end
+
+					if numbarriers
+					-- check to make sure it's our first turn
+					and btl.turnorder[2] == mo
+					and (P_RandomRange(0, 1) or numbarriers > 1)
+
+					-- don't do that when we should switch phases
+					and not (mo.hp < mo.maxhp*3/4 and mo.phase == 1)
+					and not (mo.hp < mo.maxhp/2 and mo.phase == 2)
+
+						mo.thinkercalls = $+1	-- advance thinker anyway
+
+						if numbarriers > 1
+						or P_RandomRange(0, 1)
+							alt_changePersona(mo, "pixie_alt")
+							return attackDefs["megidolaon"], enemies
+						else
+							alt_changePersona(mo, "alice_alt")
+							return attackDefs["black viper"], {barriertarget}
+						end
+					end
+
 					-- MODE 1: HP > 75%
 					/*
 						In this phase, go soft on the player, do highly telegraphed attacks and only go haywire after 6 turns.
@@ -7675,13 +7724,18 @@ rawset(_G, "enemyList", {
 
 						-- phase shift
 						if mo.hp < mo.maxhp*3/4	-- under 75% HP
+						and btl.turnorder[2] ~= mo
 							alt_changePersona(mo, "pixie_alt")
 							mo.phase = 2
 							mo.thinkercalls = 3
-							if btl.turnorder[2] == mo
-								table.remove(btl.turnorder, 2)	-- remove self from turn order if phase shift overlaps, otherwise we'll screw everything over
+
+							if mo.buffs["atk"][1] <= 0
+							and mo.buffs["def"][1] <= 0
+							and mo.buffs["agi"][1] <= 0
+								return attackDefs["turntables"], btl.fighters
+							else
+								return attackDefs["heat riser"], {mo}
 							end
-							return attackDefs["heat riser"], {mo}
 						end
 
 						-- turn 1: Metatron phys attacks
@@ -7750,13 +7804,18 @@ rawset(_G, "enemyList", {
 
 						-- phase shift
 						if mo.hp < mo.maxhp/2	-- under 50% HP
+						and btl.turnorder[2] ~= mo
 							alt_changePersona(mo, "pixie_alt")
-							mo.phase = 3
+							mo.phase = 2
 							mo.thinkercalls = 3
-							if btl.turnorder[2] == mo
-								table.remove(btl.turnorder, 2)	-- remove self from turn order if phase shift overlaps, otherwise we'll screw everything over
+
+							if mo.buffs["atk"][1] <= 0
+							and mo.buffs["def"][1] <= 0
+							and mo.buffs["agi"][1] <= 0
+								return attackDefs["turntables"], btl.fighters
+							else
+								return attackDefs["heat riser"], {mo}
 							end
-							return attackDefs["heat riser"], {mo}
 						end
 
 						-- Turn 1: Mind Chage -> Panta Rhei

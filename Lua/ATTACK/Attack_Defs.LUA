@@ -3211,6 +3211,22 @@ rawset(_G, "attackDefs", {
 		passive = PSV_BOOST,
 	},
 
+	["almighty boost"] = {
+		name = "Almighty Boost",
+		type = ATK_PASSIVE|ATK_ALMIGHTY,
+		desc = "Boost Almighty damage by 15%",
+		power = 15,
+		passive = PSV_BOOST,
+		},
+
+	["almighty amp"] = {
+		name = "Almighty Amp",
+		type = ATK_PASSIVE|ATK_ALMIGHTY,
+		desc = "Boost Almighty damage by 30%",
+		power = 30,
+		passive = PSV_BOOST,
+		},
+
 	["homunculus"] = {
 		name = "Homunculus",
 		type = ATK_CURSE,
@@ -5576,6 +5592,44 @@ rawset(_G, "attackDefs", {
 						end
 					end
 					BTL_logMessage(targets[1].battlen, "Stat decreases nullified")
+				end
+			end
+			if timer == TICRATE*3/2 + (#targets-1)*10
+				return true
+			end
+		end,
+	},
+
+	["turntables"] = {
+		name = "Turntables",
+		type = ATK_SUPPORT,
+		costtype = CST_SP,
+		cost = 25,
+		desc = "Inverts buffs for everyone.\nHow the turns have tabled...",
+		target = TGT_EVERYONE,
+		anim = function(mo, targets, hittargets, timer)
+			local colors = {SKINCOLOR_ORANGE, SKINCOLOR_LAVENDER, SKINCOLOR_EMERALD, SKINCOLOR_YELLOW}
+			local strs = {"atk", "mag", "def", "agi", "crit"}
+
+			for i = 1, #targets
+				local target = targets[i]
+				if timer == 20 + (i-1)*10
+					playSound(mo.battlen, sfx_status)
+					for j = 1, 16
+						local orb = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+						orb.momx = P_RandomRange(-16, 16)<<FRACBITS
+						orb.momy = P_RandomRange(-16, 16)<<FRACBITS
+						orb.momz = P_RandomRange(-16, 16)<<FRACBITS
+						orb.destscale = 0
+						orb.frame = A
+						orb.color = colors[P_RandomRange(1, #colors)]
+					end
+					for j = 1, #strs
+						local t = targets[i]
+						local s = strs[j]
+						t.buffs[s][1] = -1*$
+					end
+					BTL_logMessage(targets[1].battlen, "Stat changes reversed!")
 				end
 			end
 			if timer == TICRATE*3/2 + (#targets-1)*10
