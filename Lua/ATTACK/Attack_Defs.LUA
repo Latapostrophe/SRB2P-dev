@@ -3843,6 +3843,10 @@ rawset(_G, "attackDefs", {
 					target.frei.flags2 = $ & ~ MF2_DONTDRAW
 				end
 
+				local squish = timer-20
+				target.spritexscale = FRACUNIT + squish*FRACUNIT/16
+				target.spriteyscale = FRACUNIT - squish*FRACUNIT/64
+
 				if not (timer%4)
 
 					local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
@@ -3891,6 +3895,10 @@ rawset(_G, "attackDefs", {
 
 				damageObject(target)
 				target.frei.fuse = 1
+
+				target.spritexscale = FRACUNIT
+				target.spriteyscale = FRACUNIT
+
 				for i = 1, 16
 					local boom = P_SpawnMobj(target.x + P_RandomRange(-20, 20)*FRACUNIT, target.y + P_RandomRange(-20, 20)*FRACUNIT, target.z + 10*FRACUNIT, MT_DUMMY)
 					boom.state = S_CQUICKBOOM1
@@ -3905,6 +3913,535 @@ rawset(_G, "attackDefs", {
 				mo.frei = nil
 			elseif timer == 90
 				return true
+			end
+		end,
+	},
+
+	["magryla"] = {
+		name = "Magryla",
+		type = ATK_ALMIGHTY,
+		power = 140,
+		accuracy = 90,
+		costtype = CST_SP,
+		cost = 16,
+		desc = "Medium Almighty dmg to all enemies.\nDestroys barriers.",
+		target = TGT_ALLENEMIES,
+		anim = function(mo, targets, hittargets, timer)
+
+			for k,e in ipairs(hittargets)
+				local time = timer - 10*(k-1)
+				local target = e
+
+				if time == 20
+					playSound(mo.battlen, sfx_absorb)
+					--local x, y = target.x + 20*cos(target.angle), target.y + 20*sin(target.angle)
+					local x,y = target.x, target.y
+					local frei = P_SpawnMobj(x, y, target.z+FRACUNIT*10, MT_DUMMY)
+					frei.state = S_PLAY_STND
+					frei.dispoffset = 5
+					frei.tics = -1
+					frei.fuse = 60
+					frei.sprite = SPR_FREI
+					frei.frame = G|TR_TRANS20|FF_FULLBRIGHT
+					frei.scale = FRACUNIT*2
+					frei.basescale = frei.scale
+					frei.color = SKINCOLOR_WHITE
+					target.frei = frei
+
+				elseif time > 20 and time <= 50
+					target.frei.basescale = max(1, $ - FRACUNIT/12)
+					if time%2 == 0
+						target.frei.flags2 = $|MF2_DONTDRAW
+						if timer%4 == 0
+							target.frei.scale = target.frei.basescale*10/8
+						else
+							target.frei.scale = target.frei.basescale
+						end
+					else
+						target.frei.flags2 = $ & ~ MF2_DONTDRAW
+					end
+
+					local squish = time-20
+					target.spritexscale = FRACUNIT + squish*FRACUNIT/16
+					target.spriteyscale = FRACUNIT - squish*FRACUNIT/64
+
+					if not (time%4)
+
+						local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+						ol.sprite = SPR_NTHK
+						ol.scale = FRACUNIT*8
+						ol.destscale = 1
+						ol.scalespeed = FRACUNIT
+						ol.frame = B|FF_FULLBRIGHT
+						ol.color = SKINCOLOR_WHITE
+						ol.tics = 8
+					end
+
+					if leveltime & 1
+						local x = target.x + P_RandomRange(-120, 120)*target.scale
+						local y = target.y + P_RandomRange(-120, 120)*target.scale
+						local a = P_SpawnMobj(x, y, target.z + 180*target.scale, MT_DUMMY)
+						a.state = S_CQUICKBOOM1
+						a.color = SKINCOLOR_WHITE
+						a.flags = $|MF_NOCLIPHEIGHT
+						a.scale = FRACUNIT*3/2
+						a.momz = -target.scale*20
+
+						local h_angle = P_RandomRange(1, 359)*ANG1
+						local v_angle = P_RandomRange(1, 359)*ANG1
+						local dist = 256
+						local spd = P_RandomRange(40, 50)
+
+						local s_x = target.x+ dist*FixedMul(cos(h_angle), cos(v_angle))
+						local s_y = target.y+ dist*FixedMul(sin(h_angle), cos(v_angle))
+						local s_z = (target.z+target.height/2)+ dist* sin(v_angle)
+
+						local s = P_SpawnMobj(s_x, s_y, s_z, MT_DUMMY)
+
+						s.frame = A
+						s.color = SKINCOLOR_WHITE
+						s.scale = FRACUNIT/2
+						s.destscale = 1
+						s.target = mo
+						s.tics = 10
+						s.momx = (target.x - s.x)/10
+						s.momy = (target.y - s.y)/10
+						s.momz = (target.z - s.z)/10
+					end
+
+				elseif time == 51
+
+					damageObject(target)
+					target.frei.fuse = 1
+
+					target.spritexscale = FRACUNIT
+					target.spriteyscale = FRACUNIT
+
+					for i = 1, 16
+						local boom = P_SpawnMobj(target.x + P_RandomRange(-20, 20)*FRACUNIT, target.y + P_RandomRange(-20, 20)*FRACUNIT, target.z + 10*FRACUNIT, MT_DUMMY)
+						boom.state = S_CQUICKBOOM1
+						boom.color = SKINCOLOR_WHITE
+						boom.momx = P_RandomRange(-20, 20)*FRACUNIT
+						boom.momy = P_RandomRange(-20, 20)*FRACUNIT
+						boom.momz = P_RandomRange(-20, 20)*FRACUNIT
+						boom.scale = FRACUNIT*3/2
+					end
+					playSound(mo.battlen, sfx_megi6)
+					localquake(mo.battlen, FRACUNIT*16, 10)
+					mo.frei = nil
+				end
+			end
+			if timer == 90 + (#hittargets-1)*10
+				return true
+			end
+		end,
+	},
+
+	["grydyne"] = {
+		name = "Grydyne",
+		type = ATK_ALMIGHTY,
+		power = 350,
+		accuracy = 95,
+		costtype = CST_SP,
+		cost = 12,
+		desc = "Heavy Almighty dmg to one enemy.\nDestroys barriers.",
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+			local zpos = target.z + 16*target.spriteyscale
+
+			if timer == 20
+				playSound(mo.battlen, sfx_absorb)
+				--local x, y = target.x + 20*cos(target.angle), target.y + 20*sin(target.angle)
+				local x,y = target.x, target.y
+				local frei = P_SpawnMobj(x, y, zpos, MT_DUMMY)
+				frei.state = S_PLAY_STND
+				frei.dispoffset = 5
+				frei.tics = -1
+				frei.fuse = 60
+				frei.sprite = SPR_FREI
+				frei.frame = G|TR_TRANS20|FF_FULLBRIGHT
+				frei.scale = FRACUNIT*2
+				frei.basescale = frei.scale
+				frei.color = SKINCOLOR_WHITE
+				target.frei = frei
+
+			elseif timer > 20 and timer <= 50
+				target.frei.basescale = max(1, $ - FRACUNIT/12)
+				if timer%2 == 0
+					target.frei.flags2 = $|MF2_DONTDRAW
+					if timer%4 == 0
+						target.frei.scale = target.frei.basescale*10/8
+					else
+						target.frei.scale = target.frei.basescale
+					end
+				else
+					target.frei.flags2 = $ & ~ MF2_DONTDRAW
+				end
+
+				local squish = timer-20
+				target.spriteyscale = FRACUNIT + squish*FRACUNIT/8
+				target.spritexscale = FRACUNIT - squish*FRACUNIT/24
+				target.momz = FRACUNIT*3
+
+				if not (timer%4)
+
+					local ol = P_SpawnMobj(target.x, target.y, zpos, MT_DUMMY)
+					ol.sprite = SPR_NTHK
+					ol.scale = 1
+					ol.destscale = FRACUNIT*8
+					ol.scalespeed = FRACUNIT
+					ol.frame = B|FF_FULLBRIGHT
+					ol.color = SKINCOLOR_WHITE
+					ol.tics = 8
+				end
+
+				if leveltime & 1
+					local dir = P_RandomRange(0, 1)
+					local x = target.x + P_RandomRange(-120, 120)*target.scale
+					local y = target.y + P_RandomRange(-120, 120)*target.scale
+
+					local a = P_SpawnMobj(x, y, zpos, MT_DUMMY)
+					a.state = S_CQUICKBOOM1
+					a.color = SKINCOLOR_WHITE
+					a.flags = $|MF_NOCLIPHEIGHT
+					a.scale = FRACUNIT*3/2
+					a.momz = -target.scale*20*(dir and 1 or -1)
+
+					local h_angle = P_RandomRange(1, 359)*ANG1
+					local v_angle = P_RandomRange(1, 359)*ANG1
+					local dist = 256
+					local spd = P_RandomRange(40, 50)
+
+					local s_x = target.x+ dist*FixedMul(cos(h_angle), cos(v_angle))
+					local s_y = target.y+ dist*FixedMul(sin(h_angle), cos(v_angle))
+					local s_z = (target.z+target.height/2)+ dist* sin(v_angle)
+
+					local s = P_SpawnMobj(s_x, s_y, s_z, MT_DUMMY)
+
+					s.frame = A
+					s.color = SKINCOLOR_WHITE
+					s.scale = FRACUNIT/2
+					s.destscale = 1
+					s.target = mo
+					s.tics = 10
+					s.momx = (target.x - s.x)/10
+					s.momy = (target.y - s.y)/10
+					s.momz = (target.z - s.z)/10
+				end
+
+			elseif timer == 51
+
+				damageObject(target)
+				target.frei.fuse = 1
+
+				target.spritexscale = FRACUNIT
+				target.spriteyscale = FRACUNIT
+
+				for i = 1, 16
+					local boom = P_SpawnMobj(target.x + P_RandomRange(-20, 20)*FRACUNIT, target.y + P_RandomRange(-20, 20)*FRACUNIT, zpos, MT_DUMMY)
+					boom.state = S_CQUICKBOOM1
+					boom.color = SKINCOLOR_WHITE
+					boom.momx = P_RandomRange(-20, 20)*FRACUNIT
+					boom.momy = P_RandomRange(-20, 20)*FRACUNIT
+					boom.momz = P_RandomRange(-20, 20)*FRACUNIT
+					boom.scale = FRACUNIT*3/2
+				end
+				playSound(mo.battlen, sfx_megi6)
+				localquake(mo.battlen, FRACUNIT*16, 10)
+				mo.frei = nil
+			elseif timer == 90
+				return true
+			end
+		end,
+	},
+
+	["magrydyne"] = {
+		name = "Magrydyne",
+		type = ATK_ALMIGHTY,
+		power = 350,
+		accuracy = 90,
+		costtype = CST_SP,
+		cost = 24,
+		desc = "Heavy Almighty dmg to all enemies.\nDestroys barriers.",
+		target = TGT_ALLENEMIES,
+		anim = function(mo, targets, hittargets, timer)
+
+			for k,e in ipairs(hittargets)
+				local time = timer - 10*(k-1)
+				local target = e
+				local zpos = target.z + 16*target.spriteyscale
+
+				if time == 20
+					playSound(mo.battlen, sfx_absorb)
+					--local x, y = target.x + 20*cos(target.angle), target.y + 20*sin(target.angle)
+					local x,y = target.x, target.y
+					local frei = P_SpawnMobj(x, y, zpos, MT_DUMMY)
+					frei.state = S_PLAY_STND
+					frei.dispoffset = 5
+					frei.tics = -1
+					frei.fuse = 60
+					frei.sprite = SPR_FREI
+					frei.frame = G|TR_TRANS20|FF_FULLBRIGHT
+					frei.scale = FRACUNIT*2
+					frei.basescale = frei.scale
+					frei.color = SKINCOLOR_WHITE
+					target.frei = frei
+
+				elseif time > 20 and time <= 50
+					target.frei.basescale = max(1, $ - FRACUNIT/12)
+					if time%2 == 0
+						target.frei.flags2 = $|MF2_DONTDRAW
+						if time%4 == 0
+							target.frei.scale = target.frei.basescale*10/8
+						else
+							target.frei.scale = target.frei.basescale
+						end
+					else
+						target.frei.flags2 = $ & ~ MF2_DONTDRAW
+					end
+
+					local squish = time-20
+					target.spriteyscale = FRACUNIT + squish*FRACUNIT/8
+					target.spritexscale = FRACUNIT - squish*FRACUNIT/24
+					target.momz = FRACUNIT*3
+
+					if not (time%4)
+
+						local ol = P_SpawnMobj(target.x, target.y, zpos, MT_DUMMY)
+						ol.sprite = SPR_NTHK
+						ol.scale = 1
+						ol.destscale = FRACUNIT*8
+						ol.scalespeed = FRACUNIT
+						ol.frame = B|FF_FULLBRIGHT
+						ol.color = SKINCOLOR_WHITE
+						ol.tics = 8
+					end
+
+					if leveltime & 1
+						local dir = P_RandomRange(0, 1)
+						local x = target.x + P_RandomRange(-120, 120)*target.scale
+						local y = target.y + P_RandomRange(-120, 120)*target.scale
+
+						local a = P_SpawnMobj(x, y, zpos, MT_DUMMY)
+						a.state = S_CQUICKBOOM1
+						a.color = SKINCOLOR_WHITE
+						a.flags = $|MF_NOCLIPHEIGHT
+						a.scale = FRACUNIT*3/2
+						a.momz = -target.scale*20*(dir and 1 or -1)
+
+						local h_angle = P_RandomRange(1, 359)*ANG1
+						local v_angle = P_RandomRange(1, 359)*ANG1
+						local dist = 256
+						local spd = P_RandomRange(40, 50)
+
+						local s_x = target.x+ dist*FixedMul(cos(h_angle), cos(v_angle))
+						local s_y = target.y+ dist*FixedMul(sin(h_angle), cos(v_angle))
+						local s_z = (target.z+target.height/2)+ dist* sin(v_angle)
+
+						local s = P_SpawnMobj(s_x, s_y, s_z, MT_DUMMY)
+
+						s.frame = A
+						s.color = SKINCOLOR_WHITE
+						s.scale = FRACUNIT/2
+						s.destscale = 1
+						s.target = mo
+						s.tics = 10
+						s.momx = (target.x - s.x)/10
+						s.momy = (target.y - s.y)/10
+						s.momz = (target.z - s.z)/10
+					end
+
+				elseif time == 51
+
+					damageObject(target)
+					target.frei.fuse = 1
+
+					target.spritexscale = FRACUNIT
+					target.spriteyscale = FRACUNIT
+
+					for i = 1, 16
+						local boom = P_SpawnMobj(target.x + P_RandomRange(-20, 20)*FRACUNIT, target.y + P_RandomRange(-20, 20)*FRACUNIT, zpos, MT_DUMMY)
+						boom.state = S_CQUICKBOOM1
+						boom.color = SKINCOLOR_WHITE
+						boom.momx = P_RandomRange(-20, 20)*FRACUNIT
+						boom.momy = P_RandomRange(-20, 20)*FRACUNIT
+						boom.momz = P_RandomRange(-20, 20)*FRACUNIT
+						boom.scale = FRACUNIT*3/2
+					end
+					playSound(mo.battlen, sfx_megi6)
+					localquake(mo.battlen, FRACUNIT*16, 10)
+					mo.frei = nil
+				end
+			end
+			if timer == 90 + (#hittargets-1)*10
+				return true
+			end
+		end,
+	},
+
+	["black viper"] = {
+		name = "Black Viper",
+		type = ATK_ALMIGHTY,
+		power = 1400,
+		accuracy = 95,
+		costtype = CST_SP,
+		cost = 48,
+		desc = "Colossal Almighty dmg to one enemy.\nDestroys barriers.",
+		target = TGT_ENEMY,
+
+		hudfunc = 	function(v, mo, timer)
+
+						if timer > 75
+						and timer < 85
+							local t = timer-73
+							local p = "KDOWN"..t/2
+							if v.patchExists(p)
+								drawScreenwidePatch(v, v.cachePatch(p), v.getColormap(TC_DEFAULT, SKINCOLOR_RED))
+							end
+						end
+					end,
+
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+			local cang = R_PointToAngle(target.x, target.y)
+			local cx = target.x - 48*cos(cang)
+			local cy = target.y - 48*sin(cang)
+
+			-- puddle
+			if timer == 20
+				local splat = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				splat.sprite = SPR_VIPR
+				splat.frame = C|FF_FLOORSPRITE
+				splat.renderflags = $|RF_NOSPLATBILLBOARD
+				splat.scale = 1
+				splat.destscale = FRACUNIT*2
+				splat.tics = -1
+				splat.fuse = -1
+
+				target.viper_origin = splat
+
+				localquake(mo.battlen, FRACUNIT*20, 100)
+
+				playSound(mo.battlen, sfx_eih4)
+				S_StartSound(splat, sfx_rumble)
+
+			elseif timer > 20
+				target.viper_origin.angle = $ + ANG1*5
+			end
+
+			-- some visuals
+			if timer == 30
+				for i = 1,16
+					local dust = P_SpawnMobj(cx, cy, target.z, MT_DUMMY)
+					dust.angle = ANGLE_90 + ANG1* (22*(i-1))
+					dust.state = S_CDUST1
+					P_InstaThrust(dust, dust.angle, 30*FRACUNIT)
+					dust.color = SKINCOLOR_BLACK
+					dust.scale = FRACUNIT*2
+				end
+
+			elseif timer > 30
+
+				if timer < 40
+					if leveltime%2 == 0
+						for i = 1,8
+
+							local thok = P_SpawnMobj(cx+P_RandomRange(-70, 70)*FRACUNIT, cy+P_RandomRange(-70, 70)*FRACUNIT, target.z+P_RandomRange(0, 50)*FRACUNIT, MT_DUMMY)
+							thok.state = S_CDUST1
+							thok.momz = P_RandomRange(3, 10)*FRACUNIT
+							thok.color = SKINCOLOR_BLACK
+							thok.tics = P_RandomRange(10, 35)
+							thok.scale = FRACUNIT*3/2
+							thok.blendmode = AST_SUBTRACT
+						end
+					end
+
+					for i = 1, 8
+						local thok = P_SpawnMobj(cx+P_RandomRange(-70, 70)*FRACUNIT, cy+P_RandomRange(-70, 70)*FRACUNIT, target.z+P_RandomRange(0, 50)*FRACUNIT, MT_DUMMY)
+						thok.sprite = SPR_SUMN
+						thok.frame = F|FF_FULLBRIGHT|TR_TRANS50
+						thok.momz = P_RandomRange(6, 16)*FRACUNIT
+						thok.color = SKINCOLOR_BLACK
+						thok.tics = P_RandomRange(10, 35)
+						thok.blendmode = AST_SUBTRACT
+					end
+				end
+
+				for i = 1, 8
+					local thok = P_SpawnMobj(cx+P_RandomRange(-70, 70)*FRACUNIT, cy+P_RandomRange(-70, 70)*FRACUNIT, target.z+P_RandomRange(0, 50)*FRACUNIT, MT_DUMMY)
+					thok.sprite = SPR_SUMN
+					thok.flags = MF_RUNSPAWNFUNC
+					thok.frame = B
+					thok.momz = P_RandomRange(1, 2)*FRACUNIT
+					thok.color = SKINCOLOR_BLACK
+					thok.scale = FRACUNIT*3
+					thok.tics = P_RandomRange(10, 35)
+				end
+			end
+
+			-- handle the snake
+			if timer == 40
+				-- super cool reference...
+				local renus = P_SpawnMobj(cx, cy, target.z, MT_DUMMY)
+				renus.sprite = SPR_VIPR
+				renus.scale = FRACUNIT*3/2
+				renus.frame = A
+				renus.tics = -1
+				renus.fuse = -1
+
+				target.renus = renus
+
+			elseif timer > 40 and timer < 90
+
+				local cx2 = target.x - 24*cos(cang)
+				local cy2 = target.y - 24*sin(cang)
+
+				local renus = P_SpawnMobj(cx2 + P_RandomRange(-22, 22)*FRACUNIT, cy2 + P_RandomRange(-22, 22)*FRACUNIT, target.z + P_RandomRange(-20, 20)*FRACUNIT, MT_DUMMY)
+				renus.sprite = SPR_VIPR
+				renus.scale = target.renus.scale
+				renus.frame = target.renus.frame | FF_TRANS50
+				renus.blendmode = AST_SUBTRACT
+				renus.tics = 2
+				renus.fuse = 2
+			end
+
+			if timer == 75
+				target.renus.frame = B
+
+				for k,v in ipairs(mo.allies)
+					if v and v.control and v.control.valid
+						P_FlashPal(v.control, 6, 10)
+					end
+				end
+
+				for k,v in ipairs(mo.enemies)
+					if v and v.control and v.control.valid
+						P_FlashPal(v.control, 6, 10)
+					end
+				end
+
+				localquake(mo.battlen, FRACUNIT*75, 30)
+
+				playSound(mo.battlen, sfx_megi6)
+				playSound(mo.battlen, sfx_bufu6)
+
+			elseif timer == 80
+				damageObject(target)
+			end
+
+			if timer > 100
+				local tflag = (min(9, timer-100)) << FF_TRANSSHIFT
+				target.renus.frame = B | tflag
+				target.viper_origin.frame = C | tflag
+
+				if timer >= 109
+					P_RemoveMobj(target.renus)
+					P_RemoveMobj(target.viper_origin)
+					target.renus = nil
+					target.viper_origin = nil
+					return true
+				end
 			end
 		end,
 	},

@@ -5,6 +5,9 @@
 
 freeslot("SPR2_SHIT", "SPR2_CSMN")
 
+-- Bviper
+freeslot("SPR_VIPR")
+
 -- Psycho Force
 freeslot("SPR_PSID", "sfx_psi")
 
