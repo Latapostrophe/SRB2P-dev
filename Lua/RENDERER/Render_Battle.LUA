@@ -841,7 +841,8 @@ rawset(_G, "drawSkillCommand", function(v, x, y, mo, skill, active, have_item, s
 
 	if skill.costtype == CST_HPPERCENT
 		cost = skill.cost*mo.maxhp/100
-
+	elseif skill.costtype == CST_HP
+		cost = skill.cost
 	elseif skill.costtype == CST_EP	-- emerald power
 		cost = skill.cost
 		pp = {"C_EP"}
