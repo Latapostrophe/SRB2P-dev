@@ -3818,8 +3818,8 @@ rawset(_G, "attackDefs", {
 		end,
 	},
 
-	["gryla"] = {
-		name = "Gryla",
+	["gryva"] = {
+		name = "Gryva",
 		type = ATK_ALMIGHTY,
 		power = 140,
 		accuracy = 95,
@@ -3933,8 +3933,8 @@ rawset(_G, "attackDefs", {
 		end,
 	},
 
-	["magryla"] = {
-		name = "Magryla",
+	["magryva"] = {
+		name = "Magryva",
 		type = ATK_ALMIGHTY,
 		power = 140,
 		accuracy = 90,

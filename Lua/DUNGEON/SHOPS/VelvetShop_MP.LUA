@@ -133,7 +133,7 @@ shopList["velvet_shop_mp1"] = {
 
 		{makeWeapon("monitor_01", 10), 800, nil, 4},
 		{makeWeapon("ion monitor"), 4000, 3},
-		{makeWeapon("dyne monitor"), 12500, 6},		
+		{makeWeapon("dyne monitor"), 12500, 6},
 
 		{makeWeapon("limiter_01", 10), 800, nil, 4},
 		{makeWeapon("ion shackles"), 4000, 3},
@@ -245,8 +245,8 @@ shopList["velvet_shop_mp1"] = {
 
 		{"gry", 700, 2, 4},
 		{"magry", 1600, 3, 5},
-		{"gryla", 1300, 4, 5},
-		{"magryla", 2800, 5, 6},
+		{"gryva", 1300, 4, 5},
+		{"magryva", 2800, 5, 6},
 		{"grydyne", 2500, 6},
 		{"magrydyne", 4500, 7},
 	},
@@ -274,7 +274,7 @@ shopList["velvet_shop_mp1"] = {
 		{"queen mab", 2500, 3},
 		{"ares", 2500, 3},
 		{"mithra", 2500, 3},
-		{"lilim", 2500, 3},		
+		{"lilim", 2500, 3},
 
 		{"black frost", 4000, 4},
 		{"chu chulainn", 4000, 4},
@@ -296,7 +296,7 @@ shopList["velvet_shop_mp1"] = {
 		{"byakko", 6500, 5},
 		{"seiryuu", 6500, 5},
 		{"mara", 6500, 5},
-		
+
 		{"trumpeter", 10500, 6},
 		{"alice", 10500, 6},
 		{"daisoujou", 10500, 6},
@@ -304,6 +304,6 @@ shopList["velvet_shop_mp1"] = {
 		{"archangel", 10500, 6},
 		{"raphael", 10500, 6},
 		{"sati", 10500, 6},
-		{"loki", 10500, 6},	
+		{"loki", 10500, 6},
 	},
 }
