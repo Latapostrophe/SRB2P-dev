@@ -403,6 +403,10 @@ globalize_supercolour("SKINCOLOR_SUPERPURPLE", SKINCOLOR_SUPERPURPLE1)
 globalize_supercolour("SKINCOLOR_SUPERRUST", SKINCOLOR_SUPERRUST1)
 globalize_supercolour("SKINCOLOR_SUPERTAN", SKINCOLOR_SUPERTAN1)
 
+--This globalizes states that are handled WAY TOO MUCH by lib_getenum normally
+g(_G, "S_RING", S_RING)
+g(_G, "S_SPRK3", S_SPRK3)
+
 -- Hard Globalize (tm) (Variable globals)
 local localmapnum = gamemap
 
