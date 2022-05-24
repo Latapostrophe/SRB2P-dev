@@ -290,6 +290,13 @@ rawset(_G, "Blaze_MoveTail", function(mo, tail)
 		bx = $ + mo.momx
 		by = $ + mo.momy
 		bz = $ + mo.momz
+		
+		-- redundant but works...
+		P_TeleportMove(tail,
+			bx + P_ReturnThrustX(mo, playerAngle, dist),
+			by + P_ReturnThrustY(mo, playerAngle, dist),
+			bz)
+		
 	end
 
 	local z = mo.z
@@ -327,40 +334,11 @@ rawset(_G, "Blaze_MoveTail", function(mo, tail)
 			z = $ - unit
 		end
 	end
-
-	if splitscreen // we unfortunately can't pick which camera to use for R_PointToAngle, so just teleport the mobj like normal
-	or not camera // doubles as a failsafe in case hud is turned off?
-		P_TeleportMove(tail,
-			bx + P_ReturnThrustX(mo, playerAngle, dist),
-			by + P_ReturnThrustY(mo, playerAngle, dist),
-			bz)
-		return
-	end
-
-	local flipped = mo.frame & FF_HORIZONTALFLIP or mo.renderflags & RF_HORIZONTALFLIP // we don't care about mo.mirrored since that doesn't affect the direction the sprite faces
-	local x = P_ReturnThrustX(mo, camera.angle, scale)
-	local y = P_ReturnThrustY(mo, camera.angle, scale)
-	local cameraToPlayerAngle = R_PointToAngle2(camera.x + camera.momx, camera.y + camera.momy, mo.x, mo.y)
-	local rotation = ((cameraToPlayerAngle - playerAngle + ANGLE_202h) >> 29) + 1 // this gives us the frame rotation number for an 8-angle frame, as written in source
-	local invert = invertsLUT[MakeBitfield(sprite2, mo.frame & FF_FRAMEMASK, rotation)]
-	if sprite2 == SPR2_RUN and mo.sprite2 & FF_SPR2SUPER then invert = false end
-
-	// A4/A5/A6, tail is closer to camera than player
-	if (rotation >= 4 and rotation <= 6) == (not invert)
-		x = -$
-		y = -$
-	end
-
-	dist = FixedMul($, cos(camera.angle - playerAngle + ANGLE_90))
-
-	if flipped
-		dist = -$
-	end
-
-	x = $ + mo.x + P_ReturnThrustX(mo, camera.angle + ANGLE_90, dist)
-	y = $ + mo.y + P_ReturnThrustY(mo, camera.angle + ANGLE_90, dist)
-
-	P_TeleportMove(tail, x, y, z)
+	
+	P_TeleportMove(tail,
+		bx + P_ReturnThrustX(mo, playerAngle, dist),
+		by + P_ReturnThrustY(mo, playerAngle, dist),
+		bz)
 end)
 
 --Blaze's Tail
