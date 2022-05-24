@@ -5,6 +5,7 @@ Mod by Lat'
 
 PROGRAMMING:
 	Lat'
+	NerduMiner
 	Spectra
 	Snu
 	
