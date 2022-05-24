@@ -506,6 +506,7 @@ addHook("MobjThinker", function(mo)
 
 	local target = mo.target
 	if not target or not target.valid
+	or target and target.valid and target.hp <= 0
 		P_RemoveMobj(mo)
 		return
 	end
