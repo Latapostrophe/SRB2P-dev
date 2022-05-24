@@ -3,6 +3,8 @@
 
 -- Not EVERYTHING is globalized, mostly things that are used a lot.
 
+-- THANK YOU ASHNAL FOR THIS GLORIOUS IDEA.
+
 local g = rawset
 
 -- Overall globals
@@ -69,6 +71,34 @@ g(_G, "ANG210", ANG210)
 g(_G, "ANG255", ANG255)
 g(_G, "ANG340", ANG340)
 g(_G, "ANG350", ANG350)
+
+g(_G,"ANGLE_11hh", ANGLE_11hh)
+g(_G,"ANGLE_22h", ANGLE_22h)
+g(_G,"ANGLE_45", ANGLE_45)
+g(_G,"ANGLE_67h", ANGLE_67h)
+g(_G,"ANGLE_90", ANGLE_90)
+g(_G,"ANGLE_112h", ANGLE_112h)
+g(_G,"ANGLE_135", ANGLE_135)
+g(_G,"ANGLE_157h", ANGLE_157h)
+g(_G,"ANGLE_180", ANGLE_180)
+g(_G,"ANGLE_202h", ANGLE_202h)
+g(_G,"ANGLE_225", ANGLE_225)
+g(_G,"ANGLE_247h", ANGLE_247h)
+g(_G,"ANGLE_270", ANGLE_270)
+g(_G,"ANGLE_292h", ANGLE_292h)
+g(_G,"ANGLE_315", ANGLE_315)
+g(_G,"ANGLE_337h", ANGLE_337h)
+g(_G,"ANGLE_MAX", ANGLE_MAX)
+g(_G,"DI_NODIR", DI_NODIR)
+g(_G,"DI_EAST", DI_EAST)
+g(_G,"DI_NORTHEAST", DI_NORTHEAST)
+g(_G,"DI_NORTH", DI_NORTH)
+g(_G,"DI_NORTHWEST", DI_NORTHWEST)
+g(_G,"DI_WEST", DI_WEST)
+g(_G,"DI_SOUTHWEST", DI_SOUTHWEST)
+g(_G,"DI_SOUTH", DI_SOUTH)
+g(_G,"DI_SOUTHEAST", DI_SOUTHEAST)
+g(_G,"NUMDIRS", NUMDIRS)
 
 -- Video flags
 g(_G, "V_NOSCALEPATCH", V_NOSCALEPATCH)
@@ -243,3 +273,138 @@ g(_G, "TC_METALSONIC", TC_METALSONIC)
 g(_G, "TC_ALLWHITE", TC_ALLWHITE)
 g(_G, "TC_RAINBOW", TC_RAINBOW)
 g(_G, "TC_BLINK", TC_BLINK)
+
+
+-- Skincolours
+g(_G, "SKINCOLOR_NONE", SKINCOLOR_NONE)
+g(_G, "SKINCOLOR_WHITE", SKINCOLOR_WHITE)
+g(_G, "SKINCOLOR_BONE", SKINCOLOR_BONE)
+g(_G, "SKINCOLOR_CLOUDY", SKINCOLOR_CLOUDY)
+g(_G, "SKINCOLOR_SILVER", SKINCOLOR_SILVER)
+g(_G, "SKINCOLOR_CARBON", SKINCOLOR_CARBON)
+g(_G, "SKINCOLOR_JET", SKINCOLOR_JET)
+g(_G, "SKINCOLOR_BLACK", SKINCOLOR_BLACK)
+g(_G, "SKINCOLOR_AETHER", SKINCOLOR_AETHER)
+g(_G, "SKINCOLOR_SLATE", SKINCOLOR_SLATE)
+g(_G, "SKINCOLOR_BLUEBELL", SKINCOLOR_BLUEBELL)
+g(_G, "SKINCOLOR_PINK", SKINCOLOR_PINK)
+g(_G, "SKINCOLOR_YOGURT", SKINCOLOR_YOGURT)
+g(_G, "SKINCOLOR_BROWN", SKINCOLOR_BROWN)
+g(_G, "SKINCOLOR_BRONZE", SKINCOLOR_BRONZE)
+g(_G, "SKINCOLOR_TAN", SKINCOLOR_TAN)
+g(_G, "SKINCOLOR_BEIGE", SKINCOLOR_BEIGE)
+g(_G, "SKINCOLOR_MOSS", SKINCOLOR_MOSS)
+g(_G, "SKINCOLOR_AZURE", SKINCOLOR_AZURE)
+g(_G, "SKINCOLOR_LAVENDER", SKINCOLOR_LAVENDER)
+g(_G, "SKINCOLOR_RUBY", SKINCOLOR_RUBY)
+g(_G, "SKINCOLOR_SALMON", SKINCOLOR_SALMON)
+g(_G, "SKINCOLOR_RED", SKINCOLOR_RED)
+g(_G, "SKINCOLOR_CRIMSON", SKINCOLOR_CRIMSON)
+g(_G, "SKINCOLOR_FLAME", SKINCOLOR_FLAME)
+g(_G, "SKINCOLOR_KETCHUP", SKINCOLOR_KETCHUP)
+g(_G, "SKINCOLOR_PEACHY", SKINCOLOR_PEACHY)
+g(_G, "SKINCOLOR_QUAIL", SKINCOLOR_QUAIL)
+g(_G, "SKINCOLOR_SUNSET", SKINCOLOR_SUNSET)
+g(_G, "SKINCOLOR_COPPER", SKINCOLOR_COPPER)
+g(_G, "SKINCOLOR_APRICOT", SKINCOLOR_APRICOT)
+g(_G, "SKINCOLOR_ORANGE", SKINCOLOR_ORANGE)
+g(_G, "SKINCOLOR_RUST", SKINCOLOR_RUST)
+g(_G, "SKINCOLOR_GOLD", SKINCOLOR_GOLD)
+g(_G, "SKINCOLOR_SANDY", SKINCOLOR_SANDY)
+g(_G, "SKINCOLOR_YELLOW", SKINCOLOR_YELLOW)
+g(_G, "SKINCOLOR_OLIVE", SKINCOLOR_OLIVE)
+g(_G, "SKINCOLOR_LIME", SKINCOLOR_LIME)
+g(_G, "SKINCOLOR_PERIDOT", SKINCOLOR_PERIDOT)
+g(_G, "SKINCOLOR_APPLE", SKINCOLOR_APPLE)
+g(_G, "SKINCOLOR_GREEN", SKINCOLOR_GREEN)
+g(_G, "SKINCOLOR_FOREST", SKINCOLOR_FOREST)
+g(_G, "SKINCOLOR_EMERALD", SKINCOLOR_EMERALD)
+g(_G, "SKINCOLOR_MINT", SKINCOLOR_MINT)
+g(_G, "SKINCOLOR_SEAFOAM", SKINCOLOR_SEAFOAM)
+g(_G, "SKINCOLOR_AQUA", SKINCOLOR_AQUA)
+g(_G, "SKINCOLOR_TEAL", SKINCOLOR_TEAL)
+g(_G, "SKINCOLOR_WAVE", SKINCOLOR_WAVE)
+g(_G, "SKINCOLOR_CYAN", SKINCOLOR_CYAN)
+g(_G, "SKINCOLOR_SKY", SKINCOLOR_SKY)
+g(_G, "SKINCOLOR_CRULEAN", SKINCOLOR_CERULEAN)
+g(_G, "SKINCOLOR_ICY", SKINCOLOR_ICY)
+g(_G, "SKINCOLOR_SAPPHIRE", SKINCOLOR_SAPPHIRE)
+g(_G, "SKINCOLOR_CORNFLOWER", SKINCOLOR_CORNFLOWER)
+g(_G, "SKINCOLOR_BLUE", SKINCOLOR_BLUE)
+g(_G, "SKINCOLOR_COBALT", SKINCOLOR_COBALT)
+g(_G, "SKINCOLOR_VAPOR", SKINCOLOR_VAPOR)
+g(_G, "SKINCOLOR_DUSK", SKINCOLOR_DUSK)
+g(_G, "SKINCOLOR_PASTEL", SKINCOLOR_PASTEL)
+g(_G, "SKINCOLOR_PURPLE", SKINCOLOR_PURPLE)
+g(_G, "SKINCOLOR_BUBBLEGUM", SKINCOLOR_BUBBLEGUM)
+g(_G, "SKINCOLOR_MAGENTA", SKINCOLOR_MAGENTA)
+g(_G, "SKINCOLOR_NEON", SKINCOLOR_NEON)
+g(_G, "SKINCOLOR_VIOLET", SKINCOLOR_VIOLET)
+g(_G, "SKINCOLOR_LILAC", SKINCOLOR_LILAC)
+g(_G, "SKINCOLOR_PLUM", SKINCOLOR_PLUM)
+g(_G, "SKINCOLOR_RASPBERRY", SKINCOLOR_RASPBERRY)
+g(_G, "SKINCOLOR_ROSY", SKINCOLOR_ROSY)
+
+local function globalize_supercolour(name, start)
+	for i = 1, 5
+		g(_G, name..i, start+(i-1))
+	end
+end
+
+globalize_supercolour("SKINCOLOR_SUPERSILVER", SKINCOLOR_SUPERSILVER1)
+globalize_supercolour("SKINCOLOR_SUPERRED", SKINCOLOR_SUPERRED1)
+globalize_supercolour("SKINCOLOR_SUPERORANGE", SKINCOLOR_SUPERORANGE1)
+globalize_supercolour("SKINCOLOR_SUPERGOLD", SKINCOLOR_SUPERGOLD1)
+globalize_supercolour("SKINCOLOR_SUPERPERIDOT", SKINCOLOR_SUPERPERIDOT1)
+globalize_supercolour("SKINCOLOR_SUPERSKY", SKINCOLOR_SUPERSKY1)
+globalize_supercolour("SKINCOLOR_SUPERPURPLE", SKINCOLOR_SUPERPURPLE1)
+globalize_supercolour("SKINCOLOR_SUPERRUST", SKINCOLOR_SUPERRUST1)
+globalize_supercolour("SKINCOLOR_SUPERTAN", SKINCOLOR_SUPERTAN1)
+
+-- Hard Globalize (tm) (Variable globals)
+local localmapnum = gamemap
+
+addHook("MapChange", function(mapnum)
+	localmapnum = mapnum
+	rawset(_G,"gamemap", localmapnum)
+	rawset(_G,"server", players[0]) -- actually, the server player is always player slot 0, so no need to use the laggy enum
+end)
+
+addHook("NetVars", function(net)
+	localmapnum = net($)
+	rawset(_G,"server", players[0])
+	rawset(_G,"gamemap", localmapnum)
+end)
+
+local function table_pack(...)
+    return {n=select("#", ...), ...}
+end
+
+addHook("PrePreThinkFrameAndPause", do
+	rawset(_G, "leveltime", nil)
+	rawset(_G, "leveltime", leveltime)
+	-- This ThinkFrame runs FIRST, so setting leveltime here will allow every other thinkframe which also uses it to access it from _G.
+	-- not perfect but this helps performance tremendously.
+end)
+
+local fs = freeslot
+rawset(_G, "freeslot", function(...)
+
+	local args = {...}
+
+	-- call original freeslot function
+	local ints = table_pack(fs(unpack(args)))
+
+	-- globalize the results.
+	for i = 1, #args do
+
+		-- spr2 does some weird things here so let's leave it out for now.
+		if args[i]:sub(1, 5) == "SPR2_"
+			continue
+		end
+
+		--print("Globalize... "..tostring(args[i]).."->"..tostring(ints[i]))
+
+		g(_G, args[i], ints[i])
+	end
+end)
