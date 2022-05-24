@@ -7410,11 +7410,11 @@ rawset(_G, "enemyList", {
 		skillchance = 100,	-- /100, probability of using a skill
 		atk = 400,
 		level = 99,
-		hp = 10000,
+		hp = 12500,
 		sp = 99999,
-		strength = 99,
-		magic = 99,
-		endurance = 99,
+		strength = 120,
+		magic = 120,
+		endurance = 120,
 		luck = 99,
 		agility = 99,
 		melee_natk = "megido",	-- enemies don't have crit anims for their attacks.
@@ -7806,7 +7806,7 @@ rawset(_G, "enemyList", {
 						if mo.hp < mo.maxhp/2	-- under 50% HP
 						and btl.turnorder[2] ~= mo
 							alt_changePersona(mo, "pixie_alt")
-							mo.phase = 2
+							mo.phase = 3
 							mo.thinkercalls = 3
 
 							if mo.buffs["atk"][1] <= 0
