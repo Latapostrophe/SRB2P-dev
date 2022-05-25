@@ -1179,9 +1179,14 @@ local function drawPlayerItemList(v, p, mo)
 	end
 
 	-- draw description
+	local unknown = server.gamemode == GM_VOIDRUN and server.P_DungeonStatus.VR_clause == VE_ITEMJAMMER
 	drawPartyStatus(v, p, server.P_BattleStatus[mo.battlen])
 	local skill = items[mo.t_itemselect] and itemDefs[items[mo.t_itemselect][1]] or nil
-	V_drawString(v, 60, 150, skill.desc or "Description missing", "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+	if unknown
+		V_drawString(v, 60, 150, "Hmmm, wonder what\nthis does?", "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+	else
+		V_drawString(v, 60, 150, skill.desc or "Description missing", "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+	end
 end
 
 local function drawTargetHP(v, x, y, mo, tgt, aff)
