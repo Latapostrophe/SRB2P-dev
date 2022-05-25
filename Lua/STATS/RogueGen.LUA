@@ -12,6 +12,12 @@ local function R_RandomRange(a, b)
 	return a + abs(R_Random() % (b - a + 1))
 end
 
+rawset(_G, "enemiesrogued", {})
+
+addHook("NetVars", function(net)
+	enemiesrogued = net($)
+end)
+
 -- removes every enemy that has "__roguemode" in its name specifically.
 -- don't name your enemies like that, dumbass.
 rawset(_G, "ROGUE_reset", function()
@@ -22,6 +28,7 @@ rawset(_G, "ROGUE_reset", function()
 			continue
 		end
 	end
+	enemiesrogued = {}
 end)
 
 -- takes an enemyList element, and creates a new enemy from it!
@@ -39,12 +46,6 @@ local marathon_hp_multipliers = {
 	130,	-- B6: 130%
 	130,	-- B7: 130%
 }
-
-rawset(_G, "enemiesrogued", {})
-
-addHook("NetVars", function(net)
-	enemiesrogued = net($)
-end)
 
 rawset(_G, "ROGUE_initEnemyStats", function(ename)
 	dprint("Attempting roguegen on "..ename)
