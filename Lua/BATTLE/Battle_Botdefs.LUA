@@ -184,12 +184,18 @@ rawset(_G, "PLYR_initSkills", function(mo, persona)
 					end
 				end
 				if #mo.skills == 8	-- we have 8 skills, gotta remove one
+					mo.toomanyskills = 1
 					table.remove(mo.skills, 1)
 				end
 				-- add skill
 				mo.skills[#mo.skills+1] = v[1]
 			end
 		end
+	end
+	
+	if mo.toomanyskills
+		print("Over 8 skills detected, removing older skills.")
+		mo.toomanyskills = 0
 	end
 
 	-- autosort skills
