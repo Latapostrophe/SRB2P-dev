@@ -116,10 +116,10 @@ COM_AddCommand("__&sendunlocks", function(p, arg)
 	dprint("Recived UCOND "..arg.." from "..p.name)
 end)
 
-local synchtimer = 0
+local needresynching
 
 addHook("NetVars", function(net)
-	synchtimer = 0
+	needresynching = true
 end)
 
 --addHook("ThinkFrame", do
@@ -165,12 +165,20 @@ rawset(_G, "NET_Synch", function()
 	end
 
 
-	synchtimer = $ and $+1 or 1
-	if synchtimer <= 10
-		if SYS_systemmenu and SYS_systemmenu.menu == 1	-- wtf!
-			SYS_closeMenu()	-- just to be sure as that seems to be a reoccuring issue
+	if consoleplayer and consoleplayer.valid and needresynching
+		consoleplayer.synchtimer = 0
+		needresynching = nil
+	end
+
+	for p in players.iterate do
+		p.synchtimer = $ and $+ 1 or 1
+		if p.synchtimer <= 10
+			if SYS_systemmenu and SYS_systemmenu.menu == 1	-- wtf!
+				SYS_closeMenu()	-- just to be sure as that seems to be a reoccuring issue
+			end
+			proceed = p
+			break
 		end
-		proceed = true
 	end
 
 	if not proceed return end
