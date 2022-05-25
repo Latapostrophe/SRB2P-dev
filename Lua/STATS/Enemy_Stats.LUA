@@ -5776,7 +5776,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
@@ -6542,7 +6542,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
@@ -6634,7 +6634,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},

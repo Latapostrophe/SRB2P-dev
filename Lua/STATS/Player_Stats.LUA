@@ -530,7 +530,7 @@ rawset(_G, "charStats", {
 		-- anim_special1 through anim_special32 may also be used for various purposes (ie: attack animations)
 		anim_special1 =		{SPR_PLAY, A, TICRATE, "SPR2_MLEE"},
 		anim_special4 = 	{SPR_PLAY, A, TICRATE, "SPR2_GARD"},			-- guard
-		anim_sepcial5 =		{SPR_PLAY, A, TICRATE, "SPR2_HWLP"},			-- howling prep
+		anim_special5 =		{SPR_PLAY, A, TICRATE, "SPR2_HWLP"},			-- howling prep
 		anim_special6 =		{SPR_PLAY, A, B, 2, "SPR2_HOWL"},				-- howling
 
 		-- VOICES
