@@ -116,6 +116,12 @@ COM_AddCommand("__&sendunlocks", function(p, arg)
 	dprint("Recived UCOND "..arg.." from "..p.name)
 end)
 
+local synchtimer = 0
+
+addHook("NetVars", function(net)
+	synchtimer = 0
+end)
+
 --addHook("ThinkFrame", do
 rawset(_G, "NET_Synch", function()
 
@@ -159,15 +165,12 @@ rawset(_G, "NET_Synch", function()
 	end
 
 
-	for p in players.iterate do
-		p.synchtimer = $ and $+ 1 or 1
-		if p.synchtimer <= 10
-			if SYS_systemmenu and SYS_systemmenu.menu == 1	-- wtf!
-				SYS_closeMenu()	-- just to be sure as that seems to be a reoccuring issue
-			end
-			proceed = p
-			break
+	synchtimer = $ and $+1 or 1
+	if synchtimer <= 10
+		if SYS_systemmenu and SYS_systemmenu.menu == 1	-- wtf!
+			SYS_closeMenu()	-- just to be sure as that seems to be a reoccuring issue
 		end
+		proceed = p
 	end
 
 	if not proceed return end
@@ -191,6 +194,18 @@ rawset(_G, "NET_Synch", function()
 		end
 	end*/
 	
+	for i = 1, 4
+		local btl = server.P_BattleStatus[i]
+		for j = 1, #btl.subpersonas
+			local per = btl.subpersonas[j]
+			per.ref = subpersonaList[per.int]
+		end
+	end
+	
+	for i=1, #enemiesrogued
+		ROGUE_initEnemyStats(enemiesrogued[i])
+	end
+
 	-- fix waves in rogue mode if necessary
 	if server.roguemode	-- hahahahaha....
 	and server.waves

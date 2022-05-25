@@ -40,6 +40,12 @@ local marathon_hp_multipliers = {
 	130,	-- B7: 130%
 }
 
+rawset(_G, "enemiesrogued", {})
+
+addHook("NetVars", function(net)
+	enemiesrogued = net($)
+end)
+
 rawset(_G, "ROGUE_initEnemyStats", function(ename)
 	dprint("Attempting roguegen on "..ename)
 	local e = enemyList[ename]
@@ -191,6 +197,7 @@ rawset(_G, "ROGUE_initEnemyStats", function(ename)
 
 	-- and finally, add us to the enemy list... dear god that sucked.
 	enemyList[ename.."__roguemode"] = cpy
+	table.insert(enemiesrogued, ename)
 
 	-- wow, we're done!
 	return ename.."__roguemode"	-- yes this is stupid.
