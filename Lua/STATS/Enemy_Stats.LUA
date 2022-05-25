@@ -6439,7 +6439,7 @@ rawset(_G, "enemyList", {
 
 						-- first 2 turns: always go for harmonics and then hand sonic.
 						if btl.turn == 1
-							return attackDefs["harmonic-0"], {mo}
+							return attackDefs["harmonics-0"], {mo}
 						elseif btl.turn == 2
 							return attackDefs["hand sonic"], {enemies[P_RandomRange(1, #enemies)]}
 						end
@@ -6587,7 +6587,7 @@ rawset(_G, "enemyList", {
 
 						-- first 2 turns: always go for harmonics and then hand sonic.
 						if btl.turn == 1
-							return attackDefs["harmonic-0"], {mo}
+							return attackDefs["harmonics-0"], {mo}
 						elseif btl.turn == 2
 							return attackDefs["hand sonic"], {enemies[P_RandomRange(1, #enemies)]}
 						end
