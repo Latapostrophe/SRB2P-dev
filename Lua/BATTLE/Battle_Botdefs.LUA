@@ -183,6 +183,9 @@ rawset(_G, "PLYR_initSkills", function(mo, persona)
 						table.remove(mo.skills, rk)
 					end
 				end
+				if #mo.skills == 8	-- we have 8 skills, gotta remove one
+					table.remove(mo.skills, 1)
+				end
 				-- add skill
 				mo.skills[#mo.skills+1] = v[1]
 			end
