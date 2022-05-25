@@ -170,7 +170,7 @@ rawset(_G, "NET_Synch", function()
 		if SYS_systemmenu and SYS_systemmenu.menu == 1	-- wtf!
 			SYS_closeMenu()	-- just to be sure as that seems to be a reoccuring issue
 		end
-		proceed = true
+		proceed = p
 	end
 
 	if not proceed return end
