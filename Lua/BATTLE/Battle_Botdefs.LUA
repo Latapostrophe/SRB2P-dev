@@ -193,9 +193,9 @@ rawset(_G, "PLYR_initSkills", function(mo, persona)
 		end
 	end
 	
-	if mo.toomanyskills
-		print("Over 8 skills detected, removing older skills.")
-		mo.toomanyskills = 0
+	if mo.toomanyskills and mo.skin
+		print("Over 8 skills detected on "..mo.skin..", removing older skills.")
+		mo.toomanyskills = nil
 	end
 
 	-- autosort skills
