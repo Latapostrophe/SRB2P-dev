@@ -20,6 +20,16 @@ end
 -- target may be nil, in this case, use the skill's auto targetting method
 -- for tgt_allallies / tgt_allenemies, make sure to reassign the target properly
 
+rawset(_G, "isSkillAffordable", function(mo, skill)
+	if not skill.cost
+	or skill.costtype ~= CST_SP
+	or skill.cost <= mo.sp
+		return true
+	else
+		return false
+	end
+end)
+
 rawset(_G, "smartAttackSelect", function(mo, forceheal)
 
 	-- ally under 50% health, see if we can help them out with our best healing skill!
@@ -33,7 +43,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	if mo.hp < mo.maxhp/4
 		for i = 1, #mo.skills
 			if not attackDefs[mo.skills[i]] continue end
-			if attackDefs[mo.skills[i]].lastresort
+			if attackDefs[mo.skills[i]].lastresort and isSkillAffordable(mo, attackDefs[mo.skills[i]])
 				return attackDefs[mo.skills[i]]
 			end
 		end
@@ -61,42 +71,107 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		-- check if we have a skill for that
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
+			if not a then continue end
 			if a.type == ATK_HEAL and a.power	-- this is a healing skill
+			and isSkillAffordable(mo, a)
 			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				if healskill	-- we already have a healing skill chosen... let's see if this new skill is better suited
-					if healskill.targettype == TGT_ALLY and a.targettype == TGT_ALLALLIES and healcount > 1
+					if healskill.target == TGT_ALLY and a.target == TGT_ALLALLIES and healcount > 1
 						healskill = a
 						continue
 						-- we need to heal multiple targets, and this skill heals more!
 					end
 
-					if healskill.targettype == TGT_ALLALLIES and a.targettype == TGT_ALLY and healcount <= 1
+					if healskill.target == TGT_ALLALLIES and a.target == TGT_ALLY and healcount <= 1
 						healskill = a
 						continue
 						-- don't needlessly waste SP using multi heal when we could instead heal only a single target
 					end
 
-					if healskill.power < a.power and healskill.targettype == a.targettype
+					if healskill.power < a.power and healskill.target == a.target
 						healskill = a
 						continue
 						-- same target type, but more power. Tell you what, let's replace it!
 					end
-				end
+				else
 
-				healskill = a
+					healskill = a
+				end
 			end
 		end
 	end
 
 	if healskill
 		--dprint("ENEMY LOGIC: Healing skill found")
-		return skill, a
+		if healskill.target == TGT_ALLY	-- We're using a single-target skill
+			return healskill, heal
+		else
+			return healskill
+		end
+	end
+
+	local patra
+	local patracount = 0	-- used to know if we should prioritize using patra or me patra
+	local patraskill
+
+	for i = 1, #mo.allies
+		local a = mo.allies[i]
+		if a.status_condition and a.status_condition < COND_HYPER
+			--dprint("ENEMY LOGIC: Statused ally, searching for patra skills...")
+			patracount = $+1	-- # of allies we have to cure
+			if not patra or patra and a.hp < patra.hp
+				patra = a
+			end
+		end
+	end
+
+	local patraChance = P_RandomRange(0, 100)
+
+	if patra	-- we have to try to cure someone!
+	and (forceheal or patraChance < 25)	-- 25% chance of curing, like healing
+		-- check if we have a skill for that
+		for i = 1, #mo.skills
+			local a = attackDefs[mo.skills[i]]
+			if not a then continue end
+			if a.type == ATK_HEAL and not a.power	-- this is a curing skill
+			and isSkillAffordable(mo, a)
+			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
+				if patraskill	-- we already have a curing skill chosen... let's see if this new skill is better suited
+					if patraskill.target == TGT_ALLY and a.target == TGT_ALLALLIES and patracount > 1
+						patraskill = a
+						continue
+						-- we need to cure multiple targets, and this skill cures more!
+					end
+
+					if patraskill.target == TGT_ALLALLIES and a.target == TGT_ALLY and patracount <= 1
+						patraskill = a
+						continue
+						-- don't needlessly waste SP using me patra when we could instead cure only a single target
+					end
+				else
+
+					patraskill = a
+				end
+			end
+		end
+	end
+
+	if patraskill
+		--dprint("ENEMY LOGIC: Curing skill found")
+		if patraskill.target == TGT_ALLY	-- We're using a single-target skill
+			return patraskill, patra
+		else
+			return patraskill
+		end
 	end
 
 	local dekunda
 	local dekundaskill
 	local dekaja
 	local dekajaskill
+
+	local last_turn = server.P_BattleStatus[mo.battlen][2] ~= mo
+	-- if we don't have a turn after this one, we CAN use mind/power charge
 
 	-- we are affected by debuffs...
 	-- see if we can use dekunda!
@@ -120,6 +195,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			for i = 1, #mo.skills
 				local a = attackDefs[mo.skills[i]]
 				if a and a.dekunda
+				and isSkillAffordable(mo, a)
 				and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 					dekundaskill = a
 					break
@@ -140,7 +216,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 				if v[1] > 0	-- v[1] is a.buffs[key][1]
 					--dprint("ENEMY LOGIC: Found enemy affected by buff! I don't like this!")
 					-- this stat has been increased! I don't like this one bit!
-					dekunda = 1
+					dekaja = 1
 					break
 				end
 			end
@@ -150,6 +226,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			for i = 1, #mo.skills
 				local a = attackDefs[mo.skills[i]]
 				if a and a.dekaja
+				and isSkillAffordable(mo, a)
 				and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 					dekajaskill = a
 					break
@@ -175,7 +252,8 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
 			if not a
-			or not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
+			or not isSkillAffordable(mo, a)
+			or a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				--dprint(mo.skills[i].." is invalid!")
 				continue
 			end
@@ -183,6 +261,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			if a.superbuff
 			and not (a.tetrakarn and mo.tetrakarn)
 			and not (a.makarakarn and mo.makarakarn)
+			and (last_turn or not (a.powercharge or a.mindcharge))
 				superbuffs[#superbuffs+1] = a
 			elseif a.buff
 				buffs[#buffs+1] = a
@@ -221,12 +300,13 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	local btl = server.P_BattleStatus[mo.battlen]
 
 	if gtarget
-	and btl.turnorder[2] == mo		-- double-turn enemies: only use ghastly wail on our first turn
-									-- WARNING: THIS CODE DOESN'T WORK FOR ENEMIES WITH > 2 TURNS
+	and btl.turnorder[mo.turns or 1] == mo		-- multi-turn enemies: only use ghastly wail on our first turn
+	and not onemore								-- some custom skills can crit and inflict hex
 
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
 			if a and a.ghastlywail
+			and isSkillAffordable(mo, a)
 			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				--dprint("ENEMY LOGIC: Found Ghastly Wail")
 				return a, gtarget
@@ -241,18 +321,16 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 
 	local usable_skills = {}
 
-	local last_turn = server.P_BattleStatus[mo.battlen][2] ~= mo
-	-- if we don't have a turn after this one, we CAN use mind/power charge
-
 	for i = 1, #mo.skills
 		local s = mo.skills[i]
 		local a = attackDefs[s]
 
 		if a
+		and isSkillAffordable(mo, a)
 		and not a.dekunda
 		and not a.dekaja
 		and not a.ghastlywail
-		and not (last_turn and (a.powercharge or a.mindcharge))
+		and (last_turn or not (a.powercharge or a.mindcharge))
 		and not (a.type == ATK_HEAL)
 		and not (mo.mindcharge and isAttackPhysical(a))
 		and not (mo.powercharge and not isAttackPhysical(a))
