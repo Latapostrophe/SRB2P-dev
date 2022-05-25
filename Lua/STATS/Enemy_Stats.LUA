@@ -110,61 +110,6 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		end
 	end
 
-	local patra
-	local patracount = 0	-- used to know if we should prioritize using patra or me patra
-	local patraskill
-
-	for i = 1, #mo.allies
-		local a = mo.allies[i]
-		if a.status_condition and a.status_condition < COND_HYPER
-			--dprint("ENEMY LOGIC: Statused ally, searching for patra skills...")
-			patracount = $+1	-- # of allies we have to cure
-			if not patra or patra and a.hp < patra.hp
-				patra = a
-			end
-		end
-	end
-
-	local patraChance = P_RandomRange(0, 100)
-
-	if patra	-- we have to try to cure someone!
-	and (forceheal or patraChance < 25)	-- 25% chance of curing, like healing
-		-- check if we have a skill for that
-		for i = 1, #mo.skills
-			local a = attackDefs[mo.skills[i]]
-			if not a then continue end
-			if a.type == ATK_HEAL and not a.power	-- this is a curing skill
-			and isSkillAffordable(mo, a)
-			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
-				if patraskill	-- we already have a curing skill chosen... let's see if this new skill is better suited
-					if patraskill.target == TGT_ALLY and a.target == TGT_ALLALLIES and patracount > 1
-						patraskill = a
-						continue
-						-- we need to cure multiple targets, and this skill cures more!
-					end
-
-					if patraskill.target == TGT_ALLALLIES and a.target == TGT_ALLY and patracount <= 1
-						patraskill = a
-						continue
-						-- don't needlessly waste SP using me patra when we could instead cure only a single target
-					end
-				else
-
-					patraskill = a
-				end
-			end
-		end
-	end
-
-	if patraskill
-		--dprint("ENEMY LOGIC: Curing skill found")
-		if patraskill.target == TGT_ALLY	-- We're using a single-target skill
-			return patraskill, patra
-		else
-			return patraskill
-		end
-	end
-
 	local dekunda
 	local dekundaskill
 	local dekaja
