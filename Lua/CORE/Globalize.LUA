@@ -376,6 +376,12 @@ addHook("NetVars", function(net)
 	rawset(_G,"gamemap", localmapnum)
 end)
 
+-- Undo Globalize when returning to the title screen
+addHook("GameQuit", do
+	rawset(_G,"gamemap", nil)
+	rawset(_G,"server", nil)
+end)
+
 local function table_pack(...)
     return {n=select("#", ...), ...}
 end
