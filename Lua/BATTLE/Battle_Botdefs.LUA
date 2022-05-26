@@ -716,21 +716,22 @@ local function PLYR_checkforPlayer(mo)		-- check if whoever is controlling 'mo' 
 	end
 
 	if count == 2
+	and (evenbot or oddbot)
 		twopset = true
 	end
 
 	if twopset	-- exactly 2 players;
-		if evenbot -- We're an even bot
+		if evenbot	-- We're an even bot
 		and mo.control ~= lastp and lastp.maincontrol -- Make sure player 2 has maincontrol first
 			PLYR_setcontrol(mo, lastp)
-		elseif oddbot
+		elseif oddbot	-- We're an odd bot
 		and mo.control ~= firstp and firstp.maincontrol -- Make sure "player 1" has maincontrol first
 			PLYR_setcontrol(mo, firstp)
 		end
 	end
 
 	if plist[seek] and plist[seek].valid and (not mo.control or not mo.control.valid or mo.control.maincontrol ~= mo)
-	--and not twopset
+	and not twopset
 		dprint(header.."Updated bot "..(seek).."'s controls to "..plist[seek].name)
 		--mo.control = players[seek]
 		PLYR_setcontrol(mo, plist[seek])
