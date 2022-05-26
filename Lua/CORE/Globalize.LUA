@@ -378,7 +378,7 @@ end)
 
 addHook("GameQuit", do
 	rawset(_G,"server", false)
-	rawset(_G,"gamemap", 40)
+	rawset(_G,"gamemap", srb2p.titlemap)
 end)
 
 local function table_pack(...)
