@@ -49,7 +49,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			end
 		end
 	end
-
+	
 	-- HEALING SKILLS
 	local heal
 	local healcount = 0	-- used to know if we should prioritize using single target heal or multi target heal
@@ -106,13 +106,13 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	if healskill
 		--dprint("ENEMY LOGIC: Healing skill found")
 		if healskill.target == TGT_ALLY	-- We're using a single-target skill
-			return healskill, heal
+			return healskill, usepatra
 		else
 			return healskill
 		end
 	end
-
-
+	
+	
 	-- PATRA
 	local usepatra
 	local patracount = 0	-- used to know if we should prioritize using single target heal or multi target heal
@@ -163,9 +163,9 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		else
 			return patraskill
 		end
-	end
-
-
+	end	
+	
+	
 	local dekunda
 	local dekundaskill
 	local dekaja
