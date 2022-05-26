@@ -378,8 +378,8 @@ end)
 
 -- Undo Globalize when returning to the title screen
 addHook("GameQuit", do
-	rawset(_G,"gamemap", nil)
-	rawset(_G,"server", nil)
+	rawset(_G,"server", false)
+	rawset(_G,"gamemap", 40)
 end)
 
 local function table_pack(...)
