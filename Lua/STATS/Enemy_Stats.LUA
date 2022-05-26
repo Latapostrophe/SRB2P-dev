@@ -5895,12 +5895,12 @@ rawset(_G, "enemyList", {
 		anim_aoa_end =		{SPR_PLAY, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_SHIT"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets revived
-		anim_evoker =		{SPR_CSMN, G, 2},	-- holding evoker to head
-		anim_evoker_shoot =	{SPR_CSMN, H, 2},		-- shooting evoker
+		anim_evoker =		{SPR_PLAY, A, 2, "SPR2_CSMN"},	-- uses evoker
+		anim_evoker_shoot = {SPR_PLAY, B, A, 2, "SPR2_CSMN"},
 
 		anim_special1 = {SPR_PLAY, A, 2, "SPR2_MLEE"}, -- hammer prep
 		anim_special2 = {SPR_PLAY, B, C, D, 2, "SPR2_MLEE"}, -- hammer swing
@@ -5911,7 +5911,7 @@ rawset(_G, "enemyList", {
 		vfx_skill = {"sfx_arskl1", "sfx_arskl2", "sfx_arskl3"},
 		vfx_item = {"sfx_aruse1"},
 		vfx_hurt = {"sfx_arhrt1", "sfx_arhrt2", "sfx_arhrt3"},
-		vfx_xhurt = {"sfx_arhrx1"},
+		vfx_hurtx = {"sfx_arhrx1"},
 		vfx_die = {"sfx_arhrt1"},
 		vfx_heal = {"sfx_arhel1", "sfx_arhel2"},
 		vfx_healself = {"sfx_arhel1", "sfx_arhel2"},
