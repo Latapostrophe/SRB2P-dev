@@ -756,8 +756,14 @@ addHook("MobjThinker", PLYR_checkforPlayer, MT_PFIGHTER)
 
 local function PLYR_checkjoincontrol(p)
 	if not server.plentities return end
-	if not server.plentities[1] return end	-- no bots in the game. skip.
-	if not #server.plentities[1] return end
+	if not (server.plentities[1]
+	or server.plentities[2]
+	or server.plentities[3]
+	or server.plentities[4]) return end	-- no bots in the game. skip.
+	if not (#server.plentities[1]
+	or #server.plentities[2]
+	or #server.plentities[3]
+	or #server.plentities[4]) return end
 	if p.P_party return end			-- player shouldn't have had respawned in the first goddamn place.
 
 	-- check which party has the least players:
