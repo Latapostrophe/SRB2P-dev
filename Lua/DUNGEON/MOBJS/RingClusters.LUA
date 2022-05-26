@@ -50,6 +50,7 @@ addHook("MobjThinker", function(mo)
 	local rings = {}
 
 	local dp = displayplayer or players[0]
+	if not dp or not dp.valid then return end
 
 	-- make rings rotate
 	local f2 = R_PointToDist2(mo.x, mo.y, dp.mo.x, dp.mo.y) > 768*FRACUNIT and MF2_DONTDRAW or 0
@@ -89,7 +90,7 @@ addHook("MobjThinker", function(mo)
 		if server.P_BattleStatus[p.P_party] and server.P_BattleStatus[p.P_party].running continue end	-- no!
 
 		if pmo.subsector.sector == mo.subsector.sector
-			for i = 1, 5
+			for i = 1, #server.plentities[p.P_party]+1
 
 				local check = server.plentities[p.P_party][i-1]
 				if not check	-- i == 1
