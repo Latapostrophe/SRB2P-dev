@@ -195,12 +195,12 @@ rawset(_G, "D_eventHandler", function(pn)
 		end
 	end
 	
-	if not firstp return end	--??
-	if not firstp.control or not firstp.control.mo return end
+	if not (firstp and firstp.valid) return end	--??
+	if not (firstp.control and firstp.control.valid and firstp.control.mo and firstp.control.mo.valid) return end
 	local inputs = firstp.control.mo.P_inputs
 	if not inputs return end	-- errors
 
-	local evt = server.P_DialogueStatus[pn]
+	local evt = server.P_DialogueStatus and server.P_DialogueStatus[pn]
 
 	if evt and evt.event
 

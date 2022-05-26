@@ -598,6 +598,7 @@ rawset(_G, "enemyList", {
 		name = "Re: Cowardly Maya",
 		skillchance = 100,	-- /100, probability of using a skill
 		level = 2,
+		pvplevel = 98,
 		atk = 450,
 		hp = 5500,
 		sp = 8500,
@@ -7727,7 +7728,7 @@ rawset(_G, "enemyList", {
 						and btl.turnorder[2] ~= mo
 							alt_changePersona(mo, "pixie_alt")
 							mo.phase = 2
-							mo.thinkercalls = 3
+							mo.thinkercalls = 2
 
 							if mo.buffs["atk"][1] <= 0
 							and mo.buffs["def"][1] <= 0
@@ -7807,7 +7808,7 @@ rawset(_G, "enemyList", {
 						and btl.turnorder[2] ~= mo
 							alt_changePersona(mo, "pixie_alt")
 							mo.phase = 3
-							mo.thinkercalls = 3
+							mo.thinkercalls = 2
 
 							if mo.buffs["atk"][1] <= 0
 							and mo.buffs["def"][1] <= 0

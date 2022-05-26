@@ -347,7 +347,7 @@ rawset(_G, "BTL_initEnemyAnimsPlayer", function(mo)
 	mo.anim_death = tbl.anim_death or tbl.anim_stand
 	mo.anim_revive = tbl.anim_revive or tbl.anim_stand
 
-	if tbl.persona
+	if tbl.persona and personaList[tbl.persona] -- So bosses with invalid personas don't break stuff
 		mo.persona = personaList[tbl.persona]
 		mo.persona.anim_idle = {SPR_NULL, A, 1}
 		mo.persona.anim_atk = {SPR_NULL, A, 1}
@@ -4330,6 +4330,10 @@ local function BTL_linkHandler(pn)
 
 		local mo = btl.linkhits[1]
 
+		if not (mo and mo.valid)
+			table.remove(btl.linkhits, 1)
+			return
+		end
 
 		if not btl.dmg_hits
 
@@ -5280,35 +5284,43 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			btl.netstats.wins = $+1	-- count that as a win!
 
 			-- Do Tartarus specific unlocks etc:
-			if mapheaderinfo[gamemap].tartarus
-			and server.gamemode == GM_COOP
-
-				-- Finished Block 6 / Marathon mode (both work to unlock Monad)
-
-				if server.difficulty >= 6
-				and not srb2p.local_conds[UNLOCK_B7]
-					for p in players.iterate do
-						P_unlock(UNLOCK_B7, p, "The Monad Block is now available from Rogue Mode!")
+			if server.gamemode == GM_COOP
+				if mapheaderinfo[gamemap].tartarus
+					
+					-- Finished Block 6 / Marathon mode (both work to unlock Monad)
+					
+					if server.difficulty >= 6
+					and not srb2p.local_conds[UNLOCK_B7]
+						for p in players.iterate do
+							P_unlock(UNLOCK_B7, p, "The Monad Block is now available from Rogue Mode!")
+						end
 					end
-				end
-
-				-- Finsihed block 7:
-				if server.difficulty == 7
-				and not server.marathon	-- ?
-				and not srb2p.local_conds[UNLOCK_B7_FINISHED]
-					P_unlock(UNLOCK_B7_FINISHED)	-- Silent unlock
+					
+					-- Finished block 7:
+					if server.difficulty == 7
+					and not server.marathon	-- ?
+					and not srb2p.local_conds[UNLOCK_B7_FINISHED]
+						P_unlock(UNLOCK_B7_FINISHED)		-- Silent unlock
+					end
 				end
 
 				-- Finished Marathon
 				if server.marathon
-				and not srb2p.local_conds[UNLOCK_MARATHON_FINISHED]
-					P_unlock(UNLOCK_MR_FINISHED)	-- Silent unlock
+					if not srb2p.local_conds[UNLOCK_B7]
+						for p in players.iterate do
+							P_unlock(UNLOCK_B7, p, "The Monad Block is now available from Rogue Mode!")
+						end
+					end
+					if not srb2p.local_conds[UNLOCK_MR_FINISHED]
+						P_unlock(UNLOCK_MR_FINISHED)		-- Silent unlock
+					end
+					
 				end
-
-				-- Finished Void Run
-				if server.gamemode == GM_VOIDRUN
-					P_unlock(UNLOCK_VR_FINISHED)	-- Silent unlock
-				end
+			end
+			-- Finished Void Run
+			if server.gamemode == GM_VOIDRUN
+			and not srb2p.local_conds[UNLOCK_VR_FINISHED]
+				P_unlock(UNLOCK_VR_FINISHED)
 			end
 
 			return
@@ -5790,7 +5802,7 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 	if not mo return end
 
 	local mynum	-- our player num:
-	for i = 1, 4 do
+	for i = 1, #server.plentities[pn] do
 		if server.plentities[mo.battlen][i] == mo
 			mynum = i
 			break
@@ -7254,8 +7266,13 @@ local function BTL_gameOver(pn)
 
 			server.P_DungeonStatus.gameoverfade = 9		-- quick hack
 			server.P_DungeonStatus.lifeexplode = 9+20
-			-- go back to the last floor where we saved
-			DNG_setFloor(server.P_DungeonStatus.savefloor)
+			if gamemap == 5
+				-- If we're at the peak, reset the map
+				DNG_loadNewMap(5)
+			else
+				-- go back to the last floor where we saved
+				DNG_setFloor(server.P_DungeonStatus.savefloor)
+			end
 			DNG_logMessage(retrymsg[P_RandomRange(1, #retrymsg)])
 		end
 
