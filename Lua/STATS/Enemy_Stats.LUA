@@ -22,8 +22,9 @@ end
 
 rawset(_G, "isSkillAffordable", function(mo, skill)
 	if not skill.cost
-	or skill.costtype ~= CST_SP
-	or skill.cost <= mo.sp
+	or (skill.costtype == CST_SP and skill.cost <= mo.sp)
+	or (skill.costtype == CST_SPPERCENT and skill.cost*mo.maxsp/100 <= mo.sp)
+	or (skill.costtype ~= CST_SP and skill.costtype ~= CST_SPPERCENT)
 		return true
 	else
 		return false
@@ -49,6 +50,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		end
 	end
 
+	-- HEALING SKILLS
 	local heal
 	local healcount = 0	-- used to know if we should prioritize using single target heal or multi target heal
 	local healskill
@@ -109,6 +111,60 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			return healskill
 		end
 	end
+
+
+	-- PATRA
+	local usepatra
+	local patracount = 0	-- used to know if we should prioritize using single target heal or multi target heal
+	local patraskill
+
+	for i = 1, #mo.allies
+		local a = mo.allies[i]
+		if a.status_condition and a.status_condition < COND_HYPER
+			patracount = $+1	-- # of allies we have to heal
+			usepatra = a
+		end
+	end
+
+	local healChance = P_RandomRange(0, 100)
+
+	if usepatra	-- we have to try to heal someone!
+	and (forceheal or healChance < 25)	-- 25% chance of healing, to avoid stall fests
+		-- check if we have a skill for that
+		for i = 1, #mo.skills
+			local a = attackDefs[mo.skills[i]]
+			if not a then continue end
+			if a.patra
+			and isSkillAffordable(mo, a)
+			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
+				if patraskill	-- we already have a healing skill chosen... let's see if this new skill is better suited
+					if patraskill.target == TGT_ALLY and a.target == TGT_ALLALLIES and patracount > 1
+						patraskill = a
+						continue
+						-- we need to heal multiple targets, and this skill heals more!
+					end
+
+					if patraskill.target == TGT_ALLALLIES and a.target == TGT_ALLY and patracount <= 1
+						patraskill = a
+						continue
+						-- don't needlessly waste SP using multi heal when we could instead heal only a single target
+					end
+				else
+					patraskill = a
+				end
+			end
+		end
+	end
+
+	if patraskill
+		--dprint("ENEMY LOGIC: Healing skill found")
+		if patraskill.target == TGT_ALLY	-- We're using a single-target skill
+			return patraskill, heal
+		else
+			return patraskill
+		end
+	end
+
 
 	local dekunda
 	local dekundaskill

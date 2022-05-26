@@ -2325,3 +2325,384 @@ local function DMG_handleDamage(mo)
 end
 
 addHook("MobjThinker", DMG_handleDamage, MT_PFIGHTER)
+
+-- DEBUG COMMANDS
+
+COM_AddCommand("d_sethp", function(p, target, num, arg)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+
+	if not btl.running
+		CONS_Printf(p, "You must be in a Battle to use this.")
+		return
+	end
+	if not target
+	or not arg
+	or not num
+	or tonumber(arg) == nil
+	or tonumber(num) == nil
+		CONS_Printf(p, "d_sethp <\"players\"/\"enemies\"> <index> <amount>: Sets the HP of the entity of the given index. If index is 0, all entities are affected.")
+		return
+	end
+	local base = p.maincontrol
+
+	local t = base.enemies
+
+	target = target:lower()
+
+	if target == nil
+	or target == "enemies"
+		t = base.enemies
+	elseif target == "players"
+		t = base.allies
+	end
+
+	for i = 1, #t
+		if tonumber(num) == 0
+		or tostring(i) == num
+			print("DEBUG: Set "..t[i].name.."'s HP to "..arg)
+			t[i].hp = max(1, tonumber(arg))
+			t[i].hp = min($, t[i].maxhp)
+		end
+	end
+end)
+
+COM_AddCommand("d_sethp%", function(p, target, num, arg)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+
+	if not btl.running
+		CONS_Printf(p, "You must be in a Battle to use this.")
+		return
+	end
+	if not target
+	or not arg
+	or not num
+	or tonumber(arg) == nil
+	or tonumber(num) == nil
+		CONS_Printf(p, "d_sethp% <\"players\"/\"enemies\"> <index> <amount>: Sets the HP of the entity of the given index in %. If index is 0, all entities are affected.")
+		return
+	end
+	local base = p.maincontrol
+
+	local t = base.enemies
+
+	target = target:lower()
+
+	if target == nil
+	or target == "enemies"
+		t = base.enemies
+	elseif target == "players"
+		t = base.allies
+	end
+
+	for i = 1, #t
+		if tonumber(num) == 0
+		or tostring(i) == num
+			print("DEBUG: Set "..t[i].name.."'s HP to "..arg.."%")
+			t[i].hp = min(max(1, tonumber(arg)), 100)*t[i].maxhp / 100
+		end
+	end
+end)
+
+COM_AddCommand("d_setsp", function(p, target, num, arg)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+
+	if not btl.running
+		CONS_Printf(p, "You must be in a Battle to use this.")
+		return
+	end
+	if not target
+	or not arg
+	or not num
+		CONS_Printf(p, "d_setsp <\"players\"/\"enemies\"> <index> <amount>: Sets the SP of the entity of the given index. If index is 0, all entities are affected.")
+		return
+	end
+	local base = p.maincontrol
+
+	local t = base.enemies
+
+	target = target:lower()
+
+	if target == nil
+	or target == "enemies"
+		t = base.enemies
+	elseif target == "players"
+		t = base.allies
+	end
+
+	for i = 1, #t
+		if tonumber(num) == 0
+		or tostring(i) == num
+			print("DEBUG: Set "..t[i].name.."'s SP to "..arg)
+			t[i].sp = max(1, tonumber(arg))
+			t[i].sp = min($, t[i].maxsp)
+		end
+	end
+end)
+
+COM_AddCommand("d_setsp%", function(p, target, num, arg)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+
+	if not btl.running
+		CONS_Printf(p, "You must be in a Battle to use this.")
+		return
+	end
+	if not target
+	or not arg
+	or not num
+	or tonumber(arg) == nil
+	or tonumber(num) == nil
+		CONS_Printf(p, "d_sethp% <\"players\"/\"enemies\"> <index> <amount>: Sets the SP of the entity of the given index in %. If index is 0, all entities are affected.")
+		return
+	end
+	local base = p.maincontrol
+
+	local t = base.enemies
+
+	target = target:lower()
+
+	if target == nil
+	or target == "enemies"
+		t = base.enemies
+	elseif target == "players"
+		t = base.allies
+	end
+
+	for i = 1, #t
+		if tonumber(num) == 0
+		or tostring(i) == num
+			print("DEBUG: Set "..t[i].name.."'s SP to "..arg.."%")
+			t[i].sp = min(max(1, tonumber(arg)), 100)*t[i].maxsp / 100
+		end
+	end
+end)
+
+local status_lookup = {
+	["burn"] = COND_BURN,
+	["dizzy"] = COND_DIZZY,
+	["despair"] = COND_DESPAIR,
+	["hunger"] = COND_HUNGER,
+	["hyper"] = COND_HYPER,
+	["super"] = COND_SUPER,
+	["hex"] = COND_HEX,
+	["freeze"] = COND_FREEZE,
+	["shock"] = COND_SHOCK,
+	["rage"] = COND_RAGE,
+	["brainwash"] = COND_BRAINWASH,
+	["silence"] = COND_SILENCE,
+	["sleep"] = COND_SLEEP,
+	["poison"] = COND_POISON,
+	["down"] = "special",
+}
+
+COM_AddCommand("d_setstatus", function(p, target, num, arg)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+
+	if not btl.running
+		CONS_Printf(p, "You must be in a Battle to use this.")
+		return
+	end
+
+	if not target
+	or not arg
+	or not num
+	or tonumber(num) == nil
+		CONS_Printf(p, "d_setstatus <\"players\"/\"enemies\"> <index> <amount>: Sets the supplied status on the entity of the given index. If index is 0, all entities are affected.")
+		CONS_Printf(p, "List of avilable statuses:")
+		for k, v in pairs(status_lookup)
+			CONS_Printf(p, k)
+		end
+		return
+	end
+	local base = p.maincontrol
+
+	local t = base.enemies
+	local arg = arg:lower()
+	local target = target:lower()
+
+	if target == nil
+	or target == "enemies"
+		t = base.enemies
+	elseif target == "players"
+		t = base.allies
+	end
+
+	for i = 1, #t
+		if tonumber(num) == 0
+		or tostring(i) == num
+			if status_lookup[arg]
+
+				print("DEBUG: Set "..t[i].name.."'s status to "..arg)
+
+				if status_lookup[arg] == "special"
+					playSound(t[i].battlen, sfx_crit)
+
+					t[i].downanim = 10	-- oof
+					if not t[i].down
+						ANIM_set(t[i], t[i].anim_getdown)
+					end
+
+					t[i].down = true	-- down is a separate status condition
+				else
+					cureStatus(t[i])
+					t[i].status_condition = 0
+					inflictStatus(t[i], status_lookup[arg])
+				end
+			else
+				print("DEBUG: Cured "..t[i].name.."'s status")
+				if t[i].status_condition and t[i].status_condition < COND_HYPER
+					cureStatus(t[i])
+					t[i].status_condition = 0
+				end
+			end
+		end
+	end
+end)
+
+local field_lookup = {
+	["agiverse"] = FLD_AGIVERSE,
+	["zioverse"] = FLD_ZIOVERSE,
+	["garuverse"] = FLD_GARUVERSE,
+}
+
+COM_AddCommand("d_setfield", function(p, target, num, arg)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+
+	if not btl.running
+		CONS_Printf(p, "You must be in a Battle to use this.")
+		return
+	end
+
+	if not target
+	or not arg
+	or not num
+	or tonumber(num) == nil
+		CONS_Printf(p, "d_setstatus <\"players\"/\"enemies\"> <index> <amount>: Sets the supplied field on the entity of the given index. If index is 0, all entities are affected.")
+		CONS_Printf(p, "List of avilable fields:")
+		for k, v in pairs(field_lookup)
+			CONS_Printf(p, k)
+		end
+		return
+	end
+	local base = p.maincontrol
+
+	local t = base.enemies
+	local arg = arg:lower()
+	local target = target:lower()
+
+	if target == nil
+	or target == "enemies"
+		t = base.enemies
+	elseif target == "players"
+		t = base.allies
+	end
+
+	for i = 1, #t
+		if tonumber(num) == 0
+		or tostring(i) == num
+			if field_lookup[arg]
+				print("DEBUG: Set "..t[i].name.."'s field to "..arg)
+				startField(t[i], field_lookup[arg])
+			else
+				print("DEBUG: Cleared "..t[i].name.."'s field")
+				clearField(t[i])
+			end
+		end
+	end
+end)
+
+local bufftypes = {
+	["atk"] = true,
+	["mag"] = true,
+	["agi"] = true,
+	["def"] = true,
+	["crit"] = true,
+}
+
+COM_AddCommand("d_setbuff", function(p, target, num, typ, arg)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+
+	if not btl.running
+		CONS_Printf(p, "You must be in a Battle to use this.")
+		return
+	end
+
+	if not target
+	or not arg
+	or not num
+	or not typ
+	or tonumber(arg) == nil
+	or tonumber(num) == nil
+		CONS_Printf(p, "d_setstatus <\"players\"/\"enemies\"> <index> <\"str\"/\"mag\"/\"def\"/\"agi\"/\"crit\"> <amount>: Sets the buff to the supplied value (1-2-3). If index is 0, all entities are affected.")
+		return
+	end
+	local base = p.maincontrol
+
+	local t = base.enemies
+	local arg = arg:lower()
+	local typ = typ:lower()
+	local target = target:lower()
+
+	if not bufftypes[typ]
+		CONS_Printf(p, "Invalid buff type")
+		return
+	end
+
+	if target == nil
+	or target == "enemies"
+		t = base.enemies
+	elseif target == "players"
+		t = base.allies
+	end
+
+	for i = 1, #t
+		if tonumber(num) == 0
+		or tostring(i) == num
+			local nbuffs = tonumber(arg)
+			nbuffs = min(MAXBUFFS, $)
+			nbuffs = max(-MAXBUFFS, $)	-- clamp it.
+
+			t[i].buffs[typ][1] = BUFFSTEP*nbuffs
+			print("DEBUG: Set "..t[i].name.."'s "..typ.." buff to "..arg)
+		end
+	end
+end)
+
+COM_AddCommand("d_setep", function(p, arg)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+
+	if not arg
+		CONS_Printf(p, "d_setep <amount>: Sets Emerald Power. Values can go above current max.")
+		return
+	end
+
+	if tonumber(arg) ~= nil
+		btl.emeraldpow = max(0, min(7, tonumber(arg)))*100
+		btl.emeraldpow_max = max(0, min(7, tonumber(arg)))
+	end
+end)
+
+COM_AddCommand("d_setholdup", function(p)
+	if not cv_debugcheats.value return end
+	local btl = server.P_BattleStatus[p.P_party]
+	local base = p.maincontrol
+
+	if not btl.running
+		CONS_Printf(p, "You must be in a Battle to use this.")
+		return
+	end
+
+	if btl.battlestate ~= BS_DOTURN
+		CONS_Printf(p, "Battle state must be neutral")
+		return
+	end
+
+	BTL_initHoldup(btl, base.allies)
+end)

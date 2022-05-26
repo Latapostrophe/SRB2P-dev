@@ -5024,7 +5024,7 @@ rawset(_G, "BTL_handleStatusConditions", function(pn, timer)
 	end
 end)
 
-local function BTL_initHoldup(btl, t)
+rawset(_G, "BTL_initHoldup", function(btl, t)
 
 	btl.netstats.holdups = $+1
 
@@ -5045,7 +5045,7 @@ local function BTL_initHoldup(btl, t)
 	btl.hudtimer.holdupstart = TICRATE*2
 
 	btl.battlestate = BS_HOLDUP
-end
+end)
 
 rawset(_G, "BTL_endturnHandler", function(pn)
 	local btl = server.P_BattleStatus[pn]
@@ -5286,16 +5286,16 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			-- Do Tartarus specific unlocks etc:
 			if server.gamemode == GM_COOP
 				if mapheaderinfo[gamemap].tartarus
-					
+
 					-- Finished Block 6 / Marathon mode (both work to unlock Monad)
-					
+
 					if server.difficulty >= 6
 					and not srb2p.local_conds[UNLOCK_B7]
 						for p in players.iterate do
 							P_unlock(UNLOCK_B7, p, "The Monad Block is now available from Rogue Mode!")
 						end
 					end
-					
+
 					-- Finished block 7:
 					if server.difficulty == 7
 					and not server.marathon	-- ?
@@ -5314,7 +5314,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 					if not srb2p.local_conds[UNLOCK_MR_FINISHED]
 						P_unlock(UNLOCK_MR_FINISHED)		-- Silent unlock
 					end
-					
+
 				end
 			end
 			-- Finished Void Run

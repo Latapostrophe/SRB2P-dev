@@ -5455,6 +5455,7 @@ rawset(_G, "attackDefs", {
 		cost = 12,
 		desc = "Remove status conditions \nfrom the party",
 		target = TGT_ALLALLIES,
+		patra = true,
 		anim = function(mo, targets, hittargets, timer)
 			local colors = {SKINCOLOR_ORANGE, SKINCOLOR_LAVENDER, SKINCOLOR_EMERALD}
 
@@ -5490,6 +5491,7 @@ rawset(_G, "attackDefs", {
 		cost = 5,
 		desc = "Remove status conditions \nfrom 1 ally",
 		target = TGT_ALLY,
+		patra = true,
 		anim = function(mo, targets, hittargets, timer)
 			local colors = {SKINCOLOR_ORANGE, SKINCOLOR_LAVENDER, SKINCOLOR_EMERALD}
 
