@@ -90,6 +90,11 @@ rawset(_G, "itemDefs", {
 		menuonly = true,
 		rarity = 6,
 		useall = true,		-- force item to target all in the menu
+		checkfunc = 	function(user, mo)	-- so the level cap can't go too high
+			if mo.levelcap >= #needEXP-1
+				return true
+			end
+		end,
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
