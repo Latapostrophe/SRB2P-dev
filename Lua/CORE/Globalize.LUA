@@ -376,7 +376,6 @@ addHook("NetVars", function(net)
 	rawset(_G,"gamemap", localmapnum)
 end)
 
--- Undo Globalize when returning to the title screen
 addHook("GameQuit", do
 	rawset(_G,"server", false)
 	rawset(_G,"gamemap", 40)
