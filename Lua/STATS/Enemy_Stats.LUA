@@ -106,7 +106,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	if healskill
 		--dprint("ENEMY LOGIC: Healing skill found")
 		if healskill.target == TGT_ALLY	-- We're using a single-target skill
-			return healskill, usepatra
+			return healskill, heal
 		else
 			return healskill
 		end
@@ -159,7 +159,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	if patraskill
 		--dprint("ENEMY LOGIC: Healing skill found")
 		if patraskill.target == TGT_ALLY	-- We're using a single-target skill
-			return patraskill, heal
+			return patraskill, usepatra
 		else
 			return patraskill
 		end
