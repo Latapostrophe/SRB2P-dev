@@ -1250,7 +1250,9 @@ rawset(_G, "DNG_setFloor", function(f)
 	end
 
 	local reapertimer = 0
-	if reapertimers[server.difficulty]
+	if server.cdungeon and server.cdungeon.reapertimer
+		reapertimer = server.cdungeon.reapertimer
+	elseif reapertimers[server.difficulty]
 		reapertimer = reapertimers[server.difficulty]
 	end
 
