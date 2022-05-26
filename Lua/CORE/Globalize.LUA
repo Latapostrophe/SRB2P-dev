@@ -422,6 +422,11 @@ addHook("NetVars", function(net)
 	rawset(_G,"gamemap", localmapnum)
 end)
 
+addHook("GameQuit", do
+	rawset(_G,"server", false)
+	rawset(_G,"gamemap", srb2p.titlemap)
+end)
+
 local function table_pack(...)
     return {n=select("#", ...), ...}
 end
