@@ -18383,7 +18383,7 @@ rawset(_G, "attackDefs", {
 						"elec boost",
 						"wind boost",
 						"nuke boost",
-						"psi boost",
+						"psy boost",
 						"bless boost",
 						"curse boost",
 						"god hand",

@@ -243,7 +243,7 @@ rawset(_G, "PLYR_initAnims", function(mo, skin)
 		if tbl["anim_special"..i]
 			mo["anim_special"..i] = tbl["anim_special"..i]
 		else
-			mo["anim_sepcial"..i] = {SPR_PLAY, A, 1, "SPR2_STAND"}
+			mo["anim_special"..i] = {SPR_PLAY, A, 1, "SPR2_STAND"}
 		end
 	end
 end)

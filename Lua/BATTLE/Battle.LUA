@@ -327,7 +327,7 @@ rawset(_G, "BTL_initEnemyAnims", function(mo)
 		if tbl["anim_special"..i]
 			mo["anim_special"..i] = tbl["anim_special"..i]
 		else
-			mo["anim_sepcial"..i] = {SPR_PLAY, A, 1}
+			mo["anim_special"..i] = {SPR_PLAY, A, 1}
 		end
 	end
 end)
@@ -385,7 +385,7 @@ rawset(_G, "BTL_initEnemyAnimsPlayer", function(mo)
 		if tbl["anim_special"..i]
 			mo["anim_special"..i] = tbl["anim_special"..i]
 		else
-			mo["anim_sepcial"..i] = {SPR_PLAY, A, 1}
+			mo["anim_special"..i] = {SPR_PLAY, A, 1}
 		end
 	end
 

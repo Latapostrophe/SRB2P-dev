@@ -5776,7 +5776,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
@@ -6439,7 +6439,7 @@ rawset(_G, "enemyList", {
 
 						-- first 2 turns: always go for harmonics and then hand sonic.
 						if btl.turn == 1
-							return attackDefs["harmonic-0"], {mo}
+							return attackDefs["harmonics-0"], {mo}
 						elseif btl.turn == 2
 							return attackDefs["hand sonic"], {enemies[P_RandomRange(1, #enemies)]}
 						end
@@ -6542,7 +6542,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
@@ -6587,7 +6587,7 @@ rawset(_G, "enemyList", {
 
 						-- first 2 turns: always go for harmonics and then hand sonic.
 						if btl.turn == 1
-							return attackDefs["harmonic-0"], {mo}
+							return attackDefs["harmonics-0"], {mo}
 						elseif btl.turn == 2
 							return attackDefs["hand sonic"], {enemies[P_RandomRange(1, #enemies)]}
 						end
@@ -6634,7 +6634,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
