@@ -26,6 +26,9 @@ rawset(_G, "getRandomDrops", function(mo)
 
 	local tbl = server.items
 	local newtable = {}
+
+	local maxrarity = 0
+
 	if tbl
 		for k,v in ipairs(tbl)
 			for j = 1, v[2]
@@ -34,6 +37,7 @@ rawset(_G, "getRandomDrops", function(mo)
 		end
 
 		-- 25% chance to obtain random drop item 3 times
+
 		for i = 1, 3
 			if P_RandomRange(0, 100) <= 40
 				--print("Get drop")
@@ -47,7 +51,7 @@ rawset(_G, "getRandomDrops", function(mo)
 						local wpn = dropWeaponFromSeries(it[2], server.plentities[mo.battlen])
 						wpn = makeWeapon(wpn, P_RandomRange(0, 3))
 
-						rare = wpn.rarity >= 5
+						maxrarity = max($, wpn.rarity)
 						btl.r_weapons = $ or {}
 
 						btl.r_weapons[#btl.r_weapons+1] = wpn
@@ -59,7 +63,7 @@ rawset(_G, "getRandomDrops", function(mo)
 						if ring
 							btl.r_rings = $ or {}
 							btl.r_rings[#btl.r_rings+1] = makeRing(ring, P_RandomRange(0, 3))
-							rare = btl.r_rings[#btl.r_rings].rarity >= 5
+							maxrarity = max($, btl.r_rings[#btl.r_rings].rarity)
 							spawnRingDrop(btl.r_rings[#btl.r_rings], mo.x, mo.y, mo.z)
 						end
 
@@ -70,28 +74,29 @@ rawset(_G, "getRandomDrops", function(mo)
 						if wpn
 							btl.r_weapons = $ or {}
 							btl.r_weapons[#btl.r_weapons+1] = makeWeapon(wpn, P_RandomRange(0, 3))
-							rare = btl.r_weapons[#btl.r_weapons].rarity >= 5
+							maxrarity = max($, btl.r_weapons[#btl.r_weapons].rarity)
 							spawnWeaponDrop(btl.r_weapons[#btl.r_weapons], mo.x, mo.y, mo.z)
 						end
 					end
 
-					if rare
+					--[[if rare
 						for p in players.iterate
 							if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 								IT_startRareDropAnim(p)
 							end
 						end
-					end
+					end--]]
 
 					continue
 				end
 
-				if itemDefs[it] and itemDefs[it].rarity and itemDefs[it].rarity >= 5
-					for p in players.iterate
+				if itemDefs[it] and itemDefs[it].rarity
+					maxrarity = max($, itemDefs[it].rarity)
+					--[[for p in players.iterate
 						if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 							IT_startRareDropAnim(p)
 						end
-					end
+					end--]]
 				end
 
 				spawnItemDrop(itemDefs[it], mo.x, mo.y, mo.z)
@@ -115,7 +120,7 @@ rawset(_G, "getRandomDrops", function(mo)
 						local wpn = dropWeaponFromSeries(it[2], server.plentities[mo.battlen])
 						wpn = makeWeapon(wpn, P_RandomRange(0, 3))
 
-						rare = wpn.rarity >= 5
+						maxrarity = max($, wpn.rarity)
 						btl.r_weapons = $ or {}
 
 						btl.r_weapons[#btl.r_weapons+1] = wpn
@@ -127,7 +132,7 @@ rawset(_G, "getRandomDrops", function(mo)
 						if ring
 							btl.r_rings = $ or {}
 							btl.r_rings[#btl.r_rings+1] = makeRing(ring, P_RandomRange(0, 3))
-							rare = btl.r_rings[#btl.r_rings].rarity >= 5
+							maxrarity = max($, btl.r_rings[#btl.r_rings].rarity)
 							spawnRingDrop(btl.r_rings[#btl.r_rings], mo.x, mo.y, mo.z)
 						end
 
@@ -138,32 +143,41 @@ rawset(_G, "getRandomDrops", function(mo)
 						if wpn
 							btl.r_weapons = $ or {}
 							btl.r_weapons[#btl.r_weapons+1] = makeWeapon(wpn, P_RandomRange(0, 3))
-							rare = btl.r_weapons[#btl.r_weapons].rarity >= 5
+							maxrarity = max($, btl.r_weapons[#btl.r_weapons].rarity)
 							spawnWeaponDrop(btl.r_weapons[#btl.r_weapons], mo.x, mo.y, mo.z)
 						end
 					end
 
-					if rare
+					--[[if rare
 						for p in players.iterate
 							if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 								IT_startRareDropAnim(p)
 							end
 						end
-					end
+					end--]]
 
 					continue
 				end
 
-				if itemDefs[it] and itemDefs[it].rarity and itemDefs[it].rarity >= 5
-					for p in players.iterate
+				if itemDefs[it] and itemDefs[it].rarity
+					maxrarity = max($, itemDefs[it].rarity)
+					--[[for p in players.iterate
 						if p and p.control and p.control.valid and p.control.battlen == mo.battlen
 							IT_startRareDropAnim(p)
 						end
-					end
+					end--]]
 				end
 
 				spawnItemDrop(itemDefs[it], mo.x, mo.y, mo.z)
 				BTL_addResultItem(btl, it, 1)
+			end
+		end
+	end
+
+	if maxrarity >= 5
+		for p in players.iterate
+			if p and p.control and p.control.valid and p.control.battlen == mo.battlen
+				IT_startRareDropAnim(p, maxrarity)
 			end
 		end
 	end

@@ -17,6 +17,11 @@ freeslot("sfx_dfms")
 
 states[S_TEDDYRUN] = {SPR_TEDD, FF_ANIMATE, -1, nil, 5, 3, S_TEDDYRUN}
 
+freeslot("sfx_kdist", "SPR_SORB", "sfx_rdrp1", "sfx_rdrp2", "sfx_equip")
+
+freeslot("SPR_ANLY", "SPR_MASO")
+
+freeslot("SPR_SLSH", "SPR_THMP", "SPR_STAB")
 
 freeslot("sfx_not", "sfx_bton", "sfx_rflc", "sfx_hit2", "sfx_status")
 freeslot("SPR_ENMA", "SPR_NTHK", "SPR_TSUN", "SPR_STUN", "SPR_LOVE", "SPR_DESP", "SPR_STFU", "SPR_SLEP", "SPR_FEAR")

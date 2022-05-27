@@ -3494,6 +3494,7 @@ local cv_physhud = CV_RegisterVar({
 
 local raredrop_frame = A
 local possible_frames = {A, B, C, D, E, F, G, H, I, J, K, P, Q}
+local rainbow_colours = {SKINCOLOR_BLUEBELL, SKINCOLOR_AQUA, SKINCOLOR_EMERALD, SKINCOLOR_PERIDOT, SKINCOLOR_YELLOW, SKINCOLOR_APRICOT, SKINCOLOR_ORANGE, SKINCOLOR_FLAME, SKINCOLOR_RED, SKINCOLOR_RUBY, SKINCOLOR_MAGENTA, SKINCOLOR_PASTEL}
 
 local basex = 160
 local basey = 80
@@ -3506,6 +3507,16 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 	if p.mo and p.mo.valid and p.mo.r_raredrop
 
 		local t = p.mo.r_raredrop
+		local r = p.mo.r_raredrop_rarity
+
+		local col = SKINCOLOR_YELLOW
+
+		if r >= 7
+			col = rainbow_colours[(t % #rainbow_colours) +1]
+		end
+
+		local rcol = col
+
 		local timetrheshold = 17
 
 		-- display test:
@@ -3541,19 +3552,29 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 			if t > timetrheshold-2
 				midpatch = "RDRP_1"	-- prepare to display the "R"
 			end
+		end
 
+		-- sparkles if rarity is >= 6
+
+		DisplayPhysHUD(v, "raredrop", displayplayer)
+
+		if t < 80
+		and r >= 6
+			local part = phud.create(p.P_party, 60 + N_RandomRange(0, 160), 50 + N_RandomRange(0, 40), "SUBP1", TICRATE/2, v.getColormap(TC_DEFAULT, rcol), "raredrop")
+
+			part.scale = FRACUNIT/2 + N_RandomRange(0, FRACUNIT/3)
+			part.anim = {"SUBP1", "SUBP2", "SUBP3", "SUBP4", "SUBP5", "SUBP6", 1}
+			part.physflags = PF_NOGRAVITY
+			part.flags = V_20TRANS
+			part.destscale = 1
 		end
 
 
-
-
 		if stretch and t < timetrheshold	-- magic number gogo!
-			v.drawStretched(basex << FRACBITS, basey << FRACBITS, abs(stretch[1]*2), stretch[2]*2, v.cachePatch(midpatch), (stretch[1] < 0 and V_FLIP or 0), v.getColormap(TC_DEFAULT, SKINCOLOR_YELLOW))
+			v.drawStretched(basex << FRACBITS, basey << FRACBITS, abs(stretch[1]*2), stretch[2]*2, v.cachePatch(midpatch), (stretch[1] < 0 and V_FLIP or 0), v.getColormap(TC_DEFAULT, col))
 
 		else
 			local dt = t-timetrheshold
-
-			local col = SKINCOLOR_YELLOW
 
 			for i = 1, 2
 				if dt >= 28 + (10*(i-1))
@@ -3578,7 +3599,11 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 				if lets[i] and (dt-(i*2)) >= i
 
 					local tx = (dt-(i*2))
-					col = SKINCOLOR_YELLOW
+					col = rcol
+					if r >= 7
+						col = rainbow_colours[((t-i) % #rainbow_colours) +1]
+					end
+
 
 					for j = 1, 2
 						if dt >= 28 + i + (10*(j-1))

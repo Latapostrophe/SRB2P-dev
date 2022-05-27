@@ -43,14 +43,16 @@ addHook("MobjCollide", function(t, mo)
 	if (t.hitflags and t.hitflags & (2^(p.P_party-1))) return end	-- already popped that gold box
 
 	local gold = t.hitflags ~= nil
-	
+
 	if server.gamemode == GM_VOIDRUN
 		local dng = server.P_DungeonStatus
 		if dng.VR_type == VC_INFILTRATION
 		and dng.VR_timer ~= nil
 			dng.VR_score = $+1	-- got item!
 		end
-	end	
+	end
+
+	local maxrarity = 0
 
 	if t.content and t.content[1]
 		for k,v in ipairs(t.content)
@@ -62,56 +64,56 @@ addHook("MobjCollide", function(t, mo)
 				--print("A")
 				if v[1] == "series"
 					--print(v[2])
-					
+
 					local wpn = dropWeaponFromSeries(v[2], server.plentities[mo.player.P_party])
 					--print(wpn)
 					wpn = makeWeapon(wpn, P_RandomRange(0, 3))
 					if wpn
-					
+
 						addWeapon(mo, wpn)
-						rare = wpn.rarity >= 5
+						maxrarity = max($, wpn.rarity)
 
 						if mo.player.P_party == consoleplayer.P_party
 							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildWeaponName(wpn))
 						end
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
-					end	
-				
+					end
+
 				elseif v[1] == "ring"
 					local ring = v[2]
 					ring = makeRing(ring, P_RandomRange(0, 3))
-					
+
 					if ring
-					
+
 						addRing(mo, ring)
-						rare = ring.rarity >= 5
-						
+						maxrarity = max($, ring.rarity)
+
 						if mo.player.P_party == consoleplayer.P_party
 							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildRingName(ring))
 						end
 						spawnRingDrop(ring, t.x, t.y, t.z)
 					end
-					
+
 				elseif v[1] == "weapon"
 					local wpn = v[2]
 					ring = makeWeapon(wpn, P_RandomRange(0, 3))
-					
+
 					if wpn
 						addWeapon(mo, wpn)
-						rare = wpn.rarity >= 5
-						
+						maxrarity = max($, wpn.rarity)
+
 						if mo.player.P_party == consoleplayer.P_party
 							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildWeaponName(wpn))
 						end
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
-					end		
-				end	
-				
+					end
+				end
 
-				if rare
+
+				--[[if rare
 					IT_startRareDropAnim(mo.player)
-				end				
-				
+				end--]]
+
 				continue
 			end
 
@@ -136,12 +138,18 @@ addHook("MobjCollide", function(t, mo)
 				DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..name..extrastr)
 			end
 
-			if it and it.rarity and not it.material and it.rarity >= 5
-				IT_startRareDropAnim(mo.player)
+			if it and it.rarity and (not it.material or it.rarity >= 7)
+				--IT_startRareDropAnim(mo.player)
+				maxrarity = max($, it.rarity)
 			end
-			
+
 			spawnItemDrop(it, t.x, t.y, t.z)
 		end
+
+		if maxrarity >= 5
+			IT_startRareDropAnim(mo.player, maxrarity)
+		end
+
 		VFX_Play(mo, VFX_TARTARUS_ITEM) -- after all that, play a sound effect if applicable
 	else
 		DNG_logMessage("\x82"..mo.player.name.."\x80".." found an empty box...")
