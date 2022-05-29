@@ -287,16 +287,6 @@ rawset(_G, "Blaze_MoveTail", function(mo, tail)
 	else
 		playerAngle = mo.angle
 		dist = $*5/2
-		bx = $ + mo.momx
-		by = $ + mo.momy
-		bz = $ + mo.momz
-		
-		-- redundant but works...
-		P_TeleportMove(tail,
-			bx + P_ReturnThrustX(mo, playerAngle, dist),
-			by + P_ReturnThrustY(mo, playerAngle, dist),
-			bz)
-		
 	end
 
 	local z = mo.z
@@ -334,11 +324,18 @@ rawset(_G, "Blaze_MoveTail", function(mo, tail)
 			z = $ - unit
 		end
 	end
-	
-	P_TeleportMove(tail,
-		bx + P_ReturnThrustX(mo, playerAngle, dist),
-		by + P_ReturnThrustY(mo, playerAngle, dist),
-		bz)
+
+	local xpos = bx + FixedMul(dist, cos(playerAngle))
+	local ypos = by + FixedMul(dist, sin(playerAngle))
+	local zpos = bz
+
+	if not mo.player
+		xpos = $ + mo.momx
+		ypos = $ + mo.momy
+		zpos = $ + mo.momz	-- delayed
+	end
+
+	P_TeleportMove(tail, xpos, ypos, zpos)
 end)
 
 --Blaze's Tail
@@ -383,10 +380,22 @@ local function blaze_followmobj(mo, mobj)
 		mobj.flags2 = $ & ~ MF2_OBJECTFLIP
 	end
 	if (sprite2 == SPR2_ROLL)
+
+		local x = mo.x
+		local y = mo.y
+		local z = mo.z
+
+		-- bot thinker is delayed...
+		if bot
+			x = $ + mo.momx
+			y = $ + mo.momy
+			z = $ + mo.momz
+		end
+
 		if P_MobjFlip(mo) == 1
-			P_TeleportMove(mobj, mo.x, mo.y, mo.z)
+			P_TeleportMove(mobj, x, y, z)
 		else
-			P_TeleportMove(mobj, mo.x, mo.y, mo.z+mo.height-mobj.height)
+			P_TeleportMove(mobj, x, y, z+mo.height-mobj.height)
 		end
 	else
 		Blaze_MoveTail(mo, mobj)

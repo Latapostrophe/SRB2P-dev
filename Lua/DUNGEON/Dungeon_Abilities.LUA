@@ -7,6 +7,7 @@ rawset(_G, "DNG_Abilities", {})
 
 	DNG_Abilities["skin"] = {
 		jfunc = function(p, intartarus)		/ Function that runs when you press jump once mid-air. Regardless of what happens, p.mo.p_abl is set to true here
+		rfunc = function(p, intartarus)		/ Runs when you hit the floor after using your ability
 		func = function(p, intaratarus)		/ Function that runs continuously for the player with that skin
 	}
 
@@ -42,7 +43,11 @@ rawset(_G, "DNG_HandleAbilities", function(p, tartarus)
 		abl.func(p, tartarus)
 	end
 
-	if P_IsObjectOnGround(mo)
+	if (P_IsObjectOnGround(mo) or P_PlayerInPain(p))
+	and mo.p_abl
+		if abl.rfunc
+			abl.rfunc(p, tartarus)
+		end
 		mo.p_abl = false	-- reset ability on ground
 	end
 end)
@@ -560,6 +565,15 @@ DNG_Abilities["blaze"] = {
 					mo.momz, mo.state = 0, S_PLAY_FALL
 				end,
 
+	rfunc =		function(p)
+					local mo = p.mo
+
+					if not P_IsObjectOnGround(mo)
+						mo.state = S_PLAY_FALL
+					end
+					S_StopSoundByID(mo, sfx_blzhvr)
+				end,
+
 	func =		function(p)
 					local mo = p.mo
 
@@ -598,9 +612,10 @@ DNG_Abilities["blaze"] = {
 					end
 
 					if mo.p_abl
-						P_SetObjectMomZ(mo, -P_GetMobjGravity(mo)*8/9, true)
+						P_SetObjectMomZ(mo, -P_GetMobjGravity(mo)*19/20, true)
 
 						if mo.state ~= S_PLAY_BLAZE_HOVER
+						and not P_IsObjectOnGround(mo)
 							mo.state = S_PLAY_BLAZE_HOVER
 							S_StartSound(mo, sfx_blzhvr)
 						end
@@ -638,8 +653,6 @@ DNG_Abilities["blaze"] = {
 						end
 
 						if not (p.cmd.buttons & BT_JUMP)
-						or P_IsObjectOnGround(mo)
-						or P_PlayerInPain(p)
 							if not P_IsObjectOnGround(mo)
 								mo.state = S_PLAY_FALL
 							end

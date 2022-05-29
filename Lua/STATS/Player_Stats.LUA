@@ -318,7 +318,7 @@ rawset(_G, "charStats", {
         vfx_hurtx = {"sfx_blhrx1"},
         vfx_die = {"sfx_bldie1", "sfx_bldie2"},
         vfx_heal = {"sfx_blhel1", "sfx_blhel2", "sfx_blhel3"},
-        vfx_healself = {"sfx_blkll1", "sfx_blhes"},
+        vfx_healself = {"sfx_blkll1"},
         vfx_kill = {"sfx_blkll1", "sfx_blkll2", "sfx_blkll3"},
         vfx_1more = {"sfx_blkll1", "sfx_blkll2"},
         vfx_crit = {"sfx_blcrt1", "sfx_blcrt2", "sfx_blcrt3"},
