@@ -1,6 +1,6 @@
 rawset(_G, "srb2p", {
 	name = "SRB2PERSONA",
-	version = "v1.3.4",
+	version = "v1.3.5",
 	verbase = 13,
 	--debug = true,
 	--debugprint = true,
