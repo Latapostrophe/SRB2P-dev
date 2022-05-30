@@ -438,6 +438,7 @@ addHook("PrePreThinkFrameAndPause", do
 	-- not perfect but this helps performance tremendously.
 end)
 
+
 local fs = freeslot
 rawset(_G, "freeslot", function(...)
 
@@ -458,4 +459,6 @@ rawset(_G, "freeslot", function(...)
 
 		g(_G, args[i], ints[i])
 	end
+	
+	return unpack(ints)
 end)
