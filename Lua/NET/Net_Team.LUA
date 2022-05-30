@@ -338,13 +338,21 @@ rawset(_G, "NET_startgame", function()
 	elseif server.gamemode == GM_PVP
 		server.pvpmode = buf.extradata
 	end
-
+	
+	-- set date for fancies
+	if server.marathon
+		DATE_setDate(5, 4, 24, 2010, -1)
+	else
+		DATE_setDate(5, 4, 24, 2010, -1)
+	end	
+		
 	if server.roguemode
 		ROGUE_reset()
 		if not server.rogueseed
 			server.rogueseed = max(1, P_RandomFixed())
 		end	
 		-- Initialize rogue mode seed, unless it's already set (file loading)
+
 	end
 
 	if buf.map

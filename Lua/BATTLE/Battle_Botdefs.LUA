@@ -400,7 +400,12 @@ rawset(_G, "PLYR_spawn", function(team)
 			mo.level = server.difficulty and difficulty_levels[server.difficulty] or 10	-- for now this is it.
 			mo.levelcap = server.difficulty and difficulty_cap[server.difficulty] or 99	-- levelcap 99 by default
 
-			if server.gamemode == GM_PVP
+			if srb2p.storymode
+
+				mo.level = 1
+				mo.levelcap = srb2p.story_levelcap
+
+			elseif server.gamemode == GM_PVP
 				mo.level = 80
 				if server.bossmode
 					mo.level = min(99, server.bosslevel-3)

@@ -158,6 +158,17 @@ rawset(_G, "BTL_MapLoad", function()
 		server.P_BattleStatus.lives = lives_difficulty[server.difficulty]
 	end
 
+	-- story mode: remove some data...
+	-- items and such will be reloaded between maps using local savedata later as we have a function to load a new map while carrying our data.
+
+	if srb2p.storymode
+		for i = 1, 4
+			local btl = server.P_BattleStatus[i]
+			btl.items = {}
+			btl.macca = 0
+		end
+	end
+
 	local parsed_from_header = 0
 	for i = 1, 4
 

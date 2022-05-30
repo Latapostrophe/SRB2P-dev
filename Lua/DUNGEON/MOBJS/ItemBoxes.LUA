@@ -1,6 +1,6 @@
 freeslot("MT_P3CHEST")
 mobjinfo[MT_P3CHEST] = {
-	-1,
+	890,
 	S_MYSTERY_BOX,
 	0,
 	S_NULL,
@@ -32,6 +32,42 @@ states[S_P3_GOLDRANDOM2] = {SPR_XLTV, A, 1, nil, 0, 0, S_P3_GOLDRANDOM1}
 states[S_P3_GOLDRANDOMOFF] = {SPR_XLTV, B, -1, nil, 0, 0, S_P3_GOLDRANDOMOFF}
 
 
+addHook("MobjThinker", function(t)
+	-- Story mode: Allow for pre-determined box contents.
+
+	if (not t.content or not #t.content)
+	and srb2p.storymode
+	and not t.extravalue1
+
+		t.extravalue1 = 1
+		t.scale = $*2
+
+		-- story mode shite
+		print(gamemap)
+		if DNG_itemBoxes[gamemap]
+			t.extravalue2 = 1	-- initialized for story
+			print("OK")
+			local tt = DNG_itemBoxes[gamemap]
+			local s = t.spawnpoint
+			local ang = s.angle
+
+			if tt[ang]
+				print("OK2")
+				local tabl = tt[ang]
+				t.content = {}
+
+				-- add the items.
+				for i = 1, #tabl
+					for j = 1, tabl[i][2]
+						print("Added "..tostring(tabl[i][1]))
+						t.content[#t.content+1] = tabl[i][1]
+					end
+				end
+			end
+
+		end
+	end
+end, MT_P3CHEST)
 
 -- item collection
 addHook("MobjCollide", function(t, mo)
@@ -53,6 +89,9 @@ addHook("MobjCollide", function(t, mo)
 	end
 
 	local maxrarity = 0
+	-- when you get multiple of the same items in a row.
+	local batchqty = 0
+	local dispname = srb2p.storymode and "You" or "\x82"..mo.player.name.."\x80"
 
 	if t.content and t.content[1]
 		for k,v in ipairs(t.content)
@@ -74,7 +113,7 @@ addHook("MobjCollide", function(t, mo)
 						maxrarity = max($, wpn.rarity)
 
 						if mo.player.P_party == consoleplayer.P_party
-							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildWeaponName(wpn))
+							DNG_logMessage(dispname.." found ".."\x82"..buildWeaponName(wpn))
 						end
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
 					end
@@ -89,21 +128,21 @@ addHook("MobjCollide", function(t, mo)
 						maxrarity = max($, ring.rarity)
 
 						if mo.player.P_party == consoleplayer.P_party
-							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildRingName(ring))
+							DNG_logMessage(dispname.." found ".."\x82"..buildRingName(ring))
 						end
 						spawnRingDrop(ring, t.x, t.y, t.z)
 					end
 
 				elseif v[1] == "weapon"
 					local wpn = v[2]
-					ring = makeWeapon(wpn, P_RandomRange(0, 3))
+					wpn = makeWeapon(wpn, P_RandomRange(0, 3))
 
 					if wpn
 						addWeapon(mo, wpn)
 						maxrarity = max($, wpn.rarity)
 
 						if mo.player.P_party == consoleplayer.P_party
-							DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..buildWeaponName(wpn))
+							DNG_logMessage(dispname.." found ".."\x82"..buildWeaponName(wpn))
 						end
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
 					end
@@ -122,13 +161,28 @@ addHook("MobjCollide", function(t, mo)
 			local name = it and buildItemName(it) or v
 			local amount = 1
 
-			if it and it.material
+			if it and it.material and not it.extravalue2	-- this'd mean the box has fixed items, so don't do that.
 				amount = P_RandomRange(1, 5 - (it.rarity/2))
 			end
 			local extrastr = ""
 
 			if amount > 1
 				extrastr = " x"..amount
+			end
+
+			batchqty = $+1
+
+			if not t.content[k+1] or t.content[k+1] ~= v
+				amount = max($, batchqty)
+				if amount > 1
+					extrastr = " x"..amount
+				end
+
+				if mo.player.P_party == consoleplayer.P_party
+					DNG_logMessage(dispname.." found \x82"..name..extrastr)
+				end
+
+				batchqty = 0
 			end
 
 
@@ -155,8 +209,8 @@ addHook("MobjCollide", function(t, mo)
 		DNG_logMessage("\x82"..mo.player.name.."\x80".." found an empty box...")
 	end
 
-	-- set this item's space back as a white space:
-	if not gold or consoleplayer.P_party == p.P_party
+	-- set this item's space back as a white space in tartarus
+	if DNG_isTartarusMap() and (not gold or consoleplayer.P_party == p.P_party)
 		server.map[#t.subsector.sector+1] = 1	-- walkable.
 	end
 
