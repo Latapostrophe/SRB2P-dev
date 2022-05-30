@@ -171,7 +171,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	local dekaja
 	local dekajaskill
 
-	local last_turn = server.P_BattleStatus[mo.battlen][2] ~= mo
+	local last_turn = server.P_BattleStatus[mo.battlen].turnorder[2] ~= mo
 	-- if we don't have a turn after this one, we CAN use mind/power charge
 
 	-- we are affected by debuffs...
