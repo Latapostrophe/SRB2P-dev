@@ -22,6 +22,18 @@ local fusion_choices = {
 	[FS_COMPENDIUMMAIN] = {
 		"Compendium",
 		"Register",
+		"Nevermind",
+	},
+	
+	[FS_REGISTERCONFIRM] = {
+		"Yes",
+		"View Skills",
+		"No",
+	},
+
+	[FS_REGISTERCONFIRMALL] = {
+		"Yes",
+		"No",
 	},
 
 	/*[ELS_GRIND_CONFIRM] = {
@@ -103,19 +115,77 @@ rawset(_G, "R_drawFusions", function(v, mo)
 	local numnames = {"1ST", "2ND", "3RD", "4TH"}
 	
 	if s == FS_NORMAL
+	or s == FS_REGISTER
+	or s == FS_COMPENDIUM
 	or e.hudtimers.closefirstmenu
 	or e.hudtimers.closefusion
 		
 		local x = 24 - (e.hudtimers.openfirstmenu or 0)*32 - (TICRATE/3 - (e.hudtimers.closefirstmenu or TICRATE/3))*32 + (TICRATE/3 - (e.hudtimers.closefusion or TICRATE/3))*64
+		if s == FS_REGISTER
+			x = $+72
+		elseif s == FS_COMPENDIUM	
+			x = $+48
+		end	
+		
 		local y = 24
 		local w = 132
 		local shft = w + 12
+		local t = btl.subpersonas
 		
 		local showresults = #e.personas >= e.maxpersonas-1
 		
 		--v.drawFill(x-2, y-2, w, 70)
 		
-		V_drawString(v, x+ w/2, y-16, "MATERIALS", "FPIMP", 0, "center", 135, 31)
+		local add = 2
+		local registration 
+		local compendium
+		
+		if s == FS_REGISTER
+		or s == FS_REGISTERCONFIRM
+		or s == FS_REGISTERCONFIRMALL
+			add = 1
+			V_drawString(v, x+ w/2, y-16, "REGISTRATION", "FPIMP", 0, "center", 135, 31)
+			t = e.registrable
+			registration = true	-- this is for display...
+		
+		elseif s == FS_COMPENDIUM
+			add = 1
+			compendium = true
+			V_drawString(v, 160, y-16, "COMPENDIUM", "FPIMP", 0, "center", 135, 31)
+			t = srb2p.storydata.compendium
+			
+			local sortings = {"ARCANA", "NAME", "LEVEL"}
+			local sortx = x-32
+			
+			V_drawString(v, sortx, y, "SORT BY", "FPIMP", 0, nil, 135, nil)
+			v.drawFill(sortx, y+8, 220, 1, 135)
+			
+			sortx = $ + 64
+			
+			V_drawString(v, sortx - 2 - (leveltime%20 < 10 and 1 or 0), y-1, "\x93", "NFNT", 0, nil, 135, nil, FRACUNIT)	-- L
+			
+			sortx = $ + 16
+			
+			for i = 1, #sortings do
+				
+				local sw = V_stringWidth(v, sortings[i], "FPIMP")/FRACUNIT
+				if i == e.sortfunc
+					v.drawFill(sortx-2, y-1, sw +4, 10, 135)
+				end
+				
+				V_drawString(v, sortx, y, sortings[i], "FPIMP", 0, nil, i == e.sortfunc and 31 or 135, nil)
+				
+				sortx = $ + sw+6
+			end
+			
+			V_drawString(v, sortx + (leveltime%20 < 10 and 1 or 0), y-1, "\x94", "NFNT", 0, nil, 135, nil, FRACUNIT)	-- R
+			
+			y = $+24	-- this will allow us to display the "SORT BY" things...
+		
+		else
+			V_drawString(v, x+ w/2, y-16, "MATERIALS", "FPIMP", 0, "center", 135, 31)
+		end
+			
 		PDraw(v, x-2, y-2, v.cachePatch("FUSIONW"), V_TRANS40)
 		if showresults
 		or e.hudtimers.removeresults
@@ -127,15 +197,22 @@ rawset(_G, "R_drawFusions", function(v, mo)
 			PDraw(v, 160 + addx  + (TICRATE/3 - (e.hudtimers.closefusion or TICRATE/3))*64, 10, v.cachePatch("FUSIONA"))
 			PDraw(v, x-2 + addx + shft, y-2, v.cachePatch("FUSIONW"), V_TRANS40)
 		end
-	
-		
-		for i = e.personascroll + 2, min(e.personascroll + 2 + 5, #btl.subpersonas)
-			local subp = btl.subpersonas[i]
+
+		for i = e.personascroll + add, min(e.personascroll + add + 5, #t)
+			local subp = t[i]
 			local sref = subp.ref
 			
 			if i == e.personachoice
-				v.drawFill(x, y-1, showresults and 999 or w, 1, 135)
-				v.drawFill(x, y+7, showresults and 999 or w, 1, 135)
+				v.drawFill(x, y-1, compendium and w+64 or showresults and 999 or w, 1, 135)
+				v.drawFill(x, y+7, compendium and w+64 or showresults and 999 or w, 1, 135)
+			end
+			
+			-- for registration...
+			if i == 1
+			and registration
+				V_drawString(v, x + 34, y, "REGISTER ALL", "NFNT", 0, nil, col, 31)
+				y = $+10
+				continue
 			end
 			
 			local col = 0
@@ -163,6 +240,10 @@ rawset(_G, "R_drawFusions", function(v, mo)
 			if sref.weapontype
 				v.drawScaled((x + 110)<<FRACBITS, (y)<<FRACBITS, FRACUNIT/4, v.cachePatch("AT2_"..atk_constant_2_num[sref.weapontype]))
 			end	
+			
+			if s == FS_COMPENDIUM
+				V_drawString(v, x + 148, y, P_subpersonaCost(subp)..currency, "NFNT", 0, nil, col, 31)
+			end
 			
 			if showresults
 				if e.maxpersonas == 2	-- normal fusion
@@ -202,17 +283,34 @@ rawset(_G, "R_drawFusions", function(v, mo)
 	or s == FS_CONFIRM
 	or s == FS_EXP
 	or s == FS_REPLACESKILL
+	or s == FS_REGISTERCONFIRM
+	or e.checkpersona
 		
 		local cardpatch = v.cachePatch("SHFLFL")
-		local subp = e.personas[e.previewn]
+		local subp
+		
+		if e.checkpersona
+			if s == FS_REGISTER
+			or s == FS_REGISTERCONFIRM
+			--or s == FS_REGISTERCONFIRMALL
+				subp = e.registrable[e.personachoice]
+			else
+				subp = btl.subpersonas[e.personachoice]
+			end	
+		else	
+			subp = e.personas[e.previewn]
+		end	
 
 		local subp_c = subp.ref	-- current subpersona data
 		local sprname = sprnames[subp_c.sprite]
 		local sprframe = string.char((subp_c.frame & FF_FRAMEMASK) + 65)
 		local patch = v.cachePatch(sprname..sprframe.."0")	-- eg: SUBPA0
 		
+		if e.checkpersona
+			v.fadeScreen(31, 7)
+		end	
 	
-		if s == FS_PREVIEW or s == FS_SKILLVIEW or s == FS_CONFIRM
+		if (s == FS_PREVIEW or s == FS_SKILLVIEW or s == FS_CONFIRM or s == FS_REGISTERCONFIRM) and #e.personas > 1
 
 			-- show which persona we're previewing:		
 			local px = 284 + (e.hudtimers.startpreview or 0)*64
@@ -222,9 +320,9 @@ rawset(_G, "R_drawFusions", function(v, mo)
 		
 			local i = #e.personas
 			while i
-				local pname = "FUSP_"
+				local pname = s == FS_REGISTERCONFIRM and "FUSP3_" or "FUSP_"
 				if i == e.previewn
-					pname = "FUSP2_"
+					pname = s == FS_REGISTERCONFIRM and "FUSP4_" or "FUSP2_"
 				end
 				
 				if i == #e.personas
@@ -242,7 +340,7 @@ rawset(_G, "R_drawFusions", function(v, mo)
 			V_drawString(v, px + 6 - (leveltime%20 < 10 and 1 or 0), 3, "\x93", "NFNT", 0, nil, 135, 31, FRACUNIT)	-- L
 		end	
 		
-		local dx = 30 - (e.hudtimers.startpreview)*64
+		local dx = 30 - (e.hudtimers.startpreview or 0)*64
 		
 		PDraw(v, dx+20, 4, v.cachePatch("H_SUBP"), V_30TRANS)
 		
@@ -329,7 +427,7 @@ rawset(_G, "R_drawFusions", function(v, mo)
 			local desc
 			local inherit
 			
-			if (s == FS_SKILLVIEW or e.replaceskill)
+			if (s == FS_SKILLVIEW or e.replaceskill or e.checkpersona == 2)
 			and e.skilln == i
 				w = 200
 				h = 40
@@ -395,6 +493,8 @@ rawset(_G, "R_drawFusions", function(v, mo)
 				aname = "/"
 				if i <= #subp.skills + (e.maxinherit - #e.inherited)
 				and e.previewn == #e.personas	-- don't show that on other personas besides the result obv.
+				and not e.checkpersona			-- don't display this when we check...
+				and not e.checkcompendiun
 					
 					local col = "\x85"
 					

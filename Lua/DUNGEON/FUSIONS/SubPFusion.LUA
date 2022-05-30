@@ -53,7 +53,11 @@ local textdata = {
 		bye = {
 			{"Alt", "Catch ya later.", "H_ALT01", SKINCOLOR_BLUE},
 		},
-
+			
+		statusview_1 = {
+			{nil, "Viewing status.\nPress \x90 to view Skills.\nPress \x91 to exit."}
+		},
+		
 		-- Spread
 		fusion_persona1 = {
 			
@@ -167,19 +171,18 @@ local textdata = {
 		},
 
 		compendium_empty = {
-			{"Alt", "Uhm... The compendium's empty... Maybe try to fill it up first...", "H_ALT04", SKINCOLOR_BLUE},
-			{"Alt", "There's nothing in the compendium...", "H_ALT04", SKINCOLOR_BLUE},
+			{"Alt", "Uhm... The compendium's empty... Maybe try to fill it up first...", "H_ALT05", SKINCOLOR_BLUE},
+			{"Alt", "There's nothing in the compendium...", "H_ALT05", SKINCOLOR_BLUE},
 		},
 
 		compendium_nopersonas = {
-			{"Alt", "Uhm... You don't have any Sub-Persona...", "H_ALT04", SKINCOLOR_BLUE},
-			{"Alt", "Did you forget to bring your Sub-Personas or...?", "H_ALT04", SKINCOLOR_BLUE},
+			{"Alt", "Uhm... You don't have any Sub-Persona you can register.", "H_ALT05", SKINCOLOR_BLUE},
 		},
 			
 		compendium_check = {
 			
 			{"Alt", "Pick whatever you'd like...", "H_ALT01", SKINCOLOR_BLUE},
-			{"Alt", "I even brought this right book this time!", "H_ALT01", SKINCOLOR_BLUE},
+			{"Alt", "I even brought the right book this time!", "H_ALT01", SKINCOLOR_BLUE},
 		},
 		
 		
@@ -187,6 +190,31 @@ local textdata = {
 			{"Alt", "Which Persona should we register?", "H_ALT01", SKINCOLOR_BLUE},
 			{"Alt", "What are you registering?", "H_ALT01", SKINCOLOR_BLUE},
 		},		
+
+		compendium_askregister = {
+			{"Alt", "Are you fine with registering that Sub-Persona? If any previous records exist, they will be overwritten.", "H_ALT01", SKINCOLOR_BLUE},
+		},
+		
+		compendium_askregisterall = {
+			{"Alt", "I'm registering all of your Sub-Personas, is that okay? Any previous records will be overwritten.", "H_ALT01", SKINCOLOR_BLUE},
+		},	
+
+		compendium_registered = {
+			{"Alt", "And that's done.", "H_ALT03", SKINCOLOR_BLUE},
+		},
+		
+		compendium_stockfull = {
+			{"Alt", "You have too many Sub-Personas, make some space first...", "H_ALT05", SKINCOLOR_BLUE},
+		},
+
+		compendium_broke = {
+			{"Alt", "You don't have enough Macca to buy that Sub-Persona...", "H_ALT05", SKINCOLOR_BLUE},
+		},
+		
+		compendium_dupe = {
+			{"Alt", "You already have that Sub-Persona...", "H_ALT05", SKINCOLOR_BLUE},
+		},
+		
 }
 
 local state_2_textdata = {
@@ -212,6 +240,12 @@ local state_2_textdata = {
 	[FS_EXP] = "fusion_done",
 	
 	[FS_COMPENDIUMMAIN] = "compendium_main",
+	
+	[FS_REGISTER] = "compendium_register",
+	[FS_REGISTERCONFIRM] = "compendium_askregister",
+	[FS_REGISTERCONFIRMALL] = "compendium_askregisterall",
+	
+	[FS_COMPENDIUM] = "compendium_check",
 }
 
 local function changetextdta(mo, t)
@@ -219,6 +253,37 @@ local function changetextdta(mo, t)
 	mo.fusion.currtextdata = t[P_RandomRange(1, #t)]
 	mo.fusion.texttimer = 1
 end
+
+-- SubPersona sorting functions for the compendium.
+local function compendium_sort_name(a, b)
+	-- it's impossible for 2 entries to have the same name.
+	return a.name < b.name	-- yes this works in lua lol.
+end
+
+local function compendium_sort_level(a, b)
+	if a.level ~= b.level
+		return a.level > b.level
+	elseif a.exp ~= b.exp
+		return a.exp > b.exp
+	else
+		return compendium_sort_name(a, b)
+	end	
+end
+
+local function compendium_sort_arcana(a, b)
+	if subpersonaList[a.int].arcana ~= subpersonaList[b.int].arcana
+		return subpersonaList[a.int].arcana < subpersonaList[b.int].arcana
+	else
+		return compendium_sort_level(a, b)
+	end	
+end
+
+local compendium_sort_funcs = {
+	compendium_sort_arcana,
+	compendium_sort_name,
+	compendium_sort_level,
+}
+
 
 rawset(_G, "DNG_startFusion", function(mo)
 
@@ -270,6 +335,12 @@ rawset(_G, "DNG_startFusion", function(mo)
 		
 		-- exp / levelup...
 		pexp = 200000,	-- EXP left to give
+		
+		-- compendium
+		registrable = {},
+		
+		sortfunc = 1,	-- Sorting function for the compendium.
+		
 	}
 
 	mo.fusion.hudtimers.enter = TICRATE/3	-- start
@@ -336,7 +407,9 @@ end
 local state_2_textchoices = {
 	[FS_PREVIEW] = 3,			-- Yes, View Skills, No
 	[FS_REPLACESKILL] = 2,		-- Yes, No
-	[FS_COMPENDIUMMAIN] = 2,	-- View Compendium, Register
+	[FS_COMPENDIUMMAIN] = 3,	-- View Compendium, Register, Nevermind
+	[FS_REGISTERCONFIRM] = 3,	-- Yes, View Skills, No
+	[FS_REGISTERCONFIRMALL] = 2,-- Yes, No
 }
 
 local function resetCutsceneDta(mo)
@@ -393,12 +466,61 @@ rawset(_G, "DNG_handleFusion", function(mo)
 		e.maxtextchoice = state_2_textchoices[e.state]
 	end
 
+	-- this goes over stat handling.	
+	if e.checkpersona
+			
+		-- view persona
+		if e.checkpersona == 1
+			if inputs[BT_USE] == 1
+				e.checkpersona = nil
+				S_StartSound(nil, sfx_cancel, p)
+				DNG_changeFSState(mo, e.state)	-- reset the current state
+					
+			elseif inputs[BT_JUMP] == 1
+				e.checkpersona = 2
+				S_StartSound(nil, sfx_select, p)
+				changetextdta(mo, textdata.fusion_skillview)
+			end	
+			
+		-- view skills
+		elseif e.checkpersona == 2
+				
+			if inputs["up"] == 1
+					
+				S_StartSound(nil, sfx_hover, p)
+					
+				e.skilln = $-1
+				if e.skilln < 1
+					e.skilln = 6
+				end
+
+			elseif inputs["down"] == 1
+				
+				S_StartSound(nil, sfx_hover, p)
+				
+				e.skilln = $+1
+				if e.skilln > 6
+					e.skilln = 1
+				end	
+					
+			elseif inputs[BT_USE] == 1
+				e.checkpersona = 1
+				changetextdta(mo, textdata.statusview_1)
+				S_StartSound(nil, sfx_cancel, p)
+			end	
+		end	
+			
+		return true
+	end
+
 	-- state handling:
 	if e.state == FS_MAIN
 		
 		if e.hudtimers.alttext == 1
 			changetextdta(mo, textdata.welcome)
 		end
+		
+		e.checkcompendium = nil
 		
 		if inputs["right"] == 1
 			S_StartSound(nil, sfx_hover, p)
@@ -439,6 +561,8 @@ rawset(_G, "DNG_handleFusion", function(mo)
 				
 			}
 			
+			e.personachoice = 1
+			e.personascroll = 0
 			mo.fusion.hudtimers.cardsout = TICRATE/3
 			mo.fusion.hudtimers.openfirstmenu = TICRATE/3
 			
@@ -446,12 +570,24 @@ rawset(_G, "DNG_handleFusion", function(mo)
 			DNG_changeFSState(mo, c)
 		end
 	
+	elseif e.state == FS_LEAVE
+		e.hudtimers.leave = $ and $-1 or TICRATE*2
+		
+		if e.hudtimers.leave == 2
+			DNG_stopFusion(mo)
+			return
+		end
+		
+	
 	elseif e.state == FS_COMPENDIUMMAIN
 		local choice = handleTextChoices(mo)
 		
 		if e.hudtimers.nocompendium == 1
+		or e.hudtimers.registered == 1
 			changetextdta(mo, textdata.compendium_main)
 		end	
+		
+		e.maxinherit = 0	-- make sure we don't try to display inheritance
 		
 		if choice == 1
 			
@@ -460,19 +596,315 @@ rawset(_G, "DNG_handleFusion", function(mo)
 				S_StartSound(nil, sfx_not, p)
 				changetextdta(mo, textdata.compendium_empty)
 				e.hudtimers.nocompendium = TICRATE*2
+				e.hudtimers.registered = 0
 				return true
 			end
 			
+			table.sort(t, compendium_sort_funcs[e.sortfunc])
+			e.personachoice = 1
+			e.personascroll = 0
+			
+			DNG_changeFSState(mo, FS_COMPENDIUM)
+			
 		elseif choice == 2
 			
+			-- check what personas can be registered.
 			local t = btl.subpersonas
+			e.registrable = {"empty"}
+			
+			for i = 2, #t
+				if P_canReplaceCompendium(t[i])
+					e.registrable[#e.registrable+1] = t[i]
+				end
+			end
+			
+			t = e.registrable
+			
 			if #t < 2
 				S_StartSound(nil, sfx_not, p)
 				changetextdta(mo, textdata.compendium_nopersonas)
 				e.hudtimers.nocompendium = TICRATE*2
+				e.hudtimers.registered = 0
 				return true
 			end
 			
+			e.personachoice = 1
+			e.personascroll = 0
+			DNG_changeFSState(mo, FS_REGISTER)
+			e.hudtimers.openfirstmenu = TICRATE/3
+		
+		elseif choice == 3
+		or inputs[BT_USE] == 1
+			S_StartSound(nil, sfx_cancel, p)
+			
+			e.registrable = nil
+			mo.fusion.hudtimers.cardsin = TICRATE/3
+			
+			DNG_changeFSState(mo, FS_MAIN)
+		end
+	
+	-- compendium summoning etc etc
+	elseif e.state == FS_COMPENDIUM
+
+		-- 6 subp on the page.
+		
+		local t = srb2p.storydata.compendium
+		
+		local maxitems = 6
+		local maxscroll = max(0, #t - maxitems)
+		
+		if inputs["down"] == 1
+			S_StartSound(nil, sfx_hover, p)
+			
+			e.personachoice = $+1
+			
+			if e.personachoice-1 > maxitems/2 and e.personascroll < maxscroll
+				e.personascroll = $+1
+			end	
+			
+			if e.personachoice > #t
+				e.personachoice = 1
+				e.personascroll = 0
+			end
+			
+			
+		elseif inputs["up"] == 1
+			S_StartSound(nil, sfx_hover, p)
+			
+			if e.personascroll
+				e.personascroll = $-1
+			end	
+			
+			e.personachoice = $-1
+			if e.personachoice < 1
+				e.personachoice = #t
+				e.personascroll = maxscroll
+			end
+		
+		elseif inputs[BT_JUMP] == 1
+			
+			e.hudtimers.compendiumerror = 0
+			
+			-- check if we have the macca and the space
+			if #e.personas >= btl.subpersonastock
+				e.hudtimers.compendiumerror = TICRATE*4
+				
+				S_StartSound(nil, sfx_not, p)
+				changetextdta(mo, textdata.compendium_stockfull)
+				return true
+				
+			elseif btl.macca < P_subpersonaCost(t[e.personachoice])
+				e.hudtimers.compendiumerror = TICRATE*4
+				
+				S_StartSound(nil, sfx_not, p)
+				changetextdta(mo, textdata.compendium_broke)	
+				return true
+			end
+			
+			-- check for dupe
+			for i = 1, #btl.subpersonas do
+				if btl.subpersonas[i].name == t[e.personachoice].name
+					e.hudtimers.compendiumerror = TICRATE*4
+					S_StartSound(nil, sfx_not, p)
+					changetextdta(mo, textdata.compendium_dupe)	
+					return true
+				end
+			end
+			
+			
+			S_StartSound(nil, sfx_confir, p)
+			DNG_changeFSState(mo, FS_COMPENDIUMCONFIRM)
+		
+		elseif inputs[BT_USE] == 1
+			S_StartSound(nil, sfx_cancel, p)
+			
+			DNG_changeFSState(mo, FS_COMPENDIUMMAIN)
+		
+		elseif inputs[BT_WEAPONNEXT] == 1	-- R	
+		
+			e.sortfunc = $+1
+			if e.sortfunc > #compendium_sort_funcs
+				e.sortfunc = 1
+			end
+			
+			table.sort(t, compendium_sort_funcs[e.sortfunc])
+			
+		elseif inputs[BT_WEAPONPREV] == 1	-- L
+			e.sortfunc = $-1
+			if e.sortfunc < 1
+				e.sortfunc = #compendium_sort_funcs
+			end
+
+			table.sort(t, compendium_sort_funcs[e.sortfunc])
+		end
+	
+
+	elseif e.state == FS_COMPENDIUMCONFIRM
+		
+		
+		
+	
+	-- compendium registration	
+	elseif e.state == FS_REGISTER	
+
+		-- 6 subp on the page.
+		local maxitems = 6
+		local maxscroll = max(0, #e.registrable - maxitems)
+		
+		if e.hudtimers.registered == 1
+			DNG_changeFSState(mo, e.state)
+		end
+		
+		if inputs["down"] == 1
+			S_StartSound(nil, sfx_hover, p)
+			
+			e.personachoice = $+1
+			
+			if e.personachoice-1 > maxitems/2 and e.personascroll < maxscroll
+				e.personascroll = $+1
+			end	
+			
+			if e.personachoice > #e.registrable
+				e.personachoice = 1
+				e.personascroll = 0
+			end
+			
+			
+		elseif inputs["up"] == 1
+			S_StartSound(nil, sfx_hover, p)
+			
+			if e.personascroll
+				e.personascroll = $-1
+			end	
+			
+			e.personachoice = $-1
+			if e.personachoice < 1
+				e.personachoice = #e.registrable
+				e.personascroll = maxscroll
+			end	
+		
+		elseif inputs[BT_BTNC] == 1
+		and e.personachoice > 1	-- do NOT check "none" lmfao.
+			e.checkpersona = 1
+			changetextdta(mo, textdata.statusview_1)
+			S_StartSound(nil, sfx_select, p)
+		
+		elseif inputs[BT_USE] == 1
+			S_StartSound(nil, sfx_cancel, p)
+			--e.hudtimers.closefirstmenu = TICRATE/3
+			DNG_changeFSState(mo, FS_COMPENDIUMMAIN)
+		
+		elseif inputs[BT_JUMP] == 1
+			
+			S_StartSound(nil, sfx_confir, p)
+			if e.personachoice > 1
+				-- Try to get an existing persona
+				local existing = P_getSubpersonaFromCompendium(e.registrable[e.personachoice])
+				
+				if existing
+					e.personas = {existing, e.registrable[e.personachoice]}
+				else
+					e.personas = {e.registrable[e.personachoice]}
+				end
+				
+				-- set previewn to the new persona
+				e.previewn = #e.personas
+				
+				DNG_changeFSState(mo, FS_REGISTERCONFIRM)
+			else
+				DNG_changeFSState(mo, FS_REGISTERCONFIRMALL)
+			end
+		end
+	
+	elseif e.state == FS_REGISTERCONFIRM
+		local choice = handleTextChoices(mo)
+
+		if inputs[BT_WEAPONNEXT] == 1
+			S_StartSound(nil, sfx_turn, p)
+			e.previewn = $+1
+			
+			if e.previewn > #e.personas
+				e.previewn = 1
+			end	
+			
+		elseif inputs[BT_WEAPONPREV] == 1
+			S_StartSound(nil, sfx_turn, p)
+			e.previewn = $-1
+			
+			if e.previewn < 1
+				e.previewn = #e.personas
+			end
+		end
+		
+		if choice == 1
+			
+			S_StartSound(nil, sfx_confir, p)
+			S_StartSound(nil, sfx_qsumon, p)
+			
+			P_registerSubPersona(e.registrable[e.personachoice])
+			table.remove(e.registrable, e.personachoice)
+			
+			if #e.registrable <= 1
+				DNG_changeFSState(mo, FS_COMPENDIUMMAIN)
+			else
+				DNG_changeFSState(mo, FS_REGISTER)
+			end
+			
+			e.hudtimers.registered = TICRATE*2
+			e.personas = {}
+			changetextdta(mo, textdata.compendium_registered)
+			
+		elseif choice == 2	-- view skills
+		or inputs[BT_BTNC] == 1
+			
+			S_StartSound(nil, sfx_select, p)
+
+			e.personachoice = 1
+			e.personascroll = 0
+			
+			DNG_changeFSState(mo, FS_SKILLVIEW)
+			
+		elseif choice == 3
+		or inputs[BT_USE] == 1
+			S_StartSound(nil, sfx_cancel, p)
+			e.personas = {}
+			e.previewn = 1
+			
+			e.personachoice = 1
+			e.personascroll = 0
+			
+			DNG_changeFSState(mo, FS_REGISTER)
+		end
+		
+	elseif e.state == FS_REGISTERCONFIRMALL
+		local choice = handleTextChoices(mo)
+		
+		if choice == 1
+
+			S_StartSound(nil, sfx_confir, p)
+			S_StartSound(nil, sfx_qsumon, p)
+			
+			-- register every persona
+			for i = 2, #e.registrable do
+				P_registerSubPersona(e.registrable[i])
+			end
+			
+			e.registrable = nil
+			e.personas = {}
+			
+			DNG_changeFSState(mo, FS_COMPENDIUMMAIN)
+			
+			e.hudtimers.registered = TICRATE*2
+			changetextdta(mo, textdata.compendium_registered)
+			
+			
+		elseif choice == 2
+		or inputs[BT_USE] == 1
+			S_StartSound(nil, sfx_cancel, p)
+			e.personas = {}
+			e.previewn = 1
+			
+			DNG_changeFSState(mo, FS_REGISTER)
 		end
 	
 	elseif e.state == FS_NORMAL
@@ -508,7 +940,12 @@ rawset(_G, "DNG_handleFusion", function(mo)
 				e.personachoice = #btl.subpersonas
 				e.personascroll = maxscroll
 			end	
-			
+		
+		elseif inputs[BT_BTNC] == 1
+			e.checkpersona = 1
+			changetextdta(mo, textdata.statusview_1)
+			S_StartSound(nil, sfx_select, p)
+		
 		elseif inputs[BT_JUMP] == 1
 			
 			S_StartSound(nil, sfx_confir, p)
@@ -645,6 +1082,7 @@ rawset(_G, "DNG_handleFusion", function(mo)
 		
 	elseif e.state == FS_PREVIEW
 	or e.state == FS_CONFIRM
+	or e.state == FS_COMPENDIUMCONFIRM
 		
 		if server.fadedta return true end	-- wait until the fade is over.
 		
@@ -704,6 +1142,13 @@ rawset(_G, "DNG_handleFusion", function(mo)
 					-- We have no skill card, skip straight to skill inheritance.
 					-- @TODO: later...
 				end
+			
+			elseif e.state == FS_COMPENDIUMCONFIRM
+				-- simply put that persona in the team
+				btl.subpersonas[#btl.subpersonas+1] = srb2p.storydata.compendium[e.personachoice]
+				
+				S_StartSound(nil, sfx_qsumon, p)
+				
 			
 			elseif e.state == FS_CONFIRM
 				DNG_fade(

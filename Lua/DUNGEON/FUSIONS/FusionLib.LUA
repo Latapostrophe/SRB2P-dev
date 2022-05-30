@@ -5,6 +5,7 @@
 	It's a mess so sit tight....
 */
 
+
 -- This is a double entry table that contains the result between fusions.
 -- Arcanas go in this order....
 

@@ -1480,6 +1480,7 @@ rawset(_G, "attackDefs", {
 		desc = "Damage output scales with your HP.\n(From 90% at 1/3 HP \nto 125% at full HP)",
 		--desc = "Damage scales from 90% when\nat or under 1/3 max HP to 115%\nat full HP.",
 		passive = PSV_PERFECTIONNIST,
+		rank = 5,
 		accuracy = 90,	-- lowest damage %
 		power = 120,	-- highest damage %
 		hits = 33,		-- HP %
@@ -1491,6 +1492,7 @@ rawset(_G, "attackDefs", {
 		desc = "Damage output scales with your HP.\n(From 90% at half HP \nto 135% at full HP)",
 		--desc = "Damage scales from 90% when\nat or under 1/2 max HP to 145%\nat full HP.",
 		passive = PSV_PERFECTIONNIST,
+		rank = 6,
 		accuracy = 90,	-- lowest damage %
 		power = 145,	-- highest damage %
 		hits = 50,		-- HP %
@@ -1501,6 +1503,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_PASSIVE|ATK_STRIKE|ATK_PIERCE|ATK_SLASH,
 		desc = "20% chance to reduce Physical\ndamage against the party by 50%",
 		passive = PSV_SWORDBREAKER,
+		rank = 5,
 		power = 50,
 		accuracy = 20,
 	},
@@ -1509,6 +1512,7 @@ rawset(_G, "attackDefs", {
 		name = "Merciless Slayer",
 		type = ATK_PASSIVE,
 		desc = "Increase damage by 30% when\nattacking enemies with \nstatus conditions.",
+		rank = 5,
 		passive = PSV_SLAYER,
 		power = 30,
 	},
@@ -1518,6 +1522,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_PASSIVE,
 		desc = "Adds 10% success rate to\nall status conditions odds.\nEffect is additive.",
 		passive = PSV_COND_BOOST,
+		rank = 5,
 		power = 10,
 	},
 
@@ -1526,6 +1531,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_PASSIVE,
 		desc = "Increase Link damage by 25%.\nAllows up to 2 Link follow-ups.",
 		passive = PSV_LINKHITS,
+		rank = 3,
 		accuracy = 2,
 		power = 25,
 	},
@@ -1535,6 +1541,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_PASSIVE,
 		desc = "Increase Link damage by 50%.\nAllows up to 3 Link follow-ups.",
 		passive = PSV_LINKHITS,
+		rank = 4,
 		accuracy = 3,
 		power = 50,
 	},
@@ -1544,6 +1551,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_PASSIVE,
 		desc = "Increase Link damage by 75%.\nAllows up to 4 Link follow-ups.",
 		passive = PSV_LINKHITS,
+		rank = 5,
 		accuracy = 4,
 		power = 75,
 	},
@@ -1553,6 +1561,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_PASSIVE,
 		desc = "Increase Link damage by 100%.\nAllows up to 8 Link follow-ups.",
 		passive = PSV_LINKHITS,
+		rank = 6,
 		accuracy = 8,
 		power = 100,
 	},
@@ -1562,6 +1571,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_PASSIVE,
 		desc = "Increase Link follow-up damage\nby an additional 10% for each hit\nafter the first.",
 		passive = PSV_LINKBOOST,
+		rank = 6,
 		power = 10,
 	},
 
@@ -3012,6 +3022,7 @@ rawset(_G, "attackDefs", {
 		name = "Backup Trick",
 		type = ATK_PASSIVE|ATK_CURSE,
 		instakill = true,
+		rank = 5,
 		desc = "When missing a Death based\nattack, grants a chance to inflict\nHex on the target.",
 		passive = PSV_PLANB,
 		status = COND_HEX,
@@ -4662,6 +4673,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 6,
+		rank = 2,
 		desc = "Lower an enemy's agility \nby 1 stage.",
 		target = TGT_ENEMY,
 		debuff = true,
@@ -14612,6 +14624,7 @@ rawset(_G, "attackDefs", {
 		costtype = CST_SP,
 		cost = 4,
 		power = 50,
+		rank = 1,
 		desc = "Slight HP recovery to one ally",
 		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
 						local target = targets[n]
@@ -19370,21 +19383,151 @@ end)
 -- now sort it
 table.sort(sorted_attackDefs, attackSortFunc)
 
+-- Automatically generate ranks for attacks
+-- Ranks are between 1-7 and help determine how powerful a given Skill is.
+
+local power_thresholds = {
+	75,		-- Rank 1	(Tier 1 magic)
+	135,	-- Rank 2
+	200,	-- Rank 3	(Tier 2 magic)
+	270,	-- Rank 4
+	450,	-- Rank 5	(Tier 3 magic)
+	600,	-- Rank 6
+	-- >= 600: Rank 7	(Tier 4 magic)
+}
+
+local instakill_accuracy_thresholds = {
+	15,
+	25,	-- Mudo
+	28,
+	30,
+	40,	-- Mudoon
+	60,	-- Die For Me! 
+}
+
+local heal_thresholds = {
+	50,
+	100,
+	150,
+	300,
+}
+
+rawset(_G, "ATK_setRank", function(ref)
+	local atk = attackDefs[ref]
+	if atk.rank return end	-- this attack's Rank is already set.
+	
+	local rank = 1
+	
+	if atk.type and not (atk.type & ATK_PASSIVE)
+		
+		
+			
+			if atk.instakill	-- Instant Kills (Hama/Mudo etc)
+				for i = 1, #instakill_accuracy_thresholds
+					if atk.accuracy >= instakill_accuracy_thresholds[i]
+						rank = i+1
+					end	
+				end
+			
+			elseif atk.dekaja or atk.dekunda
+				rank = 3
+			
+			elseif atk.ghastlywail
+				rank = 5
+			
+			elseif atk.superbuff or atk.superdebuff
+				rank = 6
+			
+			elseif atk.buff or atk.debuff				
+				rank = 2
+				
+			elseif atk.power
+				
+				if atk.type & ATK_HEAL
+					for i = 1, #heal_thresholds
+						if atk.power >= heal_thresholds[i]
+							rank = i+1
+						end
+					end
+				else	-- Normal attacks
+					for i = 1, #power_thresholds
+						if atk.power >= power_thresholds[i]
+							rank = i+1
+						end
+					end
+				end	
+							
+			elseif atk.status
+				rank = 2
+			end
+
+			-- Okay, cool, now if the attack is multitarget, add another rank.
+			if atk.target == TGT_ALLENEMIES
+			or atk.target == TGT_ALLALLIES
+				rank = $+1
+				if atk.type & ATK_HEAL
+					rank = $+1
+				elseif atk.buff or atk.debuff
+					rank = $+3
+				end	
+			end
+
+	else
+		-- Passive skill handling
+		if atk.passive == PSV_BOOST
+			rank = atk.power/6
+		
+		elseif atk.passive == PSV_RESIST
+			rank = 4
+			
+		elseif atk.passive == PSV_BLOCK	
+			rank = 5
+			
+		elseif atk.passive == PSV_REPEL
+			rank = 6
+			
+		elseif atk.passive == PSV_DRAIN
+			rank = 7
+		
+		elseif atk.passive == PSV_COND_BOOST
+			rank = 3
+		
+		elseif atk.passive == PSV_COND_RESIST
+			rank = atk.power/20
+		
+		elseif atk.passive == PSV_ENDURE
+			rank = 5
+			
+		end
+	end
+	
+	rank = min($, 7)
+	rank = max(1, $)
+	
+	print(atk.name.."- > RANK "..rank)
+	atk.rank = rank
+end)
+
+local rank_costs = {
+	100,
+	250,
+	400,
+	800,
+	2000,
+	5000,
+	20000,
+}
+
 -- Add all Skill Card items...
 rawset(_G, "ATK_makeSkillCard", function(atk)
 	local atkd = attackDefs[atk]
 	if not atkd return end	-- doesn't exist.
 	
-	local rarity = 3
-	local cost = 300
-	
-	if atkd.power 
-		rarity = max(rarity, min(6, rarity + (atkd.power/80 -1)))
-		cost = 2*atkd.power
-	end			
+	local rarity = atk.rank
+	local cost = rank_costs[rarity]		
 	
 	itemDefs["sc/ "..atk] = {
-		name = atkd.name,
+		name = "C/"..atkd.name,
 		desc = atkd.desc,
 		menuonly = true,
 		skillcard = true,
@@ -19427,7 +19570,7 @@ rawset(_G, "ATK_makeSkillCard", function(atk)
 	
 end)
 
-
 for i = 1, #sorted_attackDefs
+	ATK_setRank(sorted_attackDefs[i])
 	ATK_makeSkillCard(sorted_attackDefs[i])
 end
