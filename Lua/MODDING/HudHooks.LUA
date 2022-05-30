@@ -8,4 +8,5 @@ rawset(_G, "EnabledHuds", {
 	["Dungeon"] = true,
 	["Scoreboard"] = true,
 	["Title"] = true, -- Erm...what the scallop
+	["SystemMenu"] = true,
 })

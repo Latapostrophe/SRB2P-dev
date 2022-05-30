@@ -287,9 +287,6 @@ rawset(_G, "Blaze_MoveTail", function(mo, tail)
 	else
 		playerAngle = mo.angle
 		dist = $*5/2
-		bx = $ + mo.momx
-		by = $ + mo.momy
-		bz = $ + mo.momz
 	end
 
 	local z = mo.z
@@ -328,39 +325,17 @@ rawset(_G, "Blaze_MoveTail", function(mo, tail)
 		end
 	end
 
-	if splitscreen // we unfortunately can't pick which camera to use for R_PointToAngle, so just teleport the mobj like normal
-	or not camera // doubles as a failsafe in case hud is turned off?
-		P_TeleportMove(tail,
-			bx + P_ReturnThrustX(mo, playerAngle, dist),
-			by + P_ReturnThrustY(mo, playerAngle, dist),
-			bz)
-		return
+	local xpos = bx + FixedMul(dist, cos(playerAngle))
+	local ypos = by + FixedMul(dist, sin(playerAngle))
+	local zpos = bz
+
+	if not mo.player
+		xpos = $ + mo.momx
+		ypos = $ + mo.momy
+		zpos = $ + mo.momz	-- delayed
 	end
 
-	local flipped = mo.frame & FF_HORIZONTALFLIP or mo.renderflags & RF_HORIZONTALFLIP // we don't care about mo.mirrored since that doesn't affect the direction the sprite faces
-	local x = P_ReturnThrustX(mo, camera.angle, scale)
-	local y = P_ReturnThrustY(mo, camera.angle, scale)
-	local cameraToPlayerAngle = R_PointToAngle2(camera.x + camera.momx, camera.y + camera.momy, mo.x, mo.y)
-	local rotation = ((cameraToPlayerAngle - playerAngle + ANGLE_202h) >> 29) + 1 // this gives us the frame rotation number for an 8-angle frame, as written in source
-	local invert = invertsLUT[MakeBitfield(sprite2, mo.frame & FF_FRAMEMASK, rotation)]
-	if sprite2 == SPR2_RUN and mo.sprite2 & FF_SPR2SUPER then invert = false end
-
-	// A4/A5/A6, tail is closer to camera than player
-	if (rotation >= 4 and rotation <= 6) == (not invert)
-		x = -$
-		y = -$
-	end
-
-	dist = FixedMul($, cos(camera.angle - playerAngle + ANGLE_90))
-
-	if flipped
-		dist = -$
-	end
-
-	x = $ + mo.x + P_ReturnThrustX(mo, camera.angle + ANGLE_90, dist)
-	y = $ + mo.y + P_ReturnThrustY(mo, camera.angle + ANGLE_90, dist)
-
-	P_TeleportMove(tail, x, y, z)
+	P_TeleportMove(tail, xpos, ypos, zpos)
 end)
 
 --Blaze's Tail
@@ -405,10 +380,22 @@ local function blaze_followmobj(mo, mobj)
 		mobj.flags2 = $ & ~ MF2_OBJECTFLIP
 	end
 	if (sprite2 == SPR2_ROLL)
+
+		local x = mo.x
+		local y = mo.y
+		local z = mo.z
+
+		-- bot thinker is delayed...
+		if bot
+			x = $ + mo.momx
+			y = $ + mo.momy
+			z = $ + mo.momz
+		end
+
 		if P_MobjFlip(mo) == 1
-			P_TeleportMove(mobj, mo.x, mo.y, mo.z)
+			P_TeleportMove(mobj, x, y, z)
 		else
-			P_TeleportMove(mobj, mo.x, mo.y, mo.z+mo.height-mobj.height)
+			P_TeleportMove(mobj, x, y, z+mo.height-mobj.height)
 		end
 	else
 		Blaze_MoveTail(mo, mobj)

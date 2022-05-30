@@ -94,6 +94,7 @@ addHook("MobjCollide", function(t, mo)
 		end
 	end
 
+	local maxrarity = 0
 	-- when you get multiple of the same items in a row.
 	local batchqty = 0
 	local dispname = srb2p.storymode and "You" or "\x82"..mo.player.name.."\x80"
@@ -115,7 +116,7 @@ addHook("MobjCollide", function(t, mo)
 					if wpn
 
 						addWeapon(mo, wpn)
-						rare = wpn.rarity >= 5
+						maxrarity = max($, wpn.rarity)
 
 						if mo.player.P_party == consoleplayer.P_party
 							DNG_logMessage(dispname.." found ".."\x82"..buildWeaponName(wpn))
@@ -130,7 +131,7 @@ addHook("MobjCollide", function(t, mo)
 					if ring
 
 						addRing(mo, ring)
-						rare = ring.rarity >= 5
+						maxrarity = max($, ring.rarity)
 
 						if mo.player.P_party == consoleplayer.P_party
 							DNG_logMessage(dispname.." found ".."\x82"..buildRingName(ring))
@@ -144,7 +145,7 @@ addHook("MobjCollide", function(t, mo)
 
 					if wpn
 						addWeapon(mo, wpn)
-						rare = wpn.rarity >= 5
+						maxrarity = max($, wpn.rarity)
 
 						if mo.player.P_party == consoleplayer.P_party
 							DNG_logMessage(dispname.." found ".."\x82"..buildWeaponName(wpn))
@@ -152,12 +153,6 @@ addHook("MobjCollide", function(t, mo)
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
 					end
 				end
-
-
-				if rare
-					IT_startRareDropAnim(mo.player)
-				end
-
 				continue
 			elseif type(v) == "number"	-- macca!
 
@@ -202,12 +197,22 @@ addHook("MobjCollide", function(t, mo)
 
 			BTL_addItem(server.P_BattleStatus[mo.player.P_party], v, amount)
 
-			if it and it.rarity and not it.material and it.rarity >= 5
-				IT_startRareDropAnim(mo.player)
+			if mo.player.P_party == consoleplayer.P_party
+				DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..name..extrastr)
+			end
+
+			if it and it.rarity and (not it.material or it.rarity >= 7)
+				--IT_startRareDropAnim(mo.player)
+				maxrarity = max($, it.rarity)
 			end
 
 			spawnItemDrop(it, t.x, t.y, t.z)
 		end
+
+		if maxrarity >= 5
+			IT_startRareDropAnim(mo.player, maxrarity)
+		end
+
 		VFX_Play(mo, VFX_TARTARUS_ITEM) -- after all that, play a sound effect if applicable
 	else
 		DNG_logMessage("\x82"..mo.player.name.."\x80".." found an empty box...")

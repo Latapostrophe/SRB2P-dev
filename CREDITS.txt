@@ -5,25 +5,38 @@ Mod by Lat'
 
 PROGRAMMING:
 	Lat'
+	NerduMiner
 	Spectra
 	Snu
-	
+
 PROGRAMMING ASSISTANCE:
 	LJ Sonic (PRNG Library)
-	
+	Spectrum (Various fixes)
+
 
 ARTISTS:
 	STJr (Base SRB2 sprites)
-	
+
 	Lat':			UI
 	DylanNeyaz:		Character Cut-in art, UI
 	Q.T.D.:			All-Out Attack character artwork
 	Snu:			General art assistance, All-Out Attack character artwork, UI
 	SoapSurfin:		Titlescreen art
 
+<<<<<<< HEAD
 	Inazuma:		Shadow The Hedgehog sprites
 	DrStephen:		Dr. Eggman sprites / Fainted Sonic sprite
 	.Luke:			Blaze The Cat sprites
+=======
+<<<<<<< HEAD
+	Inazuma:		Shadow The Hedgehog & Blaze The Cat sprites
+	DrStephen:		Dr. Eggman sprites
+=======
+	Inazuma:		Shadow The Hedgehog sprites
+	DrStephen:		Dr. Eggman sprites / Fainted Sonic sprite
+	.Luke:			Blaze The Cat sprites
+>>>>>>> 5606dfd (srb2 v2 - 12/05/22)
+>>>>>>> merge-135
 
 
 MODEL RIPPING:
@@ -34,6 +47,13 @@ MODEL RIPPING:
 
 PERSONA 3 / 4 MODDING TOOLS:
 	Amicitia community
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> 5606dfd (srb2 v2 - 12/05/22)
+>>>>>>> merge-135
 
 Sonic Robo Blast 2 belongs to Sonic Team Jr.
 

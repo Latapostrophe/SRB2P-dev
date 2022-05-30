@@ -69,12 +69,11 @@ addHook("MobjThinker", function(mo)
 	end
 
 	if server.entrytime
-		ANIM_handle(mo, true)
 
 		if server.cdungeon and server.cdungeon.shadowframes_float
 			ANIM_set(mo, server.cdungeon.shadowframes_float, true)
 		end
-
+		ANIM_handle(mo, true)
 		return
 	end
 
@@ -202,6 +201,7 @@ addHook("MobjThinker", function(mo)
 
 	-- they're unaffected by tartarus' hazards!
 	-- (Because they fly, AND they're fog)
+	ANIM_handle(mo, true)
 
 end, MT_FOGSHADOW)
 
@@ -317,7 +317,12 @@ addHook("ShouldDamage", function(mo, s)
 		if adv == 1	-- padvan
 			emotionBubble(s, EMOTE_SURPRISED)
 		end
-
+		-- Make the player play appropriate encounter vfx(if they have it defined)
+		if adv == 1
+			VFX_Play(mo, VFX_TARTARUS_ADVANTAGE)
+		else
+			VFX_Play(mo, VFX_TARTARUS_ENCOUNTER)
+		end
 
 	elseif adv == 2
 		local oldang = mo.angle
@@ -330,6 +335,8 @@ addHook("ShouldDamage", function(mo, s)
 		s.momz = -mo.momz
 
 		emotionBubble(mo, EMOTE_SURPRISED)
+		-- Make the player play appropriate encounter vfx(if they have it defined)
+		VFX_Play(mo, VFX_TARTARUS_AMBUSHED)
 	end
 
 	S_StartSound(mo, sfx_phys)

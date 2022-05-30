@@ -1,6 +1,6 @@
 rawset(_G, "srb2p", {
 	name = "SRB2PERSONA",
-	version = "v2.0B-12.05.22",
+	version = "v2.0B-30.05.22",
 	verbase = 20,
 	--debug = true,
 	--debugprint = true,
@@ -295,7 +295,7 @@ rawset(_G, "TGT_EVERYONE", 7)	-- lol why the fuck would you use this.
 -- CST_ cost constants
 
 rawset(_G, "CST_SP", 1)
-rawset(_G, "CST_SPU", 2)
+rawset(_G, "CST_SPPERCENT", 2)
 rawset(_G, "CST_HP", 3)
 rawset(_G, "CST_HPPERCENT", 4)
 rawset(_G, "CST_EP", 5)	-- emerald power

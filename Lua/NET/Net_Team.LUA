@@ -181,6 +181,11 @@ rawset(_G, "NET_reset", function()
 	server.plentities = {}
 	server.playerlit = {}
 	server.skinlist = {}
+	for p in players.iterate
+		if p.mo and p.mo.valid
+			p.mo.P_net_ready = false
+		end
+	end
 end)
 
 -- end net selection, doesn't remove it however:
@@ -285,23 +290,27 @@ rawset(_G, "NET_startgame", function()
 
 	-- ultimatum: Check skinlist:
 	local num = 0
-	for i = 1, #server.playerlist
-
-		if not #server.playerlist[i]
-			continue
-		end	-- skip empty teams
-		num = $+1
-
+	for i = 1, 4
 
 		local findp
-		for j = 1, #server.playerlist[i]
-			findp = server.playerlist[i][j]
+		for j = 1, server.P_netstat.teamlen
+			if server.playerlist[i][j] and server.playerlist[i][j].valid
+				findp = server.playerlist[i][j]
+				break
+			end
 		end
 
+
 		if not findp or not findp.valid
-			print("\x82".."NET_startgame / FATAL: ".."\x80".."No player in team "..i..", P_netstat will be reset.")
-			NET_end(true)
-			return
+			if #server.playerlist[i]
+				print("\x82".."NET_startgame / FATAL: ".."\x80".."No player in team "..i..", P_netstat will be reset.")
+				NET_end(true)
+				return
+			else
+				continue
+			end
+		else
+			num = $+1
 		end
 	end
 
@@ -315,7 +324,11 @@ rawset(_G, "NET_startgame", function()
 	-- depending on buffer info, do some stuff
 	server.gamemode = buf.gamemode	-- cool
 	if num
-		COM_BufInsertText(server, "maxplayers "..(num*4))
+		if server.bossmode	-- Always two teams, and one is the boss
+			COM_BufInsertText(server, "maxplayers "..(server.P_netstat.teamlen+1))
+		else
+			COM_BufInsertText(server, "maxplayers "..(num*server.P_netstat.teamlen))
+		end
 	end
 
 	server.difficulty = 1	-- default
@@ -505,7 +518,7 @@ local function NET_team_bossselect(p)
 		if inpt[BT_BTNA] == 1
 			mo.P_net_ready = true	-- we good
 			S_StartSound(nil, sfx_confir, p)
-			server.bosslevel = enemyList[bosses[p.bossselect]].level
+			server.bosslevel = enemyList[bosses[p.bossselect]].pvplevel or enemyList[bosses[p.bossselect]].level
 			p.confirmboss = 2
 		elseif inpt[BT_BTNB] == 1
 			S_StartSound(nil, sfx_cancel, p)
@@ -527,6 +540,7 @@ local function NET_team_skinselect(p)
 		end
 	end
 
+	if not net.buffer then return end	-- net.buffer can be nil
 	local nostack = net.buffer.nostack	-- No stacking skins!
 	--print(nostack)
 
@@ -535,6 +549,7 @@ local function NET_team_skinselect(p)
 	if not mo return end
 
 	local inpt = mo.P_inputs
+	if not net.playerlist then return end
 	local party = net.playerlist[p.P_party]
 
 	-- figure out where in the party i am

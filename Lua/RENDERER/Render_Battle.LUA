@@ -185,8 +185,8 @@ rawset(_G, "drawPlayerBar", function(v, x, y, mo, flags)
 	if atk and mo.status_condition ~= COND_SUPER	-- super has no cost
 		if atk.costtype == CST_SP
 			atkcost = atk.cost
-		elseif atk.costtype == CST_SPU
-			atkcost = atk.cost *250
+		elseif atk.costtype == CST_SPPERCENT
+			atkcost = atk.cost * mo.maxsp / 100
 		end
 	end
 
@@ -249,7 +249,7 @@ rawset(_G, "drawPlayerBar", function(v, x, y, mo, flags)
 		-- get skill:
 		if mo.attack.costtype == CST_HP or mo.attack.costtype == CST_HPPERCENT
 			flashtype = 1
-		elseif mo.attack.costtype == CST_SP or mo.attack.costtype == CST_SPU
+		elseif mo.attack.costtype == CST_SP or mo.attack.costtype == CST_SPPERCENT
 			flashtype = 2
 		end
 	end
@@ -839,38 +839,37 @@ rawset(_G, "drawSkillCommand", function(v, x, y, mo, skill, active, have_item, s
 
 	if not skill.cost or unknown return end	-- nothing to draw here
 
-	if skill.costtype ~= CST_SPU
-		if skill.costtype == CST_HPPERCENT
-			cost = skill.cost*mo.maxhp/100
+	if skill.costtype == CST_HPPERCENT
+		cost = skill.cost*mo.maxhp/100
+	elseif skill.costtype == CST_HP
+		cost = skill.cost
+	elseif skill.costtype == CST_EP	-- emerald power
+		cost = skill.cost
+		pp = {"C_EP"}
+	elseif skill.costtype == CST_SP
+	or skill.costtype == CST_SPPERCENT
 
-		elseif skill.costtype == CST_EP	-- emerald power
+		pp = {"H_SP", 181}
+		if skill.costtype == CST_SP
 			cost = skill.cost
-			pp = {"C_EP"}
-		else
-			cost = skill.cost
-			if skill.costtype == CST_SP
-				pp = {"H_SP", 181}
-			end
+		elseif skill.costtype == CST_SPPERCENT
+			cost = skill.cost*mo.maxsp/100
 		end
-
-		if mo.status_condition == COND_SUPER
-			cost = 0	-- hack
-		end
-
-		V_drawString(v, x+32, y+12, cost, "FPNUM", V_SNAPTOLEFT, "right", ((skill.costtype == CST_EP and 112 or skill.costtype == CST_SP and 181 or 131) + (not active and 3 or 0)), 31)
-		v.drawIndex((x+35)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
-
-		if pp[2]	-- palette index: SP, or HP
-			v.drawIndex((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, pp[2] + (not active and 3 or 0))
-		else	-- for emerald power, use normal colours and draw
-			v.drawScaled((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, ep_colors[cost]))
-		end
-	else
-		cost = min(4, skill.cost)
-		v.drawIndex((x+20)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch("H_SPU"), V_SNAPTOLEFT, 31)
-		v.drawIndex((x+19)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch("H_SPU"), V_SNAPTOLEFT, 194 + (not active and 3 or 0))
-		PDraw(v, x+36, y+12, v.cachePatch("H_SPU_"..cost), V_SNAPTOLEFT)
 	end
+
+	if mo.status_condition == COND_SUPER
+		cost = 0	-- hack
+	end
+
+	V_drawString(v, x+32, y+12, cost, "FPNUM", V_SNAPTOLEFT, "right", ((skill.costtype == CST_EP and 112 or (skill.costtype == CST_SP or skill.costtype == CST_SPPERCENT) and 181 or 131) + (not active and 3 or 0)), 31)
+	v.drawIndex((x+35)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
+
+	if pp[2]	-- palette index: SP, or HP
+		v.drawIndex((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, pp[2] + (not active and 3 or 0))
+	else	-- for emerald power, use normal colours and draw
+		v.drawScaled((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, ep_colors[cost]))
+	end
+
 
 	if owner
 		local patch = charStats[owner.stats].icon
@@ -1180,9 +1179,14 @@ local function drawPlayerItemList(v, p, mo)
 	end
 
 	-- draw description
+	local unknown = server.gamemode == GM_VOIDRUN and server.P_DungeonStatus.VR_clause == VE_ITEMJAMMER
 	drawPartyStatus(v, p, server.P_BattleStatus[mo.battlen])
 	local skill = items[mo.t_itemselect] and itemDefs[items[mo.t_itemselect][1]] or nil
-	V_drawString(v, 60, 150, skill.desc or "Description missing", "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+	if unknown
+		V_drawString(v, 60, 150, "Hmmm, wonder what\nthis does?", "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+	else
+		V_drawString(v, 60, 150, skill.desc or "Description missing", "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
+	end
 end
 
 local function drawTargetHP(v, x, y, mo, tgt, aff)
@@ -3284,7 +3288,7 @@ local function drawPlayerCutin(v, mo)
 		if timer <= checkframe
 		and timer >= checkframe2
 			drawScreenwidePatch(v, v.cachePatch((mo.plyr and "CUTIN" or "CUTNE")..k))
-			if k >= 3 and (k-2) <= 3 
+			if k >= 3 and (k-2) <= 3
 				if v.patchExists(cutin_face_prefix..k-2)
 					drawScreenwidePatch(v, v.cachePatch(cutin_face_prefix..k-2), v.getColormap(TC_DEFAULT, mo.color))
 				else
@@ -3806,6 +3810,7 @@ local cv_physhud = CV_RegisterVar({
 
 local raredrop_frame = A
 local possible_frames = {A, B, C, D, E, F, G, H, I, J, K, P, Q}
+local rainbow_colours = {SKINCOLOR_BLUEBELL, SKINCOLOR_AQUA, SKINCOLOR_EMERALD, SKINCOLOR_PERIDOT, SKINCOLOR_YELLOW, SKINCOLOR_APRICOT, SKINCOLOR_ORANGE, SKINCOLOR_FLAME, SKINCOLOR_RED, SKINCOLOR_RUBY, SKINCOLOR_MAGENTA, SKINCOLOR_PASTEL}
 
 local basex = 160
 local basey = 80
@@ -3818,6 +3823,16 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 	if p.mo and p.mo.valid and p.mo.r_raredrop
 
 		local t = p.mo.r_raredrop
+		local r = p.mo.r_raredrop_rarity
+
+		local col = SKINCOLOR_YELLOW
+
+		if r >= 7
+			col = rainbow_colours[(t % #rainbow_colours) +1]
+		end
+
+		local rcol = col
+
 		local timetrheshold = 17
 
 		-- display test:
@@ -3853,19 +3868,29 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 			if t > timetrheshold-2
 				midpatch = "RDRP_1"	-- prepare to display the "R"
 			end
+		end
 
+		-- sparkles if rarity is >= 6
+
+		DisplayPhysHUD(v, "raredrop", displayplayer)
+
+		if t < 80
+		and r >= 6
+			local part = phud.create(p.P_party, 60 + N_RandomRange(0, 160), 50 + N_RandomRange(0, 40), "SUBP1", TICRATE/2, v.getColormap(TC_DEFAULT, rcol), "raredrop")
+
+			part.scale = FRACUNIT/2 + N_RandomRange(0, FRACUNIT/3)
+			part.anim = {"SUBP1", "SUBP2", "SUBP3", "SUBP4", "SUBP5", "SUBP6", 1}
+			part.physflags = PF_NOGRAVITY
+			part.flags = V_20TRANS
+			part.destscale = 1
 		end
 
 
-
-
 		if stretch and t < timetrheshold	-- magic number gogo!
-			v.drawStretched(basex << FRACBITS, basey << FRACBITS, abs(stretch[1]*2), stretch[2]*2, v.cachePatch(midpatch), (stretch[1] < 0 and V_FLIP or 0), v.getColormap(TC_DEFAULT, SKINCOLOR_YELLOW))
+			v.drawStretched(basex << FRACBITS, basey << FRACBITS, abs(stretch[1]*2), stretch[2]*2, v.cachePatch(midpatch), (stretch[1] < 0 and V_FLIP or 0), v.getColormap(TC_DEFAULT, col))
 
 		else
 			local dt = t-timetrheshold
-
-			local col = SKINCOLOR_YELLOW
 
 			for i = 1, 2
 				if dt >= 28 + (10*(i-1))
@@ -3890,7 +3915,11 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 				if lets[i] and (dt-(i*2)) >= i
 
 					local tx = (dt-(i*2))
-					col = SKINCOLOR_YELLOW
+					col = rcol
+					if r >= 7
+						col = rainbow_colours[((t-i) % #rainbow_colours) +1]
+					end
+
 
 					for j = 1, 2
 						if dt >= 28 + i + (10*(j-1))

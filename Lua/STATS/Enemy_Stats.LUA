@@ -20,6 +20,17 @@ end
 -- target may be nil, in this case, use the skill's auto targetting method
 -- for tgt_allallies / tgt_allenemies, make sure to reassign the target properly
 
+rawset(_G, "isSkillAffordable", function(mo, skill)
+	if not skill.cost
+	or (skill.costtype == CST_SP and skill.cost <= mo.sp)
+	or (skill.costtype == CST_SPPERCENT and skill.cost*mo.maxsp/100 <= mo.sp)
+	or (skill.costtype ~= CST_SP and skill.costtype ~= CST_SPPERCENT)
+		return true
+	else
+		return false
+	end
+end)
+
 rawset(_G, "smartAttackSelect", function(mo, forceheal)
 
 	-- ally under 50% health, see if we can help them out with our best healing skill!
@@ -33,12 +44,13 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	if mo.hp < mo.maxhp/4
 		for i = 1, #mo.skills
 			if not attackDefs[mo.skills[i]] continue end
-			if attackDefs[mo.skills[i]].lastresort
+			if attackDefs[mo.skills[i]].lastresort and isSkillAffordable(mo, attackDefs[mo.skills[i]])
 				return attackDefs[mo.skills[i]]
 			end
 		end
 	end
 
+	-- HEALING SKILLS
 	local heal
 	local healcount = 0	-- used to know if we should prioritize using single target heal or multi target heal
 	local healskill
@@ -48,7 +60,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		if a.hp < a.maxhp/2
 			--dprint("ENEMY LOGIC: Weakened ally, searching for healing skills...")
 			healcount = $+1	-- # of allies we have to heal
-			if heal and a.hp < heal.hp
+			if not heal or heal and a.hp < heal.hp
 				heal = a
 			end
 		end
@@ -61,42 +73,106 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		-- check if we have a skill for that
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
+			if not a then continue end
 			if a.type == ATK_HEAL and a.power	-- this is a healing skill
+			and isSkillAffordable(mo, a)
 			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				if healskill	-- we already have a healing skill chosen... let's see if this new skill is better suited
-					if healskill.targettype == TGT_ALLY and a.targettype == TGT_ALLALLIES and healcount > 1
+					if healskill.target == TGT_ALLY and a.target == TGT_ALLALLIES and healcount > 1
 						healskill = a
 						continue
 						-- we need to heal multiple targets, and this skill heals more!
 					end
 
-					if healskill.targettype == TGT_ALLALLIES and a.targettype == TGT_ALLY and healcount <= 1
+					if healskill.target == TGT_ALLALLIES and a.target == TGT_ALLY and healcount <= 1
 						healskill = a
 						continue
 						-- don't needlessly waste SP using multi heal when we could instead heal only a single target
 					end
 
-					if healskill.power < a.power and healskill.targettype == a.targettype
+					if healskill.power < a.power and healskill.target == a.target
 						healskill = a
 						continue
 						-- same target type, but more power. Tell you what, let's replace it!
 					end
-				end
+				else
 
-				healskill = a
+					healskill = a
+				end
 			end
 		end
 	end
 
 	if healskill
 		--dprint("ENEMY LOGIC: Healing skill found")
-		return skill, a
+		if healskill.target == TGT_ALLY	-- We're using a single-target skill
+			return healskill, heal
+		else
+			return healskill
+		end
 	end
+
+
+	-- PATRA
+	local usepatra
+	local patracount = 0	-- used to know if we should prioritize using single target heal or multi target heal
+	local patraskill
+
+	for i = 1, #mo.allies
+		local a = mo.allies[i]
+		if a.status_condition and a.status_condition < COND_HYPER
+			patracount = $+1	-- # of allies we have to heal
+			usepatra = a
+		end
+	end
+
+	local healChance = P_RandomRange(0, 100)
+
+	if usepatra	-- we have to try to heal someone!
+	and (forceheal or healChance < 25)	-- 25% chance of healing, to avoid stall fests
+		-- check if we have a skill for that
+		for i = 1, #mo.skills
+			local a = attackDefs[mo.skills[i]]
+			if not a then continue end
+			if a.patra
+			and isSkillAffordable(mo, a)
+			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
+				if patraskill	-- we already have a healing skill chosen... let's see if this new skill is better suited
+					if patraskill.target == TGT_ALLY and a.target == TGT_ALLALLIES and patracount > 1
+						patraskill = a
+						continue
+						-- we need to heal multiple targets, and this skill heals more!
+					end
+
+					if patraskill.target == TGT_ALLALLIES and a.target == TGT_ALLY and patracount <= 1
+						patraskill = a
+						continue
+						-- don't needlessly waste SP using multi heal when we could instead heal only a single target
+					end
+				else
+					patraskill = a
+				end
+			end
+		end
+	end
+
+	if patraskill
+		--dprint("ENEMY LOGIC: Healing skill found")
+		if patraskill.target == TGT_ALLY	-- We're using a single-target skill
+			return patraskill, usepatra
+		else
+			return patraskill
+		end
+	end
+
 
 	local dekunda
 	local dekundaskill
 	local dekaja
 	local dekajaskill
+
+	local last_turn = server.P_BattleStatus[mo.battlen][2] ~= mo
+	-- if we don't have a turn after this one, we CAN use mind/power charge
 
 	-- we are affected by debuffs...
 	-- see if we can use dekunda!
@@ -120,6 +196,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			for i = 1, #mo.skills
 				local a = attackDefs[mo.skills[i]]
 				if a and a.dekunda
+				and isSkillAffordable(mo, a)
 				and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 					dekundaskill = a
 					break
@@ -140,7 +217,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 				if v[1] > 0	-- v[1] is a.buffs[key][1]
 					--dprint("ENEMY LOGIC: Found enemy affected by buff! I don't like this!")
 					-- this stat has been increased! I don't like this one bit!
-					dekunda = 1
+					dekaja = 1
 					break
 				end
 			end
@@ -150,6 +227,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			for i = 1, #mo.skills
 				local a = attackDefs[mo.skills[i]]
 				if a and a.dekaja
+				and isSkillAffordable(mo, a)
 				and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 					dekajaskill = a
 					break
@@ -175,7 +253,8 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
 			if not a
-			or not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
+			or not isSkillAffordable(mo, a)
+			or a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				--dprint(mo.skills[i].." is invalid!")
 				continue
 			end
@@ -183,6 +262,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			if a.superbuff
 			and not (a.tetrakarn and mo.tetrakarn)
 			and not (a.makarakarn and mo.makarakarn)
+			and (last_turn or not (a.powercharge or a.mindcharge))
 				superbuffs[#superbuffs+1] = a
 			elseif a.buff
 				buffs[#buffs+1] = a
@@ -221,12 +301,13 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	local btl = server.P_BattleStatus[mo.battlen]
 
 	if gtarget
-	and btl.turnorder[2] == mo		-- double-turn enemies: only use ghastly wail on our first turn
-									-- WARNING: THIS CODE DOESN'T WORK FOR ENEMIES WITH > 2 TURNS
+	and btl.turnorder[mo.turns or 1] == mo		-- multi-turn enemies: only use ghastly wail on our first turn
+	and not onemore								-- some custom skills can crit and inflict hex
 
 		for i = 1, #mo.skills
 			local a = attackDefs[mo.skills[i]]
 			if a and a.ghastlywail
+			and isSkillAffordable(mo, a)
 			and not a.noenemycast -- Is this a skill that enemies aren't allowed to cast for whatever reason?
 				--dprint("ENEMY LOGIC: Found Ghastly Wail")
 				return a, gtarget
@@ -241,18 +322,16 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 
 	local usable_skills = {}
 
-	local last_turn = server.P_BattleStatus[mo.battlen][2] ~= mo
-	-- if we don't have a turn after this one, we CAN use mind/power charge
-
 	for i = 1, #mo.skills
 		local s = mo.skills[i]
 		local a = attackDefs[s]
 
 		if a
+		and isSkillAffordable(mo, a)
 		and not a.dekunda
 		and not a.dekaja
 		and not a.ghastlywail
-		and not (last_turn and (a.powercharge or a.mindcharge))
+		and (last_turn or not (a.powercharge or a.mindcharge))
 		and not (a.type == ATK_HEAL)
 		and not (mo.mindcharge and isAttackPhysical(a))
 		and not (mo.powercharge and not isAttackPhysical(a))
@@ -279,12 +358,20 @@ rawset(_G, "generalEnemyThinker", function(mo)
 	local skillchance = enemyList[mo.enemy].skillchance
 	if skillchance == nil
 		skillchance = 50
-	end	
-	
+	end
+
 	local attack, targets
 	local atarget
 
-	if P_RandomRange(0, 100) <= skillchance and mo.skills and #mo.skills
+	-- specifically allow enemies with 0 skill chance to do normals every turn.
+	if enemyList[mo.enemy].skillchance == 0
+		skillchance = 0
+	end
+
+	local attack, atarget = smartAttackSelect(mo)
+	local targets
+
+	if not (attack and P_RandomRange(1, 100) <= skillchance and mo.skills and #mo.skills
 	and mo.status_condition ~= COND_RAGE
 	and mo.status_condition ~= COND_SILENCE
 		attack, atarget = smartAttackSelect(mo) or attackDefs[(mo.melee or "slash_1")]
@@ -597,6 +684,7 @@ rawset(_G, "enemyList", {
 		name = "Re: Cowardly Maya",
 		skillchance = 100,	-- /100, probability of using a skill
 		level = 2,
+		pvplevel = 98,
 		atk = 450,
 		hp = 5500,
 		sp = 8500,
@@ -5775,7 +5863,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
@@ -5870,12 +5958,12 @@ rawset(_G, "enemyList", {
 		anim_aoa_end =		{SPR_PLAY, D, C, B, A, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
 		anim_getdown =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- knocked down from weakness / crit
-		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_PAIN"},		-- is down
+		anim_downloop =		{SPR_PLAY, A, 1, "SPR2_SHIT"},		-- is down
 		anim_getup =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets up from down
 		anim_death =		{SPR_PLAY, A, 30, "SPR2_PAIN"},		-- dies
 		anim_revive =		{SPR_PLAY, A, B, C, D, 1, "SPR2_ROLL"},		-- gets revived
-		anim_evoker =		{SPR_CSMN, G, 2},	-- holding evoker to head
-		anim_evoker_shoot =	{SPR_CSMN, H, 2},		-- shooting evoker
+		anim_evoker =		{SPR_PLAY, A, 2, "SPR2_CSMN"},	-- uses evoker
+		anim_evoker_shoot = {SPR_PLAY, B, A, 2, "SPR2_CSMN"},
 
 		anim_special1 = {SPR_PLAY, A, 2, "SPR2_MLEE"}, -- hammer prep
 		anim_special2 = {SPR_PLAY, B, C, D, 2, "SPR2_MLEE"}, -- hammer swing
@@ -5886,7 +5974,7 @@ rawset(_G, "enemyList", {
 		vfx_skill = {"sfx_arskl1", "sfx_arskl2", "sfx_arskl3"},
 		vfx_item = {"sfx_aruse1"},
 		vfx_hurt = {"sfx_arhrt1", "sfx_arhrt2", "sfx_arhrt3"},
-		vfx_xhurt = {"sfx_arhrx1"},
+		vfx_hurtx = {"sfx_arhrx1"},
 		vfx_die = {"sfx_arhrt1"},
 		vfx_heal = {"sfx_arhel1", "sfx_arhel2"},
 		vfx_healself = {"sfx_arhel1", "sfx_arhel2"},
@@ -6438,7 +6526,7 @@ rawset(_G, "enemyList", {
 
 						-- first 2 turns: always go for harmonics and then hand sonic.
 						if btl.turn == 1
-							return attackDefs["harmonic-0"], {mo}
+							return attackDefs["harmonics-0"], {mo}
 						elseif btl.turn == 2
 							return attackDefs["hand sonic"], {enemies[P_RandomRange(1, #enemies)]}
 						end
@@ -6541,7 +6629,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
@@ -6586,7 +6674,7 @@ rawset(_G, "enemyList", {
 
 						-- first 2 turns: always go for harmonics and then hand sonic.
 						if btl.turn == 1
-							return attackDefs["harmonic-0"], {mo}
+							return attackDefs["harmonics-0"], {mo}
 						elseif btl.turn == 2
 							return attackDefs["hand sonic"], {enemies[P_RandomRange(1, #enemies)]}
 						end
@@ -6633,7 +6721,7 @@ rawset(_G, "enemyList", {
 		anim_special2 =		{SPR_KNDR, H, TICRATE*8},
 		anim_special3 =		{SPR_KNDR, I, J, 2},
 		anim_special4 = 	{SPR_KNDR, U, TICRATE},			-- guard
-		anim_sepcial5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
+		anim_special5 =		{SPR_KNDR, V, TICRATE},			-- howling prep
 		anim_special6 =		{SPR_KNDR, W, X, 2},			-- howling
 
 		skills = {"hand sonic", "gale slash", "cruel attack", "toxic slice", "delay", "dekaja", "dekunda"},
@@ -7409,11 +7497,11 @@ rawset(_G, "enemyList", {
 		skillchance = 100,	-- /100, probability of using a skill
 		atk = 400,
 		level = 99,
-		hp = 10000,
+		hp = 12500,
 		sp = 99999,
-		strength = 99,
-		magic = 99,
-		endurance = 99,
+		strength = 120,
+		magic = 120,
+		endurance = 120,
 		luck = 99,
 		agility = 99,
 		melee_natk = "megido",	-- enemies don't have crit anims for their attacks.
@@ -7430,10 +7518,10 @@ rawset(_G, "enemyList", {
 		turns = 2,
 		boss = true,
 		nopvp = true,
-		
+
 		hudcutin = "ALT_A",
 		color = SKINCOLOR_BLUE,
-		
+
 		--endboss = true,
 		--personascale = FRACUNIT*2,
 
@@ -7503,7 +7591,10 @@ rawset(_G, "enemyList", {
 
 					mo.deathanim = true	-- hack since there are isolated cases of this not working?
 
-					local function alt_changePersona(alt, persona, pinch)
+					local function alt_changePersona(alt, persona)
+
+						local pinch = (alt.phase == 3)
+
 						alt.persona = personaList[persona]
 						local p = alt.persona
 						alt.weak = p.weak or 0
@@ -7528,6 +7619,7 @@ rawset(_G, "enemyList", {
 									"dekaja",
 									"dekunda",
 									"patra",
+									"almighty amp",
 								},
 
 								["alice_alt"] = {
@@ -7542,6 +7634,7 @@ rawset(_G, "enemyList", {
 									"psy boost",
 									"psiodyne",
 									"eigaon",
+									"almighty amp",
 								},
 
 								["kfrost_alt"] = {
@@ -7577,9 +7670,12 @@ rawset(_G, "enemyList", {
 									"magarudyne",
 									"maziodyne",
 									"megidolaon",
+									"magarudyne",
+									"maziodyne",
 									"mind charge",
 									"elec amp",
 									"wind amp",
+									"almighty amp",
 									"dekaja",
 									"dekunda",
 									"patra",
@@ -7599,6 +7695,9 @@ rawset(_G, "enemyList", {
 									"eigaon",
 									"die for me",
 									"die for me",
+									"black viper",
+									"black viper",
+									"almighty amp",
 								},
 
 								["kfrost_alt"] = {
@@ -7670,6 +7769,39 @@ rawset(_G, "enemyList", {
 
 					end
 
+					-- if there are barriers or players are super, use some targetted almighty...~
+					local numbarriers = 0
+					local barriertarget
+
+					for i = 1, #enemies do
+						local en = enemies[i]
+						if en.tetrakarn or en.makarakarn or en.status_condition == COND_SUPER
+							barriertarget = en
+							numbarriers = $+1
+						end
+					end
+
+					if numbarriers
+					-- check to make sure it's our first turn
+					and btl.turnorder[2] == mo
+					and (P_RandomRange(0, 1) or numbarriers > 1)
+
+					-- don't do that when we should switch phases
+					and not (mo.hp < mo.maxhp*3/4 and mo.phase == 1)
+					and not (mo.hp < mo.maxhp/2 and mo.phase == 2)
+
+						mo.thinkercalls = $+1	-- advance thinker anyway
+
+						if numbarriers > 1
+						or P_RandomRange(0, 1)
+							alt_changePersona(mo, "pixie_alt")
+							return attackDefs["megidolaon"], enemies
+						else
+							alt_changePersona(mo, "alice_alt")
+							return attackDefs["black viper"], {barriertarget}
+						end
+					end
+
 					-- MODE 1: HP > 75%
 					/*
 						In this phase, go soft on the player, do highly telegraphed attacks and only go haywire after 6 turns.
@@ -7679,13 +7811,18 @@ rawset(_G, "enemyList", {
 
 						-- phase shift
 						if mo.hp < mo.maxhp*3/4	-- under 75% HP
+						and btl.turnorder[2] ~= mo
 							alt_changePersona(mo, "pixie_alt")
 							mo.phase = 2
-							mo.thinkercalls = 3
-							if btl.turnorder[2] == mo
-								table.remove(btl.turnorder, 2)	-- remove self from turn order if phase shift overlaps, otherwise we'll screw everything over
+							mo.thinkercalls = 2
+
+							if mo.buffs["atk"][1] <= 0
+							and mo.buffs["def"][1] <= 0
+							and mo.buffs["agi"][1] <= 0
+								return attackDefs["turntables"], btl.fighters
+							else
+								return attackDefs["heat riser"], {mo}
 							end
-							return attackDefs["heat riser"], {mo}
 						end
 
 						-- turn 1: Metatron phys attacks
@@ -7754,13 +7891,18 @@ rawset(_G, "enemyList", {
 
 						-- phase shift
 						if mo.hp < mo.maxhp/2	-- under 50% HP
+						and btl.turnorder[2] ~= mo
 							alt_changePersona(mo, "pixie_alt")
 							mo.phase = 3
-							mo.thinkercalls = 3
-							if btl.turnorder[2] == mo
-								table.remove(btl.turnorder, 2)	-- remove self from turn order if phase shift overlaps, otherwise we'll screw everything over
+							mo.thinkercalls = 2
+
+							if mo.buffs["atk"][1] <= 0
+							and mo.buffs["def"][1] <= 0
+							and mo.buffs["agi"][1] <= 0
+								return attackDefs["turntables"], btl.fighters
+							else
+								return attackDefs["heat riser"], {mo}
 							end
-							return attackDefs["heat riser"], {mo}
 						end
 
 						-- Turn 1: Mind Chage -> Panta Rhei
@@ -7879,8 +8021,8 @@ rawset(_G, "enemyList", {
 					return generalEnemyThinker(mo)	--attackDefs["mamudoon"], enemies
 				end,
 	},
-	
-	
+
+
 	-- STORY MODE GARBAGE:
 	["crawla_commander"] = {
 		name = "Crawla Commander",
@@ -7911,8 +8053,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_CCOM, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
-		skills = {"strike_1"}	-- necessary to avoid crashes :skull:											
+
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:
 	},
 
 	["crawla_b"] = {
@@ -7944,8 +8086,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_POSS, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
-		skills = {"strike_1"}	-- necessary to avoid crashes :skull:											
+
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:
 	},
 
 	["brak_01"] = {
@@ -7977,8 +8119,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_BRAK, I, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
-		anim_special1 =		{SPR_BRAK, 26, 10},	
+
+		anim_special1 =		{SPR_BRAK, 26, 10},
 		anim_special2 =		{SPR_BRAK, N, O, P, Q, R, 5},
 		anim_special3 =		{SPR_BRAK, I, 2},
 		anim_special4 =		{SPR_BRAK, H, G, F, E, D, C, B, 6},
@@ -7993,11 +8135,11 @@ rawset(_G, "enemyList", {
 
 			local a = P_SpawnMobj(x, y, z, MT_DUMMY)
 			a.state = S_QUICKBOOM1
-			
+
 			if mo.deathtimer == 1
 				ANIM_set(mo, mo.anim_special2)	-- don't loop
-			end	
-			
+			end
+
 			if mo.deathtimer & 1
 				S_StartSound(mo, sfx_pop)
 			end
@@ -8008,8 +8150,8 @@ rawset(_G, "enemyList", {
 				return	-- deref function
 			end
 		end,
-													
-		skills = {"brak_pierce"}	-- necessary to avoid crashes :skull:											
+
+		skills = {"brak_pierce"}	-- necessary to avoid crashes :skull:
 	},
 
 	["maya_tut"] = {
@@ -8071,7 +8213,7 @@ rawset(_G, "enemyList", {
 			local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
 			local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
 			local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
-			
+
 			if mo.deathtimer % 4 == 0
 				for i = 1, 8
 					local a = P_SpawnMobj(x, y, z, MT_DUMMY)
@@ -8081,7 +8223,7 @@ rawset(_G, "enemyList", {
 					a.momx = P_RandomRange(-24, 24)*FRACUNIT
 					a.momy = P_RandomRange(-24, 24)*FRACUNIT
 					a.momz = P_RandomRange(-24, 24)*FRACUNIT
-				end	
+				end
 
 				S_StartSound(mo, sfx_srip)
 			end
@@ -8090,7 +8232,7 @@ rawset(_G, "enemyList", {
 				-- story mode: reset sonic's persona to orpheus (we fight this boss with thanatos temporarily...)
 				local pl = mo.enemies[1]	-- sonic...
 				PLYR_initPersona(pl, "orpheus", pl.skin)
-				
+
 				mo.deathanim = nil
 				mo.flags2 = $|MF2_DONTDRAW
 				return	-- deref function
@@ -8107,10 +8249,10 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_ENM6, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
-		skills = {"agi"}										
+
+		skills = {"agi"}
 	},
-	
+
 	["miniboss_fuzz_1"] = {
 		name = "Bribed Fuzz",
 		skillchance = 100,
@@ -8127,9 +8269,9 @@ rawset(_G, "enemyList", {
 		melee_natk = "pierce_1",
 		weak = ATK_CURSE,
 		thinker = 	function(mo)
-						
+
 						local btl = server.P_BattleStatus[mo.battlen]
-						
+
 						if btl.turn%2 == 0
 						and mo.snaptarget and mo.snaptarget.valid
 							return attackDefs["snap"], {mo.snaptarget}
@@ -8137,7 +8279,281 @@ rawset(_G, "enemyList", {
 							mo.snaptarget = mo.enemies[P_RandomRange(1, #mo.enemies)]
 							return attackDefs["glare"], {mo.snaptarget}
 						end
-						
+
+					end,
+
+		anim_stand = 		{SPR_ENM5, S, 10},
+		anim_stand_hurt =	{SPR_ENM5, S, 1},
+		anim_move =			{SPR_ENM5, S, 2},
+		anim_run =			{SPR_ENM5, S, 2},
+		anim_hurt =			{SPR_ENM5, S, 35},
+		anim_getdown =		{SPR_ENM5, S, 1},
+		anim_downloop =		{SPR_ENM5, S, 1},
+		anim_getup =		{SPR_ENM5, S, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+		skills = {"snap"},
+		r_exp = 50,
+	},
+
+
+	-- STORY MODE GARBAGE:
+	["crawla_commander"] = {
+		name = "Crawla Commander",
+		skillchance = 0,	-- /100, probability of using a skill
+		scale = FRACUNIT*2,
+		level = 3,
+		atk = 5,
+		hp = 45,
+		sp = 4,
+		strength = 1,
+		magic = 1,
+		endurance = 2,
+		luck = 1,
+		agility = 1,
+		melee_natk = "strike_1",	-- enemies don't have crit anims for their attacks.
+		weak = 0,
+		thinker = generalEnemyThinker,
+		r_exp = 5,
+		r_macca = 0,
+
+		anim_stand = 		{SPR_CCOM, A, B, 5},
+		anim_stand_hurt =	{SPR_CCOM, A, B, 5},
+		anim_move =			{SPR_CCOM, A, B, 5},
+		anim_run =			{SPR_CCOM, A, B, 5},
+		anim_hurt =			{SPR_CCOM, A, 35},
+		anim_getdown =		{SPR_CCOM, A, 1},
+		anim_downloop =		{SPR_CCOM, A, 1},
+		anim_getup =		{SPR_CCOM, A, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:
+	},
+
+	["crawla_b"] = {
+		name = "Blue Crawla",
+		skillchance = 0,	-- /100, probability of using a skill
+		scale = FRACUNIT,
+		level = 1,
+		atk = 3,
+		hp = 25,
+		sp = 2,
+		strength = 1,
+		magic = 1,
+		endurance = 1,
+		luck = 1,
+		agility = 1,
+		melee_natk = "strike_1",	-- enemies don't have crit anims for their attacks.
+		weak = 0,
+		thinker = generalEnemyThinker,
+		r_exp = 2,
+		r_macca = 0,
+
+		anim_stand = 		{SPR_POSS, A, F, 3},
+		anim_stand_hurt =	{SPR_POSS, A, F, 3},
+		anim_move =			{SPR_POSS, A, B, C, D, E, F, 4},
+		anim_run =			{SPR_POSS, A, B, C, D, E, F, 4},
+		anim_hurt =			{SPR_POSS, A, 35},
+		anim_getdown =		{SPR_POSS, A, 1},
+		anim_downloop =		{SPR_POSS, A, 1},
+		anim_getup =		{SPR_POSS, A, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:
+	},
+
+	["brak_01"] = {
+		name = "Brak Eggman",
+		skillchance = 0,	-- /100, probability of using a skill
+		scale = FRACUNIT*3/2,
+		level = 5,
+		atk = 2,
+		hp = 300,
+		sp = 200,
+		strength = 2,
+		magic = 2,
+		endurance = 2,
+		luck = 2,
+		agility = 1,
+		melee_natk = "brak_pierce",	-- enemies don't have crit anims for their attacks.
+		weak = 0,
+		thinker = generalEnemyThinker,
+		r_exp = 10,
+		r_macca = 0,
+
+		anim_stand = 		{SPR_BRAK, A, 2},
+		anim_stand_hurt =	{SPR_BRAK, A, 2},
+		anim_move =			{SPR_BRAK, B, C, D, E, F, G, H, 5},
+		anim_run =			{SPR_BRAK, B, C, D, E, F, G, H, 5},
+		anim_hurt =			{SPR_BRAK, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, I, Z, 2},
+		anim_getdown =		{SPR_BRAK, I, 1},
+		anim_downloop =		{SPR_BRAK, I, 1},
+		anim_getup =		{SPR_BRAK, I, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+
+		anim_special1 =		{SPR_BRAK, 26, 10},
+		anim_special2 =		{SPR_BRAK, N, O, P, Q, R, 5},
+		anim_special3 =		{SPR_BRAK, I, 2},
+		anim_special4 =		{SPR_BRAK, H, G, F, E, D, C, B, 6},
+
+		deathanim = function(mo)
+
+			mo.deathtimer = $ and $+1 or 1
+
+			local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
+			local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
+			local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
+
+			local a = P_SpawnMobj(x, y, z, MT_DUMMY)
+			a.state = S_QUICKBOOM1
+
+			if mo.deathtimer == 1
+				ANIM_set(mo, mo.anim_special2)	-- don't loop
+			end
+
+			if mo.deathtimer & 1
+				S_StartSound(mo, sfx_pop)
+			end
+
+			if mo.deathtimer >= 30
+				mo.deathanim = nil
+				--mo.flags2 = $|MF2_DONTDRAW
+				return	-- deref function
+			end
+		end,
+
+		skills = {"brak_pierce"}	-- necessary to avoid crashes :skull:
+	},
+
+	["maya_tut"] = {
+		name = "Cowardly Maya",
+		skillchance = 0,	-- /100, probability of using a skill
+		level = 1,
+		atk = 10,
+		hp = 65,
+		sp = 4,
+		strength = 1,
+		magic = 1,
+		endurance = 2,
+		luck = 1,
+		agility = 1,
+		melee_natk = "slash_1",	-- enemies don't have crit anims for their attacks.
+		weak = ATK_WIND|ATK_ELEC|ATK_BLESS|ATK_CURSE|ATK_FIRE|ATK_PSY|ATK_NUCLEAR,
+		thinker = generalEnemyThinker,
+		r_exp = 5,
+		r_macca = 5,
+
+		anim_stand = 		{SPR_ENM1, D, 10},
+		anim_stand_hurt =	{SPR_ENM1, D, 1},
+		anim_move =			{SPR_ENM1, D, 2},
+		anim_run =			{SPR_ENM1, D, 2},
+		anim_hurt =			{SPR_ENM1, D, 35},
+		anim_getdown =		{SPR_ENM1, D, 1},
+		anim_downloop =		{SPR_ENM1, D, 1},
+		anim_getup =		{SPR_ENM1, D, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+		skills = {"slash_1"},
+	},
+
+	["boss_magician"] = {
+		name = "Magician",
+		skillchance = 100,	-- /100, probability of using a skill
+		scale = FRACUNIT*3/2,
+		level = 10,
+		atk = 50,
+		hp = 450,
+		sp = 200,
+		boss = true,
+		strength = 5,
+		magic = 2,
+		endurance = 5,
+		luck = 2,
+		agility = 5,
+		melee_natk = "strike_1",	-- enemies don't have crit anims for their attacks.
+		weak = 0,
+		thinker = generalEnemyThinker,
+		r_exp = 50,
+		r_macca = 50,
+		target_zoffs = 60,	-- offset for targetting reticle...
+
+		deathanim = function(mo)
+
+			mo.deathtimer = $ and $+1 or 1
+
+			local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
+			local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
+			local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
+
+			if mo.deathtimer % 4 == 0
+				for i = 1, 8
+					local a = P_SpawnMobj(x, y, z, MT_DUMMY)
+					a.sprite = SPR_THOK
+					a.frame = A
+					a.color = i & 1 and SKINCOLOR_RED or SKINCOLOR_BLACK
+					a.momx = P_RandomRange(-24, 24)*FRACUNIT
+					a.momy = P_RandomRange(-24, 24)*FRACUNIT
+					a.momz = P_RandomRange(-24, 24)*FRACUNIT
+				end
+
+				S_StartSound(mo, sfx_srip)
+			end
+
+			if mo.deathtimer >= TICRATE*3
+				-- story mode: reset sonic's persona to orpheus (we fight this boss with thanatos temporarily...)
+				local pl = mo.enemies[1]	-- sonic...
+				PLYR_initPersona(pl, "orpheus", pl.skin)
+
+				mo.deathanim = nil
+				mo.flags2 = $|MF2_DONTDRAW
+				return	-- deref function
+			end
+		end,
+
+		anim_stand = 		{SPR_ENM6, A, B, C, B, 8},
+		anim_stand_hurt =	{SPR_ENM6, A, B, C, B, 8},
+		anim_move =			{SPR_ENM6, A, B, C, B, 5},
+		anim_run =			{SPR_ENM6, A, B, C, B, 5},
+		anim_hurt =			{SPR_ENM6, A, 35},
+		anim_getdown =		{SPR_ENM6, A, 1},
+		anim_downloop =		{SPR_ENM6, A, 1},
+		anim_getup =		{SPR_ENM6, A, 1},		-- enemies don't need special standing, death or revive anims.
+													-- they explode on death, and cannot be revived.
+													-- unless it's specified like for players.
+
+		skills = {"agi"}
+	},
+
+	["miniboss_fuzz_1"] = {
+		name = "Bribed Fuzz",
+		skillchance = 100,
+		level = 5,
+		hp = 350,
+		sp = 35,
+		boss = true,
+		scale = FRACUNIT*2,
+		strength = 6,
+		magic = 3,
+		endurance = 6,
+		agility = 2,
+		luck = 1,
+		melee_natk = "pierce_1",
+		weak = ATK_CURSE,
+		thinker = 	function(mo)
+
+						local btl = server.P_BattleStatus[mo.battlen]
+
+						if btl.turn%2 == 0
+						and mo.snaptarget and mo.snaptarget.valid
+							return attackDefs["snap"], {mo.snaptarget}
+						else
+							mo.snaptarget = mo.enemies[P_RandomRange(1, #mo.enemies)]
+							return attackDefs["glare"], {mo.snaptarget}
+						end
+
 					end,
 
 		anim_stand = 		{SPR_ENM5, S, 10},

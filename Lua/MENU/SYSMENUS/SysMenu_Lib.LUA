@@ -508,6 +508,7 @@ rawset(_G, "SYS_handleMenu", function()
 
 					if cv
 						COM_ImmedExecute(cv.name.." "..qte..m.textfields[m.choice]..qte)	-- set the cvar
+						S_StartSound(nil, sfx_confir)
 					end
 				end
 			end

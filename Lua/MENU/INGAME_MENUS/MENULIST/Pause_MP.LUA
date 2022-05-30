@@ -41,7 +41,7 @@ local function drawStatuses(v, mo, timer)
 	V_drawString(v, x+55, y+9, btl.macca, "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, "right", 31, nil)
 end
 
-local function drawMenu_main(v, mo, choice, forcetimer, drawbars)
+local function drawMenu_main(v, mo, choice, forcetimer, drawbars, dontdrawcommands)
 	--local battle = server.P_BattleStatus
 	local timers = mo.m_hudtimers
 	local timer = timers.sclosemenu and (TICRATE/3 - timers.sclosemenu) or timers.smenuopen or 0
@@ -88,13 +88,14 @@ local function drawMenu_main(v, mo, choice, forcetimer, drawbars)
 		renderPartyBars(v, mo.player)
 	end
 
-	local cmd = {
-					{BUTT_DPAD, "Select"},
-					{BUTT_A, "Confirm"},
-					{BUTT_B, "Exit"},
-				}
-	V_drawCommands(v, cmd)
-
+	if not dontdrawcommands
+		local cmd = {
+						{BUTT_DPAD, "Select"},
+						{BUTT_A, "Confirm"},
+						{BUTT_B, "Exit"},
+					}
+		V_drawCommands(v, cmd)
+	end
 end
 
 -- draw the main command selection fading out when you get to a new menu.
@@ -241,6 +242,7 @@ local function m_skill_inputs(mo)
 
 	-- return
 	if inputs[BT_USE] == 1
+	and not mo.m_hudtimers.sclosemenu
 		mo.m_hudtimers.sclosemenu = 8
 		mo.m_prevmenu = "m_main"
 		S_StartSound(nil, sfx_cancel, mo.player)
@@ -347,7 +349,16 @@ local function m_skill_inputs(mo)
 				VFX_Play(m.control.mo, m.control.mo == mo and VFX_HEALSELF or VFX_HEAL)
 			end
 			if consoleplayer.P_party == pa
-				DNG_logMessage("\x82"..b.name.."\x80".." healed the party!")
+				for i = 1, #server.plentities[pa] -- Is everyone fully healed? Let's only note down when someone heals the party to full health
+					local m = server.plentities[pa][i]
+					if m.hp+skill.power < m.maxhp
+						break	-- SOMEONE still needs healing
+					end
+
+					if i == #server.plentities[pa]	-- everyone is healed
+						DNG_logMessage("\x82"..b.name.."\x80".." healed the party!")
+					end
+				end
 			end
 
 			-- consume SP:
@@ -368,7 +379,9 @@ local function m_skill_inputs(mo)
 
 			if tgt.control == consoleplayer
 			and consoleplayer.mo ~= mo
-				DNG_logMessage("\x82"..b.name.."\x80".." healed you.")
+				if tgt.hp + skill.power > tgt.maxhp -- Only log this message when you are fully healed
+					DNG_logMessage("\x82"..b.name.."\x80".." healed you.")
+				end
 				S_StartSound(nil, sfx_heal, tgt.control)
 			end
 			VFX_Play(tgt.control.mo, tgt.control.mo == mo and VFX_HEALSELF or VFX_HEAL)
@@ -687,6 +700,7 @@ local function m_item_inputs_New(mo)
 			S_StartSound(nil, sfx_select, mo.player)
 		-- return
 		elseif inputs[BT_USE] == 1
+		and not mo.m_hudtimers.sclosemenu
 			mo.m_hudtimers.sclosemenu = 8
 			mo.m_prevmenu = "m_main"
 			S_StartSound(nil, sfx_cancel, mo.player)
@@ -1370,6 +1384,7 @@ end,
 
 			-- return
 			if inputs[BT_USE] == 1
+			and not (mo.m_hudtimers.sclosemenu or mo.m_hudtimers.m_stats_undo)
 				if mo.m_showskills
 					S_StartSound(nil, sfx_cancel, mo.player)
 					mo.m_showskills = nil
@@ -1393,6 +1408,7 @@ end,
 
 				if not mo.m_showskills
 					if inputs[BT_JUMP] == 1	-- check moves
+					and not mo.m_hudtimers.m_stats_undo
 						mo.m_showskills = 1
 						S_StartSound(nil, sfx_select, mo.player)
 						return true
@@ -1450,6 +1466,7 @@ end,
 
 			local choice = mo.m_menuchoices[mo.m_submenu]
 			if inputs[BT_JUMP] == 1
+			and not mo.m_hudtimers.sclosemenu
 				mo.m_hudtimers.m_stats = TICRATE*2/3
 				mo.m_showstats = choice
 				S_StartSound(nil, sfx_select, mo.player)
@@ -1458,7 +1475,7 @@ end,
 		end,
 
 		drawer = function(v, mo, choice)
-			drawMenu_main(v, mo, (mo.m_menuchoices["m_main"] or 1), 0)	-- draw the previous menu
+			drawMenu_main(v, mo, (mo.m_menuchoices["m_main"] or 1), 0, mo.m_showstats)	-- draw the previous menu
 			local timers = mo.m_hudtimers
 			local timer = timers.sclosemenu and (TICRATE/3 - timers.sclosemenu) or timers.smenuopen or 0
 			if forcetimer ~= nil
@@ -1529,6 +1546,31 @@ end,
 							mo.m_menuchoices[mo.m_submenu] = maxc
 						end
 
+						if mo.m_personacheckskills
+
+							local subp = server.P_BattleStatus[p.P_party].subpersonas[mo.m_menuchoices[mo.m_submenu]]
+
+							if inputs["down"] == 1
+								mo.m_personacheckskills = $+1
+								if mo.m_personacheckskills > #subp.skills
+									mo.m_personacheckskills = 1
+								end
+								S_StartSound(nil, sfx_hover, mo.player)
+
+							elseif inputs["up"] == 1
+								mo.m_personacheckskills = $-1
+								if mo.m_personacheckskills <= 0
+									mo.m_personacheckskills = #subp.skills
+								end
+								S_StartSound(nil, sfx_hover, mo.player)
+
+							elseif inputs[BT_BTNB] == 1
+								mo.m_personacheckskills = 0
+								S_StartSound(nil, sfx_cancel, mo.player)
+							end
+							return
+						end
+
 						if inputs["down"] == 1
 							mo.m_menuchoices[mo.m_submenu] = $+1
 							if mo.m_menuchoices[mo.m_submenu] > maxc
@@ -1556,6 +1598,14 @@ end,
 								mo.m_menuchoices[pc] = maxpc
 							end
 							S_StartSound(nil, sfx_hover, mo.player)
+
+						elseif inputs[BT_BTNC] == 1
+							local subp = server.P_BattleStatus[p.P_party].subpersonas[mo.m_menuchoices[mo.m_submenu]]
+
+							if subp.skills and #subp.skills
+								mo.m_personacheckskills = 1
+								S_StartSound(nil, sfx_select, mo.player)
+							end
 
 						elseif inputs[BT_JUMP] == 1
 
@@ -1595,6 +1645,7 @@ end,
 							S_StartSound(nil, sfx_qsumon, mo.player)
 							subp.equipped = mynum	-- we're done here!
 						elseif inputs[BT_USE] == 1
+						and not mo.m_hudtimers.sclosemenu
 							mo.m_hudtimers.sclosemenu = 8
 							mo.m_prevmenu = "m_main"
 							S_StartSound(nil, sfx_cancel, mo.player)
@@ -1604,7 +1655,7 @@ end,
 
 		drawer = 	function(v, mo, choice)
 						-- I literally cannot be assed so let's do it RIGHT HERE, RIGHT NOW
-						drawMenu_main(v, mo, (mo.m_menuchoices["m_main"] or 1), 0, false)	-- draw the previous menu
+						drawMenu_main(v, mo, (mo.m_menuchoices["m_main"] or 1), 0, false, true)	-- draw the previous menu
 						local battle = server.P_BattleStatus[mo.player.P_party]
 						local timers = mo.m_hudtimers
 						local timer = timers.sclosemenu and (TICRATE/3 - timers.sclosemenu) or timers.smenuopen or 0
@@ -1643,8 +1694,10 @@ end,
 						-- stats
 						local subp = battle.subpersonas[choice]
 						local dx = 180 - timer*48
-						PDraw(v, dx+20, 20, v.cachePatch("H_SUBP"), V_30TRANS)
-						V_drawString(v, dx + 40, 20, subp.ref.name and subp.ref.name:upper() or "INVALID SUB", "FPIMP", 0, nil, 0, 31)
+						local by = 10
+
+						PDraw(v, dx+20, by, v.cachePatch("H_SUBP"), V_30TRANS)
+						V_drawString(v, dx + 40, by, subp.ref.name and subp.ref.name:upper() or "INVALID SUB", "FPIMP", 0, nil, 0, 31)
 
 						-- now draw stat bonuses and disadvantages:
 						local stats_subp = {"st", "ma", "en", "ag", "lu"}
@@ -1652,7 +1705,7 @@ end,
 
 						local playerstats = {bot.strength, bot.magic, bot.endurance, bot.agility, bot.luck}
 						-- we don't actually need savestats since we don't actually equip it for real
-						local dy = 32
+						local dy = by+12
 						for i = 1, #stats_subp
 							V_drawString(v, dx + 40, dy, stats_subp[i]:upper(), "NFNT", 0, nil, 0, 31)
 
@@ -1695,9 +1748,23 @@ end,
 
 								local name = "INVALID SKILL"
 								local stype = 1
+								local col = 31
+								local tcol = 0
+								local sizeh = 16
+								local candesc
+								local desc
+
+								if i == mo.m_personacheckskills
+									tcol = 31
+									col = 0
+									sizeh = 48
+									candesc = true
+								end
+
 
 								if attackDefs[skillname]
 									name = attackDefs[skillname].name
+									desc = attackDefs[skillname].desc
 									if attackDefs[skillname].type & ATK_PASSIVE
 										stype = 15
 									else
@@ -1706,11 +1773,17 @@ end,
 								end
 
 								-- draw the skill, now.
-								v.drawFill(dx, dy, 128, 16, 31)
+								v.drawFill(dx, dy, 128, sizeh, col)
 								PDraw(v, dx+2, dy, v.cachePatch("ATK_"..stype))
+								v.drawIndex((dx+2)*FRACUNIT, dy*FRACUNIT, FRACUNIT/2, v.cachePatch("H_ELMF3"), 0, col)
 
-								V_drawString(v, dx+20, dy+4, name, "NFNT", 0, nil, 0, 31)
-								dy = $+18
+								V_drawString(v, dx+20, dy+4, name, "NFNT", 0, nil, tcol, (not tcol and 31 or nil))
+
+								if candesc
+									V_drawString(v, dx+4, dy+18, desc, "TFNT", 0, nil, tcol, (not tcol and 31 or nil))
+								end
+
+								dy = $+(candesc and 50 or 18)
 							end
 						end
 
@@ -1721,6 +1794,7 @@ end,
 							{BUTT_DPAD, "Select"},
 							{BUTT_A, "Confirm"},
 							{BUTT_B, "Exit"},
+							{BUTT_C, "Check Skills"}
 						}
 						V_drawCommands(v, cmd)
 					end,
@@ -1755,7 +1829,6 @@ end,
 		},
 		-- function to run continuously whilst this menu is opened
 		runfunc = function(mo)
-
 			if mo.m_main_renderangle
 				if mo.m_main_renderangle > 0
 					mo.m_main_renderangle = $-1

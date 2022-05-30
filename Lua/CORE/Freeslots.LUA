@@ -5,6 +5,8 @@
 
 freeslot("S_PLAY_FAINTED", "SPR2_SHIT", "SPR2_CSMN")
 states[S_PLAY_FAINTED] = {SPR_PLAY, A|SPR2_SHIT, -1, nil, 0, 0, S_PLAY_STND}
+-- Bviper
+freeslot("SPR_VIPR")
 
 -- Psycho Force
 freeslot("SPR_PSID", "sfx_psi")
@@ -15,6 +17,11 @@ freeslot("sfx_dfms")
 
 states[S_TEDDYRUN] = {SPR_TEDD, FF_ANIMATE, -1, nil, 5, 3, S_TEDDYRUN}
 
+freeslot("sfx_kdist", "SPR_SORB", "sfx_rdrp1", "sfx_rdrp2", "sfx_equip")
+
+freeslot("SPR_ANLY", "SPR_MASO")
+
+freeslot("SPR_SLSH", "SPR_THMP", "SPR_STAB")
 
 freeslot("sfx_not", "sfx_bton", "sfx_rflc", "sfx_hit2", "sfx_status")
 freeslot("SPR_ENMA", "SPR_NTHK", "SPR_TSUN", "SPR_STUN", "SPR_LOVE", "SPR_DESP", "SPR_STFU", "SPR_SLEP", "SPR_FEAR")
@@ -504,6 +511,7 @@ addHook("MobjThinker", function(mo)
 
 	local target = mo.target
 	if not target or not target.valid
+	or target and target.valid and target.hp <= 0
 		P_RemoveMobj(mo)
 		return
 	end

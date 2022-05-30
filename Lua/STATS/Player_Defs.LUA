@@ -217,7 +217,8 @@ rawset(_G, "VFX_Play", function(mo, v, stats, p)
 	local ind = P_RandomRange(1, #t)
 	local s = t[ind]
 	if not _G[s]
-		dprint("VFX_Play: Invalid sound at index "..ind.." for "..mo.name)
+		local name = mo.player.name or mo.skin or "WTF"
+		dprint("VFX_Play: Invalid sound at index "..ind.." for "..name)
 		return
 	end
 

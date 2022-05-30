@@ -4,7 +4,7 @@ rawset(_G, "buildItemName", function(it)
 	if not it return end
 
 	local ico = "\x97"
-	
+
 	if it.key
 		ico = "\x9A"
 	elseif it.skillcard
@@ -20,27 +20,37 @@ rawset(_G, "buildItemName", function(it)
 	return ico..it.name
 end)
 
-rawset(_G, "IT_startRareDropAnim", function(p)
-	
+rawset(_G, "IT_startRareDropAnim", function(p, rarity)
+
 	local mo = p.mo
-	if mo.r_raredrop return end
-	
+	rarity = $ or 1
+	-- don't overlap.
+	if mo.r_raredrop and (rarity < 7 or mo.r_raredrop_rarity == 7) return end
+
+	phud.clear("raredrop")
+
 	mo.r_raredrop = 1
+	mo.r_raredrop_rarity = rarity or 1
+
 	S_StartSound(nil, sfx_rdrp1, p)
+	if rarity >= 7
+		S_StartSound(nil, sfx_rdrp2, p)
+	end
 end)
 
 local function IT_handleRareDropAnim(p)
-	
+
 	local mo = p.mo
 	mo.r_raredrop = $+1
-	
+
 	if mo.r_raredrop >= 100
+		mo.r_raredrop_rarity = 0
 		mo.r_raredrop = nil
 	end
 end
 
 addHook("PlayerThink", function(p)
-	
+
 	if p and p.valid and p.mo and p.mo.valid
 	and p.mo.r_raredrop
 		IT_handleRareDropAnim(p)
@@ -72,13 +82,13 @@ rawset(_G, "itemDefs", {
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local dng = server.P_DungeonStatus
 						local lives = dng.VR_lives
-						
+
 						if not lives return end	--???????
 						dng.VR_lives = $+1
-						
+
 						S_StartSound(nil, sfx_heal4, user.player)
 						DNG_logMessage("\x82".."ONE UP! "..(lives).." -> "..lives+1)
 					end,
@@ -92,10 +102,15 @@ rawset(_G, "itemDefs", {
 		menuonly = true,
 		rarity = 6,
 		useall = true,		-- force item to target all in the menu
+		checkfunc = 	function(user, mo)	-- so the level cap can't go too high
+			if mo.levelcap >= #needEXP-1
+				return true
+			end
+		end,
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local lcap = 0
 						local pa = server.plentities[user.player.P_party]
 						for i = 1, #pa do
@@ -139,19 +154,19 @@ rawset(_G, "itemDefs", {
 		attack = "dummy",
 		rarity = 6,
 		menuonly = true,
-		
+
 		checkfunc = function(user, mo)
 			local w = mo.weapon
-			
+
 			if w.st >= 10
 			and w.ma >= 10
 			and w.ag >= 10
 			and w.lu >= 10
 			and w.en >= 10
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
@@ -165,7 +180,7 @@ rawset(_G, "itemDefs", {
 							w.lu = min(10, $+1)
 							w.en = min(10, $+1)
 						end
-						
+
 						equipWeapon(mo, w, true)
 
 						S_StartSound(nil, sfx_heal4, user.player)
@@ -192,46 +207,46 @@ rawset(_G, "itemDefs", {
 								enhanceRing(r)
 							end
 							equipRing(mo, r, true)
-							
+
 							mo.hp = shp
 							mo.sp = ssp
-							
+
 						end
 
 						S_StartSound(nil, sfx_heal4, user.player)
 					end,
 		cost = 10,
 	},
-	
+
 	["void booster-sr"] = {
 		name = "Void Booster-SR",
 		desc = "Increase HP by 10 and SP by 5 on\nthe user's equipped Wardring\n(5 times max)",
 		attack = "dummy",
 		rarity = 6,
 		menuonly = true,
-		
+
 		checkfunc = function(user, mo)
-			
+
 			local r = mo.wardring
 			if r.boosted_sr and r.boosted_sr >= 5
 				return true
 			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
 
 						local r = mo.wardring
-						
+
 						r.boosted_sr = $ or 0
 						r.boosted_sr = $+1
-						
+
 						if r
 							r.hp = $+10
 							r.sp = $+5
 						end
-						
+
 						local shp = mo.hp
 						local ssp = mo.sp
 						equipRing(mo, r, true)
@@ -241,7 +256,7 @@ rawset(_G, "itemDefs", {
 						S_StartSound(nil, sfx_heal4, user.player)
 					end,
 		cost = 10,
-	},	
+	},
 
 	["str catalyst 1"] = {
 		name = "STR Catalyst I",
@@ -249,30 +264,30 @@ rawset(_G, "itemDefs", {
 		attack = "dummy",
 		menuonly = true,
 		rarity = 3,
-		
+
 		checkfunc = function(user, mo)
 			if mo.bonusstrength and mo.bonusstrength >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"strength"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+1)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
-	
+
 	["str catalyst 2"] = {
 		name = "STR Catalyst II",
 		desc = "Permanently increases the user's\nStrength by 2. (To a max of +25)",
@@ -283,25 +298,25 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusstrength and mo.bonusstrength >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"strength"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+2)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
-	},	
+	},
 
 	["str catalyst 3"] = {
 		name = "STR Catalyst III",
@@ -313,25 +328,25 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusstrength and mo.bonusstrength >= 25
 				return true
-			end	
-		end,		
-		
+			end
+		end,
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"strength"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+3)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
-	},	
+	},
 
 
 	["mag catalyst 1"] = {
@@ -344,22 +359,22 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusmagic and mo.bonusmagic >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"magic"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+1)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -374,22 +389,22 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusmagic and mo.bonusmagic >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"magic"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+2)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -404,22 +419,22 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusmagic and mo.bonusmagic >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"magic"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+3)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -434,22 +449,22 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusendurance and mo.bonusendurance >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"endurance"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+1)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -464,22 +479,22 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusendurance and mo.bonusendurance >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"endurance"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+2)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -494,26 +509,26 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusendurance and mo.bonusendurance >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"endurance"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+3)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
-	
+
 	["agi catalyst 1"] = {
 		name = "AGI Catalyst I",
 		desc = "Permanently increases the user's\nAgility by 1. (To a max of +25)",
@@ -524,25 +539,25 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusagility and mo.bonusagility >= 25
 				return true
-			end	
+			end
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"agility"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+1)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
-	},	
+	},
 
 	["agi catalyst 2"] = {
 		name = "AGI Catalyst II",
@@ -554,25 +569,25 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusagility and mo.bonusagility >= 25
 				return true
-			end	
-		end,		
-		
+			end
+		end,
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"agility"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+2)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
-	},	
+	},
 
 	["agi catalyst 3"] = {
 		name = "AGI Catalyst III",
@@ -584,25 +599,25 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusagility and mo.bonusagility >= 25
 				return true
-			end	
-		end,		
-		
+			end
+		end,
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"agility"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+3)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
-	},	
+	},
 
 	["luk catalyst 1"] = {
 		name = "LUK Catalyst I",
@@ -614,22 +629,22 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusluck and mo.bonusluck >= 25
 				return true
-			end	
-		end,		
-		
+			end
+		end,
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"luck"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+1)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -644,22 +659,22 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusluck and mo.bonusluck >= 25
 				return true
-			end	
-		end,		
-		
+			end
+		end,
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"luck"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+2)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -674,22 +689,22 @@ rawset(_G, "itemDefs", {
 		checkfunc = function(user, mo)
 			if mo.bonusluck and mo.bonusluck >= 25
 				return true
-			end	
-		end,		
-		
+			end
+		end,
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"luck"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+3)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -700,9 +715,9 @@ rawset(_G, "itemDefs", {
 		attack = "dummy",
 		menuonly = true,
 		rarity = 4,
-		
+
 		checkfunc = function(user, mo)
-			
+
 			if mo.bonusmagic
 			and mo.bonusstrength
 			and mo.bonusagility
@@ -715,22 +730,22 @@ rawset(_G, "itemDefs", {
 			and mo.bonusluck >= 25
 				return true
 			end
-			
+
 		end,
-		
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"strength", "magic", "endurance", "agility", "luck"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+1)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -743,7 +758,7 @@ rawset(_G, "itemDefs", {
 		rarity = 5,
 
 		checkfunc = function(user, mo)
-			
+
 			if mo.bonusmagic
 			and mo.bonusstrength
 			and mo.bonusagility
@@ -756,22 +771,22 @@ rawset(_G, "itemDefs", {
 			and mo.bonusluck >= 25
 				return true
 			end
-			
-		end,		
-		
+
+		end,
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"strength", "magic", "endurance", "agility", "luck"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+2)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -784,7 +799,7 @@ rawset(_G, "itemDefs", {
 		rarity = 6,
 
 		checkfunc = function(user, mo)
-			
+
 			if mo.bonusmagic
 			and mo.bonusstrength
 			and mo.bonusagility
@@ -797,22 +812,22 @@ rawset(_G, "itemDefs", {
 			and mo.bonusluck >= 25
 				return true
 			end
-			
-		end,		
-		
+
+		end,
+
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						local st = {"strength", "magic", "endurance", "agility", "luck"}
-						
+
 						for i = 1, #st do
 							mo["bonus"..st[i]] = $ or 0
 							mo["bonus"..st[i]] = min(25, $+3)
 						end
 						PLYR_getStats(mo, mo.level, true, true)
 						S_StartSound(nil, sfx_heal4, user.player)
-						
+
 					end,
 		cost = 100,
 	},
@@ -960,21 +975,21 @@ rawset(_G, "itemDefs", {
 		key = true,
 		rarity = 6,
 	},
-	
+
 	["medal_hollow"] = {
 		name = "Hollow Medal",
 		desc = "A blue medal of a foreign material.\nSomehow, it's hollow.\nSomeone might be interrested in it.",
 		key = true,
 		rarity = 6,
-	},	
-	
+	},
+
 	["medal_challenger"] = {
 		name = "Challenger Medal",
 		desc = "A diamond medal awarded to those\nwho have vainquished the coliseum.\nSomeone might be interrested in it.",
 		key = true,
 		rarity = 6,
-	},	
-	
+	},
+
 	["overlimit token 1"] = {
 		name = "Overlimit Token I",
 		desc = "A token awarded to those who seek power.\nSomeone might be interrested in it.",
@@ -1393,7 +1408,7 @@ rawset(_G, "itemDefs", {
 		cost = 500,
 		rarity = 4,
 	},
-	
+
 	["speedup signal"] = {
 		name = "Speedup Signal",
 		desc = "Raises the party's Agility\nby 1 stage",
@@ -1401,8 +1416,8 @@ rawset(_G, "itemDefs", {
 		nouse = true,
 		cost = 500,
 		rarity = 4,
-	},	
-	
+	},
+
 	["agi gem"] = {
 		name = "Agi Gem",
 		desc = "Cast Agi",
@@ -1701,7 +1716,7 @@ rawset(_G, "itemDefs", {
 		cost = 1200,
 		rarity = 6,
 	},
-	
+
 	["storm magatama"] = {
 		name = "Storm Magatama",
 		desc = "Severe Elec damage\nto 1 enemy.",
@@ -1709,7 +1724,7 @@ rawset(_G, "itemDefs", {
 		nouse = true,
 		cost = 1200,
 		rarity = 6,
-	},	
+	},
 
 	["cyclone magatama"] = {
 		name = "Cyclone Magatama",

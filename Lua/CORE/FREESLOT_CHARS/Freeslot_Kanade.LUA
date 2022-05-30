@@ -59,11 +59,6 @@ states[S_PLAY_HOWLING] = {SPR_PLAY, SPR2_HOWL, 2, nil, 0, 0, S_PLAY_HOWLING}
 freeslot("S_PLAY_HANDSONIC")
 states[S_PLAY_HANDSONIC] = {SPR_PLAY, SPR2_MLEE, 4, nil, 0, 0, S_PLAY_HANDSONIC}
 
-freeslot("sfx_kdist", "SPR_SORB", "sfx_rdrp1", "sfx_equip")
-
-freeslot("SPR_ANLY", "SPR_MASO")
-
-freeslot("SPR_SLSH", "SPR_THMP", "SPR_STAB")
 for i = 1, 3
 	freeslot("S_SLASHING_1_"..i)
 end

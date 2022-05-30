@@ -149,7 +149,7 @@ end
 -- Builds event queue, this is ran before the frame is rendered.
 addHook("KeyDown", function(key)
 	--print(key.name.."->"..key.num)
-	if not key.repeated
+	if (not key.repeated) or key.num >= KEY_JOY1
 		local k = shift_if_possible(key)
 
 		-- toggle capslock
@@ -255,7 +255,7 @@ end)
 -- returns TRUE if 'mo' is in a state where input normalization can take place.
 rawset(_G, "SYS_shouldNormalize", function(mo)
 
-	if SYS_systemmenu and SYS_systemmenu.running return end
+	if SYS_systemmenu and SYS_systemmenu.running return true end
 	if chat_buf return end
 	if not server return end
 	if not mo or not mo.valid or not mo.player or not mo.player.valid return end

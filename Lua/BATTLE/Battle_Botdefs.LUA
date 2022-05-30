@@ -187,10 +187,19 @@ rawset(_G, "PLYR_initSkills", function(mo, persona)
 						table.remove(mo.skills, rk)
 					end
 				end
+				if #mo.skills == 8	-- we have 8 skills, gotta remove one
+					mo.toomanyskills = 1
+					table.remove(mo.skills, 1)
+				end
 				-- add skill
 				mo.skills[#mo.skills+1] = v[1]
 			end
 		end
+	end
+	
+	if mo.toomanyskills and mo.skin
+		print("Over 8 skills detected on "..mo.skin..", removing older skills.")
+		mo.toomanyskills = nil
 	end
 
 	-- autosort skills
@@ -254,7 +263,7 @@ rawset(_G, "PLYR_initAnims", function(mo, skin)
 		if tbl["anim_special"..i]
 			mo["anim_special"..i] = tbl["anim_special"..i]
 		else
-			mo["anim_sepcial"..i] = {SPR_PLAY, A, 1, "SPR2_STAND"}
+			mo["anim_special"..i] = {SPR_PLAY, A, 1, "SPR2_STAND"}
 		end
 	end
 end)
@@ -913,6 +922,7 @@ rawset(_G, "PLYR_reset", function(pn)	-- reset all battle related variables for 
 		mo.t_target = 1
 
 		mo.hp = max($, 1)
+		mo.redhp = mo.hp
 
 		mo.guard = nil
 

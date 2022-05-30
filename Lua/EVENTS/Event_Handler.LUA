@@ -18,11 +18,11 @@ local evt_buffer = {}
 local function D_resetDialogueStatus(pn)
 	--evt_buffer = {}
 	dprint("Reseting dialogue status")
-	
+
 	if type(server.P_DialogueStatus) ~= "table"
 		server.P_DialogueStatus = {}
-	end	
-	
+	end
+
 	server.P_DialogueStatus[pn] = {
 		running = nil,
 		event = nil,		-- name of the event to fetch from. we consider an event to be running if it isn't nil.
@@ -60,7 +60,7 @@ local function D_resetAllDialogueStatus()
 	for i = 1, 4 do
 		D_resetDialogueStatus(i)
 	end
-end	
+end
 
 -- hacks:
 
@@ -73,8 +73,8 @@ hud.add(function(v, p, c)
 		camz = 0
 		caman = 0	-- wtf
 		return
-	end	
-	
+	end
+
 	camx = c.x
 	camy = c.y
 	camz = c.z
@@ -94,7 +94,7 @@ addHook("MapLoad", do
 	for p in players.iterate do
 		PLAY_move(p)
 	end
-	
+
 	-- if we have a buffered event before switching maps, run it asap.
 	-- this feature is intended for story mode exclusively to run events after switching maps,
 	-- so we'll only run the event on pn #1
@@ -110,32 +110,31 @@ rawset(_G, "D_startEvent", function(pn, event, camstuff)
 
 	if not server.P_DialogueStatus
 		D_resetDialogueStatus(pn)
-	end	
-	
+	end
+
 	local evt = server.P_DialogueStatus[pn]
 
 	if not eventList[event]
 		print("Event \'"..event.."\' does not exist.")
 		return
 	end
-	
-	if not evt 
+
+	if not evt
 	or (server.entrytime and server.entrytime > TICRATE/2 + 10)
 	or not server.skinlist	-- players not initiated, map is subject to change at any time... yikes!
 		-- buffer:
 		evt_buffer[pn] = {event, camstuff}
-		
+
 		for p in players.iterate do
 			if p.P_party == pn
 				PLAY_nomove(p)
-			end	
+			end
 		end
 		return
 	end
 
 	-- check for flags
 	if eventList[event].flag
-		
 		if SAVE_getEventFlag(eventList[event].flag)
 			return	-- event flag already set, don't run that event!
 		else
@@ -147,7 +146,11 @@ rawset(_G, "D_startEvent", function(pn, event, camstuff)
 	evt.event = event
 	evt.eventindex = 1
 	evt.timers.start = TICRATE/3
-	
+
+	if eventList[event].fadein
+		evt.timers.fadein = TICRATE
+	end
+
 	if eventList[event].fadein
 		evt.timers.fadein = TICRATE
 	end
@@ -185,8 +188,8 @@ rawset(_G, "D_requestIndex", function(pn, indx)
 		evt = server.P_DialogueStatus[pn]
 	else
 		evt = pn.mo.d_event
-	end	
-		
+	end
+
 	if not evt.event and not evt.data return end	-- nonsense!!!
 	--dprint("Requesting next index for event")
 	evt.save_event = indx	-- where do we go once the timer is elapsed?
@@ -208,7 +211,7 @@ rawset(_G, "D_setIndex", function(pn, indx)
 		evt = server.P_DialogueStatus[pn]
 	else
 		evt = pn.mo.d_event
-	end	
+	end
 
 	evt.eventindex = indx
 	evt.texttime = 0
@@ -216,7 +219,7 @@ end)
 
 rawset(_G, "D_endEvent", function(pn)
 	dprint("Terminating event")
-	
+
 	if server.P_DialogueStatus and server.P_DialogueStatus[pn] and server.P_DialogueStatus[pn].running and eventList[server.P_DialogueStatus[pn].event].hideplayers
 		for p in players.iterate do
 			if p and p.P_party == pn and p.mo and p.mo.valid
@@ -224,14 +227,14 @@ rawset(_G, "D_endEvent", function(pn)
 			end
 		end
 	end
-	
+
 	D_resetDialogueStatus(pn)
 end)
 
 -- event handler: ANGLE LOCK
 addHook("PlayerCmd", function(player, cmd)
 	local evt = server.P_DialogueStatus[player.P_party]
-	
+
 	if evt and evt.running	-- lock angleturn to the player mobj's angle when events are running.
 		cmd.angleturn = player.mo.angle>>16
 	end
@@ -242,25 +245,25 @@ end)
 -- if pn == int: per party
 
 local function D_runEvent(evt, inputs, pn)
-	
+
 	local pl
 	local battle
-	
+
 	if type(pn) == "userdata"
 		pl = pn
 		battle = server.P_BattleStatus[pl.P_party]
 	else
 		battle = server.P_BattleStatus[pn]
-	end	
-	
-	if evt and (evt.event or evt.data)		
+	end
+
+	if evt and (evt.event or evt.data)
 		-- contains all the shit:
 		local dta
 		if pl
 			dta = evt.data
 		else
 			dta = eventList[evt.event]
-		end	
+		end
 		local cur = dta[evt.eventindex]
 
 		evt.running = true
@@ -269,7 +272,6 @@ local function D_runEvent(evt, inputs, pn)
 		for p in players.iterate do
 			if p.P_party == pn
 			or p == pl
-			
 				-- battle camera CANNOT be used for per-player events
 				if pl == nil
 					p.awayviewmobj = battle.cam
@@ -277,14 +279,14 @@ local function D_runEvent(evt, inputs, pn)
 						p.awayviewtics = 2
 						p.awayviewaiming = battle.cam.aiming or 0
 					end
-				end	
+				end
 				--p.mo.flags2 = $|MF2_DONTDRAW
 				PLAY_nomove(p)
-				
+
 				if dta.hideplayers and not evt.timers.start
 					p.mo.flags2 = $|MF2_DONTDRAW
 				end
-			end	
+			end
 		end
 
 		-- handle timers and special cases
@@ -301,7 +303,7 @@ local function D_runEvent(evt, inputs, pn)
 						D_endPlayerEvent(pl)
 					else
 						D_endEvent(pn)
-					end	
+					end
 					return
 				end
 			end
@@ -328,7 +330,12 @@ local function D_runEvent(evt, inputs, pn)
 			end
 
 			local txt = cur[3]
-			
+
+			-- continuous functions during text, useful for some visual effects.
+			if cur[8]
+				cur[8](evt, battle)
+			end
+
 			-- continuous functions during text, useful for some visual effects.
 			if cur[8]
 				cur[8](evt, battle)
@@ -425,17 +432,17 @@ local function D_runEvent(evt, inputs, pn)
 				evt.eventindex = $+1
 				evt.ftimer = 0
 			end
-		
+
 		elseif cur[1] == "use_skillcard"	-- necessary to put here as we can't put functions in synched tables
-			if pl	
+			if pl
 				pl.d_skillcardon.skillcard = pl.d_skillcard
 				S_StartSound(nil, sfx_qsumon, pl)
-				
+
 				pl.d_skillcardon = nil
 				pl.d_skillcard = nil
 			end
 			evt.eventindex = $+1
-		
+
 		elseif cur[1] == "cancel_skillcard"
 			if pl
 				BTL_addItem(server.P_BattleStatus[pl.P_party], "sc/ "..pl.d_skillcard, 1)
@@ -443,42 +450,43 @@ local function D_runEvent(evt, inputs, pn)
 				pl.d_skillcard = nil
 			end
 			evt.eventindex = $+1
-		
+
 		elseif cur[1] == "item"	-- get items
-			
+
 			evt.ftimer = $ and $+1 or 1
-			
+
 			-- get all the items in cur[2]...
 			if evt.ftimer >= TICRATE/2 + (#cur[2]*10)
 			and inputs[BT_JUMP] == 1
-				
+
 				for i = 1, #cur[2] do
-					
+
 					local t = cur[2][i]
 					if t[1] == "item"	-- regular item
 						BTL_addItem(pl and pl.P_party or server.P_BattleStatus[pn], t[2], t[3])
-					
+
 					elseif t[1] == "weapon"
 						addWeapon(pl and pl or server.plentities[pn][1], t[2])
-						
-					elseif t[1] == "ring"	
+
+					elseif t[1] == "ring"
 						addRing(pl and pl or server.plentities[pn][1], t[2])
-						
+
 					elseif t[1] == "macca"
 						server.P_BattleStatus[pl and pl.P_party or pn].macca = $ + t[2]
-					end	
+					end
 				end
-				
+
 				evt.ftimer = 0
 				evt.eventindex = $+1
 			end
 		end
-		
+
+
 
 		-- event has been running
 		return true
 	end
-end	
+end
 
 
 -- always make this run in places where events should be able to happen.
@@ -489,9 +497,9 @@ rawset(_G, "D_eventHandler", function(pn)
 	local battle = server.P_BattleStatus[pn]
 	if not server.plentities or not #server.plentities or not server.skinlist return end
 	if not server.plentities[pn] or not #server.plentities[pn] return end
-	
+
 	local firstp
-	for i = 1, server.P_netstat.teamlen or 4 
+	for i = 1, server.P_netstat.teamlen or 4
 		if server.plentities[pn][i]
 		and server.plentities[pn][i].valid
 		and server.plentities[pn][i].control
@@ -499,7 +507,7 @@ rawset(_G, "D_eventHandler", function(pn)
 			break
 		end
 	end
-	
+
 	if not firstp return end	--??
 	if not firstp.control or not firstp.control.mo return end
 	local inputs = firstp.control.mo.P_inputs
@@ -510,7 +518,7 @@ rawset(_G, "D_eventHandler", function(pn)
 end)
 
 rawset(_G, "D_FindMobjByAngle", function(t, e)
-	
+
 	for mt in mapthings.iterate do	-- fetch awayviewmobj
 
 		local m = mt.mobj
@@ -520,7 +528,7 @@ rawset(_G, "D_FindMobjByAngle", function(t, e)
 		and mt.angle == e
 			return m
 		end
-	end	
+	end
 end)
 
 -- some in-event functions...
@@ -581,8 +589,8 @@ rawset(_G, "D_RunEvents", function()
 		for i = 1, 4
 			if evt_buffer[i]
 				D_startEvent(i, evt_buffer[i][1], evt_buffer[i][2])
-			end	
-		end	
+			end
+		end
 		evt_buffer = nil
 	end
 
@@ -602,7 +610,7 @@ end)
 
 rawset(_G, "D_startPlayerEvent", function(p, evt)
 	local mo = p.mo
-	
+
 	D_endPlayerEvent(p)
 	mo.d_event = {
 		data = evt,
@@ -617,9 +625,9 @@ rawset(_G, "D_startPlayerEvent", function(p, evt)
 		timers = {["start"] = TICRATE/3},
 		ftimer,		-- special timer when running function for ease on timed events
 		cam = nil,
-		usecam = nil,	-- set to true to use the event cam.		
+		usecam = nil,	-- set to true to use the event cam.
 	}
-	
+
 	print("Started evt...")
 	print(mo.d_event.data[1][2])
 end)
@@ -632,6 +640,5 @@ rawset(_G, "D_runPlayerEvent", function(p)
 	local mo = p.mo
 	if not mo return end
 	if not mo.d_event return end
-	
 	return D_runEvent(mo.d_event, mo.P_inputs, p)
 end)

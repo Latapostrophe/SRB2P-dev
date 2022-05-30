@@ -146,17 +146,17 @@ rawset(_G, "charStats", {
 		vfx_item = {"sfx_siskl3"},
 		vfx_hurt = {"sfx_sihrt1"},
 		vfx_hurtx = {"sfx_sidie1"},
-		vfx_die = {"sfx_sidie1"},
+		vfx_die = {"sfx_sidie1", "sfx_sidie2"},
 		vfx_heal = {"sfx_sikll3"},
 		vfx_healself = {"sfx_sikll3"},
 		vfx_kill = {"sfx_sikll1", "sfx_sikll2", "sfx_sikll3", "sfx_sikll4"},
 		vfx_1more = {"sfx_si1mr1", "sfx_si1mr2"},
-		vfx_crit = {"sfx_sicrt1", "sfx_sicrt2"},
+		vfx_crit = {"sfx_sicrt1", "sfx_sicrt2", "sfx_siaoa3"},
 		vfx_aoaask = {"sfx_siaoi1"},
 		vfx_aoado = {"sfx_siaoa1", "sfx_siaoa2", "sfx_siaoa3"},
 		vfx_aoarelent = {"sfx_simis2"},
 		vfx_miss = {"sfx_simis1", "sfx_simis2", "sfx_simis3"},
-		vfx_dodge = {"sfx_siaoi2", "sfx_sidge1", "sfx_sikll4"},
+		vfx_dodge = {"sfx_si1mr1", "sfx_sikll4"},
 		vfx_win = {"sfx_siwin1", "sfx_siwin2"},
 		vfx_levelup = {"sfx_sikll3"},
 
@@ -286,7 +286,7 @@ rawset(_G, "charStats", {
 		anim_stand_bored =	{SPR_PLAY, A, B, A, B, A, B, A, B, 10, "SPR2_WAIT"},	-- standing (rare anim)
 		anim_guard = 		{SPR_PLAY, A, 1, "SPR2_WALK"},		-- guarding
 		anim_move =			{SPR_PLAY, A, B, C, D, E, F, G, H, 2, "SPR2_WALK"},		-- moving
-		anim_run =			{SPR_PLAY, A, B, C, D, E, 1, "SPR2_RUN_"},	-- guess what
+		anim_run =			{SPR_PLAY, A, B, C, D, 1, "SPR2_RUN_"},	-- guess what
 		anim_atk =			{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},	-- attacking
 		anim_aoa_end =		{SPR_PLAY, A, B, C, D, E, 1, "SPR2_ROLL"},	-- jumping out of all-out attack
 		anim_hurt =			{SPR_PLAY, A, 35, "SPR2_PAIN"},		-- taking damage
@@ -318,7 +318,7 @@ rawset(_G, "charStats", {
         vfx_hurtx = {"sfx_blhrx1"},
         vfx_die = {"sfx_bldie1", "sfx_bldie2"},
         vfx_heal = {"sfx_blhel1", "sfx_blhel2", "sfx_blhel3"},
-        vfx_healself = {"sfx_blkll1", "sfx_blhrt2"},
+        vfx_healself = {"sfx_blkll1"},
         vfx_kill = {"sfx_blkll1", "sfx_blkll2", "sfx_blkll3"},
         vfx_1more = {"sfx_blkll1", "sfx_blkll2"},
         vfx_crit = {"sfx_blcrt1", "sfx_blcrt2", "sfx_blcrt3"},
@@ -530,7 +530,7 @@ rawset(_G, "charStats", {
 		-- anim_special1 through anim_special32 may also be used for various purposes (ie: attack animations)
 		anim_special1 =		{SPR_PLAY, A, TICRATE, "SPR2_MLEE"},
 		anim_special4 = 	{SPR_PLAY, A, TICRATE, "SPR2_GARD"},			-- guard
-		anim_sepcial5 =		{SPR_PLAY, A, TICRATE, "SPR2_HWLP"},			-- howling prep
+		anim_special5 =		{SPR_PLAY, A, TICRATE, "SPR2_HWLP"},			-- howling prep
 		anim_special6 =		{SPR_PLAY, A, B, 2, "SPR2_HOWL"},				-- howling
 
 		-- VOICES

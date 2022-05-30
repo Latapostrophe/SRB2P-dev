@@ -1144,7 +1144,7 @@ local function mm_drawSkilllist(v, anim, choices, curchoice)
 		costtype = "\x88".."% HP"
 	elseif atk.costtype == CST_SPPERCENT
 		costtype = "\x89".."% SP"
-	elseif atk.costtype == CST_EMERALDPOWER
+	elseif atk.costtype == CST_EP
 		costtype = "\x83".." EP"
 	end
 

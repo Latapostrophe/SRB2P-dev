@@ -116,7 +116,7 @@ rawset(_G, "SRB2P_runHook", function(hookname, ...)
 		-- Iterate over all the functions and run them
 		for i = 1, numhooks do
 			local args = {...} -- help whats a "..."... uhh... a table?
-			local run, res = pcall(SRB2P_hooks[hookname][i], (unpack(args)))
+			local run, res = pcall(SRB2P_hooks[hookname][i], unpack(args))
 			
 			if not run
 				print("\x82".."WARNING: Hook '"..hookname.."' #"..i..": ".."\x80"..res)
