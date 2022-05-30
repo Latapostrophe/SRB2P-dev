@@ -18,12 +18,94 @@ rawset(_G, "cv_reaper", CV_RegisterVar({
 })
 ) ]]--
 
+
+-- Handles pits / respawning in story mode...
+local function D_StoryPitHandler(p)
+		if not p.mo or not p.mo.valid return end
+		
+		if not p.mo.d_pitcoords
+			p.mo.d_pitcoords = {p.mo.x, p.mo.y, p.mo.z, p.mo.angle}
+		end
+
+		if not (server.P_DialogueStatus and server.P_DialogueStatus[p.P_party] and server.P_DialogueStatus[p.P_party].running)
+		and not p.mo.d_pittime
+		and leveltime% (TICRATE) == 0
+		and P_IsObjectOnGround(p.mo)
+			-- every 5 seconds, save new positions
+			p.mo.d_pitcoords = {p.mo.x, p.mo.y, p.mo.z, p.mo.angle}
+		end
+		
+		
+		-- respawn handling
+		if p.mo.d_pittime
+			p.mo.d_pittime = $+1
+			p.mo.flags2 = $ | MF2_DONTDRAW
+			if p.mo.d_pittime > TICRATE
+				P_TeleportMove(p.mo, p.mo.d_pitcoords[1], p.mo.d_pitcoords[2], p.mo.d_pitcoords[3])
+				p.mo.angle = p.mo.d_pitcoords[4]
+				p.powers[pw_flashing] = TICRATE*2
+				p.mo.d_pitmomz = nil
+				p.mo.d_pittime = nil
+				
+				PLAY_move(p)
+				p.mo.state = S_PLAY_STND
+				
+				-- damage the party
+				for i = 1, #server.plentities[p.P_party]
+					DNG_Damage(server.plentities[p.P_party][i], server.plentities[p.P_party][i].maxhp/10)
+				end
+				
+				S_StartSound(nil, sfx_hit2, p)
+				
+			end
+		elseif not P_IsObjectOnGround(p.mo)
+			p.mo.d_pitmomz = p.mo.momz
+		end
+end
+
+-- check if we hit a death pit etc
+addHook("ShouldDamage", function(mo)
+	
+	if P_CheckDeathPitCollide(mo)
+		
+		if not mo.d_pittime
+			mo.d_pittime = 1
+			
+			VFX_Play(mo, VFX_DIE)
+
+			-- spawn a fake
+			local fake = P_SpawnMobj(mo.x, mo.y, mo.z, MT_GHOST)	-- it has to be MT_GHOST, other mobjs just vanish on impact with pits
+			fake.flags = MF_NOCLIPHEIGHT|MF_NOCLIP
+			fake.skin = mo.skin
+			fake.color = mo.color
+			fake.state = S_PLAY_PAIN
+			fake.tics = TICRATE*2
+			fake.angle = mo.angle
+			fake.momx = mo.momx
+			fake.momy = mo.momy
+			fake.momz = (mo.d_pitmomz) or 0
+			fake.fuse = TICRATE*2
+			
+			PLAY_nomove(mo.player)
+			P_InstaThrust(mo, 0, 0)
+			mo.state = S_PLAY_STND
+			mo.tics = -1
+			mo.sprite = SPR_NULL
+			mo.frame = A
+		
+		end
+		
+		return false	-- don't get damaged
+	end
+end, MT_PLAYER)
+
+
 -- thinker for dungeons
---addHook("ThinkFrame", do
 rawset(_G, "DNG_Thinker", function()
 
 	if not server return end
-
+	
+	-- entry card handling
 	if server.entrycard
 		server.entrytime = $-1
 		if server.P_DungeonStatus.gameoverfade
@@ -43,9 +125,31 @@ rawset(_G, "DNG_Thinker", function()
 		end
 	end
 
+	
+	-- fadedta handling
+	if server.fadedta
+		server.fadedta.timer = $-1
+		if server.fadedta.timer == 10
+			server.fadedta.func()
+		end
+
+		if server.fadedta.timer == 0
+			server.fadedta = nil
+			for p in players.iterate do
+				if p.mo and p.mo.valid
+					PLAY_move(p)
+				end	
+			end
+		end
+	end
+	
 	if NET_running() return end	-- don't run anything during character selection
 
 	if not server.P_BattleStatus return end
+
+	-- time changing stuff
+	if DNG_changeDateHandler() return end 		-- date is changing
+	if DNG_changeDateTimeHandler() return end 	-- date time is changing
 
 	if gamemap == srb2p.tartarus_play
 	or server.gamemode == GM_VOIDRUN
@@ -65,6 +169,7 @@ rawset(_G, "DNG_Thinker", function()
 		if not mo continue end
 		if DNG_handleShop(mo) continue end		-- in shop, don't open the menus in that case
 		if DNG_handleEquipLab(mo) continue end	-- in equip lab, don't open menu either
+		if DNG_handleFusion(mo) continue end	-- in fusions, don't open menu either...
 		D_HandleMenu(mo)	-- let menus open even without net
 	end
 
@@ -76,12 +181,13 @@ rawset(_G, "DNG_Thinker", function()
 		end
 
 		DNG_HandleAbilities(p, true)
+		D_StoryPitHandler(p)
 	end
 
 	if not NET_isset() return end	-- wait until we're finished setting up our team in MP
 
 	SRB2P_runHook("DungeonThinker", battle)
-
+	
 	if server.entrytime
 
 		-- voidrun hack
@@ -167,12 +273,14 @@ addHook("MapLoad", do
 
 	-- set titlecard on mapload too
 	local t = {}
-	if mapheaderinfo[gamemap].entryname
-		t[1] = mapheaderinfo[gamemap].entryname
-	end
-	if mapheaderinfo[gamemap].entryfloor
-		t[2] = mapheaderinfo[gamemap].entryfloor
-	end
+	if server.skiptitlecard	-- blank entry card
+		t[1] = ""
+		t[2] = ""
+		server.skiptitlecard = nil
+	else	
+		t[1] = mapheaderinfo[gamemap].entryname or ""
+		t[2] = mapheaderinfo[gamemap].entryfloor or ""
+	end	
 	if #t
 		DNG_entryCard(t)
 	end
@@ -186,7 +294,16 @@ addHook("MapLoad", do
 	}
 
 	server.DNG_entities = {}
-
+	
+	-- Story mode file loading...
+	if srb2p.loadfile
+		if srb2p.storymode	-- check to avoid catastrophic things
+			SAVE_applyFileHeader(srb2p.loadfile)
+			DNG_changeSection(server.P_DungeonStatus.section)
+		end
+		srb2p.loadfile = nil
+	end
+	
 	if DNG_isTartarusMap()
 
 		-- we just got into a dungeon, if we MUST load, do it. NOW.

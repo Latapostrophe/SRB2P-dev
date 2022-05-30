@@ -89,6 +89,10 @@ rawset(_G, "BTL_sortItems", function(btl)
 			return (not it1.material) and it2.material
 		elseif it1.menuonly ~= it2.menuonly
 			return (not it1.menuonly) and it2.menuonly
+		elseif it1.skillcard ~= it2.skillcard
+			return (not it1.skillcard) and it2.skillcard
+		elseif it1.skillcard and it2.skillcard and it1.skill and it2.skill and attackDefs[it1.skill] and attackDefs[it2.skill]
+			return attackSortFunc(it1.skill, it2.skill)
 		elseif it1.nouse ~= it2.nouse
 			return (not it1.nouse) and it2.nouse
 		elseif it1.rarity ~= it2.rarity
@@ -846,6 +850,35 @@ rawset(_G, "BTL_EmeraldSkills", {
 	"analysis",		-- 2nd emerald: analysis
 })
 
+-- starts the battle EXP sequence on its own.
+-- n: battle status #
+-- exp: exp earned.
+rawset(_G, "BTL_getEXP", function(n, exp)
+	local btl = server.P_BattleStatus[n]
+	if not btl return end -- bruh
+	
+	BTL_softReset(n)
+	btl.running = true
+	
+	btl.r_outofbattle = true	-- This disables the camera thinkers and shit.
+	btl.r_exp = exp
+	
+	btl.battlestate = BS_END
+	btl.hudtimer.endb = TICRATE*3/2
+	btl.r_precalculates = {}
+	
+	-- make sure players can't move...
+	for p in players.iterate do
+		if p.P_party == n
+			PLAY_nomove(p)
+		end	
+	end
+	
+end)
+
+COM_AddCommand("d_getexp", function(p, arg)
+	BTL_getEXP(1, tonumber(arg))
+end)
 
 -- Normalize enemy positions to defaults
 -- [flip]: Adds 180 to the angle
@@ -1055,6 +1088,121 @@ rawset(_G, "BTL_spawnEnemy", function(source, t, prev, x, y, z, addang)
 
 end)
 
+-- Spawns a new 't' skin type in the player party #pa
+-- returns the spawned player object
+-- [fixed_t x, y, z]: (optional) set spawning coordinates
+-- [INT addang]: (optional, ignored if x,y,z set): Angle to spawn from compared to the main target
+
+-- /!\ Returns nil if 5 or more players are already present on the field!
+
+rawset(_G, "BTL_spawnPlayer", function(source, pa, t, x, y, z, addang)
+	assert(source, "No source")
+	assert(t, "No skin")
+	assert(server.plentities[pa], "Invalid party #")
+	assert(charStats[t], "Invalid skin definition")
+
+	local btl = server.P_BattleStatus[source.battlen]
+	assert(btl, "No battle in progress for source "..tostring(source))
+
+	if #source.allies > 4	-- max # of enemies already!!
+		return nil	-- Don't error, but return nil.
+	end
+	
+	local running = btl.running
+
+
+	-- step 1: Get the coordinates at which we are meant to spawn it:
+/*
+		battleStatus.arena_coords[1] = battleStatus.arenacenter.x
+		battleStatus.arena_coords[2] = battleStatus.arenacenter.y
+		battleStatus.arena_coords[3] = battleStatus.arenacenter.z
+		battleStatus.arena_coords[4] = battleStatus.arenacenter.angle
+*/
+
+	-- get ang and dist:
+	local mo = source	-- cbf to change the copypasted code lol
+	local ang
+
+	if x == nil or y == nil or z == nil
+
+		local cx = btl.arena_coords[1]
+		local cy = btl.arena_coords[2]
+		local cz = btl.arena_coords[3]
+		local b_ang = btl.arena_coords[4]
+
+		ang = R_PointToAngle2(cx, cy, mo.x, mo.y)
+		local dist = R_PointToDist2(cx, cy, mo.x, mo.y)/FRACUNIT
+
+		local cycle = 1
+
+		-- find how many entities are after me:
+		local found
+		for i = 1, #mo.allies
+			local mo2 = mo.allies[i]
+			if mo2 == mo
+				found = true
+			elseif found
+				cycle = $+1
+			end
+		end
+
+		ang = $ - ANG1*(addang or 30)*cycle	-- that's how it works in enemy spawning code by default
+
+		x = cx + dist*cos(ang)
+		y = cy + dist*sin(ang)
+		z = mo.z
+	end
+
+	local nmo = PLYR_makePlayer(t, pa, #server.plentities[pa] +1)
+	P_TeleportMove(nmo, x, y, z)
+
+	local allies = copyTable(mo.allies)	-- so that we don't fuck things up:
+
+	for i = 1, #allies
+		local e = allies[i]
+		if not e.allies
+			break	-- shouldn't happen.
+		end
+		-- Update my entire team worth of allies
+		e.allies[#e.allies+1] = nmo
+		e.allies_noupdate[#e.allies_noupdate+1] = nmo
+	end
+
+	-- update our enemies..
+	for i = 1, #mo.enemies_noupdate
+		local e = mo.enemies_noupdate[i]
+
+		e.enemies = copyTable(mo.allies)
+		e.enemies_noupdate = copyTable(mo.allies_noupdate)
+	end
+
+	btl.fighters[#btl.fighters+1] = nmo	-- add enemy to the fighters list
+
+	nmo.enemies = copyTable(mo.enemies)
+	nmo.enemies_noupdate = copyTable(mo.enemies_noupdate)	-- this table doesn't update, we use it for reviving
+	nmo.allies = copyTable(source.allies)
+	nmo.allies_noupdate = copyTable(source.allies_noupdate)
+
+	nmo.saveskills = copyTable(nmo.skills)	-- you never know
+	nmo.savestats = {nmo.strength, nmo.magic, nmo.endurance, nmo.agility, nmo.luck}	-- back up stats
+	
+	-- setup default coordinates
+	nmo.defaultcoords = {nmo.x, nmo.y, nmo.z, nmo.angle}
+	
+	BTL_initAdditionalSkills(nmo)
+	BTL_splitSkills(nmo)
+	BTL_setupstats(nmo)
+
+	if ang
+		nmo.angle = ang + ANG1*180
+	else
+		nmo.angle = source.angle
+	end	
+	ANIM_set(nmo, nmo.anim_stand, true)
+
+	return nmo
+end)
+
 -- Change the current enemy to a new type of enemy, reseting all of its stats
 rawset(_G, "BTL_changeEnemy", function(enm, new)
 	
@@ -1106,7 +1254,7 @@ end)
 	norun:		If true, the battle cannot be run away from
 
 */
-rawset(_G, "BTL_start", function(party, wave, adv, mus, func, allowboss, norun)
+rawset(_G, "BTL_start", function(party, wave, adv, mus, func, allowboss, norun, boss)
 
 	local fboss
 
@@ -1128,7 +1276,7 @@ rawset(_G, "BTL_start", function(party, wave, adv, mus, func, allowboss, norun)
 		team_2[#team_2+1] = enm
 	end
 	
-	if norun or adv == 2
+	if boss	--norun or adv == 2
 		server.P_BattleStatus[party].boss = true	-- make sure we can't run away etc etc
 	end	
 
@@ -1152,6 +1300,36 @@ rawset(_G, "BTL_start", function(party, wave, adv, mus, func, allowboss, norun)
 	end
 	
 	BTL_StartBattle(party, team_1, team_2, adv or 0, func, mus)
+end)
+
+
+-- Updates battle arena center in accordance to the section
+rawset(_G, "BTL_updateArenaCenter", function()
+	for mt in mapthings.iterate do
+		local m = mt.mobj
+		
+		for s = 1, server.P_DungeonStatus.section	-- try and find whatever works with the section we have.
+		
+			if m and m.valid and m.type == MT_BOSS3WAYPOINT and mt.extrainfo == s
+				
+				for i = 1, 4
+					local btl = server.P_BattleStatus[i]
+					local shiftx = (mapheaderinfo[gamemap].arenashiftx or 0)*FRACUNIT *(i-1)
+					local shifty = (mapheaderinfo[gamemap].arenashifty or 0)*FRACUNIT *(i-1)
+					local t = P_SpawnMobj(m.x+shiftx, m.y+shifty, m.z, MT_THOK)
+					t.state = S_INVISIBLE
+					t.angle = m.angle
+					
+					-- free current center mobj
+					if btl.arenacenter and btl.arenacenter.valid
+						P_RemoveMobj(btl.arenacenter)
+					end	
+					
+					btl.arenacenter = t
+				end
+			end
+		end	
+	end
 end)
 
 -- SHUFFLE TIME MULTIPLIERS:

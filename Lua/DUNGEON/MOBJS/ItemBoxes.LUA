@@ -43,23 +43,26 @@ addHook("MobjThinker", function(t)
 		t.scale = $*2
 
 		-- story mode shite
-		print(gamemap)
 		if DNG_itemBoxes[gamemap]
 			t.extravalue2 = 1	-- initialized for story
-			print("OK")
 			local tt = DNG_itemBoxes[gamemap]
 			local s = t.spawnpoint
 			local ang = s.angle
 
+			if SAVE_checkItemBox(ang)	-- item box was already collected!!
+				--print("Box already collected")
+				t.fuse = 1
+				t.flags = $|MF_NOCLIPTHING
+				return
+			end
+
 			if tt[ang]
-				print("OK2")
 				local tabl = tt[ang]
 				t.content = {}
 
 				-- add the items.
 				for i = 1, #tabl
 					for j = 1, tabl[i][2]
-						print("Added "..tostring(tabl[i][1]))
 						t.content[#t.content+1] = tabl[i][1]
 					end
 				end
@@ -77,6 +80,9 @@ addHook("MobjCollide", function(t, mo)
 	local p = mo.player
 	if not (p.pflags & PF_JUMPED or p.dashmode > TICRATE*3) return end
 	if (t.hitflags and t.hitflags & (2^(p.P_party-1))) return end	-- already popped that gold box
+
+	if mo.z > t.z+t.height + FRACUNIT*8 return end 	-- too high
+	if mo.z+mo.height < t.z return end	-- too low
 
 	local gold = t.hitflags ~= nil
 
@@ -154,6 +160,14 @@ addHook("MobjCollide", function(t, mo)
 				end--]]
 
 				continue
+			elseif type(v) == "number"	-- macca!
+
+				if mo.player.P_party == consoleplayer.P_party
+					DNG_logMessage(dispname.." found ".."\x82"..v..currency)
+				end
+				server.P_BattleStatus[mo.player.P_party].macca = $ + v
+
+				continue	-- don't attempt to pass this off as an item.
 			end
 
 			-- get item name for display:
@@ -161,7 +175,7 @@ addHook("MobjCollide", function(t, mo)
 			local name = it and buildItemName(it) or v
 			local amount = 1
 
-			if it and it.material and not it.extravalue2	-- this'd mean the box has fixed items, so don't do that.
+			if it and it.material and not t.extravalue2	-- this'd mean the box has fixed items, so don't do that.
 				amount = P_RandomRange(1, 5 - (it.rarity/2))
 			end
 			local extrastr = ""
@@ -216,6 +230,10 @@ addHook("MobjCollide", function(t, mo)
 	end
 
 	if t and t.valid
+
+		if srb2p.storymode
+			SAVE_setItemBox(t)
+		end
 
 		for i=1,16
 			local b = P_SpawnMobj(t.x, t.y, t.z+20*FRACUNIT, MT_DUMMY)

@@ -23,8 +23,14 @@ ARTISTS:
 	Snu:			General art assistance, All-Out Attack character artwork, UI
 	SoapSurfin:		Titlescreen art
 
+<<<<<<< HEAD
 	Inazuma:		Shadow The Hedgehog & Blaze The Cat sprites
 	DrStephen:		Dr. Eggman sprites
+=======
+	Inazuma:		Shadow The Hedgehog sprites
+	DrStephen:		Dr. Eggman sprites / Fainted Sonic sprite
+	.Luke:			Blaze The Cat sprites
+>>>>>>> 5606dfd (srb2 v2 - 12/05/22)
 
 
 MODEL RIPPING:
@@ -35,7 +41,10 @@ MODEL RIPPING:
 
 PERSONA 3 / 4 MODDING TOOLS:
 	Amicitia community
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5606dfd (srb2 v2 - 12/05/22)
 
 Sonic Robo Blast 2 belongs to Sonic Team Jr.
 

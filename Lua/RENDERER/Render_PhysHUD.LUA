@@ -65,11 +65,10 @@ rawset(_G, "DisplayPhysHUD", function(v, group, p)
 	local clearcount= 0
 	group = $ or "main"
 	if not physHUD[group]
-		--dprint("physHUD: invalid group to display?")
+		--print("physHUD: invalid group to display?")
 		return
 	end
 	if physHUD[group][1]
-
 		for k, i in ipairs(physHUD[group])
 
 			--if p and i.pn ~= p.P_party
@@ -138,6 +137,7 @@ rawset(_G, "DisplayPhysHUD", function(v, group, p)
 				if i.animtimer >= anim_time
 				and (i.animprogress < #i.anim-1 or i.animloop)
 					i.animprogress = $+1
+					i.animtimer = 0
 					if i.animprogress >= #i.anim
 						i.animprogress = 1
 					end

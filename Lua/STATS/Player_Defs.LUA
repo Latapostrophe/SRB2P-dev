@@ -2,13 +2,29 @@
 -- Generate EXP table:
 local basexp = 25
 local totalxp = basexp
+
+local basexp_s = 25
+local totalxp_s = basexp_s
+
 rawset(_G, "needEXP", {})
+rawset(_G, "needEXP_story", {})
 
 for i = 1, 100
 	needEXP[i] = totalxp
-	--print("Lv: "..i..":"..needEXP[i])
-	totalxp = ($1 + (basexp*i)*38/100)
+	needEXP_story[i] = totalxp_s
+	
+
+	totalxp = $ + (basexp*i)*38/100
+	totalxp_s = $ + (basexp_s* ((i+1)^2))*8/100
 end
+
+rawset(_G, "getEXPTable", function()
+	if srb2p.storymode
+		return needEXP_story
+	else
+		return needEXP
+	end	
+end)
 
 -- voice stuff:
 local vfx_const = {

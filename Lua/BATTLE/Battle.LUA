@@ -93,6 +93,14 @@ rawset(_G, "BTL_MapLoad", function()
 				r_queueprogress = {},	-- level up queue progress for each player
 				r_newskillsqueue = {},	-- new skills learnt queue progress. Per entity rather than per player.
 				r_skillqueueprogress = {},	-- new skills queue progress.
+
+				-- the same shit but for subpersonas:
+				r_subprecalculates = {},	-- precalculates level and exp after battle for animation
+				r_sublevelupqueue = {},	-- level up queue, this is a queue of what entities are to level up for each player
+				r_subqueueprogress = {},	-- level up queue progress for each player
+				r_subnewskillsqueue = {},	-- new skills learnt queue progress. Per entity rather than per player.
+				r_subskillqueueprogress = {},	-- new skills queue progress.
+
 				r_wipe = 20,
 				waven = 1,
 				gameover = nil,
@@ -132,6 +140,10 @@ rawset(_G, "BTL_MapLoad", function()
 				}
 
 			}
+
+			if srb2p.storymode
+				server.P_BattleStatus[i].emeraldpow_max = SAVE_getNumEmeralds()
+			end
 
 			-- uuuh test
 			/*local wep = {"shoes_01", "device_01", "hammer_01", "knuckles_01"}
@@ -188,8 +200,11 @@ rawset(_G, "BTL_MapLoad", function()
 
 	if not parsed_from_header
 		-- parse boss waypoint if possible
-		for m in mobjs.iterate() do
-			if m and m.valid and m.type == MT_BOSS3WAYPOINT
+
+		-- default to the first found boss waypoint.
+		for mt in mapthings.iterate do
+			local m = mt.mobj
+			if m and m.valid and m.type == MT_BOSS3WAYPOINT and not mt.extrainfo
 
 				for i = 1, 4
 					local btl = server.P_BattleStatus[i]
@@ -279,6 +294,12 @@ rawset(_G, "BTL_softReset", function(pn)
 		btl.r_queueprogress = {}
 		btl.r_newskillsqueue = {}
 		btl.r_skillqueueprogress = {}
+
+		btl.r_subprecalculates = {}	-- precalculates level and exp after battle for animation
+		btl.r_sublevelupqueue = {}	-- level up queue, this is a queue of what entities are to level up for each player
+		btl.r_subqueueprogress = {}	-- level up queue progress for each player
+		btl.r_subnewskillsqueue = {}	-- new skills learnt queue progress. Per entity rather than per player.
+		btl.r_subskillqueueprogress = {}	-- new skills queue progress.
 		btl.r_wipe = 20
 		btl.shufflestatus = nil
 		btl.shuffletimer = nil
@@ -5346,6 +5367,9 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 		and not btl.holdupfinish	-- for 1p
 		and not SAVE_localtable.tutorial		-- not during tutorials
 		and not (server.gamemode == GM_VOIDRUN)	-- not in void run.
+		and (DNG_isTartarusMap() or (DNG_dungeonpersonas[gamemap] and DNG_dungeonpersonas[gamemap][server.P_DungeonStatus.section]))
+		-- Make sure there are Sub-Personas defined there, we can't shuffle time otherwise.
+
 			btl.battlestate = BS_SHUFFLE
 			btl.hudtimer.shufflestart = TICRATE*3/2
 
@@ -5645,30 +5669,73 @@ local function BTL_endHandler(pn)
 
 	-- precalculate the level at which we will be at as well as our final EXP after the battle:
 
+	local it_len =  #server.plentities[pn]
+	local og_len = it_len
+
+	if srb2p.storymode
+	and server.plreserve
+	and #server.plreserve
+		it_len = $ + #server.plreserve
+	end
+
 	if not btl.r_precalculates[1]
 
 		--for i = 1, #server.plentities[pn]
-		for i = 1, server.P_netstat.teamlen do
-			if not server.plentities[pn][i] continue end
+		for i = 1, it_len do
+			--if not server.plentities[pn][i] continue end
 
+			local reserve
 			local xp = btl.r_exp -- xp earned during btl
-			local mo = server.plentities[pn][i]
+			local subp
+			local mo
+
+			-- Active party member
+			if i <= og_len
+				mo = server.plentities[pn][i]
+				if srb2p.storymode	-- No subpersona EXP in multiplayer.
+					subp = mo.subpersona
+				end
+			-- reserve party member
+			else
+				xp = $/2	-- 50% XP
+				mo = server.plreserve[i - og_len]
+				reserve = true
+			end
+
+			local subxp = xp/3
+
 			local sxp = mo.exp	-- exp to start from (will be mo.exp at first, then 0 if we level up during precalc)
 			btl.r_precalculates[i] = {sxp, mo.level, nil}	-- 1: xp, 2: level, 3: has level up?
 			btl.r_newskillsqueue[i] = {}
 
+			local ssubxp
+			if subp
+				ssubxp = subp.exp
+				btl.r_subprecalculates[i] = {ssubxp, subp.level, nil, mo}
+				btl.r_subnewskillsqueue[i] = {}
+			end
+
 			-- save our stats, and save our old skills for the level up animation:
 			-- reset our stats before saving them though;
-			BTL_setupstats(mo)	-- this will use the old savestats table, useful to cancel hyper mode buff
+
+			if not reserve
+				BTL_setupstats(mo)	-- this will use the old savestats table, useful to cancel hyper mode buff
+			end
+
 			mo.savestats = {mo.strength, mo.magic, mo.endurance, mo.agility, mo.luck}
 			mo.saveskills = copyTable(mo.skills)	-- reminder that if we assign an existing table to a value, both will get modified if one gets it.
 			mo.r_levelupenter = TICRATE*2/3	-- used for animation on level up screen
 
 			-- precalculate the level and the exp we'll be at
+
+			-- MAIN:
 			while xp and not mo.penalty
 			and btl.r_precalculates[i][2] < mo.levelcap
-				if sxp + xp >= needEXP[btl.r_precalculates[i][2]]
-					xp = $ - (needEXP[btl.r_precalculates[i][2]] - sxp)	-- take away the exp we needed to level up from our total...
+
+				local xpt = getEXPTable()
+
+				if sxp + xp >= xpt[btl.r_precalculates[i][2]]
+					xp = $ - (xpt[btl.r_precalculates[i][2]] - sxp)	-- take away the exp we needed to level up from our total...
 					btl.r_precalculates[i][2] = $+1					-- add 1 level
 					btl.r_precalculates[i][3] = true				-- we have leveled up.
 					sxp = 0	-- set sxp to 0 as if we had actually leveled up
@@ -5693,24 +5760,83 @@ local function BTL_endHandler(pn)
 					xp = 0		-- next
 				end
 			end
-			--dprint("PN "..pn..": Precalculated player "..i.." with exp "..btl.r_precalculates[i][1].." at level "..btl.r_precalculates[i][2])
+
+			if subp
+
+				while subxp and not mo.penalty
+				and btl.r_subprecalculates[i][2] < mo.levelcap
+
+					local xpt = getEXPTable()
+
+					if ssubxp + subxp >= xpt[btl.r_subprecalculates[i][2]]
+						subxp = $ - (xpt[btl.r_subprecalculates[i][2]] - sxp)	-- take away the exp we needed to level up from our total...
+						btl.r_subprecalculates[i][2] = $+1					-- add 1 level
+						btl.r_subprecalculates[i][3] = true				-- we have leveled up.
+						ssubxp = 0	-- set sxp to 0 as if we had actually leveled up
+
+						-- check for skills to learn:
+						local stats = subp.ref
+						for f = 1, #stats.skills
+							local j = stats.skills[f]
+							-- j[1] is the skill to learn, j[2] is the level we can learn it at.
+							if j and type(j) == "table" and j[1] and j[2] and btl.r_subprecalculates[i][2] == j[2]
+								btl.r_subnewskillsqueue[i][#btl.r_subnewskillsqueue[i]+1] = j	-- save j rather than j[1] so we can display the next skill lv on the status screen
+								--print("PN "..pn..": Bot "..i.."'s SubPersona will learn skill "..j[1])
+							end
+						end
+
+						if btl.r_subprecalculates[i][2] >= mo.levelcap	-- level 99
+							break	-- stop there.
+						end
+
+					else
+						btl.r_subprecalculates[i][1] = ssubxp + subxp
+						subxp = 0		-- next
+					end
+				end
+			end
+
+			dprint("PN "..pn..": Precalculated player "..i.." with exp "..btl.r_precalculates[i][1].." at level "..btl.r_precalculates[i][2])
 		end
 
 		btl.r_levelupqueue = {}
+		btl.r_sublevelupqueue = {}
 		btl.r_numplayers = 0
 		--btl.r_queueprogress = {}
 
 		-- build level up queue:
 		for i = 1, 4
 			--btl.r_queueprogress[i+1] = 1	-- how far is this player in their level up progress?
-			btl.r_levelupqueue[i] = {}	-- amount of entities the player will be shown leveling up...
-			btl.r_numplayers = $+1	-- used later to check if everyone's done leveling up
+			btl.r_levelupqueue[i] = {}		-- amount of entities the player will be shown leveling up...
+			btl.r_sublevelupqueue[i] = {}	-- sub personas
 			if not plist[i] or not plist[i].valid continue end
-			for j = 1, server.P_netstat.teamlen do
-				if not server.plentities[pn][j] continue end
-				if server.plentities[pn][j].control == plist[i] and btl.r_precalculates[j][3]	-- if we have control over this player and they have leveled up
-					table.insert(btl.r_levelupqueue[i], server.plentities[pn][j])
+			btl.r_numplayers = $+1	-- used later to check if everyone's done leveling up
+			for j = 1, it_len do
+
+				local mo
+				local reserve
+				local subp
+
+				if j <= og_len
+					mo = server.plentities[pn][j]
+					subp = mo.subpersona
+				else
+					mo = server.plreserve[j - og_len]
+					reserve = true
+				end
+
+				if not mo continue end
+				-- 01/05: only show level up if we learned a new skill.
+				if (reserve or mo.control == plist[i]) and btl.r_precalculates[j][3] and #btl.r_newskillsqueue[j]	-- if we have control over this player and they have leveled up
+					table.insert(btl.r_levelupqueue[i], mo)
 					dprint("PN "..pn..": Player "..i.." can be shown Bot "..j.." leveling up..")
+				end
+
+				-- same shit but with sub personas.
+				if subp
+					if mo.control == plist[i] and btl.r_subprecalculates[j][3] and #btl.r_subnewskillsqueue[j]
+						table.insert(btl.r_sublevelupqueue[i], subp)
+					end
 				end
 			end
 		end
@@ -5746,40 +5872,98 @@ local function BTL_endHandler(pn)
 
 	-- fill exp bars over time or w/e!
 	local addf = max(1, btl.r_exp /35)	--will take 1 second at most.
-	for i = 1, server.P_netstat.teamlen do
-		if not server.plentities[pn][i] continue end
-		local mo = server.plentities[pn][i]
+	for i = 1, it_len do
+
+		local mo
+		local subp
+		local soundplayed
+
+		local pdone
+		local sdone
+
+		if i <= og_len
+			mo = server.plentities[pn][i]
+			subp = mo.subpersona
+		else	-- reserve
+			mo = server.plreserve[i - og_len]
+		end
+
 		local c = btl.r_precalculates[i]
 
 		if mo.level < c[2]	-- below precalculated level:
-			mo.exp = $ + addf
+			mo.exp = $ + max(1, addf)
 			if mo.control
 				S_StartSound(nil, sfx_menu1, mo.control)
+				soundplayed = true
 			end
-			if mo.exp >= needEXP[mo.level]
+
+			local xpt = getEXPTable()
+
+			if mo.exp >= xpt[mo.level]
 				mo.level = $+1
 				mo.exp = 0
 				BTL_levelUpStats(mo, mo.level)
-				for i = 1, #btl.plist do
-					local p = btl.plist[i]
-					if not p or not p.valid continue end
 
-					S_StartSound(nil, sfx_lvup, p)
-					VFX_Play(mo, VFX_LEVELUP, nil, p)
+				for p in players.iterate do
+					if p.P_party == pn
+						S_StartSound(nil, sfx_lvup, p)
+						VFX_Play(mo, VFX_LEVELUP, nil, p)
 
-					P_FlashPal(p, 0, 2)
+						--P_FlashPal(p, 0, 2)
+					end
 				end
+
 				framelevelup = true
 			end
 		else
 			if mo.exp < c[1]
-				mo.exp = min(c[1], $ + addf)
+				mo.exp = min(c[1], $ + max(1, addf))
 				if mo.control
 					S_StartSound(nil, sfx_menu1, mo.control)
+					soundplayed = true
 				end
 			else
-				btl.r_done[i] = true
+				pdone = true
+				--btl.r_done[i] = true
 			end
+		end
+
+		-- do the same for sub-personas
+		if subp
+			local c = btl.r_subprecalculates[i]
+
+			if subp.level < c[2]	-- below precalculated level:
+				subp.exp = $ + max(1, addf/3)
+				if mo.control and not soundplayed
+					S_StartSound(nil, sfx_menu1, mo.control)
+				end
+
+				local xpt = getEXPTable()
+
+				if subp.exp >= xpt[subp.level]
+					subp.level = $+1
+					subp.exp = 0
+					--BTL_levelUpStats(mo, mo.level)
+
+					S_StartSound(nil, sfx_lvup, mo.control)
+				end
+			else
+				if subp.exp < c[1]
+					subp.exp = min(c[1], $ + max(1, addf/3))
+					if subp.control and not soundplayed
+						S_StartSound(nil, sfx_menu1, mo.control)
+					end
+				else
+					sdone = true
+					--btl.r_done[i] = true
+				end
+			end
+		else
+			sdone = true
+		end
+
+		if pdone and sdone
+			btl.r_done[i] = true
 		end
 	end
 
@@ -5807,18 +5991,28 @@ end
 
 -- do level up animation
 rawset(_G, "BTL_levelupAnimation", function(mo)
-	local btl = server.P_BattleStatus[mo.battlen]
+	local btl = server.P_BattleStatus[mo.battlen or 1]	-- battlen is nil in the case of reserve party members
 	local pn = mo.battlen
 
 	if not mo return end
 
 	local mynum	-- our player num:
-	for i = 1, #server.plentities[pn] do
-		if server.plentities[mo.battlen][i] == mo
-			mynum = i
-			break
+	if mo.battlen	-- in-battle entity
+		for i = 1, #server.plentities[mo.battlen] do
+			if server.plentities[mo.battlen][i] == mo
+				mynum = i
+				break
+			end
+		end
+	else			-- in-reserve entity
+		for i = 1, #server.plreserve do
+			if server.plreserve[i] == mo
+				mynum = i + #server.plentities[1]
+				break
+			end
 		end
 	end
+
 
 	if mo.r_levelupenter
 		mo.r_levelupenter = $-1
@@ -5835,6 +6029,12 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 	end
 
 	if save_checkouts >= 5	-- that means all our stats are good!
+
+		mo.r_nskilltimer = nil
+		mo.newskillnum = nil
+		mo.justgotskill = nil
+		mo.r_forgetselect = nil
+		mo.r_askconfirm = nil
 		return true			-- since we handle stats last, that means we're good!
 	end
 
@@ -5901,13 +6101,18 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 			end
 
 			-- handle the inputs here:
-			local inpt = mo.control.mo.P_inputs
+			local control = mo.control
+			if not control	-- reserve
+				control = players[0]
+			end
+
+			local inpt = control.mo.P_inputs
 
 			-- check if we want to confirm our choice...
 			if mo.r_askconfirm
 
 				if inpt[BT_USE] == 1
-					S_StartSound(nil, sfx_cancel, mo.control)
+					S_StartSound(nil, sfx_cancel, mo.control or players[0])
 					mo.r_askconfirm = nil
 
 				elseif inpt[BT_JUMP] == 1
@@ -5923,7 +6128,7 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 					end
 					mo.r_askconfirm = nil
 
-					S_StartSound(nil, sfx_hover, mo.control)
+					S_StartSound(nil, sfx_hover, mo.control or players[0])
 				end
 
 				return
@@ -5936,20 +6141,20 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 				else
 					mo.r_forgetselect = $+1
 				end
-				S_StartSound(nil, sfx_hover, mo.control)
+				S_StartSound(nil, sfx_hover, mo.control or players[0])
 			elseif inpt["up"] ==1
 				mo.r_forgetselect = $-1
 				if not (mo.r_forgetselect%4)	-- at top
 					mo.r_forgetselect = $+4
 				end
-				S_StartSound(nil, sfx_hover, mo.control)
+				S_StartSound(nil, sfx_hover, mo.control or players[0])
 			elseif inpt["right"] ==1 or inpt["left"] ==1
 				if mo.r_forgetselect > 4
 					mo.r_forgetselect = $-4
 				else
 					mo.r_forgetselect = $+4
 				end
-				S_StartSound(nil, sfx_hover, mo.control)
+				S_StartSound(nil, sfx_hover, mo.control or players[0])
 			elseif inpt[BT_JUMP] ==1	-- confirm forget
 				S_StartSound(nil, sfx_hover, mo.control)
 				mo.r_askconfirm = 1
@@ -5957,7 +6162,7 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 
 
 			elseif inpt[BT_USE] ==1		-- I don't want new skills!
-				S_StartSound(nil, sfx_cancel, mo.control)
+				S_StartSound(nil, sfx_cancel, mo.control or players[0])
 				mo.r_askconfirm = 2
 
 
@@ -5987,12 +6192,172 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 				end
 			end
 
-			if playsound and consoleplayer == mo.control
+			if playsound and (not mo.control or consoleplayer == mo.control)
 				S_StartSound(nil, sfx_menu1)
 			end
 		end
 	end
 end)
+
+-- do level up animation for sub-personas. (It's a simplified version of the above)
+-- Only for use with battle status 1
+rawset(_G, "BTL_subLevelUpAnimation", function(subp, num)
+
+	local mo
+	for i = 1, #server.plentities[num]
+		if server.plentities[num][i].subpersona == subp
+			mo = server.plentities[num][i]
+			break
+		end
+	end
+
+	local btl = server.P_BattleStatus[mo.battlen or 1]	-- battlen is nil in the case of reserve party members
+	local pn = mo.battlen
+
+	local mynum	-- our player num:
+	if mo.battlen	-- in-battle entity
+		for i = 1, #server.plentities[mo.battlen] do
+			if server.plentities[mo.battlen][i] == mo
+				mynum = i
+				break
+			end
+		end
+	end
+
+	if mo.r_levelupenter
+		mo.r_levelupenter = $-1
+		return
+	end
+
+	-- subpersonas can only learn new skills.
+	--print(#btl.r_subnewskillsqueue[mynum])
+	if btl.r_subnewskillsqueue[mynum] and btl.r_subnewskillsqueue[mynum][1]
+
+		if #subp.skills < 6 or mo.justgotskill	-- less than 8 skills, so we just learn the new skill in the next slot (justgotskill is to avoid the 8th skill triggering the 2nd behavior)
+
+			if mo.r_nskilltimer == nil
+				mo.r_nskilltimer = 0
+			end
+			mo.r_nskilltimer = $+1
+
+			if mo.r_nskilltimer == 20
+				subp.skills[#subp.skills+1] = btl.r_subnewskillsqueue[mynum][1][1]
+				mo.newskillnum = #subp.skills	-- we use this to know which skill to flash in HUD rendering
+				mo.justgotskill = true
+				S_StartSound(nil, sfx_nskill, mo.control)
+				--dprint("PN "..pn..": Skill learnt: "..btl.r_newskillsqueue[mynum][1][1])
+			end
+
+			if mo.r_nskilltimer >= TICRATE*3/2
+				mo.r_nskilltimer = nil	-- set timer to nil so we will restart if we need to.
+				table.remove(btl.r_subnewskillsqueue[mynum], 1)	-- remove first skill.
+				mo.newskillnum = nil
+				mo.justgotskill = nil
+			end
+		else				-- more than 6 skills, we need to let the player forget one.
+
+			if mo.newskillnum	-- we have selected a skill
+				if mo.r_nskilltimer == nil
+					mo.r_nskilltimer = 0
+				end
+				mo.r_nskilltimer = $+1
+
+				if mo.r_nskilltimer == 20
+					subp.skills[mo.newskillnum] = btl.r_subnewskillsqueue[mynum][1][1]
+					S_StartSound(nil, sfx_nskill, mo.control)
+					--dprint("PN "..pn..": Skill learnt: "..btl.r_newskillsqueue[mynum][1][1])
+				end
+
+				if mo.r_nskilltimer >= TICRATE*3/2
+					mo.r_nskilltimer = nil	-- set timer to nil so we will restart if we need to.
+					table.remove(btl.r_subnewskillsqueue[mynum], 1)	-- remove first skill.
+					mo.newskillnum = nil
+				end
+
+				return	-- no need to process button inputs anymore or w/e,
+			end
+
+			if not mo.r_forgetselect
+				mo.r_forgetselect = 1	-- start at skill 1 that we will forget
+				-- double check to see if we can't select the skill to forget by default:
+				if btl.r_subnewskillsqueue[mynum][1][3]
+					for i = 1, #mo.skills
+						if subp.skills[i] == btl.r_subnewskillsqueue[mynum][1][3]
+							mo.r_forgetselect = i -- tell the player to forget *this* skill instead
+							break
+						end
+					end
+				end
+
+			end
+
+			-- handle the inputs here:
+			local control = mo.control
+			if not control	-- reserve
+				control = players[0]
+			end
+
+			local inpt = control.mo.P_inputs
+
+			-- check if we want to confirm our choice...
+			if mo.r_askconfirm
+
+				if inpt[BT_USE] == 1
+					S_StartSound(nil, sfx_cancel, mo.control or players[0])
+					mo.r_askconfirm = nil
+
+				elseif inpt[BT_JUMP] == 1
+
+					if mo.r_askconfirm == 1	-- new skill
+						mo.newskillnum = mo.r_forgetselect
+						mo.r_forgetselect = nil
+					else	-- don't learn new skill
+						mo.r_nskilltimer = nil	-- set timer to nil so we will restart if we need to.
+						table.remove(btl.r_subnewskillsqueue[mynum], 1)	-- remove first skill.
+						mo.newskillnum = nil
+						mo.r_forgetselect = nil	-- remove both of these to prevent skill flashing
+					end
+					mo.r_askconfirm = nil
+
+					S_StartSound(nil, sfx_hover, mo.control or players[0])
+				end
+
+				return
+			end
+
+
+			if inpt["down"] == 1
+				mo.r_forgetselect = $+1
+				if (mo.r_forgetselect > 6)	-- at bottom.
+					mo.r_forgetselect = 1
+				end
+				S_StartSound(nil, sfx_hover, mo.control or players[0])
+
+			elseif inpt["up"] == 1
+				mo.r_forgetselect = $-1
+				if (mo.r_forgetselect < 1)	-- at top
+					mo.r_forgetselect = 6
+				end
+				S_StartSound(nil, sfx_hover, mo.control or players[0])
+
+			elseif inpt[BT_JUMP] ==1	-- confirm forget
+				S_StartSound(nil, sfx_hover, mo.control)
+				mo.r_askconfirm = 1
+
+			elseif inpt[BT_USE] ==1		-- I don't want new skills!
+				S_StartSound(nil, sfx_cancel, mo.control or players[0])
+				mo.r_askconfirm = 2
+
+
+			end
+		end
+		return	-- don't proceed for as long as we have got skills to learn
+	end
+
+
+	return true	-- no more skills, we're free!
+end)
+
 
 -- BTL_LvUpParanoia: Handle players leaving in case that actually does happen.
 local function BTL_LvUpParanoia(pn)
@@ -6015,6 +6380,7 @@ rawset(_G, "BTL_levelUpHandler", function(pn)
 	-- we will essentially be calling the level up handler on every player that has to level up
 	local btl = server.P_BattleStatus[pn]
 	local donelevelingup = 0	-- used to know when level ups are over
+	local subdonelevelingup = 0	-- ditto for subpersonas
 
 	if not #btl.r_levelupqueue	-- if there's no level up queue then that means we're done here!
 		dprint("PN "..pn..": BTL_levelUpHandler ERROR: No level up queue?")
@@ -6044,13 +6410,20 @@ rawset(_G, "BTL_levelUpHandler", function(pn)
 
 	for i = 1, #btl.r_levelupqueue do
 		local t = btl.r_levelupqueue[i]
+
 		if not t or not #t
 			donelevelingup = $+1
 			continue
 		end
 
 		if BTL_levelupAnimation(t[1])	-- returns true when animation done:
-			local inpt = t[1].control.mo.P_inputs
+			local control = t[1].control
+			-- for reserve players, always use player 1
+			if not control
+				control = players[0]
+			end
+
+			local inpt = control.mo.P_inputs
 			if inpt[BT_JUMP]==1	-- to next player
 			and not t[1].r_transition
 				t[1].r_transition = TICRATE/2
@@ -6065,8 +6438,47 @@ rawset(_G, "BTL_levelUpHandler", function(pn)
 		end
 	end
 
+	-- now do the same for subpersonas if necessary.
+	for i = 1, #btl.r_sublevelupqueue do
+		local t = btl.r_sublevelupqueue[i]
+
+		if #btl.r_levelupqueue[i] continue end	-- still leveling up player characters.
+
+		if not t or not #t
+			subdonelevelingup = $+1
+			continue
+		end
+
+		local mo
+		for i = 1, #server.plentities[pn]
+			if server.plentities[pn][i].subpersona == t[1]
+				mo = server.plentities[pn][i]
+				break
+			end
+		end
+
+		if BTL_subLevelUpAnimation(t[1], pn)
+			-- can only happen in story mode, so using player 0 is perfectly safe.
+			local control = mo.control
+
+			local inpt = control.mo.P_inputs
+			if inpt[BT_JUMP]==1	-- to next player
+			and not mo.r_transition
+				mo.r_transition = TICRATE/2
+			end
+		end
+
+		if mo.r_transition
+			mo.r_transition = $-1
+			if not mo.r_transition	-- transition for next done playing
+				table.remove(t, 1)
+			end
+		end
+	end
+
 	-- check if EVERYONE is done leveling up:
 	if donelevelingup >= #btl.r_levelupqueue
+	and subdonelevelingup >= #btl.r_sublevelupqueue
 		--dprint("PN "..pn..": Level up sequence finished succesfully")
 		btl.battlestate = BS_FINISH
 		-- get our items if we got some
@@ -6189,7 +6601,14 @@ rawset(_G, "BTL_finish", function(pn)
 				S_ChangeMusic("REAPER", true, p)
 			end
 		elseif server.gamemode ~= GM_VOIDRUN
-			P_RestoreMusic(p)
+			if btl.r_wipe == 10
+				if btl.norestoremusic
+					btl.norestoremusic = nil
+					S_FadeOutStopMusic(100)
+				else
+					P_RestoreMusic(p)
+				end
+			end
 		end
 	end
 
@@ -6230,19 +6649,8 @@ rawset(_G, "BTL_finish", function(pn)
 		if v.shuffle_skillcard	-- we have gotten a skill card.
 		-- check if we should add it to our skill card list
 			if btl.skillcards	-- make sure the tbl exists
-				-- iterate through the table to make sure we don't already have it, we don't need duplicates
-				local dupe
-				for i = 1, #btl.skillcards
-					if btl.skillcards[i] == v.shuffle_skillcard
-						dupe = true
-						--dprint("PN "..pn..": Card is a duplicate, don't add it ...")
-						break
-					end
-				end
 
-				if not dupe	-- not a duplicate
-					btl.skillcards[#btl.skillcards+1] = v.shuffle_skillcard
-				end
+				BTL_addItem(btl,  "cs/ "..v.shuffle_skillcard, 1)
 				v.shuffle_skillcard = nil	-- wipe out
 			end
 		end
@@ -6263,13 +6671,11 @@ rawset(_G, "BTL_finish", function(pn)
 		BTL_getMacca(btl, btl.r_money)
 
 		BTL_softReset(pn)
-		btl.cam = spawnbattlecam()	-- new clean camera for next battle
 		PLYR_reset(pn)	-- reset battle variable for permanent entities
 
 		-- event buffer: This event is meant to play after the battle is over.
 		-- ...So do play it!
 		if btl.event_buf
-		and not netgame	-- this would be disasterous.
 			D_startEvent(pn, btl.event_buf)
 			btl.event_buf = nil	-- wipe this from existence
 		end
@@ -6356,7 +6762,7 @@ rawset(_G, "BTL_getPersona", function(pn)
 	elseif server.cdungeon
 		personas = server.cdungeon.shufflepersonas
 
-	else
+	elseif DNG_dungeonpersonas and DNG_dungeonpersonas[gamemap]
 		personas = DNG_dungeonpersonas[gamemap][server.P_DungeonStatus.section]
 	end
 

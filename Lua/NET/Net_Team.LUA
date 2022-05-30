@@ -207,7 +207,7 @@ rawset(_G, "NET_setteam", function(tab)
 	NET_begin()
 	server.skinlist = {tab}
 	server.plentities[1] = tab
-	server.playerlist[1] = {server, server, server, server}
+	server.playerlist[1] = {server}
 	NET_end()
 	server.P_netstat.ready = true
 

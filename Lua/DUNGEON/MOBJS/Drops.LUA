@@ -9,7 +9,7 @@ mobjinfo[MT_PDROP] = {
 	radius = 16<<FRACBITS,
 	height = 16<<FRACBITS,
 	spawnhealth = 1000,
-	flags = MF_RUNSPAWNFUNC,
+	flags = MF_NOCLIPTHING,
 }
 
 local rarity_colour = {
@@ -87,7 +87,7 @@ addHook("MobjThinker", function(mo)
 		mo.angle = P_RandomRange(0, 360)*ANG1
 		P_InstaThrust(mo, mo.angle, 12*mo.scale)
 		mo.momz = P_RandomRange(14, 20) << FRACBITS
-		mo.z = mo.floorz + FRACUNIT/2
+		mo.z = $ + FRACUNIT/2
 		mo.cusval = 1
 		mo.flags2 = $|MF2_DONTDRAW
 	end
