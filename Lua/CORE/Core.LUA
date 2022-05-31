@@ -32,6 +32,25 @@ rawset(_G, "srb2p", {
 					checkpoints = {},	-- registered checkpoints
 					emeralds = 0,		-- works like vanilla
 					shopstocks = {},	-- shop stocks
+					linklvl = 1,		-- LiNK Level
+					linkexp = 0,		-- LiNK EXP
+					linkpts = 0,		-- LiNK Points
+					linkskills = {
+						[1] = 0,
+						[2] = 0,
+						[3] = 0,
+						[4] = 0,
+						[5] = 0,
+						[6] = 0,
+						[7] = 0,
+						[8] = 0,
+						[9] = 0,
+						[10] = 0,
+						[11] = 0,
+						[12] = 0,
+						[13] = 0,
+						[14] = 0,
+					},	-- LiNK Skill Levels
 				},
 
 	-- XDATA tables

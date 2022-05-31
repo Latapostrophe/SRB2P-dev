@@ -407,6 +407,60 @@ addHook("MobjThinker", function(mo)
 	
 end, MT_SRB2P_INTERACTION)
 
+-- This table nets us a total of 308 skillpoints, 
+-- total cost to max all skills is currently 294 so this needs tweaking
+local LiNKPointTable = {
+	[1] = 1,
+	[10] = 2,
+	[20] = 2,
+	[30] = 3,
+	[40] = 3,
+	[50] = 3,
+	[60] = 4,
+	[70] = 4,
+	[80] = 4,
+	[90] = 5,
+}
+
+local function getLiNKPoint(level)
+	local pts = 0
+	for i = 1, level
+		if LiNKPointTable[i]
+			pts = LiNKPointTable[i]
+		end
+	end
+	return pts
+end
+
+rawset(_G, "LiNK_getEXP", function(exp)
+	-- FIXME: This should have an Episode level limit
+	if srb2p.storydata.linklvl == 99 and srb2p.storydata.linkexp == 100 then return end
+	srb2p.storydata.linkexp = $ + exp
+	if srb2p.storydata.linkexp >= (100*(srb2p.storydata.linklvl)) and srb2p.storydata.linklvl < 99
+		while srb2p.storydata.linkexp >= (100*(srb2p.storydata.linklvl))
+			-- Increase our Level and Grant us LP!
+			srb2p.storydata.linklvl = $ + 1
+			srb2p.storydata.linkpts = $ + getLiNKPoint(srb2p.storydata.linklvl)
+			srb2p.storydata.linkexp = $ - (100*(srb2p.storydata.linklvl))
+			if srb2p.storydata.linklvl == 99 and srb2p.storydata.linkexp > (100*(srb2p.storydata.linklvl))
+				srb2p.storydata.linkexp = 100*99
+				break
+			end
+		end
+	elseif srb2p.storydata.linkexp > (100*(srb2p.storydata.linklvl))
+		-- We are at lvl 99, so just cap the bar and give us points
+		srb2p.storydata.linkexp = 100*99
+		srb2p.storydata.linkpts = $ + getLiNKPoint(srb2p.storydata.linklvl)
+	end
+end)
+
+COM_AddCommand("d_getlinkxp", function(p, arg)
+	local argn = tonumber(arg)
+	if not argn return end
+	
+	LiNK_getEXP(argn)
+end)
+
 -- Apply the stuff set here if possible
 addHook("MapLoad", do
 

@@ -709,6 +709,19 @@ local function R_drawFadeDta(v)
 	end
 end
 
+local function renderLiNKEXP(v, p)
+	v.drawScaled(220*FRACUNIT, 102*FRACUNIT, FRACUNIT/2, v.cachePatch("L_EXPICO"), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
+	V_drawString(v, 250, 102, "LINK", "FPIMP", 0, "left", 0, 31, FRACUNIT*50/100)
+	V_drawString(v, 290, 102, "LV"..srb2p.storydata.linklvl, "FPIMP", 0, "left", 0, 31, FRACUNIT*50/100)
+	-- Draw White background
+	v.drawFill(250, 110, 60, 7, 16)
+	-- Draw inside
+	v.drawFill(252, 112, 56, 3)
+	-- Quantize amount we have to draw the xp fill, and draw it
+	local xp_fill = srb2p.storydata.linkexp*56/(100*srb2p.storydata.linklvl)
+	v.drawFill(252, 112, xp_fill, 3, 64)
+end
+
 hud.add(function(v, p, c)
 	if not EnabledHuds["Dungeon"] return end
 	hu_ticker = $+1
@@ -826,6 +839,10 @@ hud.add(function(v, p, c)
 
 	if server.blocktrans
 		renderBlockTransition(v)
+	end
+
+	if srb2p.storymode
+		renderLiNKEXP(v, p)
 	end
 
 	drawDateChangeDate(v)
