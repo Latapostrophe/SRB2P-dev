@@ -36,20 +36,20 @@ rawset(_G, "srb2p", {
 					linkexp = 0,		-- LiNK EXP
 					linkpts = 0,		-- LiNK Points
 					linkskills = {
-						[1] = 0,
-						[2] = 0,
-						[3] = 0,
-						[4] = 0,
-						[5] = 0,
-						[6] = 0,
-						[7] = 0,
-						[8] = 0,
-						[9] = 0,
-						[10] = 0,
-						[11] = 0,
-						[12] = 0,
-						[13] = 0,
-						[14] = 0,
+						[1] = 0, -- Party Toughness
+						[2] = 0, -- Party Spirit
+						[3] = 0, -- Party Strength
+						[4] = 0, -- Party Casting
+						[5] = 0, -- Party Defence
+						[6] = 0, -- Party Quickstep
+						[7] = 0, -- Party Gamble
+						[8] = 0, -- Party Coordination
+						[9] = 0, -- Wild LiNK
+						[10] = 0, --Wild Fusion
+						[11] = 0, --Wild Affinity
+						[12] = 0, --Victory Breeze
+						[13] = 0, --Salvager
+						[14] = 0, --Extortionist
 					},	-- LiNK Skill Levels
 				},
 

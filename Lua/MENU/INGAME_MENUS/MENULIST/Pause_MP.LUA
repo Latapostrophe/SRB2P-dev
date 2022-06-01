@@ -128,7 +128,7 @@ local function drawPlayerCommands_In(v, mo, choice)
 
 	-- render BG
 	PDraw(v, -144 + 24*timer, 344 - 24*timer, v.cachePatch("H_CMDBC"), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
-	for i = 1, 5
+	for i = 1, 6
 		local r_radius = i-1 == (choice-1) and 48 or radius
 		local angle = b_ang - (i-1)*s_ang
 		local x = cx + r_radius*FixedMul(FRACUNIT*5/4, cos(angle)) - abs(16*cos(angle))	-- adjust to ease shape on X coord
@@ -2074,30 +2074,32 @@ end,
 			end
 		
 			local maxc = 14
-			if inputs["down"] == 1
-				mo.m_menuchoices[mo.m_submenu] = $+5
-				if mo.m_menuchoices[mo.m_submenu] > maxc
-					mo.m_menuchoices[mo.m_submenu] = maxc
+			if not mo.m_considerupgrade
+				if inputs["down"] == 1
+					mo.m_menuchoices[mo.m_submenu] = $+5
+					if mo.m_menuchoices[mo.m_submenu] > maxc
+						mo.m_menuchoices[mo.m_submenu] = maxc
+					end
+					S_StartSound(nil, sfx_hover, mo.player)
+				elseif inputs["up"] == 1
+					mo.m_menuchoices[mo.m_submenu] = $-5
+					if mo.m_menuchoices[mo.m_submenu] < 1
+						mo.m_menuchoices[mo.m_submenu] = 1
+					end
+					S_StartSound(nil, sfx_hover, mo.player)
+				elseif inputs["left"] == 1
+					mo.m_menuchoices[mo.m_submenu] = $-1
+					if mo.m_menuchoices[mo.m_submenu] < 1
+						mo.m_menuchoices[mo.m_submenu] = 1
+					end
+					S_StartSound(nil, sfx_hover, mo.player)
+				elseif inputs["right"] == 1
+					mo.m_menuchoices[mo.m_submenu] = $+1
+					if mo.m_menuchoices[mo.m_submenu] > maxc
+						mo.m_menuchoices[mo.m_submenu] = maxc
+					end
+					S_StartSound(nil, sfx_hover, mo.player)
 				end
-				S_StartSound(nil, sfx_hover, mo.player)
-			elseif inputs["up"] == 1
-				mo.m_menuchoices[mo.m_submenu] = $-5
-				if mo.m_menuchoices[mo.m_submenu] < 1
-					mo.m_menuchoices[mo.m_submenu] = 1
-				end
-				S_StartSound(nil, sfx_hover, mo.player)
-			elseif inputs["left"] == 1
-				mo.m_menuchoices[mo.m_submenu] = $-1
-				if mo.m_menuchoices[mo.m_submenu] < 1
-					mo.m_menuchoices[mo.m_submenu] = 1
-				end
-				S_StartSound(nil, sfx_hover, mo.player)
-			elseif inputs["right"] == 1
-				mo.m_menuchoices[mo.m_submenu] = $+1
-				if mo.m_menuchoices[mo.m_submenu] > maxc
-					mo.m_menuchoices[mo.m_submenu] = maxc
-				end
-				S_StartSound(nil, sfx_hover, mo.player)
 			end
 
 			local choice = mo.m_menuchoices[mo.m_submenu]

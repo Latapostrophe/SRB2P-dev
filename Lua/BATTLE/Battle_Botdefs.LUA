@@ -115,11 +115,15 @@ rawset(_G, "PLYR_getStats", function(mo, level, doweapon, dobonus)
 	end
 
 	-- Apply bonus stats	(bonusstrength, etc...)
-	-- Mostly Void Run exclusive
+	-- Mostly Void Run exclusive & LiNK Specific Bonuses
 	for i = 1, #lvstats
 		if mo["bonus"..applyto[i]]
 			mo[applyto[i]] = $ + mo["bonus"..applyto[i]]
 			mo["real"..applyto[i]] = $ + mo["bonus"..applyto[i]]
+		end
+		if srb2p.storymode
+			mo[applyto[i]] = $ + srb2p.storydata.linkskills[2+i]
+			mo["real"..applyto[i]] = $ + srb2p.storydata.linkskills[2+i]
 		end
 	end
 end)
