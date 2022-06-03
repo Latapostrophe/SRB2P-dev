@@ -22,45 +22,45 @@
 		},
 
 	}
-	
+
 	DNG_shadowSprites[mapnum] = {
-		
+
 		{SPR_SPRITE, FRAME, FRAME, FRAME, dur},	-- stop
 		{SPR_SPRITE, FRAME, FRAME, FRAME, dur},	-- move
 	}
-	
+
 	DNG_interactiveObjects[mapnum] = {
-		
+
 		[id] = {
-			
+
 			type = IT_,			-- IT_CONSTANT
-			
+
 			-- any:
 			text = txt,			-- text to display under the thingy thing.
-			radius = rr,		-- radius the area travel point detects the player from.		
+			radius = rr,		-- radius the area travel point detects the player from.
 			usefade = boolean,	-- if true, func() will be run after a fade, if not, runs instantly when pressing C
 			nostop = boolean,	-- if true, doesn't stop the player when interacting
 			noangle = boolean,	-- if true, the player and the eventual npc don't face each other.
-			
+
 			func = function(obj, pmo),	-- < obj is the area object, pmo is the player.
 			-- runs besides the normal generic function for the IT_CONSTANT
-			
+
 			tfunc = function(obj, pmo)
 			-- runs as soon as we press C. Useful for IT_AREASWITCH, redundant otherwise.
-			
+
 			evt = eventindex,	-- event index to run. Starts the event after executing func() if possible.
-			
+
 			-- for map switching (IT_AREASWITCH)
-			targetmap = nn,		-- switches map if targetmap ~= gamemap obv	
+			targetmap = nn,		-- switches map if targetmap ~= gamemap obv
 			targetid = id,		-- teleports you to the targetmap's designated area travel point.
 			targetangle = ang,	-- sets the angle after teleport.
 
-			
-			
+
+
 		}
-		
+
 	}
-	
+
 */
 freeslot("MT_SRB2P_INTERACTION")
 mobjinfo[MT_SRB2P_INTERACTION] = {
@@ -127,6 +127,10 @@ rawset(_G, "D_HandleMenu", function(mo)
 	local inputs = mo.P_inputs
 	local openmenu = "main"
 
+	if srb2p.storymode
+		openmenu = "sp_main"
+	end
+
 	-- exception: tartarus lobby
 	if gamemap == srb2p.tartarus_map
 	and not mo.m_menu
@@ -190,14 +194,14 @@ rawset(_G, "DNG_fade", function(fn, col)
 	local colour = 31
 	if col != nil
 		colour = col
-	end	
-	
+	end
+
 	server.fadedta = {
 		timer = 20,
 		colour = colour,
 		func = fn,
 	}
-	
+
 	for p in players.iterate do
 		if p and p.mo and p.mo.valid
 			PLAY_nomove(p)	-- lock all players.
@@ -235,13 +239,13 @@ rawset(_G, "DNG_loadNewMap", function(mapnum, evt)
 			end
 		end
 	end
-	
+
 	-- if requested, we can buffer an event to run it as soon as the next map loads...
 	-- see Event_Handler
 	if evt
 		server.evt_mapbuffer = evt
-	end	
-	
+	end
+
 	--server.buf_dungeon = SAVE_ArchiveDungeon()
 	--print("Map Load save point created")
 	G_SetCustomExitVars(mapnum, 2)
@@ -250,9 +254,9 @@ end)
 
 -- change dungeon section.
 rawset(_G, "DNG_changeSection", function(section)
-	
+
 	local dng = server.P_DungeonStatus
-	
+
 	dng.section = section
 	BTL_updateArenaCenter()
 	DNG_updateWave()
@@ -266,10 +270,10 @@ local text_by_type = {
 }
 
 addHook("MobjThinker", function(mo)
-	
+
 	-- interaction point is from an NPC
 	if not mo.dta
-		if mo.tracer and mo.tracer.valid 
+		if mo.tracer and mo.tracer.valid
 			local npc = mo.tracer
 			-- build data from the npc's data
 			mo.dta = {
@@ -281,96 +285,96 @@ addHook("MobjThinker", function(mo)
 				func = npc.dta.ifunc,
 				tfunc = npc.dta.tfunc,
 			}
-			
+
 		else	-- interaction point is its own mapthing
 			if not DNG_interactiveObjects[gamemap] return end
-			if not DNG_interactiveObjects[gamemap][mo.spawnpoint.angle] return end		
+			if not DNG_interactiveObjects[gamemap][mo.spawnpoint.angle] return end
 			mo.dta = DNG_interactiveObjects[gamemap][mo.spawnpoint.angle]
-		end	
+		end
 	end
-	
+
 	local pmo = players[0].mo	-- don't do an iteration, it's slow.
 	local dist = mo.dta.radius or 128
 	local indist = false
-	
+
 	if mo.spawnpoint and mo.spawnpoint.valid and mo.spawnpoint.options & 8	-- check for same sector tag
-		indist = mo.subsector.sector.tag == pmo.subsector.sector.tag 
+		indist = mo.subsector.sector.tag == pmo.subsector.sector.tag
 	else							-- check for distance
 		indist = R_PointToDist2(mo.x, mo.y, pmo.x, pmo.y) < dist*FRACUNIT and abs(mo.z - pmo.z) < dist*FRACUNIT and pmo.z >= mo.z
 	end
-	
+
 	if pmo.valid and indist
 	and not pmo.player.SRB2PSTASIS
-		
+
 		pmo.obj_interact_target = mo
 		pmo.obj_interact = $ and $+1 or 1
 		pmo.obj_interact_dta = {text_by_type[mo.dta.type] or "CHECK", mo.dta.text or ""}
-		
+
 		if pmo.P_inputs[BT_BTNC] == 1
-			
+
 			local usefade = mo.dta.usefade
 			local rfunc
-			
+
 			if mo.dta.type == IT_AREASWITCH
 				usefade = true
-				
+
 				if mo.dta.tfunc
 					mo.dta.tfunc(mo, pmo)
-				end	
-				
+				end
+
 				rfunc = 	function()
-					
+
 								if mo.dta.targetmap == gamemap or not mo.dta.targetmap
 									local target = D_FindMobjByAngle(MT_SRB2P_INTERACTION, mo.dta.targetid)
 									if not target
 										target = D_FindMobjByAngle(MT_SRB2P_NPC, mo.dta.targetid)
-										
+
 										if not target
 											print("Interaction object #"..mo.spawnpoint.angle..": invalid target #"..tostring(mo.dta.targetid))
 											return
-										end	
+										end
 									end
-									
+
 									local distfrom = 192
 									if mo.dta.targetangle ~= nil
 										pmo.angle = mo.dta.targetangle
 									end
-									
+
 									P_TeleportMove(pmo, target.x + distfrom*cos(pmo.angle), target.y + distfrom*sin(pmo.angle), target.z)
-									
+
 									if mo.dta.func
 										mo.dta.func(mo, pmo)
 									end
-									
-									
+
+
 									pmo.obj_interact_target = nil
 									pmo.obj_interact = nil
 									pmo.obj_interact_dta = nil
-									
+
 									if mo.dta.evt
 										D_startEvent(pmo.player.P_party, mo.dta.evt)
 									end
-									
+
 								else
-									
+
 									local p = server
-									
+
 									-- will be handled on map load.
 									p.obj_interact_map = {mo.dta.targetid or 0, mo.dta.targetangle or 0, mo.dta.func}
 									-- @TODO: save which shadows have been interacted with to not respawn them on a param?
-									
+
 									DNG_loadNewMap(mo.dta.targetmap, mo.dta.evt)
 								end
 							end
-				
-				
+
+
 			else	-- IT_INTERACTION / IT_TALK
-			
+
 				-- make the player stop
 				if not mo.dta.nostop
 					P_InstaThrust(pmo, 0, 0)
 				end
-				
+
 				-- make the player face the object
 				if not mo.dta.noangle
 					--pmo.angle = R_PointToAngle2(pmo.x, pmo.y, mo.x, mo.y)
@@ -378,7 +382,7 @@ addHook("MobjThinker", function(mo)
 						mo.tracer.angle = R_PointToAngle2(mo.tracer.x, mo.tracer.y, pmo.x, pmo.y)
 					end
 				end
-				
+
 				rfunc = 	function()
 								mo.dta.func(mo, pmo)
 								pmo.obj_interact_target = nil
@@ -388,7 +392,7 @@ addHook("MobjThinker", function(mo)
 								if mo.dta.evt
 									D_startEvent(pmo.player.P_party, mo.dta.evt)
 								end
-								
+
 							end
 			end
 
@@ -398,16 +402,16 @@ addHook("MobjThinker", function(mo)
 				rfunc()
 			end
 		end
-	-- remove data if we're out of range from this specific point.	
+	-- remove data if we're out of range from this specific point.
 	elseif pmo.obj_interact_target == mo
 		pmo.obj_interact_target = nil
 		pmo.obj_interact = nil
 		pmo.obj_interact_dta = nil
 	end
-	
+
 end, MT_SRB2P_INTERACTION)
 
--- This table nets us a total of 308 skillpoints, 
+-- This table nets us a total of 308 skillpoints,
 -- total cost to max all skills is currently 294 so this needs tweaking
 local LiNKPointTable = {
 	[1] = 1,
@@ -457,7 +461,7 @@ end)
 COM_AddCommand("d_getlinkxp", function(p, arg)
 	local argn = tonumber(arg)
 	if not argn return end
-	
+
 	LiNK_getEXP(argn)
 end)
 
@@ -485,39 +489,39 @@ addHook("MapLoad", do
 
 		SAVE_FixUps()	-- Fix subpersona linking
 	end
-	
+
 	-- we changed map because of an interaction object
 	-- try to locate that object...
 	if server.obj_interact_map
-		
+
 		local dta = server.obj_interact_map
-		
+
 		if dta[1]
-			
+
 			local target = D_FindMobjByAngle(MT_SRB2P_INTERACTION, dta[1])
 			if not target
 				-- try with npc instead
 				target = D_FindMobjByAngle(MT_SRB2P_NPC, dta[1])
-				
+
 				if not target -- uh shit
 					print("Interaction object (MAP SWITCH): invalid target #"..tostring(dta[1]))
 					return
-				end	
+				end
 			end
-										
+
 			local distfrom = 192
 			if dta[2] ~= nil
 				server.mo.angle = dta[2]
 			end
-										
+
 			P_TeleportMove(server.mo, target.x + distfrom*cos(server.mo.angle), target.y + distfrom*sin(server.mo.angle), target.z)
-		end	
-									
+		end
+
 		if dta[3]
 			dta[3](nil, server.mo)
 		end
 	end
-	
+
 	server.obj_interact_map = nil
 	server.buf_battles = nil
 	server.buf_players = nil
@@ -527,6 +531,6 @@ end)
 COM_AddCommand("pmap", function(p, arg)
 	local argn = tonumber(arg)
 	if not argn return end
-	
+
 	DNG_loadNewMap(argn)
 end)

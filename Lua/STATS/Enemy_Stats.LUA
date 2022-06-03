@@ -371,7 +371,7 @@ rawset(_G, "generalEnemyThinker", function(mo)
 	local attack, atarget = smartAttackSelect(mo)
 	local targets
 
-	if not (attack and P_RandomRange(1, 100) <= skillchance and mo.skills and #mo.skills
+	if not (attack and P_RandomRange(1, 100) <= skillchance and mo.skills and #mo.skills)
 	and mo.status_condition ~= COND_RAGE
 	and mo.status_condition ~= COND_SILENCE
 		attack, atarget = smartAttackSelect(mo) or attackDefs[(mo.melee or "slash_1")]
