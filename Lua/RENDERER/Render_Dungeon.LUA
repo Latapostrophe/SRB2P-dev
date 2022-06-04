@@ -608,9 +608,9 @@ local function renderSaveButton(v, p)
 end
 
 local function renderInteractionButton(v, p)
-	
+
 	if not p.mo.obj_interact return end
-	
+
 	local timer = p.mo.obj_interact
 	local xscale = FRACUNIT
 	local yscale = FRACUNIT
@@ -625,7 +625,7 @@ local function renderInteractionButton(v, p)
 
 		local str = p.mo.obj_interact_dta[1]
 		V_drawString(v, 220, 83, str:sub(1, tt), "FPIMP", 0, "center", 0, 31)
-		
+
 		if timer > #buttonscales+4
 			tt = timer - #buttonscales - 4
 			str = p.mo.obj_interact_dta[2]
@@ -697,20 +697,58 @@ end
 
 local function R_drawFadeDta(v)
 	if server.fadedta
-		
+
 		local fadelv = 0
-		
+
 		if server.fadedta.timer > 10
 			fadelv = 20 - server.fadedta.timer
 		else	-- <= 10
 			fadelv = server.fadedta.timer
-		end	
+		end
 		v.fadeScreen(server.fadedta.colour, fadelv)
 	end
 end
 
-local function renderLiNKEXP(v, p)
-	v.drawScaled(220*FRACUNIT, 102*FRACUNIT, FRACUNIT/2, v.cachePatch("L_EXPICO"), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
+rawset(_G, "renderLiNKEXP", function(v, p, timer)
+
+	-- @todo: only show this while we're getting exp etc...
+	local bx = 3
+	local by = 3
+
+	v.drawIndex((bx+2)*FRACUNIT, (by+2)*FRACUNIT, FRACUNIT/2, v.cachePatch("H_LBAR"), V_SNAPTOTOP|V_SNAPTOLEFT, 31)
+
+	local lv = srb2p.storydata.linklvl
+	local xp = srb2p.storydata.linkexp
+	local needxp = 100*lv
+	local nextxp = needxp - xp
+
+	-- Draw the level
+	V_drawString(v, bx + 90, by + 2, lv, "LEXPF", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 135, 31)
+
+	-- draw the EXP gauge:
+	local mbarlen = 107
+	local barlen = xp*mbarlen/needxp
+
+	local xpos = bx + 4
+	local ypos = by + 18
+	for i = 1, mbarlen --barlen
+		local height = 5 + (i/15)
+		v.drawFill(xpos, ypos, 1, height, (i <= barlen and 73 or 70)|V_SNAPTOTOP|V_SNAPTOLEFT)
+		xpos = $+1
+	end
+
+	-- bar top
+	v.drawIndex((bx)*FRACUNIT, (by)*FRACUNIT, FRACUNIT/2, v.cachePatch("H_LBAR"), V_SNAPTOTOP|V_SNAPTOLEFT, 135)
+
+	-- Draw NEXT EXP
+	V_drawString(v, bx + 120, by + 32, "NEXT: "..nextxp, "NFNT", 0, "right", 0, 31)
+
+	-- how many points we have:
+	local pts = tostring(srb2p.storydata.linkpts)
+	V_drawString(v, bx + 3, by + 32, pts, "LEXPF", 0, nil, 135, 31)
+	V_drawString(v, bx + 10 + (16*(pts:len() -1)), by + 40, "PTS", "FPIMP", 0, nil, 135, 31)
+
+	--[[v.drawScaled(220*FRACUNIT, 102*FRACUNIT, FRACUNIT/2, v.cachePatch("L_EXPICO"), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
 	V_drawString(v, 250, 102, "LINK", "FPIMP", 0, "left", 0, 31, FRACUNIT*50/100)
 	V_drawString(v, 290, 102, "LV"..srb2p.storydata.linklvl, "FPIMP", 0, "left", 0, 31, FRACUNIT*50/100)
 	-- Draw White background
@@ -719,8 +757,8 @@ local function renderLiNKEXP(v, p)
 	v.drawFill(252, 112, 56, 3)
 	-- Quantize amount we have to draw the xp fill, and draw it
 	local xp_fill = srb2p.storydata.linkexp*56/(100*srb2p.storydata.linklvl)
-	v.drawFill(252, 112, xp_fill, 3, 64)
-end
+	v.drawFill(252, 112, xp_fill, 3, 64)--]]
+end)
 
 hud.add(function(v, p, c)
 	if not EnabledHuds["Dungeon"] return end
@@ -759,7 +797,7 @@ hud.add(function(v, p, c)
 				R_drawFadeDta(v)
 			end
 			return true
-		end	-- AND while doing fusions		
+		end	-- AND while doing fusions
 	end
 
 	if gamemap == srb2p.tartarus_map
@@ -821,10 +859,10 @@ hud.add(function(v, p, c)
 	if mo.m_savebutton
 		renderSaveButton(v, p)
 	end
-	
+
 	if mo.obj_interact
 		renderInteractionButton(v, p)
-	end	
+	end
 
 	R_drawRareDrop(v, p)
 
@@ -847,7 +885,7 @@ hud.add(function(v, p, c)
 
 	drawDateChangeDate(v)
 	drawDateChangeTime(v)
-	
+
 	if server.fadedta
 		R_drawFadeDta(v)
 	end
