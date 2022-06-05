@@ -416,14 +416,14 @@ end, MT_SRB2P_INTERACTION)
 local LiNKPointTable = {
 	[1] = 1,
 	[10] = 2,
-	[20] = 2,
+	[20] = 3,
 	[30] = 3,
-	[40] = 3,
-	[50] = 3,
-	[60] = 4,
-	[70] = 4,
-	[80] = 4,
-	[90] = 5,
+	[40] = 4,
+	[50] = 4,
+	[60] = 5,
+	[70] = 5,
+	[80] = 6,
+	[90] = 7,
 }
 
 local function getLiNKPoint(level)
@@ -436,26 +436,32 @@ local function getLiNKPoint(level)
 	return pts
 end
 
+-- gets the exp and sets precalculation for the anim
 rawset(_G, "LiNK_getEXP", function(exp)
 	-- FIXME: This should have an Episode level limit
-	if srb2p.storydata.linklvl == 99 and srb2p.storydata.linkexp == 100 then return end
-	srb2p.storydata.linkexp = $ + exp
-	if srb2p.storydata.linkexp >= (100*(srb2p.storydata.linklvl)) and srb2p.storydata.linklvl < 99
-		while srb2p.storydata.linkexp >= (100*(srb2p.storydata.linklvl))
-			-- Increase our Level and Grant us LP!
-			srb2p.storydata.linklvl = $ + 1
-			srb2p.storydata.linkpts = $ + getLiNKPoint(srb2p.storydata.linklvl)
-			srb2p.storydata.linkexp = $ - (100*(srb2p.storydata.linklvl))
-			if srb2p.storydata.linklvl == 99 and srb2p.storydata.linkexp > (100*(srb2p.storydata.linklvl))
-				srb2p.storydata.linkexp = 100*99
+	if srb2p.storydata.linklvl >= 99 return end
+
+	local xp = srb2p.storydata.linkexp + exp
+	local lv = srb2p.storydata.linklvl
+	local getpoints = 0
+
+	--srb2p.storydata.linkexp = $ + exp
+	if xp >= linkexptable[lv] and lv < 99
+		while xp >= linkexptable[lv]
+			xp = $ - linkexptable[lv]
+			lv = $ + 1
+			getpoints = $+ getLiNKPoint(lv)
+			if lv == 99
+				xp = linkexptable[lv]
 				break
 			end
 		end
-	elseif srb2p.storydata.linkexp > (100*(srb2p.storydata.linklvl))
-		-- We are at lvl 99, so just cap the bar and give us points
-		srb2p.storydata.linkexp = 100*99
-		srb2p.storydata.linkpts = $ + getLiNKPoint(srb2p.storydata.linklvl)
 	end
+
+	-- ready the anim sequence for leveling up
+	srb2p.storydata.dolinkexp = true
+	srb2p.storydata.linktimer = TICRATE
+	srb2p.storydata.linkprecalculates = {lv, xp, exp, getpoints}
 end)
 
 COM_AddCommand("d_getlinkxp", function(p, arg)
@@ -463,6 +469,83 @@ COM_AddCommand("d_getlinkxp", function(p, arg)
 	if not argn return end
 
 	LiNK_getEXP(argn)
+end)
+
+-- get exp anim
+rawset(_G, "LiNK_doEXP", function()
+
+	if not srb2p.storydata return end
+	if not srb2p.storydata.dolinkexp return end
+
+	local calc = srb2p.storydata.linkprecalculates
+
+	if srb2p.storydata.linktimer
+		srb2p.storydata.linktimer = $-1
+		return
+	end
+
+	srb2p.storydata.link_getpoints = $ or 0
+
+	local needxp = linkexptable[srb2p.storydata.linklvl]
+
+	if srb2p.storydata.linklvl < calc[1]
+		local exprate = max(1, calc[3] / TICRATE)
+		srb2p.storydata.linkexp = $ + exprate
+
+		S_StartSound(nil, sfx_menu1, server)
+
+		while srb2p.storydata.linkexp > needxp
+			srb2p.storydata.linkexp = $ - needxp
+			srb2p.storydata.linklvl = $+1
+			srb2p.storydata.link_getpoints = $ + getLiNKPoint(srb2p.storydata.linklvl)
+			needxp = linkexptable[srb2p.storydata.linklvl]
+
+			S_StartSound(nil, sfx_lvup, server)
+		end
+	else
+		local exprate = max(1, calc[3] / TICRATE)
+		srb2p.storydata.linkexp = min(calc[2], $ + exprate)
+	end
+
+	if srb2p.storydata.linklvl >= calc[1] and srb2p.storydata.linkexp >= calc[2]
+		srb2p.storydata.linkdone = $ and $+1 or 1
+
+		if srb2p.storydata.linkdone > TICRATE/3
+		and srb2p.storydata.linkdone & 1
+		and srb2p.storydata.link_getpoints
+			srb2p.storydata.linkpts = $ + 1
+			srb2p.storydata.link_getpoints = $-1
+			S_StartSound(nil, sfx_menu1, server)
+		elseif not srb2p.storydata.link_getpoints
+		and not srb2p.storydata.linkfinishtimer
+			srb2p.storydata.linkfinishtimer = srb2p.storydata.linkdone + TICRATE*2
+
+		elseif srb2p.storydata.linkdone == srb2p.storydata.linkfinishtimer
+			srb2p.storydata.dolinkexp = nil
+			srb2p.storydata.linkprecalculates = nil
+			srb2p.storydata.linkdone = nil
+			srb2p.storydata.linkfinishtimer = nil
+			srb2p.storydata.linktimer = nil
+		end
+	end
+end)
+
+-- instantly finishes the exp anim, we MUST do this for saving or opening the link skills menu.
+rawset(_G, "LiNK_interrupt", function()
+
+	if not srb2p.storydata return end
+	if not srb2p.storydata.dolinkexp return end
+
+	local calc = srb2p.storydata.linkprecalculates
+
+	srb2p.storydata.linklvl = calc[1]
+	srb2p.storydata.linkexp = calc[2]
+	srb2p.storydata.linkpts = calc[4]
+
+	srb2p.storydata.dolinkexp = nil
+	srb2p.storydata.linkprecalculates = nil
+	srb2p.storydata.linkdone = nil
+	srb2p.storydata.linkfinishtimer = nil
 end)
 
 -- Apply the stuff set here if possible

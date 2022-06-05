@@ -22,7 +22,7 @@ rawset(_G, "cv_reaper", CV_RegisterVar({
 -- Handles pits / respawning in story mode...
 local function D_StoryPitHandler(p)
 		if not p.mo or not p.mo.valid return end
-		
+
 		if not p.mo.d_pitcoords
 			p.mo.d_pitcoords = {p.mo.x, p.mo.y, p.mo.z, p.mo.angle}
 		end
@@ -34,8 +34,8 @@ local function D_StoryPitHandler(p)
 			-- every 5 seconds, save new positions
 			p.mo.d_pitcoords = {p.mo.x, p.mo.y, p.mo.z, p.mo.angle}
 		end
-		
-		
+
+
 		-- respawn handling
 		if p.mo.d_pittime
 			p.mo.d_pittime = $+1
@@ -46,17 +46,17 @@ local function D_StoryPitHandler(p)
 				p.powers[pw_flashing] = TICRATE*2
 				p.mo.d_pitmomz = nil
 				p.mo.d_pittime = nil
-				
+
 				PLAY_move(p)
 				p.mo.state = S_PLAY_STND
-				
+
 				-- damage the party
 				for i = 1, #server.plentities[p.P_party]
 					DNG_Damage(server.plentities[p.P_party][i], server.plentities[p.P_party][i].maxhp/10)
 				end
-				
+
 				S_StartSound(nil, sfx_hit2, p)
-				
+
 			end
 		elseif not P_IsObjectOnGround(p.mo)
 			p.mo.d_pitmomz = p.mo.momz
@@ -65,12 +65,12 @@ end
 
 -- check if we hit a death pit etc
 addHook("ShouldDamage", function(mo)
-	
+
 	if P_CheckDeathPitCollide(mo)
-		
+
 		if not mo.d_pittime
 			mo.d_pittime = 1
-			
+
 			VFX_Play(mo, VFX_DIE)
 
 			-- spawn a fake
@@ -85,16 +85,16 @@ addHook("ShouldDamage", function(mo)
 			fake.momy = mo.momy
 			fake.momz = (mo.d_pitmomz) or 0
 			fake.fuse = TICRATE*2
-			
+
 			PLAY_nomove(mo.player)
 			P_InstaThrust(mo, 0, 0)
 			mo.state = S_PLAY_STND
 			mo.tics = -1
 			mo.sprite = SPR_NULL
 			mo.frame = A
-		
+
 		end
-		
+
 		return false	-- don't get damaged
 	end
 end, MT_PLAYER)
@@ -104,7 +104,7 @@ end, MT_PLAYER)
 rawset(_G, "DNG_Thinker", function()
 
 	if not server return end
-	
+
 	-- entry card handling
 	if server.entrycard
 		server.entrytime = $-1
@@ -125,7 +125,7 @@ rawset(_G, "DNG_Thinker", function()
 		end
 	end
 
-	
+
 	-- fadedta handling
 	if server.fadedta
 		server.fadedta.timer = $-1
@@ -138,11 +138,14 @@ rawset(_G, "DNG_Thinker", function()
 			for p in players.iterate do
 				if p.mo and p.mo.valid
 					PLAY_move(p)
-				end	
+				end
 			end
 		end
 	end
-	
+
+	-- LiNK EXP can happen idependently of anything else
+	LiNK_doEXP()
+
 	if NET_running() return end	-- don't run anything during character selection
 
 	if not server.P_BattleStatus return end
@@ -187,7 +190,7 @@ rawset(_G, "DNG_Thinker", function()
 	if not NET_isset() return end	-- wait until we're finished setting up our team in MP
 
 	SRB2P_runHook("DungeonThinker", battle)
-	
+
 	if server.entrytime
 
 		-- voidrun hack
@@ -277,10 +280,10 @@ addHook("MapLoad", do
 		t[1] = ""
 		t[2] = ""
 		server.skiptitlecard = nil
-	else	
+	else
 		t[1] = mapheaderinfo[gamemap].entryname or ""
 		t[2] = mapheaderinfo[gamemap].entryfloor or ""
-	end	
+	end
 	if #t
 		DNG_entryCard(t)
 	end
@@ -294,7 +297,7 @@ addHook("MapLoad", do
 	}
 
 	server.DNG_entities = {}
-	
+
 	-- Story mode file loading...
 	if srb2p.loadfile
 		if srb2p.storymode	-- check to avoid catastrophic things
@@ -303,7 +306,7 @@ addHook("MapLoad", do
 		end
 		srb2p.loadfile = nil
 	end
-	
+
 	if DNG_isTartarusMap()
 
 		-- we just got into a dungeon, if we MUST load, do it. NOW.

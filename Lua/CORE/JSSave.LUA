@@ -125,11 +125,11 @@ rawset(_G, "SAVE_ArchivePlayer", function(mo)
 
 		--persona = mo.persona
 	}
-	
+
 	-- for story mode specifically this is relevant
 	if srb2p.storymode
 		save["persona"] = mo.persona
-	end	
+	end
 
 	return json.encode(save)
 end)
@@ -158,13 +158,16 @@ local function SAVE_NetArchiveRogueSeed(f)
 end
 
 local function SAVE_ArchiveStoryData(f)
-	
+
+	-- instantly finish link level up anim
+	LiNK_interrupt()
+
 	srb2p.storydata.map = gamemap	-- save the current map.
 	-- save player coordinates
 	if players[0] and players[0].mo and players[0].mo.valid
 		srb2p.storydata.playercoords = {players[0].mo.x, players[0].mo.y, players[0].mo.z, players[0].mo.angle}
-	end	
-	
+	end
+
 	f:write(SAVEBLOCK_STORYDTA.."\n")
 	f:write(json.encode(srb2p.storydata))
 	f:write("\n")
@@ -536,11 +539,11 @@ local function SAVE_getStoryHeader(f, load)
 				r = f:read()
 			end
 			h.teamlen = $ or teamslot-1	-- just in case
-			
+
 			h.playerinfo = skins[h.playerlist[1][1].skin].realname.." Lv"..h.playerlist[1][1].level
-		
+
 		elseif r == SAVEBLOCK_STORYDTA	-- get story data
-			
+
 			local r = f:read()
 			if r == nil or r == ""
 				h.text = "\x85".."CORRUPTED: STORYDATA BLOCK INVALID"
@@ -551,7 +554,7 @@ local function SAVE_getStoryHeader(f, load)
 			local story = json.decode(r)
 			h.storydta = story
 			h.text = "???"
-			
+
 			if story.map
 				local mapheader = mapheaderinfo[story.map]
 				if mapheader.entryname
@@ -559,11 +562,11 @@ local function SAVE_getStoryHeader(f, load)
 				end
 				if mapheader.entryfloor
 					h.text = $..", "..mapheader.entryfloor
-				end	
+				end
 			end
-			
+
 		end
-		
+
 		r = f:read()
 	end
 	return h
@@ -640,16 +643,16 @@ rawset(_G, "SAVE_applyFileHeader", function(h)
 	if h.rogueseed
 		server.rogueseed = h.rogueseed
 	end
-	
+
 	if h.storydta
 		srb2p.storydata = h.storydta
-		
+
 		if h.storydta.playercoords
 			P_TeleportMove(players[0].mo, h.storydta.playercoords[1], h.storydta.playercoords[2], h.storydta.playercoords[3])
 			players[0].mo.angle = h.storydta.playercoords[4]
 		end
-		
-	end	
+
+	end
 
 	SAVE_FixUps()
 end)
@@ -671,7 +674,13 @@ end)
 -- STORY MODE SPECIFIC SHITE
 
 rawset(_G, "SAVE_storyReset", function()
-	
+
+	srb2p.storydata.dolinkexp = nil
+	srb2p.storydata.linkprecalculates = nil
+	srb2p.storydata.linkdone = nil
+	srb2p.storydata.linkfinishtimer = nil
+	srb2p.storydata.linktimer = nil
+
 	srb2p.storydata.events = {}
 	srb2p.storydata.compendium = {}
 	srb2p.storydata.itemboxes = {}
@@ -681,33 +690,22 @@ rawset(_G, "SAVE_storyReset", function()
 	srb2p.storydata.linklvl = 1
 	srb2p.storydata.linkexp = 0
 	srb2p.storydata.linkpts = 0
-	srb2p.storydata.linkskills = {
-						[1] = 0,
-						[2] = 0,
-						[3] = 0,
-						[4] = 0,
-						[5] = 0,
-						[6] = 0,
-						[7] = 0,
-						[8] = 0,
-						[9] = 0,
-						[10] = 0,
-						[11] = 0,
-						[12] = 0,
-						[13] = 0,
-						[14] = 0,
-	}
+	srb2p.storydata.linkskills = {}
+	for i = 1, LINK_NUMSKILLS do
+		srb2p.storydata.linkskills[i] = 0
+	end
+
 end)
 
 rawset(_G, "SAVE_getNumEmeralds", function()
 	local emeralds = 0
-	
+
 	for i = 1, 7 do
 		if srb2p.storydata.emeralds & (1 << (i-1))
 			emeralds = $+1
-		end	
+		end
 	end
-	
+
 	return emeralds
 end)
 
@@ -726,12 +724,12 @@ end)
 rawset(_G, "SAVE_setItemBox", function(it)
 	srb2p.storydata.itemboxes = $ or {}	-- init table if necessary
 	srb2p.storydata.itemboxes[tostring(gamemap)] = $ or {}
-	
+
 	if not it or not it.spawnpoint
 		print("SAVE_setItemBox: No valid item box/spawnpoint")
 		return
 	end
-	
+
 	-- export keys as strings as json encoding does not allow for holes in normal arrays,
 	-- this will make it treat it as an object rather than an array.
 	srb2p.storydata.itemboxes[tostring(gamemap)][tostring(it.spawnpoint.angle)] = true
@@ -739,32 +737,32 @@ end)
 
 rawset(_G, "SAVE_checkItemBox", function(n)
 	srb2p.storydata.itemboxes = $ or {}	-- init table if necessary
-	srb2p.storydata.itemboxes[tostring(gamemap)] = $ or {}	
-	
+	srb2p.storydata.itemboxes[tostring(gamemap)] = $ or {}
+
 	return srb2p.storydata.itemboxes[tostring(gamemap)][tostring(n)]
 end)
 
 
 -- CHECKPOINTS
 rawset(_G, "SAVE_registerCheckpoint", function(it)
-	
+
 	srb2p.storydata.checkpoints = $ or {}
 	srb2p.storydata.checkpoints[tostring(gamemap)] = $ or {}
-	
+
 	if not it or not it.spawnpoint
 		print("SAVE_registerCheckpoint: No valid starpost/spawnpoint")
 		return
 	end
-	
+
 	-- checkpoints work in increments of 360 deg just like in vanilla.
 	srb2p.storydata.checkpoints[tostring(gamemap)][tostring((it.spawnpoint.angle/360) +1)] = true
 end)
 
 rawset(_G, "SAVE_checkCheckpoint", function(n)
-	
+
 	srb2p.storydata.checkpoints = $ or {}
 	srb2p.storydata.checkpoints[tostring(gamemap)] = $ or {}
-	
+
 	-- checkpoints work in increments of 360 deg just like in vanilla.
 	return srb2p.storydata.checkpoints[tostring(gamemap)][tostring(n)]
 end)

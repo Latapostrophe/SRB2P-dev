@@ -709,10 +709,10 @@ local function R_drawFadeDta(v)
 	end
 end
 
-rawset(_G, "renderLiNKEXP", function(v, p, timer)
+rawset(_G, "renderLiNKEXP", function(v, p, addx)
 
 	-- @todo: only show this while we're getting exp etc...
-	local bx = 3
+	local bx = 3 + addx
 	local by = 3
 
 	v.drawIndex((bx+2)*FRACUNIT, (by+2)*FRACUNIT, FRACUNIT/2, v.cachePatch("H_LBAR"), V_SNAPTOTOP|V_SNAPTOLEFT, 31)
@@ -880,7 +880,16 @@ hud.add(function(v, p, c)
 	end
 
 	if srb2p.storymode
-		renderLiNKEXP(v, p)
+	and srb2p.storydata.dolinkexp
+		local xpos = 0
+		if srb2p.storydata.linktimer
+			local tmr = max(0, srb2p.storydata.linktimer - TICRATE/2)
+			xpos = min(0, -tmr*32)
+		elseif srb2p.storydata.linkfinishtimer
+			xpos = max(0, ((srb2p.storydata.linkdone + TICRATE) - srb2p.storydata.linkfinishtimer))*(-32)
+		end
+
+		renderLiNKEXP(v, p, xpos)
 	end
 
 	drawDateChangeDate(v)

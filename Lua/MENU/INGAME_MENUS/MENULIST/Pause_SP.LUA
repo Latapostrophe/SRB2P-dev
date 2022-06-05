@@ -1338,98 +1338,84 @@ local function m_equip_hud(v, mo, choice)
 
 end
 
-local linkskill_name = {
-	[1] = "Party Toughness",
-	[2] = "Party Spirit",
-	[3] = "Party Strength",
-	[4] = "Party Casting",
-	[5] = "Party Defence",
-	[6] = "Party Quickstep",
-	[7] = "Party Gamble",
-	[8] = "Party Coordination",
-	[9] = "Wild LiNK",
-	[10] = "Wild Fusion",
-	[11] = "Wild Affinity",
-	[12] = "Victory Breeze",
-	[13] = "Salvager",
-	[14] = "Extortionist",
-}
-
-local linkskill_desc = {
-	[1] = "Increase the party's Max HP.",
-	[2] = "Increase the party's Max SP.",
-	[3] = "Increase the party's Strength,\nboosting physical damage.",
-	[4] = "Increase the party's Magic,\nboosting magic skill damage.",
-	[5] = "Increase the party's Defense,\nboosting defense against enemy attacks.",
-	[6] = "Increase the party's Agility,\nboosting hit and evasion rates.",
-	[7] = "Increase the party's Luck\nboosting chances to land critical hits and\ninflict status effects.",
-	[8] = "Increase damage dealt by All-Out Attacks.",
-	[9] = "Increase LiNK EXP Earned.",
-	[10] = "Increase gained EXP from\nSub-Persona Fusion.",
-	[11] = "Gain stat bonuses from matching\nPersonas and Sub-Personas with\nthe same Arcana.",
-	[12] = "Increase amount of recovered\nHP and SP after battles.",
-	[13] = "Increase the odds of item drops\nfrom enemies.",
-	[14] = "Increase the amount of macca\nearned from enemies.",
-}
-
-local linkskill_cost = { -- Lets implicit the max level for each skill from this table cause...you know what I mean?
-	[1] = {1,2,3,4,5},
-	[2] = {1,2,3,4,5},
-	[3] = {1,2,3,4,5},
-	[4] = {1,2,3,4,5},
-	[5] = {1,2,3,4,5},
-	[6] = {1,2,3,4,5},
-	[7] = {1,2,3,4,5},
-	[8] = {1,2,3,4,5},
-	[9] = {2,4,6,8,10},
-	[10] = {3,6,9,12,15},
-	[11] = {5,10,15},
-	[12] = {5,10,15},
-	[13] = {3,6,9},
-	[14] = {3,6,9},
-}
-
 local function drawMenu_link(v, mo, choice, forcetimer)
-	local x = 5
+
+	local choice_prev = mo.m_menuchoices["m_main"] or 1
+	local timer = mo.m_hudtimers.smenuopen
+	local out_timer = mo.m_hudtimers.sclosemenu or 7
+
+	local fn = drawPlayerCommands_In
+
+
+	if mo.m_hudtimers.sclosemenu
+		timer = 7 - out_timer
+		PDraw(v, -174 + out_timer*32, 173 - out_timer*4, v.cachePatch("H_BOX_D"), V_SNAPTOBOTTOM|V_SNAPTOLEFT|TR_TRANS30)
+	else
+		fn = drawPlayerCommands_Out
+		PDraw(v, 50 - timer*32, 145 + timer*4, v.cachePatch("H_BOX_D"), V_SNAPTOBOTTOM|V_SNAPTOLEFT|TR_TRANS30)
+	end
+	fn(v, mo, choice_prev)
+
+	renderLiNKEXP(v, p, -timer*32)
+
+	local bx = 145 + timer*64
+	local x = bx
 	local y = 25 --160
-	local k = 0
-	for i = 1, 14
-		--print("Drawing at x: "..x.." y: "..y)
-		if choice == i
-			-- Show highlighted LiNK Skill
-			v.drawFill(x, y, 30, 26)
+
+	local chosenskl = linkgrid[mo.m_linky][mo.m_linkx] or 1
+	local skllv = srb2p.storydata.linkskills[chosenskl]
+
+	-- skill effects
+
+	PDraw(v, -48 -timer*32, 55, v.cachePatch("H_ENH3"), V_SNAPTOLEFT|V_30TRANS)
+	V_drawString(v, 4 -timer*32, 65, "\x82".."Current (Lv"..tostring(skllv)..")\x80 \n"..tostring(linkskill_effect[chosenskl][skllv+1]), "NFNT",  V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
+
+	if skllv < #linkskill_cost[chosenskl]
+		PDraw(v, -48 -timer*32, 95, v.cachePatch("H_ENH3"), V_SNAPTOLEFT|V_30TRANS)
+		local cost = linkskill_cost[chosenskl][skllv+1]
+		V_drawString(v, 4 -timer*32, 105, "\x82".."Next (Lv"..tostring(skllv+1)..") (Cost: "..cost..")\x80 \n"..tostring(linkskill_effect[chosenskl][skllv+2]), "NFNT",  V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
+	end
+
+
+	for i = 1, #linkgrid
+
+		x = bx
+		for j = 1, #linkgrid[i]
+			local skl = linkgrid[i][j]
+
+			if skl == chosenskl
+				-- Show highlighted LiNK Skill
+				v.drawFill(x, y, 24, 24)
+			end
+			PDraw(v, x, y, v.cachePatch("H_LINK1"), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
+			if not linkskill_cost[srb2p.storydata.linkskills[skl]+1]
+				V_drawString(v, x, y+15, "\x82LvMAX", "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*33/100)
+			else
+				V_drawString(v, x, y+15, "\x82Lv"..srb2p.storydata.linkskills[skl], "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*33/100)
+			end
+
+			x = $+26
+
 		end
-		PDraw(v, x, y, v.cachePatch("H_LINK1"), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
-		if not linkskill_cost[srb2p.storydata.linkskills[i]+1]
-			V_drawString(v, x+15, y+15, "\x82LvMAX", "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*33/100)
-		else
-			V_drawString(v, x+15, y+15, "\x82Lv"..srb2p.storydata.linkskills[i], "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*33/100)
-		end
-		k = $+1
-		--y = $+10
-		x = $+30
-		if k >= 5
-			y = $+25
-			x = 5
-			k = 0
-		end
+
+		y = $+26
 	end
 	-- Draw LiNK Skill Name and Description
-	V_drawString(v, 90, 130, linkskill_name[choice], "NFNT",  V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
-	V_drawString(v, 90, 150, linkskill_desc[choice], "NFNT",  V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
+	V_drawString(v, 60, 150, "\x82"..linkskill_name[chosenskl], "NFNT",  V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
+	V_drawString(v, 60, 160, linkskill_desc[chosenskl], "NFNT",  V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
 	-- Draw Available Link Points
-	V_drawString(v, 150, 10, "Available Points: "..srb2p.storydata.linkpts.."pt", "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
+	--[[V_drawString(v, 150, 10, "Available Points: "..srb2p.storydata.linkpts.."pt", "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
 	-- Draw the Skill Cost
 	if not linkskill_cost[choice][srb2p.storydata.linkskills[choice]+1]
 		V_drawString(v, 150, 20, "\x82MAX", "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
 	else
 		V_drawString(v, 150, 20, "Cost: "..linkskill_cost[choice][srb2p.storydata.linkskills[choice]+1].."pt", "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)
-	end
+	end--]]
 	if mo.m_considerupgrade
 		local w = 300
 		local h = 30
 		v.drawFill(160 - (w/2), 100 - (h/2), w, h, 135)
-		V_drawString(v, 160, 90, "Spend "..linkskill_cost[choice][srb2p.storydata.linkskills[choice]+1].." points to upgrade this skill?", "NFNT", 0, "center", 31, nil)
+		V_drawString(v, 160, 90, "Spend "..linkskill_cost[chosenskl][srb2p.storydata.linkskills[chosenskl]+1].." points to upgrade this skill?", "NFNT", 0, "center", 31, nil)
 		V_drawString(v, 160, 100, "PRESS A TO CONFIRM", "NFNT", 0, "center", 31, nil)
 	end
 end
@@ -2055,6 +2041,12 @@ M_menus["sp_main"] = {
 		closetimer = 7,
 		prev = "m_main",
 
+		openfunc = 	function(mo)
+						LiNK_interrupt()
+						mo.m_linkx = $ or 1
+						mo.m_linky = $ or 1
+					end,
+
 		-- handle the inputs for this pretty special menu
 		runfunc = function(mo)
 
@@ -2074,41 +2066,51 @@ M_menus["sp_main"] = {
 				S_StartSound(nil, sfx_cancel, mo.player)
 			end
 
+			local grid = linkgrid
+
 			local maxc = 14
 			if not mo.m_considerupgrade
 				if inputs["down"] == 1
-					mo.m_menuchoices[mo.m_submenu] = $+5
-					if mo.m_menuchoices[mo.m_submenu] > maxc
-						mo.m_menuchoices[mo.m_submenu] = maxc
+					mo.m_linky = $+1
+					if mo.m_linky > #linkgrid
+						mo.m_linky = 1
 					end
+					mo.m_linkx = min($, #linkgrid[mo.m_linky])
+
 					S_StartSound(nil, sfx_hover, mo.player)
 				elseif inputs["up"] == 1
-					mo.m_menuchoices[mo.m_submenu] = $-5
-					if mo.m_menuchoices[mo.m_submenu] < 1
-						mo.m_menuchoices[mo.m_submenu] = 1
+					mo.m_linky = $-1
+					if mo.m_linky < 1
+						mo.m_linky = #linkgrid
 					end
+					mo.m_linkx = min($, #linkgrid[mo.m_linky])
+
 					S_StartSound(nil, sfx_hover, mo.player)
 				elseif inputs["left"] == 1
-					mo.m_menuchoices[mo.m_submenu] = $-1
-					if mo.m_menuchoices[mo.m_submenu] < 1
-						mo.m_menuchoices[mo.m_submenu] = 1
+					mo.m_linkx = $-1
+					if mo.m_linkx < 1
+						mo.m_linkx = #grid[mo.m_linky]
 					end
 					S_StartSound(nil, sfx_hover, mo.player)
 				elseif inputs["right"] == 1
-					mo.m_menuchoices[mo.m_submenu] = $+1
-					if mo.m_menuchoices[mo.m_submenu] > maxc
-						mo.m_menuchoices[mo.m_submenu] = maxc
+					mo.m_linkx = $+1
+					if mo.m_linkx > #grid[mo.m_linky]
+						mo.m_linkx = 1
 					end
 					S_StartSound(nil, sfx_hover, mo.player)
 				end
 			end
 
-			local choice = mo.m_menuchoices[mo.m_submenu]
+
+			local skl = linkgrid[mo.m_linky][mo.m_linkx]
+
 			if inputs[BT_JUMP] == 1
 			and not mo.m_considerupgrade
 				-- Check if we can upgrade this
-				if linkskill_cost[choice][srb2p.storydata.linkskills[choice]+1]
-				and srb2p.storydata.linkpts >= linkskill_cost[choice][srb2p.storydata.linkskills[choice]+1]
+
+
+				if linkskill_cost[skl][srb2p.storydata.linkskills[skl]+1]
+				and srb2p.storydata.linkpts >= linkskill_cost[skl][srb2p.storydata.linkskills[skl]+1]
 					S_StartSound(nil, sfx_select, mo.player)
 					mo.m_considerupgrade = true
 				else
@@ -2118,8 +2120,8 @@ M_menus["sp_main"] = {
 			and mo.m_considerupgrade
 				-- Upgrade our skill
 				mo.m_considerupgrade = nil
-				srb2p.storydata.linkpts = $ - linkskill_cost[choice][srb2p.storydata.linkskills[choice]+1]
-				srb2p.storydata.linkskills[choice] = $ + 1
+				srb2p.storydata.linkpts = $ - linkskill_cost[skl][srb2p.storydata.linkskills[skl]+1]
+				srb2p.storydata.linkskills[skl] = $ + 1
 				S_StartSound(nil, sfx_lvup, mo.player)
 			end
 			return true

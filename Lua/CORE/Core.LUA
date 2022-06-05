@@ -32,6 +32,8 @@ rawset(_G, "srb2p", {
 					checkpoints = {},	-- registered checkpoints
 					emeralds = 0,		-- works like vanilla
 					shopstocks = {},	-- shop stocks
+
+					-- LiNK data
 					linklvl = 1,		-- LiNK Level
 					linkexp = 0,		-- LiNK EXP
 					linkpts = 0,		-- LiNK Points
@@ -344,6 +346,319 @@ rawset(_G, "ARCANA_STAR", 18)
 rawset(_G, "ARCANA_MOON", 19)
 rawset(_G, "ARCANA_SUN", 20)
 rawset(_G, "ARCANA_JUDGEMENT", 21)
+
+-- LINK_ constants
+local linkskills = {
+	-- Raw stat up
+	"LINK_HP",
+	"LINK_SP",
+	"LINK_ST",
+	"LINK_MA",
+	"LINK_EN",
+	"LINK_AG",
+	"LINK_LU",
+
+	-- Party bonus stuff
+	"LINK_ALLOUT",
+	"LINK_REXP",
+	"LINK_EPCONVERT",
+	"LINK_MACCA",
+	"LINK_RAREDROP",
+	"LINK_BREEZE",
+
+	-- services:
+	"LINK_VELVET_SALES",
+	"LINK_VELVET_TRADES",
+
+	"LINK_VELVET_FUSION",
+	"LINK_VELVET_HIFUSION",
+
+	"LINK_VELVET_GRINDUP",
+	"LINK_VELVET_DISMANTLE",
+
+	-- misc
+	"LINK_LEXP",
+	"LINK_AFFINITY",
+
+}
+
+for i = 1, #linkskills do
+	rawset(_G, linkskills[i], i)
+end
+
+rawset(_G, "LINK_NUMSKILLS", #linkskills)
+
+
+rawset(_G, "linkskill_name", {
+	[LINK_HP] = "Party Toughness",
+	[LINK_SP] = "Party Spirit",
+	[LINK_ST] = "Party Strength",
+	[LINK_MA] = "Party Casting",
+	[LINK_EN] = "Party Defence",
+	[LINK_AG] = "Party Quickstep",
+	[LINK_LU] = "Party Gamble",
+
+	-- battle
+	[LINK_ALLOUT] = 	"Party Coordination",
+	[LINK_REXP] =		"Reserve Growth",
+	[LINK_EPCONVERT] =	"Chaos Convertion",
+	[LINK_MACCA] =		"Extortionist",
+	[LINK_RAREDROP] =	"Salvager",
+	[LINK_BREEZE] =		"Victory Breeze",
+
+	-- velvet idiots
+	[LINK_VELVET_SALES] =		"Sweet Deals",
+	[LINK_VELVET_TRADES] =		"Exchange Master",
+	[LINK_VELVET_FUSION] =		"Summoning Growth",
+	[LINK_VELVET_HIFUSION] =	"Summoning Pact",
+	[LINK_VELVET_GRINDUP] =		"Grind Up",
+	[LINK_VELVET_DISMANTLE] =	"Dismantlement Master",
+
+	-- LiNK
+	[LINK_LEXP] =		"WiLD Link",
+	[LINK_AFFINITY] =	"WiLD Affinity",
+})
+
+-- main description
+rawset(_G, "linkskill_desc", {
+	[LINK_HP] = "Increase the party's Max HP.",
+	[LINK_SP] = "Increase the party's Max SP.",
+	[LINK_ST] = "Increase the party's Strength,\nboosting physical damage.",
+	[LINK_MA] = "Increase the party's Magic,\nboosting magic skill damage.",
+	[LINK_EN] = "Increase the party's Defence,\nreducing damage from enemy attacks.",
+	[LINK_AG] = "Increase the party's Agility,\nboosting hit and evasion rates.",
+	[LINK_LU] = "Increase the party's Luck\nboosting odds of inflicting and evading critical hits and ailments.",
+
+	[LINK_ALLOUT] = 	"Increase damage dealt by All-Out Attacks.",
+	[LINK_REXP] =		"Increase EXP earned by party members\nin the reserve.",
+	[LINK_EPCONVERT] =	"Convert excess EP at the end of a Battle\ninto additional EXP and Macca",
+	[LINK_MACCA] =		"Increase Macca earned from enemies.",
+	[LINK_RAREDROP] =	"Increase item drop rates from enemies.",
+	[LINK_BREEZE] =		"Recover some HP & SP after Battle.",
+
+	[LINK_VELVET_SALES] =	"Reduces prices in the Velvet Shop",
+	[LINK_VELVET_TRADES] =	"Unlocks new trades in the Velvet Shop",
+
+	[LINK_VELVET_FUSION] = 	"Fused Sub-Personas gain extra\nlevels worth of EXP",
+	[LINK_VELVET_HIFUSION] ="Allows fusing Sub-Persona\nthat are higher level than you",
+
+	[LINK_VELVET_GRINDUP] =		"Adds a chance to skip enhancement\nlevels in the Velvet Lab",
+	[LINK_VELVET_DISMANTLE] =	"Increase the amount of materials\nobtained from dismantlement",
+
+	[LINK_LEXP] =		"Increase LiNK EXP earned.",
+	[LINK_AFFINITY] =	"Gain stat bonuses when matching\nMain and Sub-Persona arcanas",
+})
+
+-- "sub" description, shows the effect with numbers!!
+-- [1] is level 0, so base behaviour without the skill bought.
+rawset(_G, "linkskill_effect", {
+
+	[LINK_HP] = {
+		"No effect",
+		"Party HP +5",		-- +5
+		"Party HP +10",		-- +5
+		"Party HP +15",		-- +5
+		"Party HP +20",		-- +5
+		"Party HP +30",		-- +10
+	},
+
+	[LINK_SP] = {
+		"No effect",
+		"Party SP +2",		-- +2
+		"Party SP +4",		-- +2
+		"Party SP +6",		-- +2
+		"Party SP +10",		-- +4
+		"Party SP +15",		-- +5
+	},
+
+	[LINK_ST] = {
+		"No effect",
+		"Party Strength +1",
+		"Party Strength +2",
+		"Party Strength +3",
+		"Party Strength +4",
+		"Party Strength +5",
+	},
+
+	[LINK_MA] = {
+		"No effect",
+		"Party Magic +1",
+		"Party Magic +2",
+		"Party Magic +3",
+		"Party Magic +4",
+		"Party Magic +5",
+	},
+
+	[LINK_EN] = {
+		"No effect",
+		"Party Endurance +1",
+		"Party Endurance +2",
+		"Party Endurance +3",
+		"Party Endurance +4",
+		"Party Endurance +5",
+	},
+
+	[LINK_AG] = {
+		"No effect",
+		"Party Agility +1",
+		"Party Agility +2",
+		"Party Agility +3",
+		"Party Agility +4",
+		"Party Agility +5",
+	},
+
+	[LINK_LU] = {
+		"No effect",
+		"Party Luck +1",
+		"Party Luck +2",
+		"Party Luck +3",
+		"Party Luck +4",
+		"Party Luck +5",
+	},
+
+	[LINK_ALLOUT] = {
+		"100% All-Out Attack \ndamage modifier",
+		"110% All-Out Attack \ndamage modifier",
+		"120% All-Out Attack \ndamage modifier",
+		"130% All-Out Attack \ndamage modifier",
+	},
+
+	[LINK_REXP] = {
+		"50% EXP earned by \nreserve members",
+		"70% EXP earned by \nreserve members",
+		"85% EXP earned by \nreserve members",
+		"100% EXP earned by \nreserve members",
+	},
+
+	[LINK_EPCONVERT] = {
+		"EP dissipates after Battle.",
+		"Convertion rate: \n+5% EXP & Macca \nper EP Charge",
+		"Convertion rate: \n+7.5% EXP & Macca \nper EP Charge",
+		"Convertion rate: \n+10% EXP & Macca \nper EP Charge",
+	},
+
+	[LINK_RAREDROP] = {
+		"100% enemy item drop \nrate modifier",
+		"105% enemy item drop \nrate modifier",
+		"110% enemy item drop \nrate modifier",
+		"115% enemy item drop \nrate modifier",
+	},
+
+	[LINK_MACCA] = {
+		"100% enemy Macca \ndrop modifier",
+		"105% enemy Macca \ndrop modifier",
+		"110% enemy Macca \ndrop modifier",
+		"115% enemy Macca \ndrop modifier",
+	},
+
+	[LINK_BREEZE] = {
+		"No effect",
+		"After battle, party \nrecovers 4% HP \nand 2% SP",
+		"After battle, party \nrecovers 7% HP \nand 3% SP",
+		"After battle, party \nrecovers 10% HP \nand 5% SP",
+	},
+
+	[LINK_VELVET_SALES] = {
+		"No effect",
+		"5% discount in \nthe Velvet Shop",
+		"10% discount in \nthe Velvet Shop",
+		"15% discount in \nthe Velvet Shop",
+	},
+
+	[LINK_VELVET_TRADES] = {
+		"No effect",
+		"Unlock more trades \nin the Velvet Shop",
+		"Unlock even more trades \nin the Velvet Shop",
+		"Unlock all trades \nin the Velvet Shop",
+	},
+
+	[LINK_VELVET_FUSION] = {
+		"No effect",
+		"Fused Sub-Personas gain \nhalf a level worth of EXP",
+		"Fused Sub-Personas gain \n1 level worth of EXP",
+		"Fused Sub-Personas gain \n2 levels worth of EXP",
+	},
+
+	[LINK_VELVET_HIFUSION] = {
+		"No effect",
+		"Can fuse Sub-Personas \n1 level higher than you",
+		"Can fuse Sub-Personas \n3 levels higher than you",
+		"Can fuse Sub-Personas \n5 levels higher than you",
+	},
+
+	[LINK_VELVET_GRINDUP] = {
+		"No effect",
+		"25% chance to gain \n+2 levels when \nenhancing equipment",
+		"25% chance to gain \n+2 to +3 levels when \nenhancing equipment",
+		"25% chance to gain \n+2 to +5 levels when \nenhancing equipment",
+	},
+
+	[LINK_VELVET_DISMANTLE] = {
+		"No effect",
+		"+1 of each material \non dismantlement",
+		"+2 of each material \non dismantlement",
+		"+3 of each material \non dismantlement",
+	},
+
+
+	[LINK_LEXP] = {
+		"100% LiNK EXP modifier",
+		"110% LiNK EXP modifier",
+		"120% LiNK EXP modifier",
+		"130% LiNK EXP modifier",
+	},
+
+	[LINK_AFFINITY] = {
+		"No effect",
+		"+1 to all stats when \nArcanas of Main & \nSub Personas match.",
+		"+2 to all stats when \nArcanas of Main & \nSub Personas match.",
+		"+3 to all stats when \nArcanas of Main & \nSub Personas match.",
+	},
+
+})
+
+rawset(_G, "linkskill_cost", { -- Lets implicit the max level for each skill from this table cause...you know what I mean?
+	[LINK_HP] = {1,2,3,4,5},
+	[LINK_SP] = {1,2,3,4,5},
+	[LINK_ST] = {1,2,3,4,5},
+	[LINK_MA] = {1,2,3,4,5},
+	[LINK_EN] = {1,2,3,4,5},
+	[LINK_AG] = {1,2,3,4,5},
+	[LINK_LU] = {1,2,3,4,5},
+
+
+	[LINK_ALLOUT] = {3,6,9},
+	[LINK_REXP] = {5,10,15},
+	[LINK_EPCONVERT] = {5,10,15},
+	[LINK_RAREDROP] = {3,6,9},
+	[LINK_MACCA] = {3,6,9},
+	[LINK_BREEZE] = {5,10,15},
+
+	[LINK_VELVET_SALES] =	{2, 5, 8},
+	[LINK_VELVET_TRADES] =	{5, 10, 15},
+
+	[LINK_VELVET_FUSION] = 		{2, 5, 8},
+	[LINK_VELVET_HIFUSION] =	{5, 10, 15},
+
+	[LINK_VELVET_DISMANTLE] = {3, 6, 9},
+	[LINK_VELVET_GRINDUP] = {3, 6, 9},
+
+	[LINK_LEXP] = {3,6,9,12,15},
+	[LINK_AFFINITY] = {5,10,15},
+})
+
+rawset(_G, "linkexptable", {})
+for i = 1, 99
+	linkexptable[i] = 100*i
+end
+
+rawset(_G, "linkgrid", {
+
+	{LINK_HP, LINK_SP, LINK_ST, LINK_MA, LINK_EN, LINK_AG, LINK_LU},
+	{LINK_ALLOUT, LINK_REXP, LINK_EPCONVERT, LINK_RAREDROP, LINK_MACCA, LINK_BREEZE},
+	{LINK_VELVET_SALES, LINK_VELVET_TRADES, LINK_VELVET_FUSION, LINK_VELVET_HIFUSION, LINK_VELVET_GRINDUP, LINK_VELVET_DISMANTLE},
+	{LINK_LEXP, LINK_AFFINITY},
+})
 
 -- yes good idea lets push uint32 to int32, itll be ok they said
 -- NO IT'S NOT FUCKING OK YOU ABSOLUTE DUMBASS
