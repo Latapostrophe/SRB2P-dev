@@ -1140,7 +1140,8 @@ rawset(_G, "DNG_handleFusion", function(mo)
 					DNG_changeFSState(mo, FS_SKILLCARD)
 				else
 					-- We have no skill card, skip straight to skill inheritance.
-					-- @TODO: later...
+					e.previewn = #e.personas
+					DNG_changeFSState(mo, FS_INHERIT)
 				end
 			
 			elseif e.state == FS_COMPENDIUMCONFIRM

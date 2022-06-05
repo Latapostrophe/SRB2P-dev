@@ -20116,11 +20116,11 @@ rawset(_G, "ATK_makeSkillCard", function(atk)
 	local atkd = attackDefs[atk]
 	if not atkd return end	-- doesn't exist.
 	
-	local rarity = atk.rank
+	local rarity = atkd.rank
 	local cost = rank_costs[rarity]		
 	
 	itemDefs["sc/ "..atk] = {
-		name = "C/"..atkd.name,
+		name = atkd.name,
 		desc = atkd.desc,
 		menuonly = true,
 		skillcard = true,

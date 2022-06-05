@@ -71,6 +71,8 @@ states[S_PFIRE4] = {SPR_DBZF, D|FF_FULLBRIGHT, 3, nil, 0, 0, S_PFIRE5}
 states[S_PFIRE5] = {SPR_DBZF, E|FF_FULLBRIGHT, 3, nil, 0, 0, S_PFIRE6}
 states[S_PFIRE6] = {SPR_DBZF, F|FF_FULLBRIGHT, 3, nil, 0, 0, S_NULL}
 
+-- Velvet Book/Bok Choy
+freeslot("SPR_VBOK")
 
 
 -- followitems:
