@@ -122,8 +122,8 @@ rawset(_G, "PLYR_getStats", function(mo, level, doweapon, dobonus)
 			mo["real"..applyto[i]] = $ + mo["bonus"..applyto[i]]
 		end
 		if srb2p.storymode
-			mo[applyto[i]] = $ + srb2p.storydata.linkskills[2+i]
-			mo["real"..applyto[i]] = $ + srb2p.storydata.linkskills[2+i]
+			mo[applyto[i]] = $ + srb2p.storydata.linkskills[LINK_SP+i] -- index LINP_SP + 1 == LINK_ST
+			mo["real"..applyto[i]] = $ + srb2p.storydata.linkskills[LINK_SP+i]
 		end
 	end
 end)

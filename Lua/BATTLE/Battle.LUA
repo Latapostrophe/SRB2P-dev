@@ -5671,8 +5671,8 @@ local function BTL_endHandler(pn)
 
 	-- Apply LiNK Macca Bonus in story mode
 	if srb2p.storymode
-	and srb2p.storydata.linkskills[14] > 0 -- Do we have the money skill leveled at all?
-		btl.r_money = $*(((7*srb2p.storydata.linkskills[14])+100)/100) -- Each Level Bonus grants 7.5% macca...i dunno how you you can get the .5 in so round down
+	and srb2p.storydata.linkskills[LINK_MACCA] > 0 -- Do we have the money skill leveled at all?
+		btl.r_money = $*(((7*srb2p.storydata.linkskills[LINK_MACCA])+100)/100) -- Each Level Bonus grants 7.5% macca...i dunno how you you can get the .5 in so round down
 	end
 
 	-- precalculate the level at which we will be at as well as our final EXP after the battle:
