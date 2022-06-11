@@ -284,6 +284,18 @@ local compendium_sort_funcs = {
 	compendium_sort_level,
 }
 
+local function handleFusionLink(persona, e)
+	-- Lets boost exp with our link skill
+	-- Level 1 gives 1/2 a levels worth of xp, while 2 & 3 give a level and 2 levels worth respectively
+	local expt = getEXPTable()
+	local link_lvl = srb2p.storydata.linkskills[LINK_VELVET_FUSION]
+	if link_lvl > 0
+	and link_lvl < 2
+		e.pexp = $ + expt[persona.level]/2
+	elseif link_lvl > 1
+		e.pexp = $ + expt[persona.level]*(link_level-1) -- Not subtracting 1 means giving 3 * xp of current level at max
+	end
+end
 
 rawset(_G, "DNG_startFusion", function(mo)
 
@@ -1460,16 +1472,7 @@ rawset(_G, "DNG_handleFusion", function(mo)
 					function()
 						
 						resetCutsceneDta(mo)
-						-- Lets boost exp with our link skill
-						-- Level 1 gives 1/2 a levels worth of xp, while 2 & 3 give a level and 2 levels worth respectively
-						local expt = getEXPTable()
-						local subp = e.personas[#e.personas]
-						if srb2p.storydata.linkskills[LINK_VELVET_FUSION] > 0
-						and srb2p.storydata.linkskills[LINK_VELVET_FUSION] < 2
-							e.pexp = $ + expt[e.personas[#e.personas].level]/2
-						elseif srb2p.storydata.linkskills[LINK_VELVET_FUSION] > 1
-							e.pexp = $ + expt[subp.level]*srb2p.storydata.linkskills[LINK_VELVET_FUSION]
-						end
+						handleFusionLink(e.personas[#e.personas], e)
 						DNG_changeFSState(mo, FS_EXP)						
 					end,
 					0
@@ -1572,16 +1575,7 @@ rawset(_G, "DNG_handleFusion", function(mo)
 					function()
 						
 						resetCutsceneDta(mo)
-						-- Lets boost exp with our link skill
-						-- Level 1 gives 1/2 a levels worth of xp, while 2 & 3 give a level and 2 levels worth respectively
-						local expt = getEXPTable()
-						local subp = e.personas[#e.personas]
-						if srb2p.storydata.linkskills[LINK_VELVET_FUSION] > 0
-						and srb2p.storydata.linkskills[LINK_VELVET_FUSION] < 2
-							e.pexp = $ + expt[e.personas[#e.personas].level]/2
-						elseif srb2p.storydata.linkskills[LINK_VELVET_FUSION] > 1
-							e.pexp = $ + expt[subp.level]*srb2p.storydata.linkskills[LINK_VELVET_FUSION]
-						end
+						handleFusionLink(e.personas[#e.personas], e)
 						DNG_changeFSState(mo, FS_EXP)
 						e.animdone = true
 					end,

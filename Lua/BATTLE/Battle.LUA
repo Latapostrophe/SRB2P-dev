@@ -5702,7 +5702,13 @@ local function BTL_endHandler(pn)
 				end
 			-- reserve party member
 			else
-				xp = $/2	-- 50% XP
+				-- Determine xp divisor based off of LINK_REXP
+				local link_rexp = srb2p.storydata.linkskills[LINK_REXP]
+				if not link_rexp -- lvl 0 trips not case
+					xp = $/2	-- 50% XP
+				else
+					xp = $*((70+(15*(1-link_rexp)))/100) -- LVL 1: 70%, LVL 2: 85%, LVL 3: 100%
+				end
 				mo = server.plreserve[i - og_len]
 				reserve = true
 			end
