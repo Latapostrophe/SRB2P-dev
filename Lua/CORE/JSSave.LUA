@@ -106,6 +106,10 @@ rawset(_G, "SAVE_ArchivePlayer", function(mo)
 		decsp = mo.decsp or 0,
 		hp = mo.hp,
 		sp = mo.sp,
+		linkhp = mo.linkhp,
+		linksp = mo.linksp,
+		catalysthp = mo.catalysthp,
+		catalystsp = mo.catalystsp,
 
 		strength = mo.strength,
 		magic = mo.magic,

@@ -2122,6 +2122,9 @@ M_menus["sp_main"] = {
 				mo.m_considerupgrade = nil
 				srb2p.storydata.linkpts = $ - linkskill_cost[skl][srb2p.storydata.linkskills[skl]+1]
 				srb2p.storydata.linkskills[skl] = $ + 1
+				-- Run the corresponding function of the LiNK skill, if it exists
+				-- We are expected to return a result, so stuff it in a throwaway variable
+				local _ = linkfunction[skl] and linkfunction[skl](mo)
 				S_StartSound(nil, sfx_lvup, mo.player)
 			end
 			return true

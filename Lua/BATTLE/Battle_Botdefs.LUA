@@ -153,6 +153,23 @@ rawset(_G, "PLYR_initStats", function(mo, persona, skin)
 	mo.maxsp = msp
 	mo.sp = mo.maxsp
 	mo.realsp = mo.maxsp	-- realhp/sp is used for equipment that would give you ""negative"" stats when used.
+	
+	-- Handle our LiNK Boosts
+	if srb2p.storymode
+		mo.linkhp = 5*srb2p.storydata.linkskills[LINK_HP]
+		mo.linksp = 5*srb2p.storydata.linkskills[LINK_SP]
+		-- We have to apply these boosts right away
+		mo.maxhp = $ + mo.linkhp
+		mo.maxsp = $ + mo.linksp
+		mo.hp = mo.maxhp
+		mo.sp = mo.maxsp
+		mo.realhp = mo.maxhp
+		mo.realsp = mo.maxsp
+	end
+	
+	-- Store Catalyst Boost Amounts here
+	mo.catalysthp = 0
+	mo.catalystsp = 0
 
 	mo.dechp = 0
 	mo.decsp = 0	-- decimal HP/Sp for leveling up

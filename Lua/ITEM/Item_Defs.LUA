@@ -841,11 +841,28 @@ rawset(_G, "itemDefs", {
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-
-						mo.maxsp = $+5
-						mo.sp = $+5
-						mo.realsp = $+5
-						S_StartSound(nil, sfx_heal4, user.player)
+						
+						if srb2p.storymode
+							if mo.catalystsp + 5 >= episode_limits[1][BOOST_CATALYST]
+								--FIXME: Could be more elegant
+								mo.maxsp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.sp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.realsp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.catalystsp = 100
+								S_StartSound(nil, sfx_heal4, user.player)
+							else
+								mo.catalystsp = $ + 5
+								mo.sp = $ + 5
+								mo.maxsp = $ + 5
+								mo.realsp = $ + 5
+								S_StartSound(nil, sfx_heal4, user.player)
+							end
+						else
+							mo.maxsp = $+5
+							mo.sp = $+5
+							mo.realsp = $+5
+							S_StartSound(nil, sfx_heal4, user.player)
+						end
 					end,
 
 		cost = 700,
@@ -861,10 +878,27 @@ rawset(_G, "itemDefs", {
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
 
-						mo.maxsp = $+10
-						mo.sp = $+10
-						mo.realsp = $+10
-						S_StartSound(nil, sfx_heal4, user.player)
+						if srb2p.storymode
+							if mo.catalystsp + 10 >= episode_limits[1][BOOST_CATALYST]
+								--FIXME: Could be more elegant
+								mo.maxsp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.sp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.realsp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.catalystsp = 100
+								S_StartSound(nil, sfx_heal4, user.player)
+							else
+								mo.catalystsp = $ + 10
+								mo.sp = $ + 10
+								mo.maxsp = $ + 10
+								mo.realsp = $ + 10
+								S_StartSound(nil, sfx_heal4, user.player)
+							end
+						else
+							mo.maxsp = $+10
+							mo.sp = $+10
+							mo.realsp = $+10
+							S_StartSound(nil, sfx_heal4, user.player)
+						end
 					end,
 
 		cost = 1200,
@@ -880,10 +914,27 @@ rawset(_G, "itemDefs", {
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
 
-						mo.maxsp = $+20
-						mo.sp = $+20
-						mo.realsp = $+20
-						S_StartSound(nil, sfx_heal4, user.player)
+						if srb2p.storymode
+							if mo.catalystsp + 20 >= episode_limits[1][BOOST_CATALYST]
+								--FIXME: Could be more elegant
+								mo.maxsp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.sp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.realsp = ($ - mo.catalystsp) + episode_limits[1][BOOST_CATALYST]
+								mo.catalystsp = 100
+								S_StartSound(nil, sfx_heal4, user.player)
+							else
+								mo.catalystsp = $ + 20
+								mo.sp = $ + 20
+								mo.maxsp = $ + 20
+								mo.realsp = $ + 20
+								S_StartSound(nil, sfx_heal4, user.player)
+							end
+						else
+							mo.maxsp = $+20
+							mo.sp = $+20
+							mo.realsp = $+20
+							S_StartSound(nil, sfx_heal4, user.player)
+						end
 					end,
 
 		cost = 2000,
@@ -899,10 +950,27 @@ rawset(_G, "itemDefs", {
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
 
-						mo.maxhp = $+10
-						mo.hp = $+10
-						mo.realhp = $+10
-						S_StartSound(nil, sfx_heal4, user.player)
+						if srb2p.storymode
+							if mo.catalysthp + 10 >= episode_limits[1][BOOST_CATALYST]
+								--FIXME: Could be more elegant
+								mo.maxhp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.hp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.realhp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.catalysthp = 100
+								S_StartSound(nil, sfx_heal4, user.player)
+							else
+								mo.catalysthp = $ + 10
+								mo.hp = $ + 10
+								mo.maxhp = $ + 10
+								mo.realhp = $ + 10
+								S_StartSound(nil, sfx_heal4, user.player)
+							end
+						else
+							mo.maxhp = $+10
+							mo.hp = $+10
+							mo.realhp = $+10
+							S_StartSound(nil, sfx_heal4, user.player)
+						end
 					end,
 
 		cost = 200,
@@ -918,10 +986,27 @@ rawset(_G, "itemDefs", {
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
 
-						mo.maxhp = $+25
-						mo.hp = $+25
-						mo.realhp = $+25
-						S_StartSound(nil, sfx_heal4, user.player)
+						if srb2p.storymode
+							if mo.catalysthp + 25 >= episode_limits[1][BOOST_CATALYST]
+								--FIXME: Could be more elegant
+								mo.maxhp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.hp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.realhp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.catalysthp = 100
+								S_StartSound(nil, sfx_heal4, user.player)
+							else
+								mo.catalysthp = $ + 25
+								mo.hp = $ + 25
+								mo.maxhp = $ + 25
+								mo.realhp = $ + 25
+								S_StartSound(nil, sfx_heal4, user.player)
+							end
+						else
+							mo.maxhp = $+25
+							mo.hp = $+25
+							mo.realhp = $+25
+							S_StartSound(nil, sfx_heal4, user.player)
+						end
 					end,
 
 		cost = 500,
@@ -937,10 +1022,27 @@ rawset(_G, "itemDefs", {
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
 
-						mo.maxhp = $+50
-						mo.hp = $+50
-						mo.realhp = $+50
-						S_StartSound(nil, sfx_heal4, user.player)
+						if srb2p.storymode
+							if mo.catalysthp + 50 >= episode_limits[1][BOOST_CATALYST]
+								--FIXME: Could be more elegant
+								mo.maxhp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.hp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.realhp = ($ - mo.catalysthp) + episode_limits[1][BOOST_CATALYST]
+								mo.catalysthp = 100
+								S_StartSound(nil, sfx_heal4, user.player)
+							else
+								mo.catalysthp = $ +50
+								mo.hp = $ + 50
+								mo.maxhp = $ + 50
+								mo.realhp = $ + 50
+								S_StartSound(nil, sfx_heal4, user.player)
+							end
+						else
+							mo.maxhp = $+50
+							mo.hp = $+50
+							mo.realhp = $+50
+							S_StartSound(nil, sfx_heal4, user.player)
+						end
 					end,
 
 		cost = 2000,

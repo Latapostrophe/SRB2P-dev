@@ -37,22 +37,7 @@ rawset(_G, "srb2p", {
 					linklvl = 1,		-- LiNK Level
 					linkexp = 0,		-- LiNK EXP
 					linkpts = 0,		-- LiNK Points
-					linkskills = {
-						[1] = 0, -- Party Toughness
-						[2] = 0, -- Party Spirit
-						[3] = 0, -- Party Strength
-						[4] = 0, -- Party Casting
-						[5] = 0, -- Party Defence
-						[6] = 0, -- Party Quickstep
-						[7] = 0, -- Party Gamble
-						[8] = 0, -- Party Coordination
-						[9] = 0, -- Wild LiNK
-						[10] = 0, --Wild Fusion
-						[11] = 0, --Wild Affinity
-						[12] = 0, --Victory Breeze
-						[13] = 0, --Salvager
-						[14] = 0, --Extortionist
-					},	-- LiNK Skill Levels
+					linkskills = {},	-- LiNK Skill Levels
 				},
 
 	-- XDATA tables
@@ -384,6 +369,7 @@ local linkskills = {
 
 for i = 1, #linkskills do
 	rawset(_G, linkskills[i], i)
+	srb2p.storydata.linkskills[i] = 0
 end
 
 rawset(_G, "LINK_NUMSKILLS", #linkskills)
@@ -658,6 +644,54 @@ rawset(_G, "linkgrid", {
 	{LINK_ALLOUT, LINK_REXP, LINK_EPCONVERT, LINK_RAREDROP, LINK_MACCA, LINK_BREEZE},
 	{LINK_VELVET_SALES, LINK_VELVET_TRADES, LINK_VELVET_FUSION, LINK_VELVET_HIFUSION, LINK_VELVET_GRINDUP, LINK_VELVET_DISMANTLE},
 	{LINK_LEXP, LINK_AFFINITY},
+})
+
+-- This is mainly for applying the hp and sp link boosts, but can be used for other things
+rawset(_G, "linkfunction", {
+	[LINK_HP] = function(mo)
+		for i = 1, #server.plentities[1]
+			local m = server.plentities[1][i]
+			if not m.linkhp
+				m.linkhp = 5*srb2p.storydata.linkskills[LINK_HP]
+				m.maxhp = $ + m.linkhp
+			else
+				m.linkhp = $ + 5
+				m.maxhp = $ + 5
+				m.hp = $ + 5
+				m.realhp = $ + 5
+			end
+		end
+		return true
+	end,
+	[LINK_SP] = function(mo)
+		for i = 1, #server.plentities[1]
+			local m = server.plentities[1][i]
+			if not m.linksp
+				m.linksp = 2*srb2p.storydata.linkskills[LINK_SP]
+				m.maxsp = $ + m.linksp
+			else
+				m.linksp = $ + 2
+				m.maxsp = $ + 2
+				m.sp = $ + 2
+				m.realsp = $ + 2
+			end
+		end
+		return true
+  end,
+})
+
+-- Episode Stat Boost Limits
+-- I made this expandable just in case
+local stat_boost_consts = {
+  "BOOST_CATALYST",
+}
+for i = 1, #stat_boost_consts
+	rawset(_G, stat_boost_consts[i], i)
+end
+
+
+rawset(_G, "episode_limits", {
+  [1] = { [BOOST_CATALYST] = 100 },
 })
 
 -- yes good idea lets push uint32 to int32, itll be ok they said
