@@ -1378,3 +1378,10 @@ rawset(_G, "BTL_shuffleCupHeal", {
 	22,
 	25,
 })
+
+-- LINK_BREEZE healing: Heals value1% HP and value2%hp
+rawset(_G, "BTL_victoryBreezeHeal", {
+  {5, 5},
+  {7, 6},
+  {10, 7},
+})

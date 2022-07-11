@@ -7239,6 +7239,12 @@ local function BTL_shuffleHandler(pn)
 						end
 
 					end
+					-- STORYMODE SPECIFIC: Heal if we have leveled into LINK_BREEZE
+					if srb2p.storymode and srb2p.storydata.linkskills[LINK_BREEZE]
+					 local heals = BTL_victoryBreezeHeal[srb2p.storydata.linkskills[LINK_BREEZE]]
+					 mo2.hp = min(mo2.maxhp, $ + (mo2.maxhp*heals[1]/100))
+					 mo2.sp = min(mo2.maxsp, $ + (mo2.maxsp*heals[2]/100))
+					end
 				end
 			end
 		end
