@@ -1143,6 +1143,11 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 			basepow = $+ addstat
 		end
+		-- STORYMODE SPECIFIC: Boost this attack power again via LINK_ALLOUT
+		if srb2p.storymode
+		  local dmg_boost = 10*srb2p.storydata.linkskills[LINK_ALLOUT] -- +10% damage boost per rank
+		  basepow = $ + (basepow*dmg_boost/100)
+		end
 		POW = basepow
 	end
 
