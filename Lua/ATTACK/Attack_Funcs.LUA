@@ -36,10 +36,13 @@ rawset(_G, "getRandomDrops", function(mo)
 			end
 		end
 
-		-- 25% chance to obtain random drop item 3 times
-
+		-- 25% chance to obtain random drop item 3 times. In storymode, LINK_RAREDROP can boost this multiplicatively
+    local itemchance = 40
+    if srb2p.storymode and srb2p.storydata.linkskills[LINK_RAREDROP]
+      itemchance = $ + ($*(5*srb2p.storydata.linkskills[LINK_RAREDROP])/100) -- Lv. 1: +5%, lv. 2: +10%, Lv. 3: +15%
+    end
 		for i = 1, 3
-			if P_RandomRange(0, 100) <= 40
+			if P_RandomRange(0, 100) <= itemchance
 				--print("Get drop")
 				local rng = P_RandomRange(1, #newtable)	-- rng seed
 				local it = newtable[rng]
