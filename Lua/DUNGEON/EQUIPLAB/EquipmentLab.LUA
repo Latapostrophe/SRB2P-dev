@@ -927,6 +927,12 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				local fact = e.lastsource.level + 2
 				for i = 2, #mats
 					BTL_addItem(btl, mats[i][1], mats[i][2]*fact)
+					-- STORYMODE SPECIFIC: Add more of the same item if we have the corresponding LiNK boost
+					if srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_DISMANTLE]
+					 for j = 1, srb2p.storydata.linkskills[LINK_VELVET_DISMANTLE]
+					   BTL_addItem(btl, mats[i][1], mats[i][2]*fact)
+					 end
+					end
 				end
 
 				-- destroy the equipment and its references
@@ -1054,10 +1060,30 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				if e.selectequip == 1
 					enhanceWeapon(e.lastsource)
 					enhanceWeapon(e.sourcecopy)	-- yup.
+					-- +1 level is always guarenteed, but in story mode with LiNK we can potentially get more
+					if (P_RandomRange(0, 100) < 26) and srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_GRINDUP]
+					 -- We want to randomize how many levels we get, the two 1's are because level 3 has a jump from a max of 3 levels total to 5 levels in total, which requires some fiddling
+					 local lvl_boost_table = [1, 2, 3, 4]
+					 local lvl_boost = lvl_boost_table[P_RandomRange(1, (srb2p.storydata.linkskills[LINK_VELVET_GRINDUP] == 3) and 4 or srb2p.storydata.linkskills[LINK_VELVET_GRINDUP])]
+					 for i = 1, lvl_boost
+					   enhanceWeapon(e.lastsource)
+					   enhanceWeapon(e.sourcecopy)	-- yup.
+					 end
+					end
 					server.P_BattleStatus[mo.player.P_party].netstats.weaponsenhanced = $+1
 				else
 					enhanceRing(e.lastsource)
 					enhanceRing(e.sourcecopy)	-- yup.
+					-- +1 level is always guarenteed, but in story mode with LiNK we can potentially get more
+					if (P_RandomRange(0, 100) < 26) and srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_GRINDUP]
+					 -- We want to randomize how many levels we get, the two 1's are because level 3 has a jump from a max of 3 levels total to 5 levels in total, which requires some fiddling
+					 local lvl_boost_table = [1, 2, 3, 4]
+					 local lvl_boost = lvl_boost_table[P_RandomRange(1, (srb2p.storydata.linkskills[LINK_VELVET_GRINDUP] == 3) and 4 or srb2p.storydata.linkskills[LINK_VELVET_GRINDUP])]
+					 for i = 1, lvl_boost
+					   enhanceRing(e.lastsource)
+					   enhanceRing(e.sourcecopy)	-- yup.
+					 end
+					end
 					server.P_BattleStatus[mo.player.P_party].netstats.ringsenhanced = $+1
 				end
 
