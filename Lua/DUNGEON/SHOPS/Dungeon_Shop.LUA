@@ -845,6 +845,13 @@ rawset(_G, "DNG_handleShop", function(mo)
 
 			local money = server.P_BattleStatus[mo.player.P_party].macca
 			mo.shop.moneybuf = price	-- keep this in memory for the other stuff, it's much easyer.
+			--STORYMODE SPECFIC, reduce the price via LiNK Boosts
+			if srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_SALES]
+			 -- Discount: Lvl. 1: 5%, Lvl. 2: 10%, Lvl. 3: 15%
+			 local discount = price*(5*srb2p.storydata.linkskills[LINK_VELVET_SALES])/100
+			 mo.shop.moneybuf = $ - discount
+			 price = $ - discount
+			end
 
 			S_StartSound(nil, money >= price and sfx_confir or sfx_not, mo.player)
 			DNG_changeShopState(mo, money >= price and SS_BUYCONFIRM or SS_CANTBUY)

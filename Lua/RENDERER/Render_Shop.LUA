@@ -362,6 +362,12 @@ rawset(_G, "R_drawShop", function(v, mo)
 						
 					V_drawString(v, x+20, ty, buildItemName(itemDefs[obj]).." "..qtys, "NFNT", 0, nil, col, 31)
 					local cost = elt[2] or itemDefs[obj].cost or 0
+					--STORYMODE SPECFIC, reduce the price via LiNK Boosts
+					if srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_SALES] and cost
+					 -- Discount: Lvl. 1: 5%, Lvl. 2: 10%, Lvl. 3: 15%
+					 local discount = cost*(5*srb2p.storydata.linkskills[LINK_VELVET_SALES])/100
+					 cost = $ - discount
+					end
 					V_drawString(v, x+170, ty, (i == mo.shop.choice and "x " or "")..(cost)..currency, "NFNT", 0, "right", 0, 31)
 
 					if i == mo.shop.choice
@@ -389,6 +395,12 @@ rawset(_G, "R_drawShop", function(v, mo)
 
 					V_drawString(v, x+20, ty, itname, "NFNT", 0, nil, colour, 31)
 					local cost = elt[2] or evaluateWeaponPrice(obj)
+					--STORYMODE SPECFIC, reduce the price via LiNK Boosts
+					if srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_SALES] and cost
+					 -- Discount: Lvl. 1: 5%, Lvl. 2: 10%, Lvl. 3: 15%
+					 local discount = cost*(5*srb2p.storydata.linkskills[LINK_VELVET_SALES])/100
+					 cost = $ - discount
+					end
 					V_drawString(v, x+175, ty, (i == mo.shop.choice and "x " or "")..(cost)..currency, "NFNT", 0, "right", 0, 31)
 					if i == mo.shop.choice
 						-- draw the total... (not for skillcards/pers
@@ -427,6 +439,12 @@ rawset(_G, "R_drawShop", function(v, mo)
 
 					V_drawString(v, x+20, ty, buildRingName(obj), "NFNT", 0, nil, colour, 31)
 					local cost = elt[2] or evaluateRingPrice(obj)
+					--STORYMODE SPECFIC, reduce the price via LiNK Boosts
+					if srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_SALES] and cost
+					 -- Discount: Lvl. 1: 5%, Lvl. 2: 10%, Lvl. 3: 15%
+					 local discount = cost*(5*srb2p.storydata.linkskills[LINK_VELVET_SALES])/100
+					 cost = $ - discount
+					end
 					V_drawString(v, x+175, ty, (i == mo.shop.choice and "x " or "")..(cost)..currency, "NFNT", 0, "right", 0, 31)
 					if i == mo.shop.choice
 						-- draw the total... (not for skillcards/pers
@@ -485,6 +503,12 @@ rawset(_G, "R_drawShop", function(v, mo)
 
 					V_drawString(v, x+20, ty, ICO_PERSONA..subpersonaList[obj].name, "NFNT", 0, nil, colour, 31)
 					local cost = elt[2] or 0
+					--STORYMODE SPECFIC, reduce the price via LiNK Boosts
+					if srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_SALES] and cost
+					 -- Discount: Lvl. 1: 5%, Lvl. 2: 10%, Lvl. 3: 15%
+					 local discount = cost*(5*srb2p.storydata.linkskills[LINK_VELVET_SALES])/100
+					 cost = $ - discount
+					end
 					V_drawString(v, x+170, ty, (cost)..currency, "NFNT", 0, "right", colour, 31)
 
 					if i == mo.shop.choice
