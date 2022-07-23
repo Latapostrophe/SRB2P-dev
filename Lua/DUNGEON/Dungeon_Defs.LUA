@@ -442,7 +442,7 @@ rawset(_G, "LiNK_getEXP", function(exp)
 	if srb2p.storydata.linklvl >= 99 return end
   
   -- EXAMPLE OF LINK_LEXP BOOSTING
-	exp = $ * (100+(10*srb2p.storydata.linkskills[LINK_LEXP]])/100 -- 10% boost per level
+	exp = $ * (100+(10*srb2p.storydata.linkskills[LINK_LEXP]))/100 -- 10% boost per level
 	
 	local xp = srb2p.storydata.linkexp + exp
 	local lv = srb2p.storydata.linklvl

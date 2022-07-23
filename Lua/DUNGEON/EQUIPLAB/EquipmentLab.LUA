@@ -1063,7 +1063,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 					-- +1 level is always guarenteed, but in story mode with LiNK we can potentially get more
 					if (P_RandomRange(0, 100) < 26) and srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_GRINDUP]
 					 -- We want to randomize how many levels we get, the two 1's are because level 3 has a jump from a max of 3 levels total to 5 levels in total, which requires some fiddling
-					 local lvl_boost_table = [1, 2, 3, 4]
+					 local lvl_boost_table = {1, 2, 3, 4}
 					 local lvl_boost = lvl_boost_table[P_RandomRange(1, (srb2p.storydata.linkskills[LINK_VELVET_GRINDUP] == 3) and 4 or srb2p.storydata.linkskills[LINK_VELVET_GRINDUP])]
 					 for i = 1, lvl_boost
 					   enhanceWeapon(e.lastsource)
@@ -1077,7 +1077,7 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 					-- +1 level is always guarenteed, but in story mode with LiNK we can potentially get more
 					if (P_RandomRange(0, 100) < 26) and srb2p.storymode and srb2p.storydata.linkskills[LINK_VELVET_GRINDUP]
 					 -- We want to randomize how many levels we get, the two 1's are because level 3 has a jump from a max of 3 levels total to 5 levels in total, which requires some fiddling
-					 local lvl_boost_table = [1, 2, 3, 4]
+					 local lvl_boost_table = {1, 2, 3, 4}
 					 local lvl_boost = lvl_boost_table[P_RandomRange(1, (srb2p.storydata.linkskills[LINK_VELVET_GRINDUP] == 3) and 4 or srb2p.storydata.linkskills[LINK_VELVET_GRINDUP])]
 					 for i = 1, lvl_boost
 					   enhanceRing(e.lastsource)
