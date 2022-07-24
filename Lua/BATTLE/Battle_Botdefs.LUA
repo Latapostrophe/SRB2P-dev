@@ -248,6 +248,8 @@ rawset(_G, "PLYR_initPersona", function(mo, persona, skin)	-- init stats and ski
 	mo.resist = persona.resist or 0
 	mo.drain = persona.drain or 0
 	mo.repel = persona.repel or 0
+	
+	mo.arcana = persona.arcana
 
 	mo.persona = persona
 

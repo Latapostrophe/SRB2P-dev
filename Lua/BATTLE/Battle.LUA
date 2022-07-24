@@ -754,6 +754,17 @@ rawset(_G, "BTL_setupstats", function(v, subpbonus)
 		v.agility = max(1, $ + subp.ag)
 		v.luck = max(1, $ + subp.lu)
 	end
+	--STORYMODE SPECIFIC: In the case our arcana matches the subpersona's boost the stats more
+	if srb2p.storymode and srb2p.storydata.linkskills[LINK_AFFINITY]
+	 if v.arcana == subp.arcana
+	   local boost = srb2p.storydata.linkskills[LINK_AFFINITY] -- One Point per Rank
+	   v.strength = $ + boost
+	   v.magic = $ + boost
+	   v.endurance = $ + boost
+	   v.agility = $ + boost
+	   v.luck = $ + boost
+	 end
+	end
 end)
 
 -- equips a subpersona

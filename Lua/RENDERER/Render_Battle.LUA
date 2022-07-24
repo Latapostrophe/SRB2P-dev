@@ -1908,6 +1908,12 @@ local function drawSubPersonaSelection(v, p, mo)
 
 		-- draw a fake stat bar for funsies
 		local checkstat = subp[stats_subp[i]]
+		-- STORYMODE SPECIFIC: Boost this number when there is an arcana match
+		if srb2p.storymode and srb2p.storydata.linkskills[LINK_AFFINITY]
+		  if subp.arcana == mo.persona.arcana
+		    checkstat = $ + srb2p.storydata.linkskills[LINK_AFFINITY]
+		  end
+		end
 		local str
 		if checkstat and checkstat < 0
 			v.drawFill(dx + 62, dy+6, 32, 4, 31)	-- black bg

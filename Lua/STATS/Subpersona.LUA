@@ -53,6 +53,7 @@ rawset(_G, "P_generateSubPersona", function(subp, lv)
 		level = uselv,
 		exp = 0,
 		equipped = nil,
+		arcana = subd.arcana,
 	}
 
 	return subp_t
@@ -178,6 +179,7 @@ rawset(_G, "subpersonaList", {
 	-- dummy subpersona for none, basically removes stuff!
 	["none"] = {
 		name = "Unequip",
+		arcana = -1, -- We cannot have this be nil, otherwise Sonic will get a stat boost via LINK_AFFINITY.
 		st = 0,
 		ma = 0,
 		en = 0,
