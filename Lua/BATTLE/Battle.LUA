@@ -5669,10 +5669,17 @@ local function BTL_endHandler(pn)
 		-- make the camera spin towards the center of the arena, or something
 	end
 
-	-- Apply LiNK Macca Bonus in story mode
+	-- Apply LiNK Macca Bonuses in story mode
 	if srb2p.storymode
-	and srb2p.storydata.linkskills[LINK_MACCA] > 0 -- Do we have the money skill leveled at all?
-		btl.r_money = $*(((7*srb2p.storydata.linkskills[LINK_MACCA])+100)/100) -- Each Level Bonus grants 7.5% macca...i dunno how you you can get the .5 in so round down
+	 if srb2p.storydata.linkskills[LINK_MACCA] -- Do we have the money skill leveled at all?
+	   local bonus = btl.r_money * (7*srb2p.storydata.linkskills[LINK_MACCA])/100 -- Each Level Bonus grants 7.5% macca...i dunno how you you can get the .5 in so round down
+	   btl.r_money = $ + bonus
+	 end
+	 if srb2p.storydata.linkskills[LINK_EPCONVERT]
+	   local ep_convert = {5, 7, 10} -- Lvl 2 SHOULD be 7.5% more macca...but decimals aren't fun to work with in these cases
+	   local bonus = btl.r_money * (ep_convert[srb2p.storydata.linkskills[LINK_EPCONVERT]]*(btl.emeraldpow/100))/100 -- Per 1 EP charge, add % boost based on level
+	   btl.r_money = $ + bonus
+	 end
 	end
 
 	-- precalculate the level at which we will be at as well as our final EXP after the battle:
@@ -5692,6 +5699,12 @@ local function BTL_endHandler(pn)
 			--if not server.plentities[pn][i] continue end
 			local reserve
 			local xp = btl.r_exp -- xp earned during btl
+			-- STORYMODE SPECIFIC: Boost xp based on LINK_EPCONVERT
+			if srb2p.storymode and srb2p.storydata.linkskills[LINK_EPCONVERT]
+			 local ep_convert = {5, 7, 10} -- Lvl 2 SHOULD be 7.5% more xp...but decimals aren't fun to work with in these cases
+			 local bonus = xp * (ep_convert[srb2p.storydata.linkskills[LINK_EPCONVERT]]*(btl.emeraldpow/100))/100 -- Per 1 EP charge, add % boost based on level
+			 xp = $ + bonus
+			end
 			local subp
 			local mo
 			-- Active party member
