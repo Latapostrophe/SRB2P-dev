@@ -96,7 +96,7 @@ addHook("MobjCollide", function(t, mo)
 
 				elseif v[1] == "weapon"
 					local wpn = v[2]
-					ring = makeWeapon(wpn, P_RandomRange(0, 3))
+					wpn = makeWeapon(wpn, P_RandomRange(0, 3))
 
 					if wpn
 						addWeapon(mo, wpn)
