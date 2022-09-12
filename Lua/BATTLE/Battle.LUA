@@ -5157,6 +5157,43 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			end
 		end
 	end
+	
+	if not mo.t_passivebuffer
+		for i = 1, #mo.passiveskills
+			local psv = mo.passiveskills[i]
+			if attackDefs[psv]
+				psv = attackDefs[$]
+				if psv.passive == PSV_ENDTURN and mo.t_passivestuff < i
+					mo.t_passivestuff = i
+					mo.t_passivebuffer = i
+					mo.t_passivetimer = 0	-- reset this timer
+					break	-- ^ this is the skill we're going to use
+				end
+			end
+		end
+	end
+	
+	if mo.t_passivebuffer
+		-- tp cam to us:
+		local cam = btl.cam
+		--CAM_stop(cam)
+		local x, y = mo.x + 320*cos(mo.angle + ANG1*50), mo.y + 320*sin(mo.angle + ANG1*50)
+		P_TeleportMove(cam, x, y, mo.z + FRACUNIT*80)
+		cam.angle = R_PointToAngle2(cam.x, cam.y, mo.x, mo.y)
+		cam.aiming = -ANG1*2
+		CAM_stop(cam)
+
+		mo.atk_attacker = mo	-- makes these function correctly, we don't get getDamage for this, so we have to set it manually.
+		local atk = attackDefs[mo.passiveskills[mo.t_passivebuffer]]
+		mo.atk_hitby = BTL_copyAttackDefs(atk)	-- ditto
+		BTL_logMessage(mo.battlen, atk.name)
+		if atk.anim(mo, {mo}, {mo}, mo.t_passivetimer)
+			mo.t_passivebuffer = 0
+			mo.t_passivetimer = 0
+		end
+		mo.t_passivetimer = $ +1
+		return
+	end
 
 	-- before we cleanse, iterate t2 for dead enemies with extra flag for blowup seq
 	for k,v in ipairs(btl.fighters)
