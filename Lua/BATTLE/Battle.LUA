@@ -4940,7 +4940,7 @@ rawset(_G, "BTL_handleStatusConditions", function(pn, timer)
 			status_cam(mo)
 			mo.status_turns = $+1
 		elseif timer == 5
-			BTL_logMessage(pn, mo.name.. " it hit by desperation...")
+			BTL_logMessage(pn, mo.name.. " is hit by desperation...")
 		elseif timer == 30
 			playSound(mo.battlen, sfx_absorb)
 			local damage = mo.maxsp/20
