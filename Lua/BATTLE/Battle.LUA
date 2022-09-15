@@ -2637,7 +2637,9 @@ local function BTL_turnHandler(pn)
 			mo.atk_attacker = mo	-- makes these function correctly, we don't get getDamage for this, so we have to set it manually.
 			local atk = attackDefs[mo.passiveskills[mo.t_passivebuffer]]
 			mo.atk_hitby = BTL_copyAttackDefs(atk)	-- ditto
-			BTL_logMessage(mo.battlen, atk.name)
+			if mo.t_passivetimer == 1 
+				BTL_logMessage(mo.battlen, atk.name) 
+			end
 			if atk.anim(mo, {mo}, {mo}, mo.t_passivetimer)
 				mo.t_passivebuffer = 0
 				mo.t_passivetimer = 0
@@ -5186,7 +5188,9 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 		mo.atk_attacker = mo	-- makes these function correctly, we don't get getDamage for this, so we have to set it manually.
 		local atk = attackDefs[mo.passiveskills[mo.t_passivebuffer]]
 		mo.atk_hitby = BTL_copyAttackDefs(atk)	-- ditto
-		BTL_logMessage(mo.battlen, atk.name)
+		if mo.t_passivetimer == 1
+			BTL_logMessage(mo.battlen, atk.name)
+		end
 		if atk.anim(mo, {mo}, {mo}, mo.t_passivetimer)
 			mo.t_passivebuffer = 0
 			mo.t_passivetimer = 0
