@@ -124,11 +124,7 @@ rawset(_G, "DNG_startShop", function(mo, shop)
 
 	M_closeMenu(mo)	-- close any open menu to avoid conflicts
 	if server.gamemode ~= GM_VOIDRUN
-		if data.shopmusic
-			S_ChangeMusic(data.shopmusic, true, mo.player, nil, nil, 400)
-		else
-			S_ChangeMusic("SHOP", true, mo.player, nil, nil, 400)
-		end
+			S_ChangeMusic(data.shopmusic or "SHOP", true, mo.player, nil, nil, 400)
 	end
 
 	-- generate tabs for shit we can buy
