@@ -2007,7 +2007,7 @@ local function BTL_attackCastCheck(mo)
 		return false
 	end
 
-	if attackDefs[mo.attackref].nocast and attackDefs[mo.attackref].nocast(mo.targets, mo.t_target)
+	if attackDefs[mo.attackref].nocast and attackDefs[mo.attackref].nocast(mo.targets, mo.t_target, mo)
 		playSound(mo.battlen, sfx_not)
 		return false
 	else
