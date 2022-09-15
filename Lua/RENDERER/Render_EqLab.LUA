@@ -1,6 +1,6 @@
 -- Rendering functions for shops.
 
-local eqlab_choices = {
+rawset(_G, "eqlab_choices", {
 
 	[ELS_MAIN] = {
 		"Enhance",
@@ -28,9 +28,9 @@ local eqlab_choices = {
 		"Do it",
 		"Back",
 	},
-}
+})
 
-local function drawMoney(v, mo, timer)
+rawset(_G, "drawMoney", function(v, mo, timer)
 
 	local btl = server.P_BattleStatus[mo.player.P_party]
 	if not btl return end
@@ -40,7 +40,7 @@ local function drawMoney(v, mo, timer)
 	local y = 100
 	PDraw(v, x, y, v.cachePatch("H_MACCA"), V_SNAPTOTOP|V_SNAPTOLEFT)
 	V_drawString(v, x+55, y+9, btl.macca, "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, "right", 31, nil)
-end
+end)
 
 rawset(_G, "R_drawEquipLab", function(v, mo)
 	if not mo.equiplab

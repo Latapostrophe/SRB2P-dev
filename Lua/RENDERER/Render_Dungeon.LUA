@@ -1,10 +1,10 @@
 -- dungeon HUD rendering
 
-local cv_showreapertimer = CV_RegisterVar({
+rawset(_G, "cv_showreapertimer", CV_RegisterVar({
   name = "d_showreapertimer",
   defaultvalue = "On",
   PossibleValue = CV_OnOff,
-})
+}))
 
 -- draws the tartarus block selection.
 -- numblocks is how many blocks are to be displayed (min 1)
@@ -43,17 +43,17 @@ rawset(_G, "renderPartyBars", function(v, p)
 	end
 end)
 
-local menuopt_main = {
+rawset(_G, "menuopt_main", {
 	"SKILL",
 	"ITEM",
 	"PERSONA",
 	"PARTY",
 	"SOCIAL LINKS",
 	"SYSTEM"
-}
+})
 
 -- draw the main pause menu
-local function h(v, p)
+rawset(_G, "renderMainPause", function(v, p)
 	-- draw background glass
 	local mo = p.mo
 	local timers = p.mo.d_hudtimers
@@ -76,7 +76,7 @@ local function h(v, p)
 	for i = 1, #menuopt_main do
 		V_drawString(v, mx - (110 + i*6), 20 + (i*20), menuopt_main[i], "FPIMP", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*80/100)
 	end
-end
+end)
 
 -- dungeon log
 local DNG_log = {}
@@ -85,7 +85,7 @@ rawset(_G, "DNG_logMessage", function(msg)
 end)
 local r_y = 0	-- y shift when messages get deleted
 
-local function renderLog(v, by)
+rawset(_G, "renderLog", function(v, by)
 
 	local size = FRACUNIT/2
 	local addy = 10
@@ -113,9 +113,9 @@ local function renderLog(v, by)
 		end
 	end
 	r_y = $/2
-end
+end)
 
-local n2color = {
+rawset(_G, "n2color", {
 	[T_EMPTY] = 1,			-- walkable
 	[T_ITEM] = 65,			-- item
 	[T_ENEMY] = 1,			-- enemy
@@ -124,16 +124,16 @@ local n2color = {
 	[T_PIT] = 31,			-- pit
 	[T_SPIKES] = 31,		-- spike pit (monad)
 	[T_FLOORSPIKES] = 10,	-- spikes
-}
+})
 
 local gridsize = 2	-- grid size in map units
 local size_x, size_y = 48, 48
 
-local function R_table2coords(i)
+rawset(_G, "R_table2coords", function(i)
 	return i-1 - ((i-1) / size_x) * size_x, (i-1) / size_x
-end
+end)
 
-local function renderMiniMap(v, p)
+rawset(_G, "renderMiniMap", function(v, p)
 
 	if DNG_isTartarusMap()
 	and server.map and server.fastmap
@@ -243,10 +243,10 @@ local function renderMiniMap(v, p)
 
 		renderLog(v, 60)	-- render log above the mmap
 	end
-end
+end)
 
 
-local floor_specialinfo = {
+rawset(_G, "floor_specialinfo", {
     [1] = "transition",
     -- Thebel Block
     [5] = "miniboss",
@@ -287,7 +287,7 @@ local floor_specialinfo = {
 	[65535+15] = "miniboss",
 	[65535+16] = "boss",
 
-}
+})
 
 rawset(_G, "renderTitlecard", function(v)
 	if not server.entrycard or not server.entrytime then return end
@@ -432,7 +432,7 @@ end)
 
 
 -- floor transition
-local function renderFloorFadeMask(v, p)
+rawset(_G, "renderFloorFadeMask", function(v, p)
 	local mo = p.mo
 	if not mo return end
 	if not mo.spr_nfloor return end
@@ -442,7 +442,7 @@ local function renderFloorFadeMask(v, p)
 		trannyflag = max(1, TICRATE - mo.spr_nfloor)
 	end
 	drawScreenwidePatch(v, v.cachePatch("H_RIP4"), nil, trannyflag<<V_ALPHASHIFT)
-end
+end)
 
 -- Voidrun info: (also used in battle renderer)
 rawset(_G, "renderVRInfo", function(v, p, btl)
@@ -491,7 +491,7 @@ end)
 
 -- Renders transitions between blocks...
 
-local function renderBlockTransition(v)
+rawset(_G, "renderBlockTransition", function(v)
 	local t = server.blocktrans
 	v.drawFill()
 	tilePatch(v, "SKY6000", 0, 0, 0)
@@ -568,9 +568,9 @@ local function renderBlockTransition(v)
 	if fadestr > 0
 		v.fadeScreen(0xFF00, min(31, fadestr))
 	end
-end
+end)
 
-local buttonscales = {
+rawset(_G, "buttonscales", {
 
 	{FRACUNIT/2, FRACUNIT*2},
 	{FRACUNIT*3/4, FRACUNIT*3/2},
@@ -578,9 +578,9 @@ local buttonscales = {
 	{FRACUNIT*3/2, FRACUNIT*3/4},
 	{FRACUNIT*2, FRACUNIT/2},
 	{FRACUNIT*3/2, FRACUNIT*3/4}
-}
+})
 
-local function renderSaveButton(v, p)
+rawset(_G, "renderSaveButton", function(v, p)
 	local timer = p.mo.m_savebutton
 	local xscale = FRACUNIT
 	local yscale = FRACUNIT
@@ -602,47 +602,47 @@ local function renderSaveButton(v, p)
 			V_drawString(v, 230, 93, str:sub(1, tt), "FPIMP", 0, "center", 0, 31)			
 		end
 	end
-end
+end)
 
 local hu_ticker = 0
 
-local cv_titlecard = CV_RegisterVar({
+rawset(_G, "cv_titlecard", CV_RegisterVar({
 	name = "hu_titlecard",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
-local cv_mmap = CV_RegisterVar({
+rawset(_G, "cv_mmap", CV_RegisterVar({
 	name = "hu_mmap",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
-local cv_date = CV_RegisterVar({
+rawset(_G, "cv_date", CV_RegisterVar({
 	name = "hu_date",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
-local cv_command = CV_RegisterVar({
+rawset(_G, "cv_command", CV_RegisterVar({
 	name = "hu_command",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
-local cv_partybars = CV_RegisterVar({
+rawset(_G, "cv_partybars", CV_RegisterVar({
 	name = "hu_partybars",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
-local cv_event = CV_RegisterVar({
+rawset(_G, "cv_event", CV_RegisterVar({
 	name = "hu_event",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
-local function R_drawVRTimeOut(v)
+rawset(_G, "R_drawVRTimeOut", function(v)
 	local t = server.P_DungeonStatus.VR_timeout
 	local rt = (TICRATE+10) -t
 
@@ -663,9 +663,9 @@ local function R_drawVRTimeOut(v)
 	end	
 	v.drawScaled(160<<FRACBITS, 100<<FRACBITS, scale, v.cachePatch("H_TIMEUP"), flag)
 	
-end
+end)
 
-hud.add(function(v, p, c)
+rawset(_G, "HUDDungeonThinker", function(v, p, c)
 	if not EnabledHuds["Dungeon"] return end
 	hu_ticker = $+1
 
@@ -763,3 +763,4 @@ hud.add(function(v, p, c)
 	end
 
 end)
+hud.add(HUDDungeonThinker)

@@ -14,11 +14,11 @@ local consumehp_target = 32
 local barlen = 31
 
 
-local cv_bplayerbars = CV_RegisterVar({
+rawset(_G, "cv_bplayerbars", CV_RegisterVar({
 	name = "hu_battlebars",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
 -- draw player status at full scale.
 -- used for the player currently taking their turn.
@@ -467,37 +467,37 @@ rawset(_G, "drawPlayerBarSmall", function(v, x, y, mo, trans, flags)
 end)
 
 -- draw the main command selection for a player
-local cmd_names = {
+rawset(_G, "cmd_names", {
 	"Attack",
 	"Skill",
 	"Items",
 	"Personas",
 	"Tactics",
 	"Defend"
-}
+})
 
-local cmd_hints = {
+rawset(_G, "cmd_hints", {
 	"Use a physical attack",
 	"Attack with your Persona",
 	"Use an item",
 	"Switch Sub-Personas",
 	"Use battle tactics",
 	"Protect from next attack",
-}
+})
 
-local cmd_patches = {}
-local cmd_patches_grey = {}
-local cmd_patches_atk = {}
-local cmd_patches_atk_grey = {}
+rawset(_G, "cmd_patches", {})
+rawset(_G, "cmd_patches_grey", {})
+rawset(_G, "cmd_patches_atk", {})
+rawset(_G, "cmd_patches_atk_grey", {})
 
-local cv_command = CV_RegisterVar({
+rawset(_G, "cv_command", CV_RegisterVar({
 	name = "hu_bcommandwheel",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
 
-local function drawPlayerCommands(v, mo)
+rawset(_G, "drawPlayerCommands", function(v, mo)
 
 	if mo.t_hidehud return end
 
@@ -598,10 +598,10 @@ local function drawPlayerCommands(v, mo)
 		V_drawString(v, x + 27, 119, "BATON", "FPIMP", nil, 0, 0, 31)
 		V_drawString(v, x + 32, 129, "PASS", "FPIMP", nil, 0, 0, 31)
 	end
-end
+end)
 
 -- draw the main command selection fading out when you get to a new menu.
-local function drawPlayerCommands_Out(v, mo)
+rawset(_G, "drawPlayerCommands_Out", function(v, mo)
 	local battle = server.P_BattleStatus[mo.battlen]
 	local timer = battle.hudtimer.to
 	local bg_timer = timer-1
@@ -647,10 +647,10 @@ local function drawPlayerCommands_Out(v, mo)
 
 	V_drawString(v, 40, 172, cmd_names[mo.t_command+1]:upper(), "FPIMP", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
 
-end
+end)
 
 -- draw the main command selection fading back in when exiting from a submenu to the main menu
-local function drawPlayerCommands_In(v, mo)
+rawset(_G, "drawPlayerCommands_In", function(v, mo)
 	local battle = server.P_BattleStatus[mo.battlen]
 	local timer = 7-battle.hudtimer.out
 
@@ -699,9 +699,9 @@ local function drawPlayerCommands_In(v, mo)
 	end
 
 	V_drawString(v, 40, 172, cmd_names[mo.t_command+1]:upper(), "FPIMP", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
-end
+end)
 
-local skill_color = {
+rawset(_G, "skill_color", {
 	[1] = SKINCOLOR_ORANGE,
 	[2] = SKINCOLOR_ORANGE,
 	[4] = SKINCOLOR_ORANGE,
@@ -717,9 +717,9 @@ local skill_color = {
 	[4096] = SKINCOLOR_GREEN,
 	[8192] = SKINCOLOR_BLUE,
 	[16384] = SKINCOLOR_WHITE,
-}
+})
 
-local ep_colors = {
+rawset(_G, "ep_colors", {
 	[0] = SKINCOLOR_BLACK,
 	[1] = SKINCOLOR_EMERALD,
 	[2] = SKINCOLOR_PURPLE,
@@ -728,7 +728,7 @@ local ep_colors = {
 	[5] = SKINCOLOR_RED,
 	[6] = SKINCOLOR_ORANGE,
 	[7] = SKINCOLOR_GREY,
-}
+})
 
 -- also used in menus
 rawset(_G, "drawSkillCommand", function(v, x, y, mo, skill, active, have_item, skillcard, equip, owner)	-- draw skill command (also applies for items)
@@ -877,14 +877,14 @@ local sparkframe = 65
 local h_emeraldpow = 0
 local prevlv = 0
 
-local cv_partystatus = CV_RegisterVar({
+rawset(_G, "cv_partystatus", CV_RegisterVar({
 	name = "hu_partystatus",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
 -- draw party status
-local function drawPartyStatus(v, p, battle)
+rawset(_G, "drawPartyStatus", function(v, p, battle)
 
 	if not cv_partystatus.value return end
 
@@ -1082,9 +1082,9 @@ local function drawPartyStatus(v, p, battle)
 
 
 	end
-end
+end)
 
-local function drawPlayerSkillList(v, p, mo)
+rawset(_G, "drawPlayerSkillList", function(v, p, mo)
 
 	local timer = server.P_BattleStatus[mo.battlen].hudtimer.to
 	local out_timer = server.P_BattleStatus[mo.battlen].hudtimer.out or 7
@@ -1147,9 +1147,9 @@ local function drawPlayerSkillList(v, p, mo)
 	drawPartyStatus(v, p, server.P_BattleStatus[mo.battlen])
 	V_drawString(v, 60, 150, unknown and "" or skill.desc, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
 
-end
+end)
 
-local function drawPlayerItemList(v, p, mo)
+rawset(_G, "drawPlayerItemList", function(v, p, mo)
 	local items = server.P_BattleStatus[mo.battlen].items
 	local timer = server.P_BattleStatus[mo.battlen].hudtimer.to
 	local out_timer = server.P_BattleStatus[mo.battlen].hudtimer.out or 7
@@ -1179,9 +1179,9 @@ local function drawPlayerItemList(v, p, mo)
 	else
 		V_drawString(v, 60, 150, skill.desc or "Description missing", "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
 	end
-end
+end)
 
-local function drawTargetHP(v, x, y, mo, tgt, aff)
+rawset(_G, "drawTargetHP", function(v, x, y, mo, tgt, aff)
 	local btl = server.P_BattleStatus[mo.battlen]
 	if mo.t_ctarget <= 6
 
@@ -1250,9 +1250,9 @@ local function drawTargetHP(v, x, y, mo, tgt, aff)
 		end*/
 		PDraw(v, x>>FRACBITS, y>>FRACBITS - 8, v.cachePatch(prefix..1+(leveltime%20/10)))
 	end
-end
+end)
 
-local function drawPlayerTarget(v, p, c, mo)
+rawset(_G, "drawPlayerTarget", function(v, p, c, mo)
 	local ret_anim = {4, 3, 2, 1}
 
 	if not mo.t_target return end
@@ -1355,10 +1355,10 @@ local function drawPlayerTarget(v, p, c, mo)
 
 		V_drawString(v, 300 + mo.t_ctarget*24, 10, str, "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, "right", 0, 31)
 	end
-end
+end)
 
 
-local function drawGuardPrompt(v, p, mo)
+rawset(_G, "drawGuardPrompt", function(v, p, mo)
 	local timer = server.P_BattleStatus[mo.battlen].hudtimer.to
 	local out_timer = server.P_BattleStatus[mo.battlen].hudtimer.out or 7
 	if server.P_BattleStatus[mo.battlen].hudtimer.out
@@ -1369,16 +1369,16 @@ local function drawGuardPrompt(v, p, mo)
 		drawPlayerCommands_Out(v, mo)	-- for entry
 	end
 	V_drawString(v, 60, 150, "Confirm again \nto guard.", "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
-end
+end)
 
-local function drawTransition(v, battle)
+rawset(_G, "drawTransition", function(v, battle)
 	local timer = battle.hudtimer.transition
 	if not timer return end
 
 	local x = (6-timer)-25
 	local y = 450 - (6-timer)*85
 	v.draw(x, y, v.cachePatch("TRANSI"))
-end
+end)
 
 -- draw something's stats
 -- v is the drawer, mo the object to draw stats from, and timer is used for the animation
@@ -1662,37 +1662,37 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 end)
 
 -- Tactics menu
-local tactic_names = {
+rawset(_G, "tactic_names", {
 	"ANALYSIS",
 	"STATUS",
 	"PARTY",
 	"ESCAPE"
-}
+})
 
-local tactic_descs = {
+rawset(_G, "tactic_descs", {
 	"Check enemy details",
 	"View stat changes accross\nthe battlefield",
 	"Change party command between \nAI and players",
 	"Attempt to flee"
-}
+})
 
-local thinker_names = {
+rawset(_G, "thinker_names", {
 	[0] = "Manual",
 	[1] = "Act Freely",
 	[2] = "Knock Down",
 	[3] = "Full Assault",
 	[4] = "Same Target",
 	[5] = "Heal/Support"
-}
+})
 
-local thinker_descs = {
+rawset(_G, "thinker_descs", {
 	[0] = "Manually control this\nparty member",
 	[1] = "Act according to the situation\nof the battle",
 	[2] = "Try to knock down every\nenemy to initiate All-Out\nAttacks",
 	[3] = "Disregard the party's condition\nand attack enemies with\nthe strongest skills available",
 	[4] = "Attacks the same target\nas yours",
 	[5] = "Focus on healing and buffing\nother party members with skills\nor items"
-}
+})
 
 local debuff_ico_lookup = {
 	[COND_BURN] = "DB_BURN",
@@ -1711,7 +1711,7 @@ local debuff_ico_lookup = {
 	[COND_SUPER] = "B_SUPR",
 }
 
-local function drawTactics(v, p, mo)
+rawset(_G, "drawTactics", function(v, p, mo)
 	local btl = server.P_BattleStatus[mo.battlen]
 	local timer = btl.hudtimer.to
 	local out_timer = btl.hudtimer.out or 7
@@ -1973,12 +1973,12 @@ local function drawTactics(v, p, mo)
 			end
 		end
 	end
-end
+end)
 
 local prevskilllist = {}	-- used to slide old skills away
 
 -- test function
-local function drawSubPersonaSelection(v, p, mo)
+rawset(_G, "drawSubPersonaSelection", function(v, p, mo)
 
 	local btl = server.P_BattleStatus[mo.battlen]
 
@@ -2131,10 +2131,10 @@ local function drawSubPersonaSelection(v, p, mo)
 	end
 
 	--"drawSkillCommand", function(v, x, y, mo, skill, active, have_item, skillcard, equip)
-end
+end)
 
 -- subpersona switch
-local function drawsubPswitch(v, p, mo)
+rawset(_G, "drawsubPswitch", function(v, p, mo)
 	local btl = server.P_BattleStatus[mo.battlen]
 	if not btl.hudtimer.equipsubp return end
 
@@ -2143,10 +2143,10 @@ local function drawsubPswitch(v, p, mo)
 	if v.patchExists(p)
 		drawScreenwidePatch(v, v.cachePatch(p))
 	end
-end
+end)
 
 -- draw turn order
-local function drawTurnOrder(v, p, mo)
+rawset(_G, "drawTurnOrder", function(v, p, mo)
 	local turn = 1
 
 	-- for SAFETY, *I* need to know how many turns *I* have.
@@ -2196,9 +2196,9 @@ local function drawTurnOrder(v, p, mo)
 	PDraw(v, 0, max(0, 200 - mo.t_turnordertimer*32), v.cachePatch("H_ORDER"), V_SNAPTOLEFT)
 	v.drawFill(26, 0, 2, min(400, mo.t_turnordertimer*32), 135|V_SNAPTOTOP|V_SNAPTOLEFT)
 
-end
+end)
 
-local function drawPlayerTurn(v, p, c, mo)
+rawset(_G, "drawPlayerTurn", function(v, p, c, mo)
 	if p.P_party ~= mo.party return end
 
 	local cmd = {}
@@ -2315,11 +2315,11 @@ local function drawPlayerTurn(v, p, c, mo)
 	end
 
 	drawsubPswitch(v, p, mo)
-end
+end)
 
 
 
-local function drawDamagedEnemies(v, p, c, mo)
+rawset(_G, "drawDamagedEnemies", function(v, p, c, mo)
 	if not mo or not mo.valid return end	-- no!
 	local btl = server.P_BattleStatus[mo.battlen]
 
@@ -2487,9 +2487,9 @@ local function drawDamagedEnemies(v, p, c, mo)
 			V_drawString(v, sx+2, sy+15, "DOWN", "NFNT", 0, "center", 135, nil)*/
 		end
 	end
-end
+end)
 
-local function drawOneMore(v, p, c, mo)
+rawset(_G, "drawOneMore", function(v, p, c, mo)
 	local t = (TICRATE - (mo.onemore*2))
 	local t2 = (t<<FRACBITS) /3
 	local t3 = t2
@@ -2520,12 +2520,12 @@ local function drawOneMore(v, p, c, mo)
 	v.drawIndex((130)<<FRACBITS +t3/3, (80)<<FRACBITS +t3/8, FRACUNIT/2, v.cachePatch("H_1M_1"), 0, 0)
 	v.drawIndex((123)<<FRACBITS -t3/3, (93)<<FRACBITS -t3/7, FRACUNIT/2, v.cachePatch("H_1M_2"), 0, 31)
 	v.drawIndex((120)<<FRACBITS -t3/3, (90)<<FRACBITS -t3/7, FRACUNIT/2, v.cachePatch("H_1M_2"), 0, 0)
-end
+end)
 
 local cons_cache	-- used so that we don't need to cache something new everytime
 					-- it must be cleared if btl.console_time == TICRATE*2	(new message)
 
-local function drawBattleLog(v, mo)
+rawset(_G, "drawBattleLog", function(v, mo)
 
 	if not mo or not mo.valid return end
 	-- this can be drawn very early on, but there's no turnorder as of yet when that happens
@@ -2568,12 +2568,12 @@ local function drawBattleLog(v, mo)
 			ypos = $+10
 		end
 	end
-end
+end)
 
 
 -- used for hold up and short negociation.
 -- all out attack is handled elsewhere.
-local function drawHoldUp(v, p, c, mo)
+rawset(_G, "drawHoldUp", function(v, p, c, mo)
 
 	local btl = server.P_BattleStatus[mo.battlen]
 	local mo = btl.turnorder[1]
@@ -2629,10 +2629,10 @@ local function drawHoldUp(v, p, c, mo)
 	-- get text:
 	local txt = charStats[mo.stats] and charStats[mo.stats].aoa_quote or "Here's our chance!"
 	V_drawString(v, 10, 158, txt, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31, FRACUNIT*2/3)
-end
+end)
 
 -- transition from field to btl
-local function drawBattleStart(v, btl)
+rawset(_G, "drawBattleStart", function(v, btl)
 	if btl.hudtimer.start else return end
 	local t = (btl.advantage and TICRATE*3 or TICRATE) - btl.hudtimer.start +2
 
@@ -2694,12 +2694,12 @@ local function drawBattleStart(v, btl)
 			end
 		end
 	end
-end
+end)
 
 local loc_trns = 0
 
 -- battle end: exp + lvup + newskill
-local function drawBattleEnd(v, btl)
+rawset(_G, "drawBattleEnd", function(v, btl)
 	local t = btl.hudtimer.endb or 0
 	local it = TICRATE*3/2 - btl.hudtimer.endb	-- invert t
 	-- transition from battle to EXP screen:
@@ -2876,7 +2876,7 @@ local function drawBattleEnd(v, btl)
 			v.drawFill()
 		end
 	end
-end
+end)
 
 -- draws a "TAKE YOUR TIME" loading screen with a "msg" reason
 -- is net is true, this will draw a "communicating..." message as well.
@@ -3137,15 +3137,15 @@ rawset(_G, "drawLevelUp", function(v, p, battle)
 end)
 
 -- draw battle finish wipe
-local function drawFinish(v, battle)
+rawset(_G, "drawFinish", function(v, battle)
 	local timer = battle.r_wipe
 	v.drawFill(0, 0, 20*timer, 500, 31|V_SNAPTOTOP|V_SNAPTOLEFT)
-end
+end)
 
-local cutinStart = TICRATE*3/2
-local cutinframetime = {0, -3, -5, -18, -20, -22, -24}
+rawset(_G, "cutinStart", TICRATE*3/2)
+rawset(_G, "cutinframetime", {0, -3, -5, -18, -20, -22, -24})
 
-local function drawPlayerCutin(v, mo)
+rawset(_G, "drawPlayerCutin", function(v, mo)
 	local timer = mo.cutintimer
 	if not timer return end
 
@@ -3169,10 +3169,10 @@ local function drawPlayerCutin(v, mo)
 			end
 		end
 	end
-end
+end)
 
 -- Attack HUD animations for BS_ACTION and cut ins
-local function drawAttackAnim(v, p, c, mo)
+rawset(_G, "drawAttackAnim", function(v, p, c, mo)
 	local mo = server.P_BattleStatus[mo.battlen].turnorder[1]
 
 	if mo.cutin
@@ -3186,10 +3186,10 @@ local function drawAttackAnim(v, p, c, mo)
 	if mo.attack and attackDefs[mo.attackref].hudfunc
 		attackDefs[mo.attackref].hudfunc(v, mo, server.P_BattleStatus[mo.battlen].atktimer)
 	end
-end
+end)
 
 -- Attack HUD animations layered above the regular UI:
-local function drawAttackAnim2(v, p, c, mo)
+rawset(_G, "drawAttackAnim2", function(v, p, c, mo)
 	if not mo or not server.P_BattleStatus[mo.battlen].atktimer
 		return
 	end	-- what
@@ -3197,9 +3197,9 @@ local function drawAttackAnim2(v, p, c, mo)
 	if mo.attack and mo.attack.hudfunc2
 		mo.attack.hudfunc2(v, mo, server.P_BattleStatus[mo.battlen].atktimer)
 	end
-end
+end)
 
-local card_names = {
+rawset(_G, "card_names", {
 	"Suit of Swords",
 	"Suit of Cups",
 	"Suit of Coins",
@@ -3207,9 +3207,9 @@ local card_names = {
 	"Persona Card",
 	"Blank Card",
 	"Penalty Card",
-}
+})
 
-local function drawShuffleTime(v, p, c)
+rawset(_G, "drawShuffleTime", function(v, p, c)
 	local mo = p.maincontrol
 	local btl = server.P_BattleStatus[mo.battlen]
 
@@ -3311,20 +3311,20 @@ local function drawShuffleTime(v, p, c)
 			V_drawString(v, 160, 148, "The curse of Death looms on you...", "NFNT", V_SNAPTOBOTTOM, "center", 35, 31)
 		end
 	end
-end
+end)
 
 -- multiplayer tally
 
 local loc_scroll = 0	-- local scrolling on the result, legit cba to handle this per player
 
-local mpfinish_headerlines = {
+rawset(_G, "mpfinish_headerlines", {
 	"DUNGEON STATS",
 	"BATTLE STATS",
 	"ITEM STATS",
-}
+})
 
 -- {displayname, _Gstatename}
-local mpfinish_stats = {
+rawset(_G, "mpfinish_stats", {
 	[1] = {	-- for DUNGEON STATS
 		{"Time", "time", true},	-- special case for the n display
 		{"Floors played", "floors"},
@@ -3355,12 +3355,12 @@ local mpfinish_stats = {
 		{"Rings Enhanced", "ringsenhanced"},
 
 	},
-}
+})
 
-local mpfinish_startdrawat = 48
-local mpfinish_startfadetimer = 70
+rawset(_G, "mpfinish_startdrawat", 48)
+rawset(_G, "mpfinish_startfadetimer", 70)
 
-local function drawMPFinish(v, p, btl)
+rawset(_G, "drawMPFinish", function(v, p, btl)
 
 	-- start with a fade screen
 	local timer = btl.hudtimer.mpfinish
@@ -3455,9 +3455,9 @@ local function drawMPFinish(v, p, btl)
 		local maxscroll = linen - 200	-- 200 = screen h
 		loc_scroll = min(maxscroll, $+2)
 	end
-end
+end)
 
-local function drawGameOver(v, btl)
+rawset(_G, "drawGameOver", function(v, btl)
 	local t = btl.hudtimer.gameover
 
 	if not t
@@ -3501,17 +3501,17 @@ local function drawGameOver(v, btl)
 		local ript = 8- newt
 		drawScreenwidePatch(v, v.cachePatch("H_RIP"..min(4, (ript/2)+1)))
 	end
-end
+end)
 
 -- just a fade lol
-local function drawPVPOver(v, btl)
+rawset(_G, "drawPVPOver", function(v, btl)
 
 	local t = btl.hudtimer.pvpend
 	if t < TICRATE
 		local flag = (t/4) << V_ALPHASHIFT
 		drawScreenwidePatch(v, v.cachePatch("H_RIP4"), nil, flag)
 	end
-end
+end)
 
 -- clock / score
 
@@ -3551,7 +3551,7 @@ rawset(_G, "drawTimeClock", function(v, bx, by, time, low)
 	end
 end)
 
-local function drawChallengeStatus(v, mo, btl)
+rawset(_G, "drawChallengeStatus", function(v, mo, btl)
 
 	local bx, by = 30, min(-100 + btl.battletime*8, 16)
 	local time = btl.timer
@@ -3565,9 +3565,9 @@ local function drawChallengeStatus(v, mo, btl)
 			V_drawString(v, bx, by+16, "\x82".."+"..btl.addscore, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, "center", clr, 31)
 		end
 	end
-end
+end)
 
-local function drawMoreEnemies(v, btl)
+rawset(_G, "drawMoreEnemies", function(v, btl)
 	local ht = btl.hudtimer.moreenemies
 
 	local t = (TICRATE*5/2 - (ht))
@@ -3622,9 +3622,9 @@ local function drawMoreEnemies(v, btl)
 
 	v.drawIndex(tx2 + 4<<FRACBITS, ty2 + 4<<FRACBITS, tscale, v.cachePatch("H_MOREN2"), 0, 31)
 	v.drawIndex(tx2, ty2, tscale, v.cachePatch("H_MOREN2"), 0, 0)
-end
+end)
 
-local function drawChallengeEnd(v, btl)
+rawset(_G, "drawChallengeEnd", function(v, btl)
 
 	-- timer: btl.hudtimer.challengeend
 	-- win?: btl.challengewon
@@ -3664,25 +3664,25 @@ local function drawChallengeEnd(v, btl)
 			V_drawString(v, 160, 150, "Press F12 to spectate other Players.", "NFNT", V_SNAPTOBTTOM, "center", 0, 31)
 		end
 	end
-end
+end)
 
-local frametotransframe = {"TRANS_E3", "TRANS_E2", "TRANS_E1", "TRANS_E2", "TRANS_E1", "TRANS_E3"}
-local function drawEnemyTransition(v, mo)
+rawset(_G, "frametotransframe", {"TRANS_E3", "TRANS_E2", "TRANS_E1", "TRANS_E2", "TRANS_E1", "TRANS_E3"})
+rawset(_G, "drawEnemyTransition", function(v, mo)
 	local ind = mo.enemy_trans/2
 	if ind
 		drawScreenwidePatch(v, v.cachePatch(frametotransframe[ind]), v.getColormap(TC_DEFAULT, SKINCOLOR_RED))
 	end
-end
+end)
 
-local cv_physhud = CV_RegisterVar({
+rawset(_G, "cv_physhud", CV_RegisterVar({
 	name = "hu_physhud",
 	defaultvalue = "On",
 	PossibleValue = CV_OnOff,
-})
+}))
 
-local raredrop_frame = A
-local possible_frames = {A, B, C, D, E, F, G, H, I, J, K, P, Q}
-local rainbow_colours = {SKINCOLOR_BLUEBELL, SKINCOLOR_AQUA, SKINCOLOR_EMERALD, SKINCOLOR_PERIDOT, SKINCOLOR_YELLOW, SKINCOLOR_APRICOT, SKINCOLOR_ORANGE, SKINCOLOR_FLAME, SKINCOLOR_RED, SKINCOLOR_RUBY, SKINCOLOR_MAGENTA, SKINCOLOR_PASTEL}
+rawset(_G, "raredrop_frame", A)
+rawset(_G, "possible_frames", {A, B, C, D, E, F, G, H, I, J, K, P, Q})
+rawset(_G, "rainbow_colours", {SKINCOLOR_BLUEBELL, SKINCOLOR_AQUA, SKINCOLOR_EMERALD, SKINCOLOR_PERIDOT, SKINCOLOR_YELLOW, SKINCOLOR_APRICOT, SKINCOLOR_ORANGE, SKINCOLOR_FLAME, SKINCOLOR_RED, SKINCOLOR_RUBY, SKINCOLOR_MAGENTA, SKINCOLOR_PASTEL})
 
 local basex = 160
 local basey = 80
@@ -3818,7 +3818,7 @@ rawset(_G, "R_drawRareDrop", function(v, p)
 	end
 end)
 
-hud.add(function(v, p, c)
+rawset(_G, "HUDBattleThinker", function(v, p, c)
 	if not EnabledHuds["Battle"] return end
 	hud.disable("score")
 	hud.disable("time")
@@ -3949,3 +3949,4 @@ hud.add(function(v, p, c)
 		loc_scroll = 0
 	end
 end)
+hud.add(HUDBattleThinker)

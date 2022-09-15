@@ -1,6 +1,6 @@
 hud.disable("rankings")
 
-local function drawPlayerInfo(v, p, showhp, ypos)
+rawset(_G, "drawPlayerInfo", function(v, p, showhp, ypos)
 	if not (p.valid and p.mo) return end
 	local ico = charStats[p.mo.skin] and charStats[p.mo.skin].icon or charStats["sonic"].icon
 			
@@ -36,9 +36,9 @@ local function drawPlayerInfo(v, p, showhp, ypos)
 		V_drawString(v, 192, ypos, str2, "NFNT", 0, V_SNAPTOLEFT, 181, 31)
 		
 	end
-end
+end)
 
-hud.add(function(v, lp, c)
+rawset(_G, "HUDScoreboardThinker", function(v, lp, c)
 	if not EnabledHuds["Scoreboard"] return end
 	if not netgame return end	-- Not in singleplayer.
 	
@@ -73,4 +73,5 @@ hud.add(function(v, lp, c)
 			ypos = $+10
 		end
 	end
-end, "scores")
+end)
+hud.add(HUDScoreboardThinker, "scores")
