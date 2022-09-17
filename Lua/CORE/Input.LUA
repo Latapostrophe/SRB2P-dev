@@ -166,18 +166,26 @@ addHook("PlayerCmd", function(p, cmd)
 			-- cmd is a pointer, we can modify it directly without passing by player
 
 			-- i wish lua had switch case
-			if e == KEY_ARROWU
+			if e == KEY_ARROWU and not chat_buf
 				cmd.forwardmove = 30
-			elseif e == KEY_ARROWD
+			elseif e == KEY_ARROWD and not chat_buf
 				cmd.forwardmove = -30
-			elseif e == KEY_ARROWR
+			elseif e == KEY_ARROWR and not chat_buf
 				cmd.sidemove = 30
-			elseif e == KEY_ARROWL
+			elseif e == KEY_ARROWL and not chat_buf
 				cmd.sidemove = -30
 			elseif e == KEY_ENTER
-				cmd.buttons = $|BT_JUMP
+				if chat_buf
+					cmd.buttons = $ & ~BT_JUMP
+				else
+					cmd.buttons = $|BT_JUMP
+				end
 			elseif e == KEY_BACKSPACE
-				cmd.buttons = $|BT_USE
+				if chat_buf
+					cmd.buttons = $ & ~BT_USE
+				else
+					cmd.buttons = $|BT_USE
+				end
 			end
 		end
 	end
