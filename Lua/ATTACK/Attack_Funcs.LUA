@@ -2213,6 +2213,23 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 
 		end
 	end
+	
+	-- ondamage passives
+	for i = 1, #mo.atk_attacker.passiveskills
+		local psv = mo.atk_attacker.passiveskills[i]
+
+		if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
+			attackDefs[psv].anim(mo.atk_attacker, mo)
+		end
+	end	
+
+	for i = 1, #mo.passiveskills
+		local psv = mo.passiveskills[i]
+
+		if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
+			attackDefs[psv].anim(mo, mo.atk_attacker)
+		end
+	end
 end)
 
 rawset(_G, "damageSP", function(mo, damage, damagestate, reset)		-- damage an object's SP

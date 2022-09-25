@@ -178,9 +178,17 @@ local psv_constants = {
 
 	"PSV_LINKHITS",		-- Increase power of Link skills initial hits and allows them to hit more often (power for increase (%), accuracy for # hits)
 	"PSV_LINKBOOST",	-- Increase the power of every subsequent link hit by +power% for every subsequent hit.
-
+	
+	-- should've been named DAMAGECALC probably but we're not gonna change that now...
+	-- A lot of the above PSV constants are kinda deprecated by this but there's no real reason to remove them.
 	"PSV_TRIGGERDAMAGE",			-- executes 'anim' with mo, target, dmg ad crit arugments when target is damaged. The returned value will be used as damage.
 	"PSV_TRIGGERDAMAGE_RECEIVED",	-- ditto, but executes for the receiving end
+	
+	-- Ditto but runs when damage is physically received
+	"PSV_ONDAMAGE",
+	"PSV_ONDAMAGE_RECEIVED",
+	
+	
 }
 
 for i = 1, #psv_constants
