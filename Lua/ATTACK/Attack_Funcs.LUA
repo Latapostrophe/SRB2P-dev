@@ -1522,6 +1522,27 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	-- if the attack was Technical, there's a 1/2 chance of crit.
 end)
 
+
+local function run_ondamagepassives(mo)
+	print("run")
+	-- ondamage passives
+	for i = 1, #mo.atk_attacker.passiveskills
+		local psv = mo.atk_attacker.passiveskills[i]
+
+		if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
+			attackDefs[psv].anim(mo.atk_attacker, mo)
+		end
+	end
+
+	for i = 1, #mo.passiveskills
+		local psv = mo.passiveskills[i]
+
+		if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
+			attackDefs[psv].anim(mo, mo.atk_attacker)
+		end
+	end
+end
+
 rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage an object
 	-- set damage to nil to use the sevrer pre-calculated damage!
 	local btl = server.P_BattleStatus[mo.battlen]
@@ -1653,6 +1674,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 			BTL_logMessage(mo.battlen, "The Homunculus sacrificed itself!")
 			mo.homunculus = nil
 		end
+		run_ondamagepassives(mo)
 		return
 	end
 	local downsyndrome, dmgtable
@@ -1712,6 +1734,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 		end
 
 		mo.dodgeanim = TICRATE/2
+		run_ondamagepassives(mo)
 		return
 	end
 
@@ -2213,23 +2236,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 
 		end
 	end
-	
-	-- ondamage passives
-	for i = 1, #mo.atk_attacker.passiveskills
-		local psv = mo.atk_attacker.passiveskills[i]
-
-		if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
-			attackDefs[psv].anim(mo.atk_attacker, mo)
-		end
-	end	
-
-	for i = 1, #mo.passiveskills
-		local psv = mo.passiveskills[i]
-
-		if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
-			attackDefs[psv].anim(mo, mo.atk_attacker)
-		end
-	end
+	run_ondamagepassives(mo)
 end)
 
 rawset(_G, "damageSP", function(mo, damage, damagestate, reset)		-- damage an object's SP
