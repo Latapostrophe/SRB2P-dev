@@ -49,7 +49,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			end
 		end
 	end
-	
+
 	-- HEALING SKILLS
 	local heal
 	local healcount = 0	-- used to know if we should prioritize using single target heal or multi target heal
@@ -111,8 +111,8 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 			return healskill
 		end
 	end
-	
-	
+
+
 	-- PATRA
 	local usepatra
 	local patracount = 0	-- used to know if we should prioritize using single target heal or multi target heal
@@ -163,9 +163,9 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 		else
 			return patraskill
 		end
-	end	
-	
-	
+	end
+
+
 	local dekunda
 	local dekundaskill
 	local dekaja
@@ -7180,6 +7180,7 @@ rawset(_G, "enemyList", {
 		--personascale = FRACUNIT*2,
 
 		anim_stand = 		{SPR_MNMS, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, E, C, E, C, D, D, D, 3},
+		anim_stand_hurt = 	{SPR_MNMS, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, E, C, E, C, D, D, D, 8},
 		anim_move =			{SPR_MNMS, C, C, D, D, 2},
 		anim_run =			{SPR_MNMS, C, C, D, D, 2},
 		anim_hurt =			{SPR_MNMS, F, 35},
@@ -7241,6 +7242,7 @@ rawset(_G, "enemyList", {
 		--personascale = FRACUNIT*2,
 
 		anim_stand = 		{SPR_MNMS, A, B, 8},
+		anim_stand_hurt = 	{SPR_MNMS, A, B, 16},
 		anim_move =			{SPR_MNMS, A, B, 8},
 		anim_run =			{SPR_MNMS, A, B, 8},
 		anim_hurt =			{SPR_MNMS, A, 35},
@@ -7328,6 +7330,7 @@ rawset(_G, "enemyList", {
 		--personascale = FRACUNIT*2,
 
 		anim_stand = 		{SPR_MNMS, G, H, I, H, 8},
+		anim_stand_hurt = 	{SPR_MNMS, G, H, I, H, 16},
 		anim_move =			{SPR_MNMS, G, H, I, H, 8},
 		anim_run =			{SPR_MNMS, G, H, I, H, 8},
 		anim_hurt =			{SPR_MNMS, G, 35},
@@ -7372,6 +7375,7 @@ rawset(_G, "enemyList", {
 		nopvp = true,
 
 		anim_stand = 		{SPR_MNMS, K, L, M, L, 8},
+		anim_stand_hurt = 	{SPR_MNMS, K, L, M, L, 16},
 		anim_move =			{SPR_MNMS, K, L, M, L, 8},
 		anim_run =			{SPR_MNMS, K, L, M, L, 8},
 		anim_hurt =			{SPR_MNMS, K, 35},
@@ -7442,6 +7446,7 @@ rawset(_G, "enemyList", {
 		nopvp = true,
 
 		anim_stand = 		{SPR_MNMS, N, O, P, O, 8},
+		anim_stand_hurt = 	{SPR_MNMS, N, O, P, O, 16},
 		anim_move =			{SPR_MNMS, N, O, P, O, 8},
 		anim_run =			{SPR_MNMS, N, O, P, O, 8},
 		anim_hurt =			{SPR_MNMS, N, 35},

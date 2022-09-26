@@ -290,17 +290,17 @@ end)
 rawset(_G, "BTL_initEnemyAnims", function(mo)
 	local tbl = enemyList[mo.enemy]
 	mo.anim_stand = tbl.anim_stand or {SPR_PLAY, A, 1}
-	mo.anim_stand_hurt = tbl.anim_stand_hurt or {SPR_PLAY, A, 1}
-	mo.anim_stand_bored = tbl.anim_stand_bored or {SPR_PLAY, B, C, B, C, B, C, B, C, A, 10}
-	mo.anim_move = tbl.anim_move or {SPR_PLAY, D, E, F, G, H, I, J, K, 2}
-	mo.anim_run = tbl.anim_move or {SPR_PLAY, Q, R, S, T, 2}
-	mo.anim_atk = tbl.anim_atk or {SPR_PLAY, M, N, O, 2}
-	mo.anim_hurt = tbl.anim_hurt or {SPR_PLAY, 27, 35}
-	mo.anim_getdown = tbl.anim_getdown or {SPR_PLAY, 27, 1}
-	mo.anim_downloop = tbl.anim_downloop or {SPR_PLAY, 27, 1}
-	mo.anim_getup = tbl.anim_getup or {SPR_PLAY, A, 1}
-	mo.anim_death = tbl.anim_death or {SPR_PLAY, 27, 30}
-	mo.anim_revive = tbl.anim_revive or {SPR_PLAY, A, 30}
+	mo.anim_stand_hurt = tbl.anim_stand_hurt or copyTable(tbl.anim_stand) or {SPR_PLAY, A, 1}
+	mo.anim_stand_bored = tbl.anim_stand_bored or copyTable(tbl.anim_stand) or {SPR_PLAY, B, C, B, C, B, C, B, C, A, 10}
+	mo.anim_move = tbl.anim_move or copyTable(tbl.anim_stand) or {SPR_PLAY, D, E, F, G, H, I, J, K, 2}
+	mo.anim_run = tbl.anim_move or copyTable(tbl.anim_stand) or {SPR_PLAY, Q, R, S, T, 2}
+	mo.anim_atk = tbl.anim_atk or copyTable(tbl.anim_stand) or {SPR_PLAY, M, N, O, 2}
+	mo.anim_hurt = tbl.anim_hurt or copyTable(tbl.anim_stand) or {SPR_PLAY, 27, 35}
+	mo.anim_getdown = tbl.anim_getdown or copyTable(tbl.anim_stand) or {SPR_PLAY, 27, 1}
+	mo.anim_downloop = tbl.anim_downloop or copyTable(tbl.anim_stand) or {SPR_PLAY, 27, 1}
+	mo.anim_getup = tbl.anim_getup or copyTable(tbl.anim_stand) or {SPR_PLAY, A, 1}
+	mo.anim_death = tbl.anim_death or copyTable(tbl.anim_stand) or {SPR_PLAY, 27, 30}
+	mo.anim_revive = tbl.anim_revive or copyTable(tbl.anim_stand) or {SPR_PLAY, A, 30}
 	mo.persona = personaList[tbl.persona]
 
 	if tbl.anim_evoker
