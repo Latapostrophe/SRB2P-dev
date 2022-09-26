@@ -1258,6 +1258,12 @@ local function BTL_BuildTurnOrder_PVP(pn)
 
 	for k,v in ipairs(btl.fighters)
 		if not v or not v.valid return end
+
+		if simulate
+			v.saveacted = v.acted
+			v.saveturnset = v.turnset
+		end
+
 		v.acted = nil	-- new turn, new chance
 		v.turnset = nil
 
@@ -1289,7 +1295,7 @@ local function BTL_BuildTurnOrder_PVP(pn)
 		if addwho
 			local instances = 1
 
-			if addwho.turns
+			if addwho.turns and not simulate
 				instances = max(1, addwho.turns)
 			end
 
@@ -1309,10 +1315,22 @@ local function BTL_BuildTurnOrder_PVP(pn)
 		turnorder[i].priority = 0
 	end
 
+
+	if simulate
+		for k,v in ipairs(btl.fighters)
+			if not v or not v.valid return end
+
+			v.acted = v.saveacted
+			v.turnset = v.saveturnset
+			v.saveacted = nil
+			v.saveturnset = nil
+		end
+	end
+
 	return turnorder
 end
 
-local function BTL_BuildTurnOrder(pn)
+local function BTL_BuildTurnOrder(pn, simulate)
 	--dprint("PN "..pn..": Building turn order...")
 
 	if SRB2P_runHook("BattleTurnOrder", battle) return end
@@ -1332,6 +1350,12 @@ local function BTL_BuildTurnOrder(pn)
 
 	for k,v in ipairs(btl.fighters)
 		if not v or not v.valid return end
+
+		if simulate
+			v.saveacted = v.acted
+			v.saveturnset = v.turnset
+		end
+
 		v.acted = nil	-- new turn, new chance
 		v.turnset = nil
 
@@ -1356,7 +1380,7 @@ local function BTL_BuildTurnOrder(pn)
 		if addwho
 			local instances = 1
 
-			if addwho.turns
+			if addwho.turns and not simulate
 				instances = max(1, addwho.turns)
 			end
 
@@ -1373,6 +1397,17 @@ local function BTL_BuildTurnOrder(pn)
 	-- kill priority:
 	for i = 1, #turnorder
 		turnorder[i].priority = 0
+	end
+
+	if simulate
+		for k,v in ipairs(btl.fighters)
+			if not v or not v.valid return end
+
+			v.acted = v.saveacted
+			v.turnset = v.saveturnset
+			v.saveacted = nil
+			v.saveturnset = nil
+		end
 	end
 
 	return turnorder
@@ -2947,6 +2982,7 @@ local function BTL_turnHandler(pn)
 				mo.targettype = mo.attack.target
 			end
 
+
 			CAM_followtarget(mo)
 			BTL_handletargetselection(mo)	-- can target while selecting command
 
@@ -3062,6 +3098,7 @@ local function BTL_turnHandler(pn)
 				BTL_setSkillTargets(mo, mo.attack.target)
 				--mo.targets = mo.allies
 
+			-- go to tactics
 			elseif inputs[BT_WEAPONPREV] == 1
 
 				if mo.commandflags
@@ -3079,6 +3116,53 @@ local function BTL_turnHandler(pn)
 				btl.hudtimer.tactic_in = TICRATE*2/3
 				mo.t_act = ACT_TACTICS
 				mo.t_endtactics = true	-- will instantly ready return when you exit the analysis
+
+			elseif inputs[BT_WEAPONNEXT] == 1
+
+				mo.t_act = ACT_TURNORDER
+				mo.t_turnordertimer = 1
+
+				-- move the camera
+				local cam = btl.cam
+				local gox = btl.arena_coords[1] + 600*cos(btl.arena_coords[4] - ANG1*20)
+				local goy = btl.arena_coords[2] + 600*sin(btl.arena_coords[4] - ANG1*20)
+
+				CAM_goto(cam, gox, goy, mo.z + FRACUNIT*150)
+				CAM_angle(cam, R_PointToAngle2(gox, goy, btl.arena_coords[1], btl.arena_coords[2]))
+				CAM_aiming(cam, ANG1*(-7))
+
+				mo.t_turnorder = copyTable(btl.turnorder)
+				-- kill duplicates... (we'll use enemy.turns for the display)
+				local i = #mo.t_turnorder
+				-- iterate backwards because we're removing shit.
+				while i
+					if i > 1 and mo.t_turnorder[i-1] == mo.t_turnorder[i]
+						table.remove(mo.t_turnorder, i)
+					end
+
+					i = $-1
+				end
+
+				local remaining = server.gamemode == GM_PVP and BTL_BuildTurnOrder_PVP(pn, true) or BTL_BuildTurnOrder(pn, true)
+				-- get this with "simulation" mode.
+				for i = 1, #remaining
+					if remaining[i] == mo
+						break
+					else
+						mo.t_turnorder[#mo.t_turnorder+1] = remaining[i]
+					end
+				end
+			end
+
+		elseif mo.t_act == ACT_TURNORDER
+
+			mo.t_turnordertimer = $+1
+
+			-- this state only checks for a button press.
+			if not inputs[BT_WEAPONNEXT]
+				mo.t_turnorder = 0
+				mo.t_act = ACT_NONE
+				CAM_followtarget(mo, true)	-- force go back
 			end
 
 		elseif mo.t_act == ACT_SUBPERSONAS

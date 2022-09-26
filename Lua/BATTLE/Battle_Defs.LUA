@@ -159,19 +159,19 @@ rawset(_G, "BTL_getMacca", function(btl, amount)
 	elseif amount < 0
 		btl.netstats.maccaspent = $ - amount
 	end
-		
+
 	btl.macca = max(0, $ + (amount or 0))
 end)
 
 -- add item to the item list
 rawset(_G, "BTL_addItem", function(btl, item, amount)
 	-- scan btl.items to see if we already have some of those:
-	
+
 	if not itemDefs[item]
 		print("\x82".."WARNING: ".."Attempt to add invalid item \'"..item.."\' into battle status "..btl.n)
 		return
 	end
-	
+
 	if btl.netstats
 		btl.netstats.itemsfound = $+1
 	end
@@ -238,7 +238,7 @@ end)
 -- this copies all of the attack's properties except the functions which must not be saved into userdata
 rawset(_G, "BTL_copyAttackDefs", function(atk)
 	local res = {}
-	
+
 	for k, p in pairs(atk)
 		if type(p) ~= "function"
 			res[k] = p
@@ -474,15 +474,15 @@ end)
 rawset(_G, "shuffleTable", function(t)
     if not (t) then return end
     if not (#t) then return t end
-    
+
     local randomTable = {}    -- what we'll be returning
     for i = #t, 1, -1
         local index = P_RandomRange(1, i)
-        
+
         table.insert(randomTable, t[index])
         table.remove(t, index)
     end
-    
+
     return randomTable
 end)
 
@@ -518,6 +518,7 @@ rawset(_G, "ACT_ITEM", 4)		-- pop item menu
 rawset(_G, "ACT_TACTICS", 5)	-- tactics menu
 rawset(_G, "ACT_BATONTOUCH", 6)	-- baton pass
 rawset(_G, "ACT_SUBPERSONAS", 7)	-- persona sub menu
+rawset(_G, "ACT_TURNORDER", 8)		-- turn order
 
 -- bots
 
@@ -688,12 +689,12 @@ end, MT_BATTLECAMERA)
 -- Makes the player follow the camera
 -- if setttics is on, also forces-set awayviewtics to the chosen value
 rawset(_G, "CAM_linkPlayer", function(cam, p, settics)
-	
+
 	p.awayviewmobj = cam
 	if settics
 		p.awayviewtics = settics
 	end
-	
+
 	p.awayviewaiming = cam.aiming
 end)
 
@@ -1048,7 +1049,7 @@ rawset(_G, "BTL_spawnEnemy", function(source, t, prev, x, y, z, addang)
 		enm.angle = ang + ANG1*180
 	else
 		enm.angle = source.angle
-	end	
+	end
 	ANIM_set(enm, enm.anim_stand, true)
 
 	return enm
@@ -1057,9 +1058,9 @@ end)
 
 -- Change the current enemy to a new type of enemy, reseting all of its stats
 rawset(_G, "BTL_changeEnemy", function(enm, new)
-	
+
 	assert(enemyList[new], "Enemy "..new.." does not exist.")
-	
+
 	enm.enemy = new
 	BTL_initEnemy(enm)
 
@@ -1071,8 +1072,8 @@ rawset(_G, "BTL_changeEnemy", function(enm, new)
 
 	enm.scale = enm.escale
 	enm.shadowscale = enm.escale
-	ANIM_set(enm, enm.anim_stand, true)	
-	
+	ANIM_set(enm, enm.anim_stand, true)
+
 end)
 
 -- returns true if mo has a status that would prevent all out attacks
@@ -1127,10 +1128,10 @@ rawset(_G, "BTL_start", function(party, wave, adv, mus, func, allowboss, norun)
 		end
 		team_2[#team_2+1] = enm
 	end
-	
+
 	if norun or adv == 2
 		server.P_BattleStatus[party].boss = true	-- make sure we can't run away etc etc
-	end	
+	end
 
 	--local mus = MUS_PlayRandomBattleMusic("mus_battle_mb")
 	if fboss
@@ -1150,7 +1151,7 @@ rawset(_G, "BTL_start", function(party, wave, adv, mus, func, allowboss, norun)
 		end
 
 	end
-	
+
 	BTL_StartBattle(party, team_1, team_2, adv or 0, func, mus)
 end)
 

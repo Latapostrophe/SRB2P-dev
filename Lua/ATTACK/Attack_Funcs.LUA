@@ -1210,8 +1210,10 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	for i = 1, #attacker.passiveskills
 		local skl = attacker.passiveskills[i]
 		if attackDefs[skl]
+		and attackDefs[skl].passive == PSV_CRITBOOST
 			local atk = attackDefs[skl]
 			if atk.power
+				critchance = $ or 0
 				critchance = $ + critchance*atk.power / 100
 			end
 		end
