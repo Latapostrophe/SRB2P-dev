@@ -107,9 +107,8 @@ rawset(_G, "drawPlayerBar", function(v, x, y, mo, flags)
 
 	if atk and mo.status_condition ~= COND_SUPER	-- super has no cost
 		if atk.costtype == CST_HP
-			atkcost = atk.cost
-		elseif atk.costtype == CST_HPPERCENT
-			atkcost = atk.cost * mo.maxhp / 100
+		or atk.costtype == CST_HPPERCENT
+			atkcost = ATK_getSkillCost(mo, atk)
 		end
 	end
 
@@ -184,9 +183,8 @@ rawset(_G, "drawPlayerBar", function(v, x, y, mo, flags)
 
 	if atk and mo.status_condition ~= COND_SUPER	-- super has no cost
 		if atk.costtype == CST_SP
-			atkcost = atk.cost
-		elseif atk.costtype == CST_SPPERCENT
-			atkcost = atk.cost * mo.maxsp / 100
+		or atk.costtype == CST_SPPERCENT
+			atkcost = ATK_getSkillCost(mo, atk)
 		end
 	end
 
@@ -840,21 +838,15 @@ rawset(_G, "drawSkillCommand", function(v, x, y, mo, skill, active, have_item, s
 	if not skill.cost or unknown return end	-- nothing to draw here
 
 	if skill.costtype == CST_HPPERCENT
-		cost = skill.cost*mo.maxhp/100
-	elseif skill.costtype == CST_HP
-		cost = skill.cost
+	or skill.costtype == CST_HP
+		cost = ATK_getSkillCost(owner or mo, skill)
 	elseif skill.costtype == CST_EP	-- emerald power
-		cost = skill.cost
+		cost = ATK_getSkillCost(owner or mo, skill)
 		pp = {"C_EP"}
 	elseif skill.costtype == CST_SP
 	or skill.costtype == CST_SPPERCENT
-
+		cost = ATK_getSkillCost(owner or mo, skill)
 		pp = {"H_SP", 181}
-		if skill.costtype == CST_SP
-			cost = skill.cost
-		elseif skill.costtype == CST_SPPERCENT
-			cost = skill.cost*mo.maxsp/100
-		end
 	end
 
 	if mo.status_condition == COND_SUPER

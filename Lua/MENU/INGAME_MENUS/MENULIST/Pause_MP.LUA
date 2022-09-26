@@ -361,8 +361,14 @@ local function m_skill_inputs(mo)
 				end
 			end
 
-			-- consume SP:
-			b.sp = $ - skill.cost
+			-- consume HP/SP:
+			if skill.costtype == CST_SP
+			or skill.costtype == CST_SPPERCENT
+				b.sp = $ - ATK_getSkillCost(b, skill)
+			elseif skill.costtype == CST_HP
+			or skill.costtype == CST_HPPERCENT
+				b.sp = $ - ATK_getSkillCost(b, skill)
+			end
 
 			return true
 		else
@@ -386,8 +392,14 @@ local function m_skill_inputs(mo)
 			end
 			VFX_Play(tgt.control.mo, tgt.control.mo == mo and VFX_HEALSELF or VFX_HEAL)
 
-			-- consume SP:
-			b.sp = $ - skill.cost
+			-- consume HP/SP:
+			if skill.costtype == CST_SP
+			or skill.costtype == CST_SPPERCENT
+				b.sp = $ - ATK_getSkillCost(b, skill)
+			elseif skill.costtype == CST_HP
+			or skill.costtype == CST_HPPERCENT
+				b.sp = $ - ATK_getSkillCost(b, skill)
+			end
 		end
 	end
 	return true

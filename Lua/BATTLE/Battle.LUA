@@ -1858,13 +1858,14 @@ local function BTL_skillCostDepletion(mo)
 	local skill = mo.attack
 	if not skill return end
 	local btl = server.P_BattleStatus[mo.battlen]
-	local cost = skill.cost
+	local cost = ATK_getSkillCost(mo, skill)
 
 	if mo.status_condition == COND_SUPER
 		return true	-- free!
 	end
 
 	if skill.costtype == CST_HP
+	or skill.costtype == CST_HPPERCENT
 		if mo.boss then return true end
 
 		if mo.hp <= cost
@@ -1874,17 +1875,8 @@ local function BTL_skillCostDepletion(mo)
 		else
 			mo.losehp = cost
 		end
-	elseif skill.costtype == CST_HPPERCENT
-		if mo.boss then return true end
-
-		if mo.hp <= mo.maxhp*cost/100
-			playSound(mo.battlen, sfx_not)
-			BTL_logMessage(mo.battlen, "Insufficient HP")
-			return
-		else
-			mo.losehp = mo.maxhp*cost/100
-		end
 	elseif skill.costtype == CST_SP
+	or skill.costtype == CST_SPPERCENT
 		if mo.sp < cost
 			playSound(mo.battlen, sfx_not)
 			BTL_logMessage(mo.battlen, "Insufficient SP")
@@ -1900,21 +1892,12 @@ local function BTL_skillCostDepletion(mo)
 			return
 		end
 
-		if btl.emeraldpow < cost*100
+		if btl.emeraldpow < cost
 			playSound(mo.battlen, sfx_not)
 			BTL_logMessage(mo.battlen, "Insufficient Emerald Power")
 			return
 		else
-			btl.emeraldpow = $- cost*100
-		end
-
-	elseif skill.costtype == CST_SPPERCENT
-		if mo.sp <= mo.maxsp*cost/100
-			playSound(mo.battlen, sfx_not)
-			BTL_logMessage(mo.battlen, "Insufficient SP")
-			return
-		else
-			mo.losesp = mo.maxsp*cost/100
+			btl.emeraldpow = $- cost
 		end
 	end
 

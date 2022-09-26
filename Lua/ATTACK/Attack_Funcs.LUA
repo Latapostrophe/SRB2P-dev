@@ -18,6 +18,47 @@ for i = 1, #dmg_type_consts
 	rawset(_G, dmg_type_consts[i], i-1)
 end
 
+rawset(_G, "ATK_getSkillCost", function(mo, skl)
+
+	local cost = 0
+	if skl.costtype == CST_HP
+	or skl.costtype == CST_SP
+		cost = skl.cost
+	elseif skl.costtype == CST_HPPERCENT
+		cost = mo.hp*skl.cost/100
+	elseif skl.costtype == CST_SP
+		cost = mo.sp*skl.cost/100
+	elseif skl.costtype == CST_EP
+		cost = skl.cost*100
+	end
+
+	-- outside of battle, passiveskills don't exist.
+	if mo.passiveskills
+		for i = 1, #mo.passiveskills
+			local skl = mo.passiveskills[i]
+			if attackDefs[skl]
+			and attackDefs[skl].passive == PSV_SKILLCOST
+				cost = attackDefs[skl].anim(mo, skl, cost) or $
+			end
+		end
+	else
+		local skls = copyTable(mo.skills)
+		if mo.skillcard
+			skls[#skls+1] = mo.skillcard
+		end
+
+		for i = 1, #skls
+			local skl = skls[i]
+			if attackDefs[skl]
+			and attackDefs[skl].passive == PSV_SKILLCOST
+				cost = attackDefs[skl].anim(mo, skl, cost) or $
+			end
+		end
+	end
+
+	return max(0, cost)
+end)
+
 -- get random drops from enemies
 rawset(_G, "getRandomDrops", function(mo)
 	--print("get random drops...")

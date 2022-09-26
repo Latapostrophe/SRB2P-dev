@@ -187,9 +187,15 @@ local psv_constants = {
 	-- Ditto but runs when damage is physically received
 	"PSV_ONDAMAGE",
 	"PSV_ONDAMAGE_RECEIVED",
-	
+
 	-- Boosts critical hits odds by power% (multiplicative)
 	"PSV_CRITBOOST",
+
+	-- gets passed usable skills of 'mo', must return the new cost.
+	-- the COST TYPE CANNOT BE CHANGED.
+	-- anim(mo, skill, cost)
+	-- return the cost
+	"PSV_SKILLCOST",
 }
 
 for i = 1, #psv_constants
