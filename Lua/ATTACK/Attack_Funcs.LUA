@@ -1165,6 +1165,16 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	-- have we done a critical hit?
 	local crit = false
 	local critchance = (atk.physical and attacker.weapon) and attacker.weapon.crit or atk.critical
+	-- search for PSV_CRITBOOST...
+	for i = 1, #attacker.passiveskills
+		local skl = attacker.passiveskills[i]
+		if attackDefs[skl]
+			local atk = attackDefs[skl]
+			if atk.power
+				critchance = $ + critchance*atk.power / 100
+			end
+		end
+	end
 
 	local attacker_luck = attacker.luck + (attacker.luck*attacker.buffs["crit"][1] / 50)
 	-- The receiving end can't resist a critical rate buff by having buffs of their own.
@@ -1524,7 +1534,6 @@ end)
 
 
 local function run_ondamagepassives(mo)
-	print("run")
 	-- ondamage passives
 	for i = 1, #mo.atk_attacker.passiveskills
 		local psv = mo.atk_attacker.passiveskills[i]

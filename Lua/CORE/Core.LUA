@@ -187,8 +187,9 @@ local psv_constants = {
 	-- Ditto but runs when damage is physically received
 	"PSV_ONDAMAGE",
 	"PSV_ONDAMAGE_RECEIVED",
-
-
+	
+	-- Boosts critical hits odds by power% (multiplicative)
+	"PSV_CRITBOOST",
 }
 
 for i = 1, #psv_constants
