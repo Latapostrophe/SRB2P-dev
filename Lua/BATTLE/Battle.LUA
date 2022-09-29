@@ -17,7 +17,7 @@ rawset(_G, "spawnbattlecam", function()
 	return camera
 end)
 
-local lives_difficulty = {
+rawset(_G, "lives_difficulty", {
 	-1,	-- infinite
 	10,	-- easy
 	7,	-- normal
@@ -25,7 +25,7 @@ local lives_difficulty = {
 	3,	-- very hard
 	1,	-- risky
 	0,	-- monad
-}
+})
 
 -- man it would be cool if we could modify the way map starts too
 rawset(_G, "BTL_MapLoad", function()
@@ -469,7 +469,7 @@ rawset(_G, "BTL_logMessage", function(pn, message)
 	btl.console_time = TICRATE*2
 end)
 
-local function BTL_handleLog(pn)
+rawset(_G, "BTL_handleLog", function(pn)
 	local btl = server.P_BattleStatus[pn]
 	if btl.console_time
 		btl.console_time = $-1
@@ -477,10 +477,10 @@ local function BTL_handleLog(pn)
 			btl.console = nil
 		end
 	end
-end
+end)
 
 -- battle persona thinker:
-addHook("MobjThinker", function(ps)
+rawset(_G, "battlePersonaThinker", function(ps)
 	if not ps or not ps.valid return end
 
 	if not ps.target or not ps.target.valid return end
@@ -547,7 +547,8 @@ addHook("MobjThinker", function(ps)
 			return
 		end
 	end
-end, MT_BTL_PERSONA)
+end)
+addHook("MobjThinker", battlePersonaThinker, MT_BTL_PERSONA)
 
 -- split skills between battle skills and passive skills
 rawset(_G, "BTL_splitSkills", function(v)
@@ -767,7 +768,7 @@ rawset(_G, "BTL_equipSubPersona", function(mo, subp)
 end)
 
 -- add mo's control to the plist if possible
-local function BTL_addtoplist(btl, mo)
+rawset(_G, "BTL_addtoplist", function(btl, mo)
 	if mo and mo.valid and mo.control and mo.control.valid
 
 		-- check for dupes
@@ -783,7 +784,7 @@ local function BTL_addtoplist(btl, mo)
 			btl.plist[#btl.plist+1] = mo.control
 		end
 	end
-end
+end)
 
 rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music, p1)	-- teams can be anything lol.
 	local battleStatus = server.P_BattleStatus[pn]
@@ -1260,7 +1261,7 @@ rawset(_G, "BTL_mainHandler", function(pn)
 	end
 end)
 
-local function BTL_BuildTurnOrder_PVP(pn)
+rawset(_G, "BTL_BuildTurnOrder_PVP", function(pn)
 
 	local btl = server.P_BattleStatus[pn]
 	btl.turn = $+1
@@ -1345,9 +1346,9 @@ local function BTL_BuildTurnOrder_PVP(pn)
 	end
 
 	return turnorder
-end
+end)
 
-local function BTL_BuildTurnOrder(pn, simulate)
+rawset(_G, "BTL_BuildTurnOrder", function(pn, simulate)
 	--dprint("PN "..pn..": Building turn order...")
 
 	if SRB2P_runHook("BattleTurnOrder", battle) return end
@@ -1428,9 +1429,9 @@ local function BTL_BuildTurnOrder(pn, simulate)
 	end
 
 	return turnorder
-end
+end)
 
-local function BTL_startHandler(pn, func)	-- make the battle start!
+rawset(_G, "BTL_startHandler", function(pn, func)	-- make the battle start!
 												-- not very optimized but this doesn't necessarily matter.
 	local battle = server.P_BattleStatus[pn]
 	-- how do we start the battle?
@@ -1497,9 +1498,9 @@ local function BTL_startHandler(pn, func)	-- make the battle start!
 			return true
 		end
 	end
-end
+end)
 
-local function resetEntitiesPositions(pn)
+rawset(_G, "resetEntitiesPositions", function(pn)
 	--dprint("Reseting battle entities coordinates...")
 	local battle = server.P_BattleStatus[pn]
 	for i = 1, #battle.fighters
@@ -1539,9 +1540,9 @@ local function resetEntitiesPositions(pn)
 			end
 		end
 	end
-end
+end)
 
-local function BTL_resetPlayerMenu(mo)
+rawset(_G, "BTL_resetPlayerMenu", function(mo)
 
 	local battle = server.P_BattleStatus[mo.battlen]
 
@@ -1572,9 +1573,9 @@ local function BTL_resetPlayerMenu(mo)
 			mo.t_itemselect = 1
 		end
 	end
-end
+end)
 
-local function BTL_setupPlayerTurn(mo)
+rawset(_G, "BTL_setupPlayerTurn", function(mo)
 	if mo.control and not mo.turnset
 		local battle = server.P_BattleStatus[mo.battlen]
 		mo.t_hidehud = false
@@ -1620,9 +1621,9 @@ local function BTL_setupPlayerTurn(mo)
 		an = R_PointToAngle2(battle.cam.x, battle.cam.y, tx, ty)
 		battle.cam.angle = an
 	end
-end
+end)
 
-local function BTL_VRRevive(pn)
+rawset(_G, "BTL_VRRevive", function(pn)
 
 	local btl = server.P_BattleStatus[pn]
 	btl.VR_revives = $ or {}
@@ -1697,7 +1698,7 @@ local function BTL_VRRevive(pn)
 		return unfinished
 
 	end
-end
+end)
 
 rawset(_G, "BTL_preturnHandler", function(pn)		-- here, we do stuff with whoever's turn it is!
 	local battle = server.P_BattleStatus[pn]
@@ -1766,7 +1767,7 @@ end)
 
 -- This function allows the player to select their target, to be ran whenever the player should be able to select target with left/right.
 -- if not ran, target doesn't update.
-local function BTL_handletargetselection(mo)
+rawset(_G, "BTL_handletargetselection", function(mo)
 
 	if not mo.targets return end
 	local maxt = #mo.targets
@@ -1805,10 +1806,10 @@ local function BTL_handletargetselection(mo)
 	elseif mo.attack.target == TGT_ALLY
 		mo.t_cmem[2] = mo.t_target
 	end
-end
+end)
 
 -- function to call when switching skills to auto update target selection
-local function BTL_setSkillTargets(mo, targettype)
+rawset(_G, "BTL_setSkillTargets", function(mo, targettype)
 	local newtargets
 	if targettype == TGT_ENEMY or targettype == TGT_ALLENEMIES
 		newtargets = mo.enemies
@@ -1875,22 +1876,22 @@ local function BTL_setSkillTargets(mo, targettype)
 			mo.t_target = 1
 		end
 	end
-end
+end)
 
-local command2act = {
+rawset(_G, "command2act", {
 	ACT_SKILL,
 	ACT_ITEM,
 	ACT_SUBPERSONAS,
 	ACT_TACTICS,
 	ACT_DEFEND,
-}
+})
 
 -- ready return from a menu to the main one, the time gap is used for the HUD animation.
-local function BTL_readyReturn(mo)
+rawset(_G, "BTL_readyReturn", function(mo)
 	server.P_BattleStatus[mo.battlen].hudtimer.out = 7
-end
+end)
 
-local function BTL_handleReturn(mo)
+rawset(_G, "BTL_handleReturn", function(mo)
 	if server.P_BattleStatus[mo.battlen].hudtimer.out == 1
 		mo.t_act = ACT_NONE
 		mo.t_selectslide = 0
@@ -1902,11 +1903,11 @@ local function BTL_handleReturn(mo)
 		server.P_BattleStatus[mo.battlen].cam.aiming = ai
 	end
 	return server.P_BattleStatus[mo.battlen].hudtimer.out
-end
+end)
 
 -- sets values to deplete HP/SP on skill selection.
 -- returns false is HP/SP was too low.
-local function BTL_skillCostDepletion(mo)
+rawset(_G, "BTL_skillCostDepletion", function(mo)
 	local skill = mo.attack
 	if not skill return end
 	local btl = server.P_BattleStatus[mo.battlen]
@@ -1954,7 +1955,7 @@ local function BTL_skillCostDepletion(mo)
 	end
 
 	return true
-end
+end)
 
 -- Balance Skills
 rawset(_G, "BTL_balanceSkills", function(mo)
@@ -2024,16 +2025,16 @@ end)
 
 
 -- updates the entity's 'targets' list so that it works with attacks.
-local function BTL_updateTargetForAttack(mo)
+rawset(_G, "BTL_updateTargetForAttack", function(mo)
 	local atk = mo.attack
 	if not atk return end
 	if atk.target == TGT_ALLY or atk.target == TGT_ENEMY or atk.target == TGT_DEAD or atk.target == TGT_CASTER
 		local starget = mo.targets[mo.t_target]
 		mo.targets = {starget}
 	end
-end
+end)
 
-local function BTL_attackCastCheck(mo)
+rawset(_G, "BTL_attackCastCheck", function(mo)
 
 	local btl = server.P_BattleStatus[mo.battlen]	-- check for tutorial hyper mode
 	if btl.tutorial_hyper and mo.status_condition ~= COND_HYPER
@@ -2048,10 +2049,10 @@ local function BTL_attackCastCheck(mo)
 	else
 		return true
 	end
-end
+end)
 
 -- mobjthinker to deplete their hp/sp after choosing skill and other visual quirks
-addHook("MobjThinker", function(mo)
+rawset(_G, "depleteStatsThinker", function(mo)
 
 	if not mo or not mo.valid return end
 
@@ -2136,7 +2137,8 @@ addHook("MobjThinker", function(mo)
 			mo.flags2 = $ & ~MF2_DONTDRAW
 		end
 	end
-end, MT_PFIGHTER)
+end)
+addHook("MobjThinker", depleteStatsThinker, MT_PFIGHTER)
 
 -- basic selection for menus (used in battle first so it's defined here) TODO: move to LUA_MENU when this happens
 -- mobj_t mo -> BATTLE ENTITY to run this from (expects a valid input field)
@@ -2184,7 +2186,7 @@ end)
 
 -- handle in-turn status condtions here
 
-local function status_cam(mo)
+rawset(_G, "status_cam", function(mo)
 
 	local btl = server.P_BattleStatus[mo.battlen]
 	local cam = btl.cam
@@ -2203,9 +2205,9 @@ local function status_cam(mo)
 	cam.angle = R_PointToAngle2(gox, goy, mo.x, mo.y)
 	cam.aiming = -ANG1*4
 	CAM_goto(cam, dest_x, dest_y, mo.z + FRACUNIT*130)
-end
+end)
 
-local function BTL_turnstatusconditions(mo)
+rawset(_G, "BTL_turnstatusconditions", function(mo)
 	local btl = server.P_BattleStatus[mo.battlen]
 	if mo.status_condition
 
@@ -2513,12 +2515,12 @@ local function BTL_turnstatusconditions(mo)
 
 		end
 	end
-end
+end)
 
 -- handle what entities do on their turn;
 -- for players, this means everything relative to your selection and whatnot.
 -- for enemies, they pick an attack relative to their AI
-local function BTL_turnHandler(pn)
+rawset(_G, "BTL_turnHandler", function(pn)
 	local btl = server.P_BattleStatus[pn]
 	local mo = btl.turnorder[1]
 	if not mo or not mo.valid return end
@@ -3767,10 +3769,10 @@ local function BTL_turnHandler(pn)
 			BTL_handletargetselection(mo)	-- can target while selecting command
 		end
 	end
-end
+end)
 
 
-local function doCamAnim(mo, cutin)	-- this function is super messy but it's so worth it
+rawset(_G, "doCamAnim", function(mo, cutin)	-- this function is super messy but it's so worth it
 
 	local cam = server.P_BattleStatus[mo.battlen].cam
 	if not cam or not cam.valid return end
@@ -3978,9 +3980,9 @@ local function doCamAnim(mo, cutin)	-- this function is super messy but it's so 
 	end
 
 	return true
-end
+end)
 
-local function doAttackAnim(mo, cutin)
+rawset(_G, "doAttackAnim", function(mo, cutin)
 	local btl = server.P_BattleStatus[mo.battlen]
 	if cutin
 		if not mo.cutintimer then
@@ -3999,9 +4001,9 @@ local function doAttackAnim(mo, cutin)
 	end
 
 	return true		-- nothing for now.
-end
+end)
 
-local function BTL_actionHandler(pn)	-- attack the enemy!
+rawset(_G, "BTL_actionHandler", function(pn)	-- attack the enemy!
 	local btl = server.P_BattleStatus[pn]
 	local mo = btl.turnorder[1]
 	if not mo or not mo.valid return end
@@ -4432,10 +4434,10 @@ local function BTL_actionHandler(pn)	-- attack the enemy!
 
 		return true	-- this turn's done that you like it or not!
 	end
-end
+end)
 
 
-local function BTL_linkHandler(pn)
+rawset(_G, "BTL_linkHandler", function(pn)
 	local btl = server.P_BattleStatus[pn]
 
 	-- do all links one by one.
@@ -4508,7 +4510,7 @@ local function BTL_linkHandler(pn)
 	else	-- no more link hits to do
 		return true
 	end
-end
+end)
 
 rawset(_G, "BTL_deadEnemiescleanse", function(btl)
 	-- check for dead entities!
@@ -4571,7 +4573,7 @@ rawset(_G, "BTL_fullCleanse", function(btl)
 	end
 end)
 
-local function statusConditionEffects(mo)	-- the little animations over the enemy's head when that happens
+rawset(_G, "statusConditionEffects", function(mo)	-- the little animations over the enemy's head when that happens
 	if not mo or not mo.valid or not mo.hp return end
 	if mo.hp <= 0 return end
 
@@ -4972,7 +4974,7 @@ local function statusConditionEffects(mo)	-- the little animations over the enem
 			orb.fuse = 2
 		end
 	end
-end
+end)
 
 addHook("MobjThinker", statusConditionEffects, MT_PFIGHTER)	-- apply above's thinker
 
@@ -5635,7 +5637,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 	btl.actionstate = ACT_NONE		-- get back on the main menu
 end)
 
-local function BTL_holdupHandler(pn)
+rawset(_G, "BTL_holdupHandler", function(pn)
 
 	local btl = server.P_BattleStatus[pn]
 	local mo = btl.turnorder[1]
@@ -5685,9 +5687,9 @@ local function BTL_holdupHandler(pn)
 		btl.netstats.alloutattacks = $+1
 		VFX_Play(mo, VFX_AOADO)
 	end
-end
+end)
 
-local function BTL_endHandler(pn)
+rawset(_G, "BTL_endHandler", function(pn)
 	local btl = server.P_BattleStatus[pn]
 	local plist = server.playerlist[pn] --btl.plist
 
@@ -5905,7 +5907,7 @@ local function BTL_endHandler(pn)
 		btl.hudtimer.levelup = nil
 		--btl.hudtimer.levelup_enter = TICRATE*2/3
 	end
-end
+end)
 
 -- do level up animation
 rawset(_G, "BTL_levelupAnimation", function(mo)
@@ -6097,7 +6099,7 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 end)
 
 -- BTL_LvUpParanoia: Handle players leaving in case that actually does happen.
-local function BTL_LvUpParanoia(pn)
+rawset(_G, "BTL_LvUpParanoia", function(pn)
 	local btl = server.P_BattleStatus[pn]
 	local plist = server.playerlist[pn]	--btl.plist
 	for i = 1, server.P_netstat.teamlen do
@@ -6110,7 +6112,7 @@ local function BTL_LvUpParanoia(pn)
 			--print("DBG_PARANOIA POSITIVE ("..i..")")
 		end
 	end
-end
+end)
 
 -- BTL_levelUpHandler: handle leveling up
 rawset(_G, "BTL_levelUpHandler", function(pn)
@@ -6515,7 +6517,7 @@ local type_sprite = {
 	SPR_WNDC,
 }
 
-local function BTL_shuffleHandler(pn)
+rawset(_G, "BTL_shuffleHandler", function(pn)
 
 	local btl = server.P_BattleStatus[pn]
 	local cam = btl.cam
@@ -7177,11 +7179,11 @@ local function BTL_shuffleHandler(pn)
 			end
 		end
 	end
-end
+end)
 
 -- score reels for multiplayer
 -- mostly cosmetic just to tell players to give themselves a pat on the back!~
-local function BTL_MPfinish(pn)
+rawset(_G, "BTL_MPfinish", function(pn)
 
 	local btl = server.P_BattleStatus[pn]
 	local t = btl.hudtimer.mpfinish
@@ -7253,9 +7255,9 @@ local function BTL_MPfinish(pn)
 		--G_ExitLevel(1, true)
 		--btl.battlestate = 0	-- do NOT buffer this shit multiple times for some godforsaken reason
 	end
-end
+end)
 
-local function BTL_HyperDie(pn)
+rawset(_G, "BTL_HyperDie", function(pn)
 	local btl = server.P_BattleStatus[pn]
 	local t = btl.extra_blowuptarget
 
@@ -7333,9 +7335,9 @@ local function BTL_HyperDie(pn)
 		t.hp = 0
 		btl.battlestate = BS_ENDTURN
 	end
-end
+end)
 
-local retrymsg = {
+rawset(_G, "retrymsg", {
 	"Keep pressing on!",
 	"Let's try that again!",
 	"Don't give up!",
@@ -7345,9 +7347,9 @@ local retrymsg = {
 	"There's always hope!",
 	"Not gonna let this happen, are you?",
 	"He's not gonna get away with this!",
-}
+})
 
-local function BTL_gameOver(pn)
+rawset(_G, "BTL_gameOver", function(pn)
 	local battle = server.P_BattleStatus[pn]
 	local t = battle.hudtimer.gameovertimeout
 
@@ -7423,9 +7425,9 @@ local function BTL_gameOver(pn)
 			dprint("Terminated session")
 		end
 	end
-end
+end)
 
-local function BTL_pvpOver(pn)
+rawset(_G, "BTL_pvpOver", function(pn)
 	local btl = server.P_BattleStatus[pn]
 	if not btl.hudtimer.pvpend
 		server.P_BattleStatus.kill = true
@@ -7434,9 +7436,9 @@ local function BTL_pvpOver(pn)
 		btl.battlestate = 0
 		dprint("Terminated session")
 	end
-end
+end)
 
-local function BTL_moreEnemiesHandler(pn)
+rawset(_G, "BTL_moreEnemiesHandler", function(pn)
 	local btl = server.P_BattleStatus[pn]
 	local battleStatus = btl	-- convenience for the copypasted chunk of code
 	local mo = server.plentities[pn][1]	-- this works
@@ -7559,9 +7561,9 @@ local function BTL_moreEnemiesHandler(pn)
 			end
 		end
 	end
-end
+end)
 
-local function BTL_challengeEndHandler(pn)
+rawset(_G, "BTL_challengeEndHandler", function(pn)
 	-- challenge has ended (loss or not)
 	local btl = server.P_BattleStatus[pn]
 
@@ -7619,10 +7621,10 @@ local function BTL_challengeEndHandler(pn)
 		end
 		btl.kill = true
 	end
-end
+end)
 
 -- {BS_, func, if true, which BS_ ?}
-local battlefunchandler = {
+rawset(_G, "battlefunchandler", {
 	[BS_START] 		=	{BTL_startHandler, 		BS_PRETURN},
 	[BS_PRETURN] 	=	{BTL_preturnHandler, 	BS_DOTURN},
 	[BS_DOTURN]		=	{BTL_turnHandler,		BS_ACTION},
@@ -7640,7 +7642,7 @@ local battlefunchandler = {
 	[BS_MOREENEMIES]=	{BTL_moreEnemiesHandler,nil},
 	[BS_CHALLENGEEND]=	{BTL_challengeEndHandler,	nil},
 	[BS_LINK] = 		{BTL_linkHandler, 		BS_ENDTURN},
-}
+})
 
 --addHook("ThinkFrame", do	-- now let's throw all this shit together y'see
 rawset(_G, "BTL_Thinker", function()
