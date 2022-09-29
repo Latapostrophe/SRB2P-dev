@@ -511,7 +511,7 @@ local buffmsg = {
 rawset(_G, "buffStat", function(mo, stat, value, turn)
 
 	if value == nil then value = BUFFSTEP end
-	--if turn == nil then turn = 3 end	Unused
+	if type(stat) == "number" and turn == nil then turn = 3 end
 	if not stat return end
 
 	if value < 0
@@ -544,19 +544,21 @@ rawset(_G, "buffStat", function(mo, stat, value, turn)
 		msg = " minimized"	-- -75% is the max debuff
 	end
 
-	/*if not resetstat
-		if mo.buffs[stat][2] >= 9
-			msg = "Limit reached!"
-			name = ""
-			msgend = ""
-		elseif mo.buffs[stat][2]
-			msgend = " extended!"
+	if turn
+		if not resetstat
+			if mo.buffs[stat][2] >= 9
+				msg = "Limit reached!"
+				name = ""
+				msgend = ""
+			elseif mo.buffs[stat][2]
+				msgend = " extended!"
+			end
+			mo.buffs[stat][2] = min(9, $+turn)
+		else
+			mo.buffs[stat][2] = 0
 		end
-		mo.buffs[stat][2] = min(9, $+turn)
-	else
-		mo.buffs[stat][2] = 0
-	end*/
-	-- No more Persona turn based buffs
+	end
+	-- Still used by Break skills
 
 	BTL_logMessage(mo.battlen, name..msg..msgend)
 end)

@@ -2509,6 +2509,8 @@ local function BTL_turnHandler(pn)
 	-- handle stats.
 	-- do not count a turn if we just had a one more (aka already 'acted')
 	if not mo.acted
+	and not mo.onemore
+	and not mo.batontouch
 		-- note: this isn't very optimized, this is because of how we want to handle them.
 
 		if mo.t_stattimer
@@ -2573,7 +2575,8 @@ local function BTL_turnHandler(pn)
 
 			end
 		end
-		mo.t_statstuff = 3
+
+		mo.t_statstuff = $+1
 		local basestuff = mo.t_statstuff
 
 		local checks = {ATK_SLASH, ATK_STRIKE, ATK_PIERCE, ATK_FIRE, ATK_ICE, ATK_WIND, ATK_ELEC, ATK_PSY, ATK_NUCLEAR, ATK_BLESS, ATK_CURSE, ATK_ALMIGHTY}
