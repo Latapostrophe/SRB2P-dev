@@ -1664,12 +1664,14 @@ end)
 -- Tactics menu
 local tactic_names = {
 	"ANALYSIS",
+	"STATUS",
 	"PARTY",
 	"ESCAPE"
 }
 
 local tactic_descs = {
 	"Check enemy details",
+	"View stat changes accross\nthe battlefield",
 	"Change party command between \nAI and players",
 	"Attempt to flee"
 }
@@ -1692,6 +1694,23 @@ local thinker_descs = {
 	[5] = "Focus on healing and buffing\nother party members with skills\nor items"
 }
 
+local debuff_ico_lookup = {
+	[COND_BURN] = "DB_BURN",
+	[COND_POISON] = "DB_POIS",
+	[COND_HUNGER] = "DB_HUNG",
+	[COND_RAGE] = "DB_RAGE",
+	[COND_BRAINWASH] = "DB_LOVE",
+	[COND_HEX] = "DB_HEXD",
+	[COND_DESPAIR] = "DB_DESP",
+	[COND_FREEZE] = "DB_FROZ",
+	[COND_SHOCK] = "DB_SHCK",
+	[COND_DIZZY] = "DB_DIZY",
+	[COND_SILENCE] = "DB_MUTE",
+	[COND_SLEEP] = "DB_SLEP",
+	[COND_HYPER] = "B_HYPR",
+	[COND_SUPER] = "B_SUPR",
+}
+
 local function drawTactics(v, p, mo)
 	local btl = server.P_BattleStatus[mo.battlen]
 	local timer = btl.hudtimer.to
@@ -1699,7 +1718,7 @@ local function drawTactics(v, p, mo)
 
 	-- party sub menu goes below the other tactic overlay.
 	-- I know, this sounds retarded
-	if mo.t_tacticsubmenu and mo.t_tacticsubmenu == 2
+	if mo.t_tacticsubmenu and mo.t_tacticsubmenu == 3
 
 		-- below that still, let's throw the thinker selection itself... <ASCII ART OF THROWN TABLE>
 		if mo.t_tacticsubmenu2 == 1
@@ -1732,7 +1751,7 @@ local function drawTactics(v, p, mo)
 			local color = (mo.t_subtacticselect == i and leveltime%16 < 8) and 135 or flag and 20 or 0	-- selection
 			V_drawString(v, x + (i-1)*3, 20 + 35*(i-1), charStats[mo.allies[i].stats].name..controlname..supp.."\n"..thinker_names[mo.allies[i].thinkern], "NFNT", V_SNAPTOLEFT, nil, color, nil)
 		end
-	elseif mo.t_tacticsubmenu and mo.t_tacticsubmenu == 3 -- well guess that, so does the run away vote hud
+	elseif mo.t_tacticsubmenu and mo.t_tacticsubmenu == 4 -- well guess that, so does the run away vote hud
 
 		-- draw the overlay box:
 		local t = (btl.hudtimer.tactic_out) or (TICRATE*2/3 - (btl.hudtimer.tactic_in or 0))	-- just play animations in reverse if we exit
@@ -1796,7 +1815,7 @@ local function drawTactics(v, p, mo)
 		end
 		-- @TODO: Make this work in singleplayer sometime
 		local colour = 0
-		if i == 2	-- PARTY (grey it out)
+		if i == 3	-- PARTY (grey it out)
 			colour = 16
 		elseif i == 3
 
@@ -1835,6 +1854,124 @@ local function drawTactics(v, p, mo)
 		end
 		--v.drawScaled(160<<FRACBITS, 100<<FRACBITS, t*FRACUNIT/2, v.cachePatch("H_1M_B"), V_50TRANS)
 		drawStats(v, mo.targets[mo.t_target], t, true, mo.t_skillview)
+
+	elseif mo.t_tacticsubmenu == 2	-- STATUS
+
+		local fade = min(7, max(0, t))
+		v.fadeScreen(31, fade)
+
+		local x = 10
+		local y = 30 - (TICRATE*2/3 - t)*20
+		local w = 60
+
+		if mo.t_tacticsstatus
+
+			for i = 1, #mo.t_tacticsstatus
+
+				x = 160 - (w/2)*#mo.t_tacticsstatus[i]
+
+				for j = 1, #mo.t_tacticsstatus[i]
+					local e = mo.t_tacticsstatus[i][j]
+
+					local fnt = e.name:len() > 8 and "TFNT" or "NFNT"
+					-- get the icon
+					local ico = v.cachePatch("ICO_ENMY")
+
+					if e.stats and charStats[e.stats]
+						ico = v.cachePatch(charStats[e.stats].icon)
+					elseif e.skin and charStats[e.skin]
+						ico = v.cachePatch(charsStats[e.skin].icon)
+					elseif e.enemy and enemyList[e.enemy] and enemyList[e.enemy].icon
+						ico = v.cachePatch(enemyList[e.enemy].icon)
+					elseif e.boss
+						ico = v.cachePatch("ICO_BOSS")
+					end
+
+					if ico
+						PDraw(v, x, y, ico, 0, v.getColormap(TC_DEFAULT, e.color or SKINCOLOR_RED))
+					end
+					V_drawString(v, x+10, y, e.name, fnt, 0, nil, 0, 31)
+					local stats = {"atk", "mag", "def", "agi", "crit"}
+
+					for k = 1, #stats
+
+						local s = stats[k]
+						local pp = e.buffs[s][1] < 0 and "H_STATDW" or "H_STATUP"
+						local patch = v.cachePatch(pp)
+
+						V_drawString(v, x, y+10*(k+1), s:upper(), "NFNT", 0, nil, 0, 31)
+						local dx = 20
+
+						if e.buffs[s][1]
+
+							for i = 1, abs(e.buffs[s][1]/BUFFSTEP)
+								v.drawIndex((x + dx + 14 - (i-1)*5)*FRACUNIT, (y+10*(k+1))*FRACUNIT, FRACUNIT/2, patch, 0, 31)
+								PDraw(v, x + dx + 13 - (i-1)*5, (y+10*(k+1)), patch, 0)
+							end
+						else
+							V_drawString(v, x + dx + 14, y+10*(k+1), "/", "NFNT", 0, nil, 0, 31)
+						end
+					end
+
+					-- the cringe one.........
+					local debuffico = {}
+
+					-- knockdown
+					if e.down
+						debuffico[#debuffico+1] = "DB_DOWN"
+					end
+
+					if e.powercharge
+						debuffico[#debuffico+1] = "B_PWRC"
+					end
+					if e.mindcharge
+						debuffico[#debuffico+1] = "B_MNDC"
+					end
+
+					if e.tetrakarn
+						debuffico[#debuffico+1] = "B_TETR"
+					end
+					if e.makarakarn
+						debuffico[#debuffico+1] = "B_MAKR"
+					end
+					if e.tetraja
+						debuffico[#debuffico+1] = "B_TETA"
+					end
+
+					-- debuff icon
+					if debuff_ico_lookup[e.status_condition]
+						debuffico[#debuffico+1] = debuff_ico_lookup[e.status_condition or 1]
+					end
+
+					-- resistance up/down
+					for k = 1, 11
+						local b = e.buffs[2^(k-1)][1]
+						if b > 0
+							debuffico[#debuffico+1] = "B_ATK"..k
+						elseif b < 0
+							debuffico[#debuffico+1] = "DB_ATK"..k
+						end
+					end
+
+					local numpages = max(1, (#debuffico / 6))
+					local page = ((leveltime/TICRATE) % numpages) +1
+					local pos = 1
+					for k = (page-1)*6 +1, min(#debuffico, page*6)
+						if not debuffico[k]
+							continue
+						end
+
+						local pp = v.cachePatch(debuffico[k])
+						PDraw(v, x + (pos-1)*8, y+10, pp)
+						pos = $+1
+					end
+
+					x = $ + w
+				end
+				x = 10
+				y = $+80
+			end
+		end
 	end
 end
 

@@ -3316,22 +3316,35 @@ local function BTL_turnHandler(pn)
 					mo.t_ctarget = 12
 				end
 
-				M_BasicSelector(mo, "t_tacticselect", "down", "up", 1, 3,
+				M_BasicSelector(mo, "t_tacticselect", "down", "up", 1, 4,
 					function(mo)	-- CONFIRM
 						mo.t_tacticsubmenu = mo.t_tacticselect
 						btl.hudtimer.tactic_in = TICRATE*2/3
 
-						-- @TODO: Bot tactics unimplemented
 						if mo.t_tacticselect == 2
+
+							-- ready a table of shite...
+							mo.t_tacticsstatus = {copyTable(mo.allies_noupdate), copyTable(mo.enemies[1].allies_noupdate)}
+							-- check ENEMIES specifically for nil entries...
+							local i = #mo.t_tacticsstatus[2]
+							while i
+								local e = mo.t_tacticsstatus[2][i]
+								if not e or not e.valid
+									table.remove(mo.t_tacticsstatus[2], i)
+								end
+								i = $-1
+							end
+
+						-- @TODO: Bot tactics unimplemented
+						elseif mo.t_tacticselect == 3
 							playSound(mo.battlen, sfx_not, mo)
 							mo.t_tacticsubmenu = 0
 							btl.hudtimer.tactic_in = 0
 							return
-						end
 
-						-- in the case of run away (tacticselect 3), ready the vote buffer
+						-- in the case of run away (tacticselect 4), ready the vote buffer
 						-- unless we aren't allowed to run anymore:
-						if mo.t_tacticselect == 3
+						elseif mo.t_tacticselect == 4
 							if btl.boss
 							or (btl.storedwaves and #btl.storedwaves)	-- voidrun multi-waves
 								BTL_logMessage(mo.battlen, "Can't run away!")
@@ -3435,7 +3448,19 @@ local function BTL_turnHandler(pn)
 						end
 					end
 
-				elseif mo.t_tacticsubmenu == 3	-- vote to run away
+				elseif mo.t_tacticssubmenu == 2	-- status
+
+					if inputs[BT_USE] == 1
+					and not btl.hudtimer.tactic_out
+					and not btl.hudtimer.tactic_in
+						btl.hudtimer.tactic_out = TICRATE*3/2
+					end
+
+					if btl.hudtimer.tactic_out
+						mo.t_tacticssubmenu = 0
+					end
+
+				elseif mo.t_tacticsubmenu == 4	-- vote to run away
 
 					-- let the animation play out:
 					if btl.hudtimer.tactic_in return end
@@ -3500,7 +3525,7 @@ local function BTL_turnHandler(pn)
 					end
 				end
 
-				if mo.t_tacticsubmenu == 2	-- for party menu
+				if mo.t_tacticsubmenu == 3	-- for party menu
 					mo.t_subtacticselect = $ or 1
 					mo.t_subtacticselect2 = $ or 0
 
