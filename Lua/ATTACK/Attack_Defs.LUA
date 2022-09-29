@@ -13259,7 +13259,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		critical = 7,
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		norandom = true,	-- Don't allow this move to be selected in random pvp skills
 		desc = "A surprise attack from behind\nthat hits with Chaos Spears.",
@@ -13354,7 +13354,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		critical = 7,
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "Unavoidable grab attack\nthat slams the target on the floor.",
 		anim_norepel = true,
@@ -13533,7 +13533,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 7, -- 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "An attack using\nan explosive monitor.",
 		anim_norepel = true,
@@ -13683,7 +13683,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 90,
 		critical = 2,
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "A rapid overdrive attack. \nMore powerful than the average \nMelee hit, but low critical rate.",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -13750,7 +13750,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 7, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "A strong Hammer Hit.",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -13832,7 +13832,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 4, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "Lifts the target up with Levikinesis\nand finishes off with a powerful\nTelekinetic cutter",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14012,7 +14012,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		critical = 4, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "Drill through the target\nwith sharp heels!",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14071,7 +14071,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		critical = 4, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "Use Badniks to attack\nthe target",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14168,7 +14168,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 7, -- was 7
 		target = TGT_ALLENEMIES,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "A fierce spin kick\nfollowed by a Drop Dash.",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14333,7 +14333,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 7, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "A fierce spin kick\nfollowed by a Drop Dash.",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
