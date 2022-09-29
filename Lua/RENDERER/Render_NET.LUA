@@ -4,7 +4,7 @@
 local net_stats = {0, 0, 0, 0, 0}
 local net_time = 0
 
-local function NET_draw_load(v,p,c)
+rawset(_G, "NET_draw_load", function(v,p,c)
 
 	local h = server.netgamefile
 	local teams = h.playerlist
@@ -66,12 +66,12 @@ local function NET_draw_load(v,p,c)
 		x = $ + (160 / nteams)*2
 		y = 50
 	end
-end
+end)
 
-local function NET_displayteam(mo, t)
-end
+rawset(_G, "NET_displayteam", function(mo, t)
+end)
 
-local function NET_draw_bosschoice(v, p, c)
+rawset(_G, "NET_draw_bosschoice", function(v, p, c)
 
 	local bosses = server.bosslist
 	local selectboss = server.bosslist[p.bossselect]
@@ -124,9 +124,9 @@ local function NET_draw_bosschoice(v, p, c)
 		V_drawString(v, 160, 80, "Waiting for other players", "NFNT", 0, "center", 31, nil)
 		V_drawString(v, 160, 88, "to finish selecting...", "NFNT", 0, "center", 31, nil)
 	end
-end
+end)
 
-local function NET_draw_skinselect(v,p,c)
+rawset(_G, "NET_draw_skinselect", function(v,p,c)
 
 	local mo = p.mo
 	if not mo return end
@@ -313,13 +313,13 @@ local function NET_draw_skinselect(v,p,c)
 		V_drawString(v, 160, 90, "All teams are ready!", "NFNT", 0, "center", 31, nil)
 		V_drawString(v, 160, 100, "PRESS A TO BEGIN", "NFNT", 0, "center", 31, nil)
 	end
-end
+end)
 
 -- drawer for team selection
 -- this will just be a "communicating" screen otherwise.
 -- late joiners get assigned to whatever team has the least players on
 
-local function NET_draw_teamselect(v, p, c)
+rawset(_G, "NET_draw_teamselect", function(v, p, c)
 	--drawScreenwidePatch(v, v.cachePatch("H_RIP4"), nil, V_30TRANS)
 	v.fadeScreen(31, 7)
 
@@ -415,16 +415,16 @@ local function NET_draw_teamselect(v, p, c)
 
 		V_drawString(v, 12, 180, str, "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)*/
 	end
-end
+end)
 
-local state_2_func = {
+rawset(_G, "hudnet_state_2_func", {
 	[NET_TEAMSELECT] = NET_draw_teamselect,
 	[NET_SKINSELECT] = NET_draw_skinselect,
 	[NET_PVP_SKINSELECT] = NET_draw_skinselect,
 	[NET_LOAD] = NET_draw_load,
-}
+})
 
-hud.add(function(v, p, c)
+rawset(_G, "HUDNetThinker", function(v, p, c)
 	if not EnabledHuds["NET"] return end
 	NET_draw_synch(v)
 
@@ -437,8 +437,9 @@ hud.add(function(v, p, c)
 		net_time = 0
 	return end
 
-	if state_2_func[server.P_netstat.netstate]
-		state_2_func[server.P_netstat.netstate](v, p, c)
+	if hudnet_state_2_func[server.P_netstat.netstate]
+		hudnet_state_2_func[server.P_netstat.netstate](v, p, c)
 	end
 
 end)
+hud.add(HUDNetThinker)

@@ -331,7 +331,7 @@ rawset(_G, "R_GetScreenCoords", function(v, p, c, mx, my, mz)
 end)
 
 -- stretchy number scales
-local numberscales = {
+rawset(_G, "numberscales", {
 
 	{FRACUNIT/2, FRACUNIT*2},
 	{FRACUNIT*3/4, FRACUNIT*3/2},
@@ -339,7 +339,7 @@ local numberscales = {
 	{FRACUNIT*3/2, FRACUNIT*3/4},
 	{FRACUNIT*2, FRACUNIT/2},
 	{FRACUNIT*3/2, FRACUNIT*3/4}
-}
+})
 
 rawset(_G, "R_DisplayDamage", function(v, x, y, e, damage, color, color2, shake)
 
