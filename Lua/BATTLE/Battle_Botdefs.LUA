@@ -497,7 +497,7 @@ rawset(_G, "PLYR_spawn", function(team)
 			-- get weapon name
 			local wpn = data.wep
 			if not weaponsList[wpn]
-				wpn = "shoes_01"
+				wpn = "generic_01"
 			end	-- you never know...
 
 			equipWeapon(mo, makeWeapon(wpn))
