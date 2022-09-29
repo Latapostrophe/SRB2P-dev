@@ -956,14 +956,12 @@ local function m_equip_handle(mo)
 		end
 
 		if inputs[BT_BTNC] == 1
-			-- check what item we have to see if this button should work:
-			if mo.m_equipslot == 1
-				local pm = party[mo.m_equipparty]
-				if pm.weapon and pm.weapon.slot
+			local pm = party[mo.m_equipparty]
+			if pm.weapon and pm.weapon.slot
+			or pm.ring and pm.ring.slot
 
-					S_StartSound(nil, sfx_select, mo.player)
-					mo.m_viewskillslot = 1
-				end
+				S_StartSound(nil, sfx_select, mo.player)
+				mo.m_viewskillslot = 1
 			end
 		end
 
@@ -1269,6 +1267,18 @@ local function m_equip_hud(v, mo, choice)
 			desc = ringsList[rng.ref].desc or $
 			readfrom = rng
 		end
+		if readfrom.slot
+			if attackDefs[readfrom.slot]
+				local col = "\x82"
+				if readfrom.level < 10
+					col = "\x86"
+				end
+
+				skillslot = col..ICO_SKILLCARD..attackDefs[readfrom.slot].name
+			else
+				skillslot = ICO_SKILLCARD.."INVALID SKILL"
+			end
+		end
 	end
 
 	-- Build the string
@@ -1338,7 +1348,8 @@ local function m_equip_hud(v, mo, choice)
 		end
 
 		if readfrom.level < 10
-			local str = "\x82When "..buildWeaponName(readfrom).."\nreaches Enhancement Level +10:"
+			local equipment_name = (mo.m_equipslot == 1 and buildWeaponName(readfrom) or buildRingName(readfrom))
+			local str = "\x82When "..equipment_name.."\nreaches Enhancement Level +10:"
 			V_drawString(v, 65 - timer*96, 138, str, "NFNT", V_SNAPTOLEFT|V_SNAPTOBOTTOM, nil, 0, 31)
 		end
 	end

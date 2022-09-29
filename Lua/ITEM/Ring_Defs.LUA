@@ -6,6 +6,7 @@
 	def = defense stat. 10% of it is converted into endurance.
 	hp
 	sp	= stat bonuses
+	slot = skill card
 	rarity:		Determines damage variance ceiling you take
 				1-2*	-> -10% to +10%
 				3-4*	-> -10% to +7.5%
@@ -26,6 +27,7 @@ rawset(_G, "makeRing", function(ring, level)
 		ref = ring,
 		def = r.def,
 		level = 0,
+		slot = r.slot,
 		rarity = r.rarity or 1,
 
 		hp = r.hp or 0,

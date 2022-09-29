@@ -670,6 +670,23 @@ rawset(_G, "BTL_initAdditionalSkills", function(v, subpbonus)
 		end
 	end
 
+	if v.wardring
+	and v.wardring.level >= 10
+
+		local addskill = true
+
+		for i = 1, #v.skills do
+			if v.skills[i] == v.wardring.slot
+				addskill = false
+				break
+			end
+		end
+
+		if addskill
+			v.skills[#v.skills+1] = v.wardring.slot
+		end
+	end
+
 	-- finally, add emerald skills to the bottom of our list
 
 	if server.gamemode ~= GM_COOP
