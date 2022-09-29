@@ -3333,6 +3333,7 @@ local function BTL_turnHandler(pn)
 							while i
 								local e = mo.t_tacticsstatus[2][i]
 								if not e or not e.valid
+								or e.enemy and not e.hp	-- remove dead enemies specifically (dead players are OK)
 									table.remove(mo.t_tacticsstatus[2], i)
 								end
 								i = $-1
