@@ -2335,6 +2335,12 @@ rawset(_G, "drawDamagedEnemies", function(v, p, c, mo)
 			mo = e	-- saddening.
 		end
 		local x,y = R_GetScreenCoords(v, p, c, e.x, e.y, e.z + e.target_zoffs*e.scale)
+
+		-- don't attempt to display things off screen
+		if x <= -10 or y <= -10
+			continue
+		end
+
 		if e.damaged	-- enemy is being damaged and is losing HP
 
 			if e.damagestate == DMG_STATUS continue end
