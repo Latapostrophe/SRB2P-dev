@@ -1578,7 +1578,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 end)
 
 
-local function run_ondamagepassives(mo)
+rawset(_G, "run_ondamagepassives", function(mo)
 	-- ondamage passives
 	for i = 1, #mo.atk_attacker.passiveskills
 		local psv = mo.atk_attacker.passiveskills[i]
@@ -1595,7 +1595,7 @@ local function run_ondamagepassives(mo)
 			attackDefs[psv].anim(mo, mo.atk_attacker)
 		end
 	end
-end
+end)
 
 rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage an object
 	-- set damage to nil to use the sevrer pre-calculated damage!
