@@ -244,8 +244,7 @@ rawset(_G, "DNG_startEquipLab", function(mo)
 	}
 
 	if server.gamemode ~= GM_VOIDRUN
-		--S_ChangeMusic("SHOP", true, mo.player, nil, nil, 400)
-		S_ChangeMusic("SHOP", true, mo.player)
+		S_ChangeMusic((server.cdungeon and server.cdungeon.shopmusic) and server.cdungeon.shopmusic or "SHOP", true, mo.player)
 	end
 	mo.equiplab.hudtimers.enter = TICRATE/3	-- start
 
