@@ -110,6 +110,8 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	-- Shop
 	t.shop = type(t.shop) == "string" and $ or "velvet_shop_mp1"
 	assert(shopList[t.shop], "Shop '"..t.shop.."' does not exist in shopList[]")
+	-- Equipment Lab Text
+	t.equiplab_text = type(t.equiplab_text) == "table" and $ or nil
 	
 	-- Check for item drops!
 	t.itemdrops = type(t.itemdrops) == "table" and $ or {}
@@ -328,6 +330,7 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 		"level",
 		"levelcap",
 		"shop",
+		"equiplab_text",
 		"gensize",
 		"dungeonmusic",
 		--"battlemusics",
