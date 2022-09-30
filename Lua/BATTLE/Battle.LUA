@@ -3471,18 +3471,6 @@ rawset(_G, "BTL_turnHandler", function(pn)
 						end
 					end
 
-				elseif mo.t_tacticssubmenu == 2	-- status
-
-					if inputs[BT_USE] == 1
-					and not btl.hudtimer.tactic_out
-					and not btl.hudtimer.tactic_in
-						btl.hudtimer.tactic_out = TICRATE*3/2
-					end
-
-					if btl.hudtimer.tactic_out
-						mo.t_tacticssubmenu = 0
-					end
-
 				elseif mo.t_tacticsubmenu == 4	-- vote to run away
 
 					-- let the animation play out:
