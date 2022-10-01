@@ -77,6 +77,8 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	t.shadowframes_float = type(t.shadowframes_float) == "table" and $ or nil
 	-- other cool dunegon stuff!
 	t.dungeonmusic = type(t.dungeonmusic) == "string" and $ or 0	-- ???
+	t.shopmusic = type(t.shopmusic) == "string" and $ or 0
+	t.equiplab_music = type(t.equiplab_music) == "string" and $ or 0
 	
 	/*t.battlemusics = type(t.battlemusics) == "table" and $ or nil
 	if t.battlemusics
@@ -333,6 +335,8 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 		"equiplab_text",
 		"gensize",
 		"dungeonmusic",
+		"shopmusic",
+		"equiplab_music",
 		--"battlemusics",
 		"floors",
 		"shufflelevel",
