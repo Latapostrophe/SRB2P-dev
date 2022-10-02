@@ -31,6 +31,7 @@ end)
 rawset(_G, "NET_begin", function(state)
 
 	if not server return end
+	COM_BufInsertText(server, "rejointimeout 0")
 
 	server.P_netset = true	-- prevents other scripts from running
 	server.plentities = {}
