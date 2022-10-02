@@ -242,7 +242,8 @@ rawset(_G, "DNG_startEquipLab", function(mo)
 	}
 
 	if server.gamemode ~= GM_VOIDRUN
-		S_ChangeMusic("SHOP", true, mo.player, nil, nil, 400)
+		--S_ChangeMusic("SHOP", true, mo.player, nil, nil, 400)
+		S_ChangeMusic("SHOP", true, mo.player)
 	end
 	mo.equiplab.hudtimers.enter = TICRATE/3	-- start
 
@@ -255,7 +256,8 @@ end)
 rawset(_G, "DNG_stopEquipLab", function(mo, nomenu)
 	mo.equiplab = {}	-- empty the table
 	if server.gamemode ~= GM_VOIDRUN
-		S_ChangeMusic(mapmusname, true, mo.player, nil, nil, 400)
+		--S_ChangeMusic(mapmusname, true, mo.player, nil, nil, 400)
+		S_ChangeMusic(mapmusname, true, mo.player)
 	end
 	if not nomenu
 		M_openMenu(mo, "m_selectfacility")
