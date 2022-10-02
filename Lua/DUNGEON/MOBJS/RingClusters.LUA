@@ -85,6 +85,7 @@ addHook("MobjThinker", function(mo)
 
 	for p in players.iterate do
 		local pmo = p.mo
+		if p.P_spectator continue end
 		if not pmo continue end
 
 		if server.P_BattleStatus[p.P_party] and server.P_BattleStatus[p.P_party].running continue end	-- no!

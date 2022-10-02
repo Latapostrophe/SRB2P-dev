@@ -293,12 +293,21 @@ local function DNG_tartarusReaper()
 	end
 end
 
+local function nospikecollide_spec(mo, mo2)
+	if mo2 and mo2.valid and mo2.type == MT_SPIKE
+	and mo and mo.valid and mo.player and mo.player.P_spectator
+		return false
+	end
+end
+addHook("MobjCollide", nospikecollide_spec, MT_PLAYER)
+addHook("MobjMoveCollide", nospikecollide_spec, MT_PLAYER)
 
 -- getting hit by spikes:
 addHook("ShouldDamage", function(mo, inflictor)
 	if inflictor and inflictor.valid and inflictor.type == MT_SPIKE
 
 		if mo.player.powers[pw_flashing]
+		or mo.player.P_spectator
 			return false
 		end	-- no pain
 
@@ -402,7 +411,7 @@ rawset(_G, "D_tartarusCrawler", function()
 	local i = 0	-- # of iterarions
 
 	for p in players.iterate
-		if p.mo and p.mo.valid
+		if p.mo and p.mo.valid and not p.P_spectator	-- not spectators.
 
 			if not p.P_party continue end
 			if server.P_BattleStatus[p.P_party].gameover continue end	-- don't count gameover'd players
@@ -432,6 +441,17 @@ rawset(_G, "D_tartarusCrawler", function()
 			p.powers[pw_flashing] = TICRATE*3 -1
 			mo.spikehits = nil
 		end
+
+		if p.P_spectator
+			p.charability = 0
+			p.dashmode = 0
+
+			if mo.z < 0	-- pits...
+				mo.momz = $ + FRACUNIT
+			end
+
+			continue
+		end	-- don't do anything else.
 
 		if server.P_BattleStatus[p.P_party] and server.P_BattleStatus[p.P_party].running
 

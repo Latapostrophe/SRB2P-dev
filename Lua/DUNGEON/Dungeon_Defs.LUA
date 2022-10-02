@@ -74,8 +74,12 @@ rawset(_G, "D_HandleMenu", function(mo)
 		return
 	end
 
+	if mo.player.P_spectator
+		openmenu = "spectate_jointeam"
+	end
+
 	if not mo.m_menu
-	and not (server.P_DialogueStatus and server.P_DialogueStatus[mo.player.P_party] and server.P_DialogueStatus[mo.player.P_party].running)
+	and (mo.player.P_spectator or not (server.P_DialogueStatus and server.P_DialogueStatus[mo.player.P_party] and server.P_DialogueStatus[mo.player.P_party].running))
 		if inputs[BT_USE]==1
 		and P_IsObjectOnGround(mo)
 			M_openMenu(mo, openmenu)

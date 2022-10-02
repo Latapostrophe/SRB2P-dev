@@ -41,6 +41,7 @@ addHook("MobjCollide", function(t, mo)
 	local p = mo.player
 	if not (p.pflags & PF_JUMPED or p.dashmode > TICRATE*3) return end
 	if (t.hitflags and t.hitflags & (2^(p.P_party-1))) return end	-- already popped that gold box
+	if p.P_spectator return end
 
 	local gold = t.hitflags ~= nil
 

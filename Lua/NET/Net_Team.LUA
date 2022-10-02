@@ -35,7 +35,7 @@ rawset(_G, "NET_begin", function(state)
 	server.P_netset = true	-- prevents other scripts from running
 	server.plentities = {}
 	server.playerlist = {}
-	
+
 	for p in players.iterate
 		p.tempboss = nil
 	end
@@ -54,6 +54,7 @@ rawset(_G, "NET_begin", function(state)
 	server.P_netstat = {
 		running = true,
 		netstate = state or NET_TEAMSELECT,
+		spectators = {},	-- spectator players
 		leaders = {},	-- players leading the teams, p1 will always lead one, everyone else will be chosen arbitrarily
 		playerlist = {},
 		teamlen = 4,
@@ -88,6 +89,7 @@ rawset(_G, "NET_begin", function(state)
 
 		-- team related options
 		mo.P_net_teamstate = 0
+		mo.P_net_spectate = nil
 		mo.P_net_teamchoice = 1
 		mo.P_net_createparty = nil
 
@@ -97,7 +99,7 @@ rawset(_G, "NET_begin", function(state)
 		mo.P_net_selectindex = 1	-- ...who are we selecting?
 		-- P_inputs already works by default so we're good
 	end
-	
+
 	-- bossmode
 	-- THERES PROBABLY A MUCH EASIER WAY OF DOING THIS
 	-- IF ANYONE SEES THIS, PLEASE TRY TO CORRECT MY HALVED BRAINCELL
@@ -108,7 +110,7 @@ rawset(_G, "NET_begin", function(state)
 		for p in players.iterate
 			count = $+1
 		end
-		
+
 		server.bosscount = 1
 		-- prepare a list of bosses:
 		server.bosslist = {}
@@ -119,13 +121,13 @@ rawset(_G, "NET_begin", function(state)
 				server.bosslist[#server.bosslist+1] = k
 			end
 		end
-		
+
 		table.sort(server.bosslist, function(a, b)
 			local enm1 = enemyList[a]
 			local enm2 = enemyList[b]
-			
+
 			return enm1.level < enm2.level
-			
+
 		end)
 		server.bosslist[#server.bosslist+1] = nil
 
@@ -133,12 +135,12 @@ rawset(_G, "NET_begin", function(state)
 			local boss = players[P_RandomRange(1, count)-1]
 			boss.tempboss = true
 		end
-		
+
 		local lead = false
 		for p in players.iterate
 			local mo = p.mo
 			if not mo or not mo.valid continue end
-			
+
 			if p.tempboss
 				table.insert(server.plentities[2], p)
 				table.insert(server.playerlist[2], p)
@@ -166,7 +168,7 @@ rawset(_G, "NET_begin", function(state)
 				end
 			end
 		end
-		
+
 		server.P_netstat.buffer.map = srb2p.colosseo_map
 		server.P_netstat.buffer.gamemode = GM_PVP
 		server.P_netstat.buffer.extradata = PVP_BOSSMODE
@@ -343,7 +345,7 @@ rawset(_G, "NET_startgame", function()
 		ROGUE_reset()
 		if not server.rogueseed
 			server.rogueseed = max(1, P_RandomFixed())
-		end	
+		end
 		-- Initialize rogue mode seed, unless it's already set (file loading)
 	end
 
@@ -473,9 +475,9 @@ local function NET_team_bossselect(p)
 	local bosses = server.bosslist
 	local mo = p.mo
 	local inpt = mo.P_inputs
-	
+
 	p.bossselect = $ or #bosses
-	
+
 	-- the launch prompt:
 	if mo.P_net_launchprompt
 		if inpt[BT_JUMP] == 1	-- yeah let's go
@@ -483,30 +485,30 @@ local function NET_team_bossselect(p)
 			NET_startgame()
 		end
 		return
-	end	
-	
+	end
+
 	if not p.confirmboss
-	
+
 		if inpt["left"] == 1
 			S_StartSound(nil, sfx_turn, p)
-			p.bossselect = $-1 
+			p.bossselect = $-1
 			if p.bossselect < 1
 				p.bossselect = #bosses
 			end
-			
+
 		elseif inpt["right"] == 1
 			S_StartSound(nil, sfx_turn, p)
 			p.bossselect = $+1
 			if p.bossselect > #bosses
 				p.bossselect = 1
 			end
-			
+
 		elseif inpt[BT_BTNA] == 1
 			S_StartSound(nil, sfx_confir, p)
 			p.confirmboss = 1
 		end
 	elseif p.confirmboss == 1	-- prompt confirmation
-		
+
 		if inpt[BT_BTNA] == 1
 			mo.P_net_ready = true	-- we good
 			S_StartSound(nil, sfx_confir, p)
@@ -515,9 +517,9 @@ local function NET_team_bossselect(p)
 		elseif inpt[BT_BTNB] == 1
 			S_StartSound(nil, sfx_cancel, p)
 			p.confirmboss = nil
-		end	
+		end
 	end
-	
+
 end
 
 local function NET_team_skinselect(p)
@@ -717,9 +719,11 @@ end
 local function NET_teamselect()
 	local nump = 0
 	local ready = 0
+	local inparty_orready = 0
 	local validpnums = {}
 	local netstat = server.P_netstat
 	local firstp
+	local minparties = netstat.buffer.minparties or 1
 
 	local count = 0
 
@@ -739,6 +743,9 @@ local function NET_teamselect()
 
 			if p.mo.P_net_ready
 				ready = $+1
+				inparty_orready = $+1
+			elseif p.P_party
+				inparty_orready = $+1
 			end
 		end
 	end
@@ -751,6 +758,18 @@ local function NET_teamselect()
 			NET_end(true)
 			return
 		end
+	end
+
+	-- Cancel as well if we don't have enough players left to satisfy the party requirements somehow
+	local unreadyplayers = nump - inparty_orready
+	local neededparties = minparties - #netstat.leaders	-- <= 0 if all the needed parties are already made.
+
+	-- in short, if unreadyplayers <= neededparties, we can't become a party member
+	if unreadyplayers < neededparties
+	and not server.bossmode
+		chatprint("\x82".."*Not enough unready players to satisfy party count requirements!")
+		NET_end(true)
+		return
 	end
 
 	if ready >= nump	-- everyone is ready
@@ -774,12 +793,12 @@ local function NET_teamselect()
 	else
 		numteams = nump/4 +((nump%4) and 1 or 0)
 	end
-	
+
 	if server.bossmode
 		numteams = 0	-- leaders are automatically assigned
-	end	
+	end
 
-	while numteams
+	/*while numteams
 		if netstat.leaders[numteams]
 		and netstat.leaders[numteams].valid
 			-- avoid validity errors...
@@ -803,7 +822,7 @@ local function NET_teamselect()
 		end
 
 		numteams = $-1
-	end
+	end*/
 	-- technically speaking, if there's only one team we don't need this screen at all!
 
 	-- party cleansing etc:
@@ -843,6 +862,16 @@ local function NET_teamselect()
 		end
 	end
 
+	-- same shit for spectators
+	local i = #netstat.spectators
+	while i
+		local sp = netstat.spectators[i]
+		if not sp or not sp.valid
+			table.remove(netstat.spectators, i)
+		end
+		i = $-1
+	end
+
 	-- leader cleansing:
 	local i = 4
 	while i
@@ -859,14 +888,20 @@ local function NET_teamselect()
 
 		local mo = p.mo
 		if not mo continue end
+
 		if mo.P_net_teamstate == 2
 			if p.tempboss
 				NET_team_bossselect(p)
-			else	
+			else
 				NET_team_skinselect(p)
-			end	
+			end
 			continue
 		end
+
+		if mo.P_net_ready
+			continue
+		end
+
 		local inpt = mo.P_inputs
 
 		if p.P_teamleader
@@ -884,9 +919,8 @@ local function NET_teamselect()
 			local maxc = min(4, #netstat.leaders)
 
 			if server.P_netstat.buffer
-			and server.P_netstat.buffer.gamemode == GM_COOP
-				maxc = $+1
-			end		-- +1 choice in coop for Party Creation.
+				maxc = $+2
+			end		-- +2 choices for party creation and spectating
 
 			-- in case players leave and teams need to be undone...
 			mo.P_net_teamchoice = min($, maxc)
@@ -923,13 +957,21 @@ local function NET_teamselect()
 
 				local team = netstat.playerlist[mo.P_net_teamchoice]
 
-				if team and #team >= netstat.teamlen	-- team not valid means the new party choice
+				if team and #team >= netstat.teamlen	-- team valid, check how many people are in...
 					S_StartSound(nil, sfx_not, p)
 					continue
 				end
 
+				-- team invalid
 				if not #team
-					mo.P_net_createparty = true
+
+					if mo.P_net_teamchoice == maxc-1	-- new party
+						mo.P_net_createparty = true
+						mo.P_net_spectate = nil
+					else
+						mo.P_net_spectate = true
+						mo.P_net_createparty = nil
+					end
 				end
 
 				S_StartSound(nil, sfx_confir, p)
@@ -943,6 +985,7 @@ local function NET_teamselect()
 			-- check if team exists each frame, if it doesn't anymore, yeet tf outta here
 
 			if not mo.P_net_createparty
+			and not mo.P_net_spectate
 				if not netstat.leaders[mo.P_net_teamchoice]
 					mo.P_net_teamchoice = 1
 					mo.P_net_teamstate = 0
@@ -969,10 +1012,30 @@ local function NET_teamselect()
 				-- yes mom i wanna be there
 				S_StartSound(nil, sfx_confir, p)
 
-				if mo.P_net_createparty
+				if mo.P_net_spectate
+
+					-- we must check that assuming the current amount of people who are ready
+					-- and the amount of parties, there are still enough left AFTER we've become a spec
+					-- to make the REQUIRED amount of parties...
+
+					-- in short, if unreadyplayers <= neededparties, we can't become a spectator.
+					if unreadyplayers <= neededparties
+						S_StartSound(nil, sfx_not, p)
+						chatprintf(p, "\x82".."*Create a party. The gamemode requires "..minparties.." party/ies and there are not enough players left to allow joining an existing party or spectating.")
+						mo.P_net_spectate = nil
+						continue	-- don't ready us up duh
+					end
+
+					netstat.spectators[#netstat.spectators+1] = p
+					mo.P_net_ready = true
+
+					continue
+				elseif mo.P_net_createparty
 					-- tell you what i wanna make my OWN TEAM!!!
 					local firstinvalid
-					for i = 1, 4
+					local maxparties = netstat.buffer.maxparties or 1
+
+					for i = 1, maxparties
 						if not netstat.leaders[i]
 							firstinvalid = i
 							break
@@ -981,7 +1044,7 @@ local function NET_teamselect()
 
 					if not firstinvalid	-- soz
 						S_StartSound(nil, sfx_not, p)
-						chatprintf(p, "\x82*No more parties can be made, maximum reached (4)")
+						chatprintf(p, "\x82*No more parties can be made, maximum reached ("..maxparties..")")
 						mo.P_net_teamstate = 0
 						continue
 					end
@@ -994,6 +1057,18 @@ local function NET_teamselect()
 					chatprint("\x82*"..p.name.." created a party.")
 					mo.P_net_createparty = nil
 					continue
+				end
+
+				-- we must check that assuming the current amount of people who are ready
+				-- and the amount of parties, there are still enough left AFTER we've become a member
+				-- to make the REQUIRED amount of parties...
+
+				-- in short, if unreadyplayers <= neededparties, we can't become a party member
+				if unreadyplayers <= neededparties
+					S_StartSound(nil, sfx_not, p)
+					chatprintf(p, "\x82".."*Create a party. The gamemode requires "..minparties.." party/ies and there are not enough players left to allow joining an existing party or spectating.")
+					mo.P_net_teamstate = 0
+					continue	-- don't ready us up duh
 				end
 
 				chatprint("\x82*"..p.name.." joined team "..mo.P_net_teamchoice)
@@ -1012,6 +1087,7 @@ local function NET_teamselect()
 			elseif inpt[BT_USE] == 1
 				S_StartSound(nil, sfx_confir, p)
 				mo.P_net_teamstate = 0
+				mo.P_net_spectate = nil
 			end
 		end
 	end

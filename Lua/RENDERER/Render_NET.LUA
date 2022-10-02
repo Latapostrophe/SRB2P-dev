@@ -78,11 +78,11 @@ rawset(_G, "NET_draw_bosschoice", function(v, p, c)
 	local bossinfo = enemyList[selectboss]
 	local bossframeanim = bossinfo and bossinfo.anim_stand or nil
 	local bosspatch
-	
+
 	if p ~= consoleplayer return end	-- don't let other players screen cheat
 
 	V_drawString(v, min(100, t*64), 8, "SELECT YOUR BOSS!", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
-	
+
 	-- attempt to cache standing frame for the boss
 	if type(bossframeanim[#bossframeanim]) ~= "string"
 	and bossframeanim[1] == SPR_PLAY
@@ -108,7 +108,7 @@ rawset(_G, "NET_draw_bosschoice", function(v, p, c)
 		V_drawString(v, 160, 100, "PRESS A TO BEGIN", "NFNT", 0, "center", 31, nil)
 		return	-- disreguard the other prompts in that case
 	end
-	
+
 	if p.confirmboss == 1
 		local w = 100
 		local h = 40
@@ -134,12 +134,12 @@ rawset(_G, "NET_draw_skinselect", function(v,p,c)
 	-- alright let's do this then
 	--drawScreenwidePatch(v, v.cachePatch("H_RIP4"), nil, V_30TRANS)
 	--v.fadeScreen(31, 7)
-	
+
 	if p.tempboss
 		NET_draw_bosschoice(v, p, c)
 		return
-	end	
-	
+	end
+
 	--net_time = $+1
 	local t = net_time
 
@@ -192,14 +192,14 @@ rawset(_G, "NET_draw_skinselect", function(v,p,c)
 
 	local invalidstr = "This skin has no stats data.\nSonic's stats will be used instead."
 	local tip = invalid and invalidstr or stats.tip
-	
+
 	local tipt = STR_WordWrap(v, tip, 190, "NFNT", FRACUNIT/2)
 	local tiptext = ""
 	for i = 1, #tipt
 		tiptext = $..(tipt[i] or "").."\n"
 	end
-	
-	
+
+
 	V_drawString(v, min(t*64, 310), 135, skins[mo.P_net_skinselect].realname:upper(), "FPIMP", V_SNAPTOBOTTOM, "right", 135, nil, FRACUNIT)	-- don't snap to right.
 	V_drawString(v, min(t*64, 128), 152, tiptext or "", "NFNT", V_SNAPTOBOTTOM|V_SNAPTORIGHT, nil, 31, nil)
 
@@ -342,7 +342,7 @@ rawset(_G, "NET_draw_teamselect", function(v, p, c)
 		v.drawFill(0, 170, net_time*64, 1, 135|V_SNAPTOBOTTOM|V_SNAPTOLEFT)
 
 		-- list parties or smth
-		for i = 1, #netstat.leaders +1
+		for i = 1, #netstat.leaders +2
 			local party = netstat.playerlist[i]
 
 			--print(i.."|"..#netstat.leaders)
@@ -371,13 +371,22 @@ rawset(_G, "NET_draw_teamselect", function(v, p, c)
 
 					V_drawString(v, 12, 180, str, "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
 				end
-			elseif i < 5	-- only 4 parties max!!
+
+			elseif i < 6	-- only 4 parties max!!
 			and server.P_netstat.buffer
-			and server.P_netstat.buffer.gamemode == GM_COOP
 				--maxc = $+1
-				V_drawString(v, 32, 32 + (i-1)*12, "Create party", "NFNT", V_SNAPTOLEFT, nil, 0, 31)
-				if i == mo.P_net_teamchoice
-					V_drawString(v, 12, 180, "You, if you so choose...!", "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
+
+				if i == #netstat.leaders+1
+
+					V_drawString(v, 32, 32 + (i-1)*12, "Create party...", "NFNT", V_SNAPTOLEFT, nil, 0, 31)
+					if i == mo.P_net_teamchoice
+						V_drawString(v, 12, 180, "Make your own party", "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
+					end
+				else
+					V_drawString(v, 32, 32 + (i-1)*12, "Spectate...", "NFNT", V_SNAPTOLEFT, nil, 0, 31)
+					if i == mo.P_net_teamchoice
+						V_drawString(v, 12, 180, "Spectate the game. You can start playing mid-game.", "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
+					end
 				end
 			end
 		end
@@ -385,11 +394,17 @@ rawset(_G, "NET_draw_teamselect", function(v, p, c)
 		if mo.P_net_teamstate
 			local w = 100
 			local h = 40
-			v.drawFill(160 - (w/2), 100 - (h/2), w, h, 135)
-			V_drawString(v, 160, 80, "This choice", "NFNT", 0, "center", 31, nil)
-			V_drawString(v, 160, 88, "can't be undone", "NFNT", 0, "center", 31, nil)
-			V_drawString(v, 160, 100, "A: Confirm", "NFNT", 0, "center", 31, nil)
-			V_drawString(v, 160, 108, "B: Back out", "NFNT", 0, "center", 31, nil)
+			if mo.P_net_spectate and mo.P_net_ready
+				v.drawFill(160 - (w/2), 100 - (h/2), w, h, 135)
+				V_drawString(v, 160, 90, "You will spawn as", "NFNT", 0, "center", 31, nil)
+				V_drawString(v, 160, 100, "a spectator.", "NFNT", 0, "center", 31, nil)
+			else
+				v.drawFill(160 - (w/2), 100 - (h/2), w, h, 135)
+				V_drawString(v, 160, 80, "This choice", "NFNT", 0, "center", 31, nil)
+				V_drawString(v, 160, 88, "can't be undone", "NFNT", 0, "center", 31, nil)
+				V_drawString(v, 160, 100, "A: Confirm", "NFNT", 0, "center", 31, nil)
+				V_drawString(v, 160, 108, "B: Back out", "NFNT", 0, "center", 31, nil)
+			end
 		end
 	else
 

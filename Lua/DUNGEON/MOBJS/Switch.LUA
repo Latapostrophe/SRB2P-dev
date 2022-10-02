@@ -17,6 +17,7 @@ states[S_SHSWITCH] = {SPR_SHSW, A, -1, nil, 0, 0, S_SHSWITCH}
 addHook("TouchSpecial", function(mo, toucher)
 
 	if not mo.extravalue2
+	and not toucher.player.P_spectator
 		mo.extravalue2 = 1	-- Switch activated
 		S_StartSound(mo, sfx_menu1)
 	end

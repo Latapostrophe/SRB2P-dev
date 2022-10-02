@@ -192,7 +192,7 @@ rawset(_G, "PLYR_initSkills", function(mo, persona)
 			end
 		end
 	end
-	
+
 	if mo.toomanyskills and mo.skin
 		print("Over 8 skills detected on "..mo.skin..", removing older skills.")
 		mo.toomanyskills = nil
@@ -609,6 +609,13 @@ addHook("MapLoad", do
 
 	if server.skinlist and #server.skinlist
 		PLYR_spawn(server.skinlist)
+		for p in players.iterate do
+
+			if not p.P_party or not p.maincontrol
+			--or 1	-- test
+				p.P_spectator = true	-- "spectator"
+			end
+		end
 	end
 end)
 
@@ -702,6 +709,7 @@ addHook("MobjThinker", PLYR_checkforPlayer, MT_PFIGHTER)
 -- get players to take control of bots!
 
 local function PLYR_checkjoincontrol(p)
+	if p.P_spectator return end	-- no.
 	if not server.plentities return end
 	if not server.plentities[1] return end	-- no bots in the game. skip.
 	if not #server.plentities[1] return end
@@ -781,10 +789,74 @@ local function PLYR_checkjoincontrol(p)
 	end
 end
 
+-- automatically assign players unaffiliated to a party as a spectator.
+rawset(_G, "PLYR_assignSpectator", function(p)
+	if p.P_spectator return end	-- no.
+	if not server.plentities return end
+	if not server.plentities[1] return end	-- no bots in the game. skip.
+	if not #server.plentities[1] return end
+
+	if not p.P_party
+		p.P_spectator = true
+	end
+end)
+
 addHook("ThinkFrame", do
 	for p in players.iterate do
-		PLYR_checkjoincontrol(p)
+		PLYR_assignSpectator(p)
 	end
+end)
+
+-- spectator player is joining the game and is going to take control of entity
+rawset(_G, "PLYR_spectatorJoinGame", function(player, partyn, slotn)
+
+	if not partyn or not slotn return end
+	if not player.P_spectator return end	-- player is not a spectator anymore.
+
+	local entity = server.plentities[partyn][slotn]
+	if not entity or not entity.valid
+		print("Attempt to take control of invalid entity at "..partyn..", "..slotn)
+		return
+	end
+	if entity.control and entity.control.maincontrol == entity
+		print("Attempt to take control of entity "..partyn..", "..slotn.." already controlled by "..entity.control.name)
+		return
+	end
+
+	player.P_spectator = nil
+	player.P_party = partyn
+
+	PLYR_setcontrol(entity, player, true)
+
+	-- now add ourselves to the tables...
+	server.playerlist[partyn][slotn] = player
+
+	-- finally, dungeon stuff...
+	-- teleport me to my party leader:
+	local pslot = 1
+	local anotherplayer = server.playerlist[partyn][pslot]
+	-- it's impossible to have joined this party as the only player so we won't bother checking for bounds.
+	while (anotherplayer == player or not anotherplayer)
+		anotherplayer = server.playerlist[partyn][pslot]
+		pslot = $+1
+	end
+
+	P_TeleportMove(player.mo, anotherplayer.mo.x, anotherplayer.mo.y, anotherplayer.mo.z)
+	player.powers[pw_flashing] = TICRATE*3 -1
+	player.mo.colorized = false			-- remove colorization
+	player.mo.frame = $ & ~FF_TRANSMASK	-- remove translucency
+	player.charability = skins[player.mo.skin].ability	-- give ability back.
+
+	-- if we just joined mid battle, make sure to reflect that too...
+	-- get battlen first...
+	local battlen = server.plentities[partyn][1].battlen or partyn
+	local btl = server.P_BattleStatus[battlen]
+	if btl.running
+		PLAY_nomove(player)
+		btl.plist[#btl.plist+1] = player	-- affect ourselves to the battle plist (this will set the camera etc for us)
+	end
+
+	chatprint("\x82".."*"..player.name.." has joined party "..partyn)
 end)
 
 rawset(_G, "PLYR_reset", function(pn)	-- reset all battle related variables for all players
@@ -843,8 +915,6 @@ rawset(_G, "PLYR_reset", function(pn)	-- reset all battle related variables for 
 	end
 end)
 
-if srb2p.debug
-
 COM_AddCommand("p_listplayers", function(p, arg)
 	local arg = tonumber(arg)
 	if not arg return end
@@ -893,5 +963,4 @@ COM_AddCommand("p_listplayers", function(p, arg)
 		CONS_Printf(p, "BOT #"..i.." ("..mo.name.."): "..name)
 	end
 end)
-end
 

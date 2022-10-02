@@ -92,6 +92,7 @@ f = $.."/MENULIST"
 			df("Menu_QSave.LUA")
 			df("Pause_MP.LUA")
 			df("Pause_SP.LUA")
+			df("Menu_Spectate.LUA")
 			df("SelectShop.LUA")
 
 f = "MENU/SYSMENUS"

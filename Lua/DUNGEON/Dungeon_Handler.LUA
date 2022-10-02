@@ -63,6 +63,7 @@ rawset(_G, "DNG_Thinker", function()
 		end
 		local mo = p.mo
 		if not mo continue end
+
 		if DNG_handleShop(mo) continue end		-- in shop, don't open the menus in that case
 		if DNG_handleEquipLab(mo) continue end	-- in equip lab, don't open menu either
 		D_HandleMenu(mo)	-- let menus open even without net
@@ -73,6 +74,14 @@ rawset(_G, "DNG_Thinker", function()
 		if btl and p.P_party
 			btl = btl[p.P_party]
 			if btl.running continue end
+		end
+
+		-- spectators can't move in these gamemodes.
+		if p.P_spectator
+		and server.gamemode ~= GM_COOP
+		and server.gamemode ~= GM_VOIDRUN
+			PLAY_nomove(p)
+			continue
 		end
 
 		DNG_HandleAbilities(p, true)
@@ -105,6 +114,16 @@ rawset(_G, "DNG_Thinker", function()
 
 		return
 	else
+
+		for p in players.iterate
+			if p.mo and p.mo.valid
+				if p.P_spectator
+					p.mo.frame = $ & ~FF_TRANSMASK
+					p.mo.frame = $|FF_TRANS50
+					p.mo.colorized = true
+				end
+			end
+		end
 
 		D_tartarusCrawler()
 		if server.gamemode == GM_VOIDRUN

@@ -139,12 +139,12 @@ rawset(_G, "renderMiniMap", function(v, p)
 	and server.map and server.fastmap
 
 		PDraw(v, 200, 70, v.cachePatch("H_MAPBG"), V_50TRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT)
-		
+
 		if server.cdungeon
 			local str = server.cdungeon.name
 			str = $..", "..server.P_DungeonStatus.floor.."F"
 			V_drawString(v, 320-8, 160, str, "NFNT", V_SNAPTOBOTTOM|V_SNAPTORIGHT, "right", 0, 31)
-			
+
 		elseif mapheaderinfo[gamemap].tartarus
 			local block = DNG_returnBlock(server.P_DungeonStatus.floor)
 			local blockname = blocknames[block]
@@ -168,16 +168,16 @@ rawset(_G, "renderMiniMap", function(v, p)
 
 			if mission%3 == 0
 				challenge = $-1
-			end	
-			
+			end
+
 			if server.P_DungeonStatus.VR_timer == nil
 				str = $..(challenge == 1 and "Starting Area" or "Safe Zone")
-			else	
+			else
 				str = $..("C "..challenge.."-"..mission)
-			end		
-			
+			end
+
 			V_drawString(v, 320-8, 160, str, "NFNT", V_SNAPTOBOTTOM|V_SNAPTORIGHT, "right", 0, 31)
-			
+
 		end
 
 
@@ -354,7 +354,7 @@ rawset(_G, "renderTitlecard", function(v)
 		local info = floor_specialinfo
 		local startfloor = 1
 		local maxfloor = 111
-		
+
 		if f >= 65535
 			startfloor = 65535
 			maxfloor = 65535 + 16
@@ -486,7 +486,7 @@ rawset(_G, "renderVRInfo", function(v, p, btl)
 	PDraw(v, 73, by + 8, v.cachePatch(patch), V_SNAPTOTOP|V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, consoleplayer.maincontrol.color))
 	if dng.VR_lives ~= nil
 		V_drawString(v, 84, by+8, "x"..dng.VR_lives, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
-	end	
+	end
 end)
 
 -- Renders transitions between blocks...
@@ -587,19 +587,19 @@ rawset(_G, "renderSaveButton", function(v, p)
 	if buttonscales[timer]
 		xscale = buttonscales[timer][1]
 		yscale = buttonscales[timer][2]
-	end	
-	
+	end
+
 	v.drawStretched(220*FRACUNIT, 90*FRACUNIT, FixedMul(FRACUNIT/2, xscale), FixedMul(FRACUNIT/2, yscale), v.cachePatch("H_SAVE"))
 	if timer > #buttonscales
 		local tt = timer - #buttonscales
-		
+
 		local str = "SAVE"
 		V_drawString(v, 220, 83, str:sub(1, tt), "FPIMP", 0, "center", 0, 31)
-		
+
 		if timer > #buttonscales+4
 			tt = timer - #buttonscales - 4
 			str = "GAME"
-			V_drawString(v, 230, 93, str:sub(1, tt), "FPIMP", 0, "center", 0, 31)			
+			V_drawString(v, 230, 93, str:sub(1, tt), "FPIMP", 0, "center", 0, 31)
 		end
 	end
 end)
@@ -648,21 +648,33 @@ rawset(_G, "R_drawVRTimeOut", function(v)
 
 	local scale = min(FRACUNIT/2, rt*FRACUNIT/8)
 	local flag = 0
-	
+
 	if t < 15
 		scale = FRACUNIT/2 + (rt-15)*FRACUNIT/2
 	end
-	
+
 	if t < 10
 		flag = (10 - t) << V_ALPHASHIFT
 	end
-	
+
 	if t < 20
 		local str = 20-t
 		v.fadeScreen(31, min(str, 10))
-	end	
+	end
 	v.drawScaled(160<<FRACBITS, 100<<FRACBITS, scale, v.cachePatch("H_TIMEUP"), flag)
-	
+
+end)
+
+rawset(_G, "R_drawSpectatorStuff", function(v, p)
+
+	-- you don't need to see what's going on out there...
+	if server.gamemode ~= GM_COOP and server.gamemode ~= GM_VOIDRUN
+		v.drawFill()
+	end
+
+	V_drawString(v, 160, 8, "You are a spectator", "NFNT", V_SNAPTOBOTTOM, "center", 16, 0)
+	V_drawString(v, 160, 18, "Press F12 to watch other players", "NFNT", V_SNAPTOBOTTOM, "center", 16, 0)
+	V_drawString(v, 160, 28, "Press \x91 to open the menu and join a party", "NFNT", V_SNAPTOBOTTOM, "center", 16, 0)
 end)
 
 rawset(_G, "HUDDungeonThinker", function(v, p, c)
@@ -671,6 +683,13 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 
 	local btl = server.P_BattleStatus[p.P_party]
 	if not mapheaderinfo[gamemap].dungeon
+		-- this specifically only happens in PvP
+		if p.P_spectator
+			R_drawSpectatorStuff(v, p)
+			if p.mo and p.mo.valid
+				renderMenus(v, p.mo)
+			end
+		end
 		renderTitlecard(v)
 	return end
 
@@ -713,6 +732,10 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 	--	V_drawString(v, 0, 0, "Reaper Timer: "..server.P_DungeonStatus.reapertimer, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
 	--end
 
+	if p.P_spectator
+		R_drawSpectatorStuff(v, p)
+		return
+	end
 	if not p.P_party return end
 
 	cmd = 	{
@@ -746,7 +769,7 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 	if mo.m_savebutton
 		renderSaveButton(v, p)
 	end
-	
+
 	R_drawRareDrop(v, p)
 
 	if cv_titlecard.value
@@ -756,7 +779,7 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 
 	if server.P_DungeonStatus.VR_timeout
 		R_drawVRTimeOut(v)
-	end	
+	end
 
 	if server.blocktrans
 		renderBlockTransition(v)

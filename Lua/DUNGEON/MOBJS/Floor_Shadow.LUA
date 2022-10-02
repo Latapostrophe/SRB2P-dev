@@ -116,6 +116,12 @@ addHook("MobjThinker", function(mo)
 		if mo.shadowflags & SHF_GOLD
 			A_Look(mo, (256<<16)+1, 0)	-- gold shadows also look all around in a more limited fashion
 		end
+		
+		-- don't target spectators.
+		if mo.target and mo.target.player and mo.target.player.P_spectator
+			mo.target = nil
+		end	
+		
 		mo.ttime = 0
 	end
 
@@ -255,12 +261,14 @@ addHook("ShouldDamage", function(mo, s)
 
 	local special = s.spawnpoint and s.spawnpoint.valid and s.spawnpoint.options & 4	-- mtf_special
 
-	if server.P_BattleStatus[mo.player.P_party].running
+	if mo.player and mo.player.P_spectator	
+	or server.P_BattleStatus[mo.player.P_party].running
 	or (server and server.entrytime)
 	or mo.spr_nfloor
 	or mo.startbattle
 	or mo.d_battlebuf
 	or mo.player and mo.player.powers[pw_flashing]
+
 		return false
 	end
 
