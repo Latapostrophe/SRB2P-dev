@@ -390,11 +390,12 @@ rawset(_G, "D_tartarusCrawler", function()
 				PLAY_move(p)
 			end
 
-			-- raise emerald pow cap
+			-- raise emerald pow cap and delete current saved affs
 			for i = 1, 4
 				local btl = server.P_BattleStatus[i]
 				if btl
 					btl.emeraldpow_max = $+1
+					btl.saved_affs = {}	-- clear saved affinities
 				end
 			end
 
