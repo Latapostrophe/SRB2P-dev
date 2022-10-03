@@ -1,8 +1,8 @@
 -- renders the skin selection menu for netgames
 -- note: a lot of shit there is local, but it's really just visual quirks
 
-local net_stats = {0, 0, 0, 0, 0}
-local net_time = 0
+rawset(_G, "net_stats", {0, 0, 0, 0, 0})
+rawset(_G, "net_time", 0)
 
 rawset(_G, "NET_draw_load", function(v,p,c)
 
