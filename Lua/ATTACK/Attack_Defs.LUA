@@ -19560,6 +19560,14 @@ rawset(_G, "attackSortFunc", function(a, b)
 
 										end
 
+									-- EP specific stuff.
+									elseif ((t[a].costtype == CST_EP or t[b].costtype == CST_EP) and t[a].costtype ~= t[b].costtype)
+										return t[a].costtype ~= CST_EP
+
+									elseif (t[a].costtype == CST_EP and t[b].costtype == CST_EP)
+										return t[a].costtype < t[b].costtype
+
+									-- end of EP specific stuff.
 									elseif t[a].instakill ~= t[b].instakill
 										return (not t[a].instakill) and t[b].instakill
 
