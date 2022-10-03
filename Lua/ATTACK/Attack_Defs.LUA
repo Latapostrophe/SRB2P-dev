@@ -1367,7 +1367,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["regenerate 1"] = {
-		name = "Regenerate 1",
+		name = "Regenerate I",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 4% HP each turn",
@@ -1385,7 +1385,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["invigorate 1"] = {
-		name = "Invigorate 1",
+		name = "Invigorate I",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 2 SP each turn",
@@ -1403,7 +1403,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["invigorate 2"] = {
-		name = "Invigorate 2",
+		name = "Invigorate II",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 4 SP each turn",
@@ -1421,7 +1421,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["invigorate 3"] = {
-		name = "Invigorate 3",
+		name = "Invigorate III",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 6 SP each turn",
@@ -1439,7 +1439,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["regenerate 2"] = {
-		name = "Regenerate 2",
+		name = "Regenerate II",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 6% HP each turn",
@@ -1457,7 +1457,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["regenerate 3"] = {
-		name = "Regenerate 3",
+		name = "Regenerate III",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 8% HP each turn",
