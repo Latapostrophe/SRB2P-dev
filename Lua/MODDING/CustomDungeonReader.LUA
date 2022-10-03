@@ -54,6 +54,7 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	t.levelcap = type(t.levelcap) == "number" and clamp($, t.level, 99) or 1
 	t.gensize = type(t.gensize) == "number" and clamp($, 1, 6) or 1	-- this also affects the odds of cursed cards appearing
 	t.floors = type(t.floors) == "number" and max($, 1) or 1
+	t.reapertimer = type(t.reapertimer) == "number" and clamp($, -1, 16) or 0
 	t.allowinterference = type(t.allowinterference) == "boolean" and $ or false
 	t.skynum = type(t.skynum) == "number" and $ or 1
 	t.maxep = type(t.maxep) == "number" and clamp($, 0, 7) or 0
@@ -285,7 +286,7 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 				map = BOSSFLOOR,
 				eventdir = 270,
 				spawndir = 90,
-				norepaer = true,
+				noreaper = true,
 			}
 			
 		}
@@ -353,6 +354,7 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 		"weapon_addpow",
 		"armour_adddef",
 		"skynum",
+		"reapertimer",
 		"allowinterference",
 		"pittexture",
 		"ceilingheight",
