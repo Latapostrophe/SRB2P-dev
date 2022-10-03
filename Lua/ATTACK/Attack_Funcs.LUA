@@ -1052,7 +1052,9 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 					and attackDefs[s].type & atktype
 						s = attackDefs[s]
 						-- this % chance is not affected by boosts:
-						if P_RandomRange(0, 100) <= atk.accuracy + (attacker.luck - mo.luck)/2
+						-- 03/10/22: As of 1.3.6, this is garanteed on single target attacks.
+						local multitarget = atk.targetttype == TGT_ALLENEMIES
+						if not multitarget or P_RandomRange(0, 100) <= atk.accuracy + (attacker.luck - mo.luck)/2
 							mo.cachestatus = s.status
 							mo.damagestate = DMG_STATUS
 						end
