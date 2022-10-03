@@ -58,7 +58,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Fire \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Fire \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -110,7 +110,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Ice \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Ice \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -162,7 +162,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Wind \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Wind \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -214,7 +214,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Elec \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Elec \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -266,7 +266,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Psy \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Psy \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -318,7 +318,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Nuke \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Nuke \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -6255,7 +6255,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 12,
-		desc = "Raise allies's magic \nattack by 1 stage.",
+		desc = "Raise allies' magic \nattack by 1 stage.",
 		target = TGT_ALLALLIES,
 		buff = true,
 		anim = function(mo, targets, hittargets, timer)
@@ -10480,7 +10480,7 @@ rawset(_G, "attackDefs", {
 		instakill = true,	-- the enemy is instantly killed without its health being displayed
 		luckbased = true,	-- use luck instead of agility
 		cost = 40,
-		desc = "Death based attack. \nMedium chance of instant kill to \none enemy.",
+		desc = "Death based attack. \nMedium chance of instant kill to \nall enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 

@@ -483,7 +483,7 @@ rawset(_G, "charStats", {
 		hudaoa = "H_MSONAOA",	-- patch for all out attack hud
 		hudcutin = "MSON_A",	-- cut in
 		hudspr = "MSON",	-- sprite prefix since hud can't retrieve it. yikes
-		aoa_quote = "Awaiting permission\nfor annhilation.",
+		aoa_quote = "Awaiting permission\nfor annihilation.",
 
 		tip = "His high endurance and HP make him the best at taking hits. He also boasts high power and Attack buffs as well as defensive options for the whole party. His SP is very low and best kept for buffing.",
 
