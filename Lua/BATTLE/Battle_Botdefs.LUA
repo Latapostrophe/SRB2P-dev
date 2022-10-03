@@ -761,7 +761,7 @@ end
 addHook("MobjThinker", PLYR_checkforPlayer, MT_PFIGHTER)
 
 -- get players to take control of bots!
-
+-- DEPRECATED, but keeping around in case it ever ends up being useful again...
 local function PLYR_checkjoincontrol(p)
 	if p.P_spectator return end	-- no.
 	if not server.plentities return end
@@ -857,12 +857,31 @@ local function PLYR_checkjoincontrol(p)
 	end
 end
 
+
+local function any_valid_player(t)
+	for i = 1, server.P_netstat.teamlen
+		if t[i] and t[i].valid
+			return t[i]
+		end	
+	end
+	return nil
+end
+
 -- automatically assign players unaffiliated to a party as a spectator.
 rawset(_G, "PLYR_assignSpectator", function(p)
 	if p.P_spectator return end	-- no.
 	if not server.plentities return end
-	if not server.plentities[1] return end	-- no bots in the game. skip.
-	if not #server.plentities[1] return end
+	if not server.P_netstat.teamlen return end
+	
+	local allinvalid = true
+	for i = 1, 4 do
+		if any_valid_player(server.plentities[i])
+			allinvalid = false
+			break
+		end	
+	end
+	
+	if allinvalid return end
 
 	if not p.P_party
 		p.P_spectator = true

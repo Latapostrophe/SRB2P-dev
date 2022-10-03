@@ -8,9 +8,10 @@ local function m_teamselect_drawer(v, mo, choice)
 	end
 
 	local nteams = 0
+	
 	for i = 1, 4
 		if #server.plentities[i]
-			nteams = i	-- empty teams can exist if people leave (how)
+			nteams = $+1	-- empty teams can exist if people leave (how)
 		end
 	end
 
@@ -82,11 +83,21 @@ local function m_teamselect_inputs(mo)
 
 
 	local nteams = 0
+	local minteam = 0
+	local maxteam = 0
+	
 	for i = 1, 4
 		if #server.plentities[i]
 			nteams = i	-- empty teams can exist if people leave (how)
+			
+			if not minteam
+				minteam = i
+			end
+			maxteam = i			
 		end
 	end
+	
+	mo.m_teamselect = max($, minteam)
 
 	local currteam = server.plentities[mo.m_teamselect]
 	local cteamlen = #currteam
@@ -111,9 +122,12 @@ local function m_teamselect_inputs(mo)
 		if inputs["right"] == 1
 
 			mo.m_teamselect = $+1
-			if mo.m_teamselect > nteams
-				mo.m_teamselect = 1
-			end
+			while (mo.m_teamselect > 4 or not #server.plentities[mo.m_teamselect])
+				mo.m_teamselect = $+1	-- this can make us go out of bounds but it doesn't matter
+				if mo.m_teamselect > nteams
+					mo.m_teamselect = 1
+				end
+			end	
 
 			-- just in case...
 			local newteam = server.plentities[mo.m_teamselect]
@@ -122,9 +136,12 @@ local function m_teamselect_inputs(mo)
 			S_StartSound(nil, sfx_hover, mo.player)
 		elseif inputs["left"] == 1
 			mo.m_teamselect = $-1
-			if mo.m_teamselect < 1
-				mo.m_teamselect = nteams
-			end
+			while (mo.m_teamselect < 1 or not #server.plentities[mo.m_teamselect])
+				mo.m_teamselect = $-1	-- this can make us go out of bounds but it doesn't matter
+				if mo.m_teamselect < 1
+					mo.m_teamselect = nteams
+				end
+			end	
 
 			-- just in case...
 			local newteam = server.plentities[mo.m_teamselect]

@@ -236,6 +236,15 @@ end)
 addHook("MapLoad", do
 	if gamemap == srb2p.tartarus_map
 		COM_BufInsertText(server, "maxplayers 16")
+		
+		for p in players.iterate do
+			local mo = p.mo
+			p.P_spectator = nil
+			if p.mo
+				p.mo.colorized = false	-- uh yeah specs do that...
+				M_closeMenu(p.mo)
+			end	
+		end
 	end
 end)
 
