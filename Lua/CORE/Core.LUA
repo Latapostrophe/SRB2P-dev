@@ -162,6 +162,7 @@ local psv_constants = {
 
 	"PSV_STARTBATTLE",	-- execute a function at the start of the battle (the anim func), the target will be the user itself
 	"PSV_STARTTURN",	-- execute a function at the start of the turn. (the anim func), the target will be the user itself
+	"PSV_ENDTURN",		-- execute a function at the end of the turn. (the anim func), the target will be the user itself
 	"PSV_ENDBATTLE",	-- execute a function at the end of the battle. (the anim func), the target will be the user itself
 
 	"PSV_COND_RESIST",	-- resist status condition (odds /2)
