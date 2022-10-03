@@ -156,7 +156,7 @@ end)
 rawset(_G, "BTL_getMacca", function(btl, amount)
 	if amount and amount > 0
 		btl.netstats.maccaearned = $ + amount
-	elseif amount < 0
+	elseif amount and amount < 0
 		btl.netstats.maccaspent = $ - amount
 	end
 
