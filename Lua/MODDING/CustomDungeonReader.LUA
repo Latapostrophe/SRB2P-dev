@@ -77,6 +77,8 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	t.shadowframes_float = type(t.shadowframes_float) == "table" and $ or nil
 	-- other cool dunegon stuff!
 	t.dungeonmusic = type(t.dungeonmusic) == "string" and $ or 0	-- ???
+	t.shopmusic = type(t.shopmusic) == "string" and $ or 0
+	t.equiplab_music = type(t.equiplab_music) == "string" and $ or 0
 	
 	/*t.battlemusics = type(t.battlemusics) == "table" and $ or nil
 	if t.battlemusics
@@ -110,6 +112,8 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	-- Shop
 	t.shop = type(t.shop) == "string" and $ or "velvet_shop_mp1"
 	assert(shopList[t.shop], "Shop '"..t.shop.."' does not exist in shopList[]")
+	-- Equipment Lab Text
+	t.equiplab_text = type(t.equiplab_text) == "table" and $ or nil
 	
 	-- Check for item drops!
 	t.itemdrops = type(t.itemdrops) == "table" and $ or {}
@@ -328,8 +332,11 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 		"level",
 		"levelcap",
 		"shop",
+		"equiplab_text",
 		"gensize",
 		"dungeonmusic",
+		"shopmusic",
+		"equiplab_music",
 		--"battlemusics",
 		"floors",
 		"shufflelevel",
