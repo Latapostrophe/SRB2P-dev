@@ -5470,7 +5470,14 @@ rawset(_G, "enemyList", {
 						end,
 		r_exp = 1,
 		r_drops = {
+			{"painite", 20},
 			{"nihil frame", 30},
+			{"ruby", 50},			
+			{"diamond", 80},
+			{"emerald", 100},
+			{"sapphire", 100},
+			{"onyx", 100},
+			{"amethyst", 100},
 		},
 
 		anim_stand = 		{SPR_ENM1, D, 10},

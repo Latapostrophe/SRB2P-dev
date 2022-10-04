@@ -899,16 +899,17 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 				if server.gamemode == GM_COOP and server.difficulty
 
 					local stats_diff = {
+						11,
 						22,
 						33,
 						55,
-						66,
 						88,
 						99,
 						99,
 					}
 
 					local st = stats_diff[server.difficulty] or 99
+					print(st)
 					v.agility = st
 					v.luck = st
 				end
@@ -1011,6 +1012,25 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 					updateUDtable(team1)
 					continue
 				end
+
+
+				if server.gamemode == GM_COOP and server.difficulty
+
+					local stats_diff = {
+						11,
+						22,
+						33,
+						55,
+						88,
+						99,
+						99,
+					}
+
+					local st = stats_diff[server.difficulty] or 99
+					v.agility = st
+					v.luck = st
+				end
+				
 			end
 		end
 
