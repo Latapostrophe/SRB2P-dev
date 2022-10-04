@@ -268,6 +268,7 @@ local function DNG_tartarusReaper()
 
 		if d.reapertimer <= 0
 		and not (server.reaper and server.reaper.valid)
+		and not d.spawnedreaper
 
 			-- check if NO ONE is in a battle
 			local run
@@ -280,6 +281,7 @@ local function DNG_tartarusReaper()
 			end
 
 			if not run
+				d.spawnedreaper = true
 				D_spawnReaper()
 			end
 		end
@@ -383,6 +385,7 @@ rawset(_G, "D_tartarusCrawler", function()
 		if server.blocktrans == TICRATE*6
 			server.blocktrans = nil
 			server.P_DungeonStatus.floor = $+1
+			server.P_DungeonStatus.spawnedreaper = nil
 			server.P_DungeonStatus.stairsfound = nil
 			server.P_DungeonStatus.savefloor = server.P_DungeonStatus.floor
 			DNG_setFloor(server.P_DungeonStatus.floor)
@@ -698,6 +701,7 @@ rawset(_G, "D_tartarusCrawler", function()
 								end
 							end
 							server.P_DungeonStatus.floor = $+1
+							server.P_DungeonStatus.spawnedreaper = nil
 							server.P_DungeonStatus.stairsfound = nil
 							DNG_setFloor(server.P_DungeonStatus.floor)
 							server.reaper = nil

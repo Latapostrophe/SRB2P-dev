@@ -478,6 +478,12 @@ rawset(_G, "enemyList", {
 					"fire boost", "ice boost", "elec boost", "wind boost", "psy boost", "nuke boost", "bless boost", "curse boost",
 					"magarudyne", "maziodyne", "mafreidyne", "mapsiodyne", "tetrakarn", "makarakarn",
 					"dekaja", "dekunda"},
+
+
+		r_drops = {
+			{{"series", "ragged"}, 50},
+			{{"ring", "ragged"}, 50},
+		}
 	},
 
 	["reaper_alt"] = {

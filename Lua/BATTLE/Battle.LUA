@@ -7865,7 +7865,7 @@ COM_AddCommand("d_resetstats", function(p, arg)
 
 end, 1)
 
-COM_AddCommand("d_getweapon", function(p, arg)
+COM_AddCommand("d_getweapon", function(p, arg, arg2)
 
 	if not cv_debugcheats.value return end
 	if not arg return end
@@ -7874,13 +7874,14 @@ COM_AddCommand("d_getweapon", function(p, arg)
 		CONS_Printf(p, "Weapon '"..arg.."' doesn't exist.")
 		return
 	else
-		local wp = makeWeapon(arg)
+		local lv = tonumber(arg2) or 0	
+		local wp = makeWeapon(arg, lv)
 		addWeapon(p.mo, wp)
 		CONS_Printf(p, "DEBUGL Weapon '"..arg.."' added to weapon list")
 	end
 end, 1)
 
-COM_AddCommand("d_getring", function(p, arg)
+COM_AddCommand("d_getring", function(p, arg, arg2)
 
 	if not cv_debugcheats.value return end
 	if not arg return end
@@ -7889,7 +7890,8 @@ COM_AddCommand("d_getring", function(p, arg)
 		CONS_Printf(p, "Ring '"..arg.."' doesn't exist.")
 		return
 	else
-		local r = makeRing(arg)
+		local lv = tonumber(arg2) or 0
+		local r = makeRing(arg, lv)
 		addRing(p.mo, r)
 		CONS_Printf(p, "DEBUGL Wardring '"..arg.."' added to ring list")
 	end

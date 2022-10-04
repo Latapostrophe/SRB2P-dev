@@ -2708,6 +2708,34 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
+	["rending scythe"] = {
+		name = "Rending Scythe",
+		type = ATK_PASSIVE,
+		desc = "Increase all damage by 15%.\nOn kill, recover health equal\nto 2x the target's remaining health.",
+		passive = PSV_TRIGGERDAMAGE,
+
+		implicit = "rending scythe.part2",
+
+		anim = 	function(mo, target, dmg, crit)
+					dmg = $*115/100
+					return dmg
+				end,
+	},
+
+	["rending scythe.part2"] = {
+		name = "Rending Scythe - Heal On Kill",
+		type = ATK_PASSIVE,
+		desc = "Increase all damage by 15%.\nOn kill, recover health equal\nto the target's remaining health.",
+		passive = PSV_ONDAMAGE,
+
+		anim = 	function(mo, target)
+					if target != mo and not target.hp
+						damageObject(mo, -target.redhp*2)
+						playSound(mo.battlen, sfx_heal2)
+					end
+				end,
+	},
+
 	["precision 1"] = {
 		name = "Precision I",
 		type = ATK_PASSIVE,

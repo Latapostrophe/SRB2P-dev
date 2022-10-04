@@ -1040,7 +1040,7 @@ rawset(_G, "createWeaponSeries", function(name, power, accuracy, stats, slot, ra
 		end
 		table.insert(weaponSeries[lname], index)
 
-		print("Created "..wpnname.." (Added to '"..lname.."'series list)")
+		--print("Created "..wpnname.." (Added to '"..lname.."'series list)")
 	end
 end)
 
@@ -1190,7 +1190,9 @@ createWeaponSeries("Awake", 1760, 100, {3, 3, -3, 0, 0}, "challenger 2", 5, defa
 createWeaponSeries("Obliance", 1760, 100, {3, 3, 0, 0, 0}, "ignorance", 5, defaulttypes, "A unique weapon that requires\nless thought process to use,\nwhen given the power.")
 createWeaponSeries("Freifi", 1890, 100, {4, 4, 3, 3, 3}, "freifi aura", 6, defaulttypes, "The strongest conventional\nseries of weapons.\nThere isn't much competition.")
 
-createWeaponSeries("Buhn", 2000, 100, {6, 6, 4, 4, 4}, "unfathomable darkness", 7, defaulttypes, "Honlyn Shirit.\nIt has arrived.")
+createWeaponSeries("Ragged", 2050, 100, {5, 5, -7, 5, 2}, "rending scythe", 7, defaulttypes, "A weapon torn off from he\nwho brings rest to souls.")
+createWeaponSeries("Buhn", 2200, 100, {6, 6, 4, 4, 4}, "unfathomable darkness", 7, defaulttypes, "Honlyn Shirit.\nIt has arrived.")
+
 
 -- VOID RUN SPECIFIC WEAPON SERIES
 createWeaponSeries("Foie", 410, 90, {2, 2, 0, 0, -2}, "precision 2", 3, defaulttypes, "A weapon series capable of producing flames.\nIt's pretty weak.", ATK_FIRE)
