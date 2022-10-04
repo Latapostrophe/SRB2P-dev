@@ -432,10 +432,10 @@ rawset(_G, "personaList", {
 					{"counterstrike", 34, "counter"},
 					{"distortion", 40, "cleave"},
 					{"virus cutter", 43, "toxic slice"},
-					{"fatal end", 46, "skewer"},
+					{"blade of fury", 45, "gale slash"},
 					{"howling", 50, "twin slash"},
 
-					{"blade of fury", 54, "gale slash"},
+					{"fatal end", 53, "skewer"},
 					{"vile assault", 56, "cruel attack"},
 					{"diamondcutter", 59, "sharp edge"},
 					{"delay", 64, "counterstrike"},

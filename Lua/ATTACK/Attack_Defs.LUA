@@ -8915,7 +8915,7 @@ rawset(_G, "attackDefs", {
 		cost = 13,
 		critical = 3,
 		status = COND_POISON,
-		statuschance = 35,
+		statuschance = 55,
 		desc = "Medium Slash damage to \none enemy.\nMedium chance of Poison.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -18579,7 +18579,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 999,
 		costtype = CST_SP,
 		cost = 32,
-		desc = "Evade every attack for 1 turn.\nClear stat penalties and\nraises Physical Attack",
+		desc = "Evade every attack for 1 turn.\nClear stat penalties and\nmaxes out Physical Attack",
 		target = TGT_CASTER,
 		evasionskill = 1,		-- # of turns before this skill is automatically casted again. NOTHING can be done until autocast happens again.
 		evasionwait = "",		-- this is usually printed in the console if the autocast isn't happening again.
@@ -18594,7 +18594,7 @@ rawset(_G, "attackDefs", {
 
 					if mo.guaranteedevasion
 						mo.guaranteedevasion = nil
-						BTL_logMessage(mo.battlen, "Stat penalties reverted,\nPhysical Attack up.")
+						BTL_logMessage(mo.battlen, "Stat penalties reverted,\nPhysical Attack maxed out!")
 
 						local strs = {"atk", "mag", "def", "agi"}
 
