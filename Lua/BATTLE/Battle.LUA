@@ -4827,7 +4827,7 @@ rawset(_G, "statusConditionEffects", function(mo)	-- the little animations over 
 		thok.frame = F|FF_FULLBRIGHT|TR_TRANS30
 		thok.momz = -P_RandomRange(6, 16)*FRACUNIT
 		thok.color = SKINCOLOR_GREEN
-		thok.tics = P_RandomRange(10, 35)
+		thok.fuse = P_RandomRange(8, 30)
 
 	-- GO TO SLEEP -Cae-sama
 	elseif mo.status_condition == COND_SLEEP

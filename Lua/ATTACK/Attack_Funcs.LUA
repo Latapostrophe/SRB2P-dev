@@ -580,14 +580,6 @@ local statusmessage = {
 
 rawset(_G, "ATK_statusfuncs", {
 
-	[COND_HUNGER] = function(mo)
-						mo.strength = $/2
-						mo.magic = $/2
-						mo.endurance = $/2
-						mo.agility = $/2
-						mo.luck = $/2
-					end,
-
 	[COND_SILENCE] = function(mo)
 						mo.commandflags = $ or 0
 						mo.commandflags = $|CDENY_SKILL|CDENY_PERSONA|CDENY_TACTICS
@@ -1522,6 +1514,11 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	if attacker.status_condition == COND_POISON
 		dmg = $*85/100
 	end
+	
+	-- Attacker has hunger: Multiply damage by 0.65
+	if attacker.status_condition == COND_HUNGER
+		dmg = $*65/100
+	end	
 
 	-- Target has burn, multiply damage by 1.15
 	if mo.status_condition == COND_BURN
