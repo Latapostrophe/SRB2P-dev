@@ -402,7 +402,7 @@ rawset(_G, "PLYR_spawn", function(team)
 			mo.levelcap = server.difficulty and difficulty_cap[server.difficulty] or 99	-- levelcap 99 by default
 
 			if server.gamemode == GM_PVP
-				mo.level = 80
+				mo.level = 50
 				if server.bossmode
 					mo.level = min(99, server.bosslevel-3)
 				end
@@ -526,6 +526,8 @@ rawset(_G, "PLYR_spawn", function(team)
 			and not server.bossmode	-- keep everything the same for boss mode
 				mo.sp = $/3
 				mo.maxsp = mo.sp
+				mo.hp = $*13/10
+				mo.maxhp = mo.hp
 				-- more HP but less SP, for balance.
 			end
 		end

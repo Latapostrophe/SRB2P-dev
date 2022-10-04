@@ -591,7 +591,7 @@ rawset(_G, "BTL_splitSkills", function(v)
 				and attackDefs[s]
 					if attackDefs[s].target == TGT_CASTER	-- mind charge, power charge
 					or attackDefs[s].target == TGT_DEAD		-- recarm, ...
-					or attackDefs[s].luckbased and attackDefs[s].target == TGT_ALLENEMIES
+					--or attackDefs[s].luckbased and attackDefs[s].target == TGT_ALLENEMIES
 						dprint("Skill "..s.." deemed too much bullshit for PVP, not adding")
 						continue
 					end
@@ -1281,7 +1281,7 @@ rawset(_G, "BTL_mainHandler", function(pn)
 	end
 end)
 
-rawset(_G, "BTL_BuildTurnOrder_PVP", function(pn)
+rawset(_G, "BTL_BuildTurnOrder_PVP", function(pn, simulate)
 
 	local btl = server.P_BattleStatus[pn]
 	btl.turn = $+1
@@ -1292,7 +1292,7 @@ rawset(_G, "BTL_BuildTurnOrder_PVP", function(pn)
 	local removekey
 	local addwho
 
-	local pnum = P_RandomRange(1, 2)	-- no jealousy~
+	local pnum = 1
 
 	for k,v in ipairs(btl.fighters)
 		if not v or not v.valid return end
@@ -1374,7 +1374,7 @@ rawset(_G, "BTL_BuildTurnOrder", function(pn, simulate)
 	if SRB2P_runHook("BattleTurnOrder", battle) return end
 
 	if server.gamemode == GM_PVP
-		return BTL_BuildTurnOrder_PVP(pn)
+		return BTL_BuildTurnOrder_PVP(pn, simulate)
 	end
 
 	local btl = server.P_BattleStatus[pn]
