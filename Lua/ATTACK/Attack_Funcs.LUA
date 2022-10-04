@@ -973,8 +973,8 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 	if accuracy -- check for accuracy
 
-		local acc_div = attacker.status_condition == COND_DIZZY and 2 or 1
-		-- dizzy: accuracy /2
+		local acc_mult = attacker.status_condition == COND_DIZZY and 75 or 100
+		-- dizzy: accuracy *0.75
 
 		local attacker_agility = attacker.agility + attacker.agility*attacker.buffs["agi"][1] / 100
 		local attacked_agility = mo.agility + mo.agility*mo.buffs["agi"][1] / 100
@@ -1033,11 +1033,11 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 		if mo.damagestate == DMG_DRAIN
 		or mo.damagestate == DMG_BLOCK	-- make sure to show off!
-			hitrate = 100*acc_div
+			hitrate = 100*acc_mult/100
 		end
 
 
-		if P_RandomRange(0, 100) > hitrate / acc_div
+		if P_RandomRange(0, 100) > hitrate * acc_mult/100
 		or (atk.instakill and mo.boss)	-- nope
 			--mo.damagestate = DMG_MISS
 			mo.passivedodge = passive_dodge
