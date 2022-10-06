@@ -717,6 +717,37 @@ rawset(_G, "BTL_initAdditionalSkills", function(v, subpbonus)
 	end
 end)
 
+rawset(_G, "BTL_initSkillChange", function(v)
+	if not v.skills or not #v.skills return end
+	for i = 1, #v.skills
+		local s = v.skills[i]
+		if s and attackDefs[s]
+			local atk = attackDefs[s]
+			if atk.skillchange
+				local skill = atk.skillchange(v, s)
+				if not attackDefs[skill]
+				or attackDefs[skill].type & ATK_PASSIVE --no, you will not
+				or attackDefs[skill].passive --get passives from this
+					dprint("\x82"..v.skills[i].."\x80".." not converted to ".."\x82"..skill.."\x80"..". (Not a command skill.)")
+				else
+					dprint("\x82"..v.skills[i].."\x80".." converted to ".."\x82"..skill.."\x80"..".")
+					v.skills[i] = atk.skillchange(v, s)
+				end
+			end
+		end
+	end
+	table.sort(v.skills, attackSortFunc)
+end)
+
+rawset(_G, "BTL_changeSkillSelect", function(v, skill)	--mostly here just for convenience in case
+	if not v.t_skillselect or not skill return end		--someone wanted to BTL_initSkillChange during
+	for i = 1, #v.skills								--battle and keep hovering over the changed skill
+		if v.skills[i] == skill
+			v.t_skillselect = i
+		end
+	end
+end)
+
 -- set up stats and adds atat bonuses from subpersonas too
 rawset(_G, "BTL_setupstats", function(v, subpbonus)
 	if not v.savestats return end
@@ -946,6 +977,8 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 		else
 			BTL_splitSkills(v)
 		end
+
+		BTL_initSkillChange(v)
 
 		battleStatus.fighters[#battleStatus.fighters+1] = v
 		BTL_addtoplist(battleStatus, v)
