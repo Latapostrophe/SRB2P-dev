@@ -19,15 +19,15 @@ for i = 1, #dmg_type_consts
 end
 
 rawset(_G, "ATK_getSkillCost", function(mo, skl)
-
+	
 	local cost = 0
 	if skl.costtype == CST_HP
 	or skl.costtype == CST_SP
 		cost = skl.cost
 	elseif skl.costtype == CST_HPPERCENT
-		cost = mo.hp*skl.cost/100
-	elseif skl.costtype == CST_SP
-		cost = mo.sp*skl.cost/100
+		cost = mo.maxhp*skl.cost/100
+	elseif skl.costtype == CST_SPPERCENT
+		cost = mo.maxsp*skl.cost/100
 	elseif skl.costtype == CST_EP
 		cost = skl.cost*100
 	end
