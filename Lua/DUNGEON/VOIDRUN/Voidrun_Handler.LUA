@@ -127,7 +127,7 @@ rawset(_G, "D_getVoidRunRewards", function()
 	
 	if dng.VR_challenge%3 == 0
 		DNG_logMessage("\x82".."CONGRATULATIONS! Challenge #"..(dng.VR_challenge/3).." completed!")
-		S_ChangeMusic("SHOP", true, nil, 0, 0, 200)	-- chill music
+		S_ChangeMusic("SHOP", true, nil)	-- chill music
 	end
 
 	-- set possible rewards:
