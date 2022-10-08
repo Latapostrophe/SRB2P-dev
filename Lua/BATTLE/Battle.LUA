@@ -1776,6 +1776,20 @@ rawset(_G, "BTL_preturnHandler", function(pn)		-- here, we do stuff with whoever
 	ANIM_set(mo, mo.anim_stand, true)
 	mo.guard = nil
 	mo.t_norun = nil	-- remove the runaway thing
+	
+	-- set basic attack for non-enemies
+	if not mo.enemy
+		mo.melee = charStats[mo.stats].melee_natk
+		if mo.weapon and mo.weapon.melee
+			mo.melee = mo.weapon.melee
+		end
+	
+		if mo.status_condition == COND_SUPER
+			if charStats[mo.stats].melee_satk
+				mo.melee = charStats[mo.stats].melee_satk	-- super attack
+			end
+		end
+	end
 
 	-- note: menu player init stuff is now handled at the top of the battle input func
 
@@ -3006,19 +3020,7 @@ rawset(_G, "BTL_turnHandler", function(pn)
 				playSound(mo.battlen, sfx_turn, mo)
 			end
 
-			-- basic attack + targetting
-
-			mo.melee = charStats[mo.stats].melee_natk
-			if mo.weapon and mo.weapon.melee
-				mo.melee = mo.weapon.melee
-			end
-
-			if mo.status_condition == COND_SUPER
-				if charStats[mo.stats].melee_satk
-					mo.melee = charStats[mo.stats].melee_satk	-- super attack
-				end
-			end
-
+			-- targetting
 			BTL_setAttack(mo, mo.melee)
 			mo.targets = mo.enemies
 
