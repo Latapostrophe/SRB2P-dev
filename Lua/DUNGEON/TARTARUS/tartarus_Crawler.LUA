@@ -363,6 +363,7 @@ rawset(_G, "D_tartarusCrawler", function()
 		server.blocktrans = $+1
 
 		if server.blocktrans == TICRATE*2
+			ROGUE_reset()
 			server.difficulty = $+1	-- increase difficulty.
 			-- Raise everyone's levelcaps
 

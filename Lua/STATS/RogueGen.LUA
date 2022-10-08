@@ -12,6 +12,12 @@ local function R_RandomRange(a, b)
 	return a + abs(R_Random() % (b - a + 1))
 end
 
+rawset(_G, "enemiesrogued", {})
+
+addHook("NetVars", function(net)
+	enemiesrogued = net($)
+end)
+
 -- removes every enemy that has "__roguemode" in its name specifically.
 -- don't name your enemies like that, dumbass.
 rawset(_G, "ROGUE_reset", function()
@@ -22,6 +28,7 @@ rawset(_G, "ROGUE_reset", function()
 			continue
 		end
 	end
+	enemiesrogued = {}
 end)
 
 -- takes an enemyList element, and creates a new enemy from it!
@@ -191,6 +198,7 @@ rawset(_G, "ROGUE_initEnemyStats", function(ename)
 
 	-- and finally, add us to the enemy list... dear god that sucked.
 	enemyList[ename.."__roguemode"] = cpy
+	table.insert(enemiesrogued, ename)
 
 	-- wow, we're done!
 	return ename.."__roguemode"	-- yes this is stupid.
