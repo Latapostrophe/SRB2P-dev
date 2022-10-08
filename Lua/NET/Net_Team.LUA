@@ -1108,6 +1108,19 @@ local function NET_teamselect()
 			pready = $+1
 		end
 	end
+	
+	-- the launch prompt(if our host is deciding to spectate):
+	for p in players.iterate
+		local inpt = p.mo.P_inputs
+		if p.mo.P_net_launchprompt
+			if inpt[BT_JUMP] == 1	-- yeah let's go
+				-- this is where we begin the game
+				NET_startgame()
+				return
+			end
+			-- pressing BT_USE will undo our last skin selection as expected, handled in the code below :P
+		end
+	end
 
 	--if pready >= nump
 	--	dprint("thighs")
