@@ -1660,7 +1660,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 		-- unless it's a revive (hp <= 0)
 		if server.gamemode == GM_PVP
 		and mo.hp > 0
-		and mo.atk_hitby.power >= 999	-- only apply this to diarahan
+		and mo.atk_hitby.power and mo.atk_hitby.power >= 999	-- only apply this to diarahan
 			damage = $/2
 		end
 
