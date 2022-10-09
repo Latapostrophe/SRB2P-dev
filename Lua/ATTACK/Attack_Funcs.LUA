@@ -35,10 +35,10 @@ rawset(_G, "ATK_getSkillCost", function(mo, skl)
 	-- outside of battle, passiveskills don't exist.
 	if mo.passiveskills
 		for i = 1, #mo.passiveskills
-			local skl = mo.passiveskills[i]
-			if attackDefs[skl]
-			and attackDefs[skl].passive == PSV_SKILLCOST
-				cost = attackDefs[skl].anim(mo, skl, cost) or $
+			local atk = mo.passiveskills[i]
+			if attackDefs[atk]
+			and attackDefs[atk].passive == PSV_SKILLCOST
+				cost = attackDefs[atk].anim(mo, skl, cost) or $
 			end
 		end
 	else
@@ -48,10 +48,10 @@ rawset(_G, "ATK_getSkillCost", function(mo, skl)
 		end
 
 		for i = 1, #skls
-			local skl = skls[i]
-			if attackDefs[skl]
-			and attackDefs[skl].passive == PSV_SKILLCOST
-				cost = attackDefs[skl].anim(mo, skl, cost) or $
+			local atk = skls[i]
+			if attackDefs[atk]
+			and attackDefs[atk].passive == PSV_SKILLCOST
+				cost = attackDefs[atk].anim(mo, skl, cost) or $
 			end
 		end
 	end
