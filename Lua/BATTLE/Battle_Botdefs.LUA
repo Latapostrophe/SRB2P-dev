@@ -524,10 +524,10 @@ rawset(_G, "PLYR_spawn", function(team)
 
 			if server.gamemode == GM_PVP
 			and not server.bossmode	-- keep everything the same for boss mode
-				mo.sp = $/3
+				mo.sp = $/2
 				mo.maxsp = mo.sp
-				mo.hp = $*13/10
-				mo.maxhp = mo.hp
+				--mo.hp = $*13/10
+				--mo.maxhp = mo.hp
 				-- more HP but less SP, for balance.
 			end
 		end
