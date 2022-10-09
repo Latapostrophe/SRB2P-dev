@@ -1085,7 +1085,7 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 					v.agility = st
 					v.luck = st
 				end
-				
+
 			end
 		end
 
@@ -1604,6 +1604,8 @@ rawset(_G, "resetEntitiesPositions", function(pn)
 		e.anim = nil
 		ANIM_set(e, e.down and e.anim_downloop or e.guard and e.anim_guard or e.anim_stand, true)
 
+		e.ondamage_recursion = 0
+
 		if e.hp <= 0
 		and not e.extra	-- these guys will blow up, don't kill em yet
 			-- dead
@@ -1831,14 +1833,14 @@ rawset(_G, "BTL_preturnHandler", function(pn)		-- here, we do stuff with whoever
 	ANIM_set(mo, mo.anim_stand, true)
 	mo.guard = nil
 	mo.t_norun = nil	-- remove the runaway thing
-	
+
 	-- set basic attack for non-enemies
 	if not mo.enemy
 		mo.melee = charStats[mo.stats].melee_natk
 		if mo.weapon and mo.weapon.melee
 			mo.melee = mo.weapon.melee
 		end
-	
+
 		if mo.status_condition == COND_SUPER
 			if charStats[mo.stats].melee_satk
 				mo.melee = charStats[mo.stats].melee_satk	-- super attack
@@ -2745,8 +2747,8 @@ rawset(_G, "BTL_turnHandler", function(pn)
 			mo.atk_attacker = mo	-- makes these function correctly, we don't get getDamage for this, so we have to set it manually.
 			local atk = attackDefs[mo.passiveskills[mo.t_passivebuffer]]
 			mo.atk_hitby = BTL_copyAttackDefs(atk)	-- ditto
-			if mo.t_passivetimer == 1 
-				BTL_logMessage(mo.battlen, atk.name) 
+			if mo.t_passivetimer == 1
+				BTL_logMessage(mo.battlen, atk.name)
 			end
 			if atk.anim(mo, {mo}, {mo}, mo.t_passivetimer)
 				mo.t_passivebuffer = 0
@@ -5243,7 +5245,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			end
 		end
 	end
-	
+
 	if not mo.t_passivebuffer
 		for i = 1, #mo.passiveskills
 			local psv = mo.passiveskills[i]
@@ -5258,7 +5260,7 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			end
 		end
 	end
-	
+
 	if mo.t_passivebuffer
 		-- tp cam to us:
 		local cam = btl.cam
@@ -7931,7 +7933,7 @@ COM_AddCommand("d_getweapon", function(p, arg, arg2)
 		CONS_Printf(p, "Weapon '"..arg.."' doesn't exist.")
 		return
 	else
-		local lv = tonumber(arg2) or 0	
+		local lv = tonumber(arg2) or 0
 		local wp = makeWeapon(arg, lv)
 		addWeapon(p.mo, wp)
 		CONS_Printf(p, "DEBUGL Weapon '"..arg.."' added to weapon list")

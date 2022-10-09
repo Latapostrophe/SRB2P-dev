@@ -19,7 +19,7 @@ for i = 1, #dmg_type_consts
 end
 
 rawset(_G, "ATK_getSkillCost", function(mo, skl)
-	
+
 	local cost = 0
 	if skl.costtype == CST_HP
 	or skl.costtype == CST_SP
@@ -1514,11 +1514,11 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	if attacker.status_condition == COND_POISON
 		dmg = $*85/100
 	end
-	
+
 	-- Attacker has hunger: Multiply damage by 0.65
 	if attacker.status_condition == COND_HUNGER
 		dmg = $*65/100
-	end	
+	end
 
 	-- Target has burn, multiply damage by 1.15
 	if mo.status_condition == COND_BURN
@@ -1579,18 +1579,28 @@ end)
 
 rawset(_G, "run_ondamagepassives", function(mo)
 	-- ondamage passives
+	mo.atk_attacker.ondamage_recursion = $ or 0
+	mo.ondamage_recursion = $ or 0
+
 	for i = 1, #mo.atk_attacker.passiveskills
 		local psv = mo.atk_attacker.passiveskills[i]
+		local flag = (2<<(i-1))
 
-		if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
+		if not (mo.atk_attacker.ondamage_recursion & flag) and attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
+			-- make sure to set this flag BEFORE calling the anim
+			mo.atk_attacker.ondamage_recursion = $ | flag
 			attackDefs[psv].anim(mo.atk_attacker, mo)
+
 		end
 	end
 
 	for i = 1, #mo.passiveskills
 		local psv = mo.passiveskills[i]
+		local flag = (2<<(i-1))
 
-		if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
+		if not (mo.ondamage_recursion & flag) and attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
+			-- make sure to set this flag BEFORE calling the anim
+			mo.ondamage_recursion = $ | flag
 			attackDefs[psv].anim(mo, mo.atk_attacker)
 		end
 	end
