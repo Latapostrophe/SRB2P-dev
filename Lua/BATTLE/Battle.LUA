@@ -1188,9 +1188,9 @@ rawset(_G, "BTL_mainHandler", function(pn)
 		local mo = battle.turnorder[1]
 
 		-- disable tactics:
-		if mo and mo.valid and mo.commandflags ~= nil
-			mo.commandflags = $|CDENY_TACTICS
-		end
+		--if mo and mo.valid and mo.commandflags ~= nil
+		--	mo.commandflags = $|CDENY_TACTICS
+		--end
 
 		battle.timer = max(0, $-1)
 
@@ -1215,7 +1215,7 @@ rawset(_G, "BTL_mainHandler", function(pn)
 			local mo = battle.turnorder[1]
 
 			-- disable tactics:
-			mo.commandflags = $|CDENY_TACTICS
+			-- mo.commandflags = $|CDENY_TACTICS
 
 			if battle.firstact ~= mo.party
 				--dprint("initiating item swapping between PVP parties...")
@@ -3451,6 +3451,8 @@ rawset(_G, "BTL_turnHandler", function(pn)
 						elseif mo.t_tacticselect == 4
 							if btl.boss
 							or (btl.storedwaves and #btl.storedwaves)	-- voidrun multi-waves
+							or (server.gamemode == GM_CHALLENGE)
+							or (server.gamemode == GM_PVP)
 								BTL_logMessage(mo.battlen, "Can't run away!")
 								playSound(mo.battlen, sfx_not, mo)
 								mo.t_tacticsubmenu = 0
@@ -4110,7 +4112,7 @@ rawset(_G, "BTL_actionHandler", function(pn)	-- attack the enemy!
 			-- log the enemy's attack into our saved affinities
 			-- iterate through skills to know which skill # we have to unveil first:
 			local s = 0
-			for i = 1, #mo.skills
+			for i = 1, #mo.saveskills
 				if attackDefs[mo.skills[i]] == atk
 					s = i
 					break

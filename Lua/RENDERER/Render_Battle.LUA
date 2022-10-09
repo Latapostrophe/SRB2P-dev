@@ -1417,7 +1417,7 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 	V_drawString(v, min(32, timer*16), 8, mo.name.."\nLV "..mo.level, "NFNT", V_SNAPTOLEFT|V_SNAPTOTOP, nil, 0, 31)
 
 	-- if we are drawing a defeated enemy, show its max HP/SP
-	if enemy and btl.saved_affs[mo.enemy][3]
+	if enemy and (not mo.enemy or btl.saved_affs[mo.enemy][3])
 		V_drawString(v, min(10, timer*16), 40, "MAX HP "..mo.maxhp, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 131, nil)
 		V_drawString(v, min(10, timer*16), 50, "MAX SP "..mo.maxsp, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 181, nil)
 	elseif enemy and not btl.saved_affs[mo.enemy][3]
@@ -1467,7 +1467,7 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 			aff = "\x85".."RPL"
 		end
 
-		if enemy
+		if enemy and mo.enemy
 			if not (btl.saved_affs[mo.enemy][1] & (2^i))
 				aff = "?"
 			end
@@ -1495,7 +1495,7 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 	local statnames = {"STR", "MAG", "END", "AGI", "LUK"}
 	for i = 1, #stats do
 
-		if enemy and not btl.saved_affs[mo.enemy][3] break end	-- we haven't beaten the enemy, we don't know its stats!
+		if enemy and mo.enemy and not btl.saved_affs[mo.enemy][3] break end	-- we haven't beaten the enemy, we don't know its stats!
 
 		V_drawString(v, min(40 + i, -20 + timer*24), 72 + (i-1)*16, statnames[i], "FPIMP", V_SNAPTOLEFT, nil, 0, nil)
 		V_drawString(v, min(88 + i, -20 + timer*24), 72 + (i-1)*16, stats[i], "FPNUM", V_SNAPTOLEFT, "right", 0, nil)
@@ -1520,7 +1520,7 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 	for i = 1, 8 do
 		candesc = true
 		v.drawFill(min(t*32 - 8*(i-1), x), y, 64, 10, 31|V_SNAPTOBOTTOM|V_SNAPTOLEFT)
-		local skname = (mo.skills[i] or "/")
+		local skname = mo.saveskills and mo.saveskills[i] or (mo.skills[i] or "/")
 		local aname = skname
 		local atype = 0
 
@@ -1528,7 +1528,7 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 			aname = attackDefs[$].name
 		end
 
-		if enemy and not (btl.saved_affs[mo.enemy][2] & (2^(i-1))) and mo.skills[i]
+		if enemy and mo.enemy and not (btl.saved_affs[mo.enemy][2] & (2^(i-1))) and mo.skills[i]
 			local len = skname:len()
 			aname = ("?"):rep(len)
 			skname = "?"
