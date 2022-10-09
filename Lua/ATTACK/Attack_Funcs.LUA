@@ -110,7 +110,6 @@ rawset(_G, "getRandomDrops", function(mo)
 
 					elseif it[1] == "weapon"
 						local wpn = it[2]
-						wpn = makeWeapon(wpn)
 
 						if wpn
 							btl.r_weapons = $ or {}
@@ -179,7 +178,6 @@ rawset(_G, "getRandomDrops", function(mo)
 
 					elseif it[1] == "weapon"
 						local wpn = it[2]
-						wpn = makeWeapon(wpn)
 
 						if wpn
 							btl.r_weapons = $ or {}
