@@ -1121,16 +1121,6 @@ M_menus["mpselect_main"] = {
 
 		confirmfunc = 	function(mo)
 							-- open net menu and close menu;
-
-							local count = 0
-							for p in players.iterate do
-								count = $+1
-							end
-							if count > 4
-								S_StartSound(nil, sfx_not, mo.player)
-								return true
-							end
-
 							mo.P_inputs[BT_JUMP] = 2	-- skip input
 							NET_begin()
 							server.P_netstat.buffer = {
