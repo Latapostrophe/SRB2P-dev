@@ -406,6 +406,14 @@ rawset(_G, "NET_draw_teamselect", function(v, p, c)
 				V_drawString(v, 160, 108, "B: Back out", "NFNT", 0, "center", 31, nil)
 			end
 		end
+		-- well i'll be damned, if that ain't the final prompt
+		if mo.P_net_launchprompt
+			local w = 100
+			local h = 30
+			v.drawFill(160 - (w/2), 100 - (h/2), w, h, 135)
+			V_drawString(v, 160, 90, "All teams are ready!", "NFNT", 0, "center", 31, nil)
+			V_drawString(v, 160, 100, "PRESS A TO BEGIN", "NFNT", 0, "center", 31, nil)
+		end
 	else
 
 		NET_draw_skinselect(v,p,c)
