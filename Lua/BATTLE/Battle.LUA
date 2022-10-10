@@ -727,12 +727,18 @@ rawset(_G, "BTL_initSkillChange", function(v)
 				local skill = atk.skillchange(v, s)
 				if skill ~= s --i mean we only need to dprint and change skills if it's different...
 					if not attackDefs[skill]
-					or attackDefs[skill].type & ATK_PASSIVE --no, you will not
-					or attackDefs[skill].passive --get passives from this
-						dprint("\x82"..v.skills[i].."\x80".." not converted to ".."\x82"..skill.."\x80"..". (Not a command skill.)")
+						dprint("\x82"..v.skills[i].."\x80".." not converted to ".."\x82"..skill.."\x80"..". (Not a valid skill.)")
 					else
 						dprint("\x82"..v.skills[i].."\x80".." converted to ".."\x82"..skill.."\x80"..".")
-						v.skills[i] = atk.skillchange(v, s)
+						if attackDefs[skill].type & ATK_PASSIVE --fuck it why the hell not
+						and v.passiveskills
+							table.insert(v.passiveskills, skill)
+							table.remove(v.skills, i)
+							i = $-1
+							continue
+						else
+							v.skills[i] = atk.skillchange(v, s)
+						end
 					end
 				end
 			end
@@ -747,18 +753,24 @@ rawset(_G, "BTL_initSkillChange", function(v)
 			if atk.skillchange
 				local skill = atk.skillchange(v, s)
 				if skill ~= s --i mean we only need to dprint and change skills if it's different...
-					if attackDefs[skill]
-					and attackDefs[skill].type & ATK_PASSIVE --yes, you will
-					and attackDefs[skill].passive --get passives from this
-						dprint("\x82"..v.passiveskills[i].."\x80".." converted to ".."\x82"..skill.."\x80"..".")
-						v.passiveskills[i] = atk.skillchange(v, s)
+					if not attackDefs[skill]
+						dprint("\x82"..v.passiveskills[i].."\x80".." not converted to ".."\x82"..skill.."\x80"..". (Not a valid skill.)")
 					else
-						dprint("\x82"..v.passiveskills[i].."\x80".." not converted to ".."\x82"..skill.."\x80"..". (Not a passive skill.)")
+						dprint("\x82"..v.passiveskills[i].."\x80".." converted to ".."\x82"..skill.."\x80"..".")
+						if attackDefs[skill].type & ATK_PASSIVE
+							v.passiveskills[i] = atk.skillchange(v, s)
+						else
+							table.insert(v.skills, skill)
+							table.remove(v.passiveskills, i)
+							i = $-1
+							continue
+						end
 					end
 				end
 			end
 		end
 	end
+	table.sort(v.skills, attackSortFunc)
 end)
 
 rawset(_G, "BTL_changeSkillSelect", function(v, skill)	--mostly here just for convenience in case
