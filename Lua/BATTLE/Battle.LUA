@@ -3246,27 +3246,47 @@ rawset(_G, "BTL_turnHandler", function(pn)
 				CAM_angle(cam, R_PointToAngle2(gox, goy, btl.arena_coords[1], btl.arena_coords[2]))
 				CAM_aiming(cam, ANG1*(-7))
 
+				-- start by using the remaining turn order
 				mo.t_turnorder = copyTable(btl.turnorder)
-				-- kill duplicates... (we'll use enemy.turns for the display)
-				local i = #mo.t_turnorder
-				-- iterate backwards because we're removing shit.
-				while i
-					if i > 1 and mo.t_turnorder[i-1] == mo.t_turnorder[i]
-						table.remove(mo.t_turnorder, i)
-					end
 
-					i = $-1
+				local inorder = 0
+				local numentities = 0
+
+				for i = 1, #mo.t_turnorder
+					-- temporary variable that we'll unset when we're done
+					mo.t_turnorder[i].t_inturnorder = true
+					inorder = $+1
 				end
 
-				local remaining = server.gamemode == GM_PVP and BTL_BuildTurnOrder_PVP(pn, true) or BTL_BuildTurnOrder(pn, true)
-				-- get this with "simulation" mode.
-				for i = 1, #remaining
-					if remaining[i] == mo
-						break
-					else
+				-- count fighters...
+				for i = 1, #btl.fighters do
+					if btl.fighters[i] and btl.fighters[i].hp >= 0
+						numentities = $+1
+					end
+				end
+
+				if inorder < numentities
+					local remaining = server.gamemode == GM_PVP and BTL_BuildTurnOrder_PVP(pn, true) or BTL_BuildTurnOrder(pn, true)
+					-- get this with "simulation" mode.
+					for i = 1, #remaining
 						mo.t_turnorder[#mo.t_turnorder+1] = remaining[i]
+						if not remaining[i].t_inturnorder
+							remaining[i].t_inturnorder = true
+							inorder = $+1
+
+							if inorder >= numentities
+								break
+							end
+						end
 					end
 				end
+
+				-- remove t_inturnorder
+				for i = 1, #btl.fighters do
+					btl.fighters[i].t_inturnorder = nil
+				end
+
+				-- our list is ready.
 			end
 
 		elseif mo.t_act == ACT_TURNORDER

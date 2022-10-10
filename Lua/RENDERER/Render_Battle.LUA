@@ -2151,17 +2151,19 @@ rawset(_G, "drawTurnOrder", function(v, p, mo)
 
 	-- for SAFETY, *I* need to know how many turns *I* have.
 	local btl = server.P_BattleStatus[mo.battlen]
-	local myturns = 1
-	for i = 1, #btl.turnorder
-		if i > 1 and btl.turnorder[i] == mo
-			myturns = $+1
-		end
-	end
 
 	if mo.t_turnorder
+
+		local hadturn = {}
+		local turndraw = {}
+
 		for i = 1, #mo.t_turnorder
 			local e = mo.t_turnorder[i]
+			local mykey = tostring(e)
 			local x,y = R_GetScreenCoords(v, p, c, e.x, e.y, e.z + e.target_zoffs*e.scale + 24*e.scale)
+
+			hadturn[mykey] = $ and $+1 or 1
+			turndraw[mykey] = $ or 0
 
 			if x > -10 and y > -10
 
@@ -2173,22 +2175,16 @@ rawset(_G, "drawTurnOrder", function(v, p, mo)
 					col = 113
 				end
 
-				V_drawString(v, x/FRACUNIT, y/FRACUNIT, turn, "FPIMP", 0, "right", col, 31)
+				-- my first turn
+				if hadturn[mykey] == 1
+					V_drawString(v, x/FRACUNIT, y/FRACUNIT, turn, "FPIMP", 0, "right", col, 31)
+					turndraw[mykey] = 2*FRACUNIT
+				else	-- subsequent turns
 
-				local extras = myturns or e.turns
-
-				if extras and extras > 1
-					x = $ + 2*FRACUNIT
-					for j = 2, extras
-
-						turn = $ + 1
-						V_drawString(v, x/FRACUNIT, y/FRACUNIT, turn, "FPIMP", 0, nil, col, 31, FRACUNIT/4)
-						x = $ + V_stringWidth(v, turn, "FPIMP")/2 + 2*FRACUNIT
-					end
+					V_drawString(v, x/FRACUNIT + turndraw[mykey], y/FRACUNIT, turn, "FPIMP", 0, nil, col, 31, FRACUNIT/4)
+					turndraw[mykey] = $ + V_stringWidth(v, turn, "FPIMP")/2 + 2*FRACUNIT
 				end
 			end
-
-			myturns = 0	-- we won't need that anymore.
 			turn = $+1
 		end
 	end
