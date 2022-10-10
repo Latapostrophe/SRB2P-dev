@@ -46,7 +46,7 @@ rawset(_G, "SAVE_ArchiveBattle", function(btl)
 		n = btl.n,
 		macca = btl.macca,
 
-		saved_affs = btl.saved_affs,
+		--saved_affs = btl.saved_affs,
 		emeraldpow_max = btl.emeraldpow_max,
 		subpersonastock = btl.subpersonastock,
 
