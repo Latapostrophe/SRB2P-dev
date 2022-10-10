@@ -18606,7 +18606,7 @@ rawset(_G, "attackDefs", {
 							end
 						end
 
-						mo.buffs["atk"][1] = min(75, $ + 25)	-- make sure to keep it within bounds.
+						mo.buffs["atk"][1] = BUFFSTEP*3	-- max it out.
 					else
 						mo.guaranteedevasion = true
 						BTL_logMessage(mo.battlen, mo.name.." has become blurry...")
