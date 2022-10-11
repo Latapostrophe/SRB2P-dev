@@ -639,7 +639,7 @@ rawset(_G, "R_drawEquipLab", function(v, mo)
 	or e.hudtimers.desynthsuccess
 	or (e.hudtimers.fusionbroke and e.state == ELS_FUSION_SUCCESS)
 		local t = TICRATE- (e.hudtimers.fusionbroke or e.hudtimers.enhancesuccess or e.hudtimers.desynthsuccess)
-		local pp = "H_ATR"..t/2
+		local pp = "H_SUBT"..t/2
 		if v.patchExists(pp)
 			drawScreenwidePatch(v, v.cachePatch(pp))
 		end
