@@ -1055,6 +1055,7 @@ local function NET_teamselect()
 					if not firstinvalid	-- soz
 						S_StartSound(nil, sfx_not, p)
 						chatprintf(p, "\x82*No more parties can be made, maximum reached ("..maxparties..")")
+						mo.P_net_createparty = nil
 						mo.P_net_teamstate = 0
 						continue
 					end
