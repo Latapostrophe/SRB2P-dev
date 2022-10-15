@@ -760,16 +760,6 @@ local function NET_teamselect()
 		end
 	end
 
-	-- Cancel the gamemode / party selection if we have too many players!!
-	if netstat.buffer and netstat.buffer.maxparties
-		--dprint(count.."/"..(netstat.buffer.maxparties*4))
-		if count > netstat.buffer.maxparties*4
-			chatprint("\x82".."*Max # of players for the gamemode reached! ("..(netstat.buffer.maxparties*4)..")")
-			NET_end(true)
-			return
-		end
-	end
-
 	-- Cancel as well if we don't have enough players left to satisfy the party requirements somehow
 	local unreadyplayers = nump - inparty_orready
 	local neededparties = minparties - #netstat.leaders	-- <= 0 if all the needed parties are already made.
