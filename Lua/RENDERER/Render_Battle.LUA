@@ -1880,7 +1880,7 @@ rawset(_G, "drawTactics", function(v, p, mo)
 					if e.stats and charStats[e.stats]
 						ico = v.cachePatch(charStats[e.stats].icon)
 					elseif e.skin and charStats[e.skin]
-						ico = v.cachePatch(charsStats[e.skin].icon)
+						ico = v.cachePatch(charStats[e.skin].icon)
 					elseif e.enemy and enemyList[e.enemy] and enemyList[e.enemy].icon
 						ico = v.cachePatch(enemyList[e.enemy].icon)
 					elseif e.boss
