@@ -1088,6 +1088,7 @@ local function NET_teamselect()
 			elseif inpt[BT_USE] == 1
 				S_StartSound(nil, sfx_confir, p)
 				mo.P_net_teamstate = 0
+				mo.P_net_createparty = nil
 				mo.P_net_spectate = nil
 			end
 		end
