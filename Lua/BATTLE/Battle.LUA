@@ -589,7 +589,7 @@ rawset(_G, "BTL_splitSkills", function(v)
 				-- is skill elligible in PVP? (keep them all in boss mode, it's fair game)
 				if server.gamemode == GM_PVP and not server.bossmode
 				and attackDefs[s]
-					if attackDefs[s].target == TGT_CASTER	-- mind charge, power charge
+					if attackDefs[s].powercharge or attackDefs[s].mindcharge	-- mind charge, power charge
 					or attackDefs[s].target == TGT_DEAD		-- recarm, ...
 					--or attackDefs[s].luckbased and attackDefs[s].target == TGT_ALLENEMIES
 						dprint("Skill "..s.." deemed too much bullshit for PVP, not adding")
