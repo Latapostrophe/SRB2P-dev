@@ -910,7 +910,8 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 			end
 
 			-- Final hitrate for statuses becomes: (BASE HITRATE + (ATTACKER AGILITY - RECEIVER AGILITY)*3/4 - BOSS RESISTANCE + STATUS BOOST)/RESISTANCE
-			status_hitrate = $ - ($*status_resist_mult/100)
+			-- If status resistance is 100(due to a null passive), hitrate becomes 0%
+			status_hitrate = status_resist_mult == 100 and -1 or ($ - ($*status_resist_mult/100))
 
 			if (P_RandomRange(0, 100) <= status_hitrate)
 			and not mo.status_condition	-- can't status again if we already got that
