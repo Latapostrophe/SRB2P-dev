@@ -3756,7 +3756,7 @@ rawset(_G, "attackDefs", {
 		costtype = CST_SP,
 		cost = 8,
 		desc = "Light Almighty dmg to all enemies.\nDestroys barriers.",
-		target = TGT_ENEMIES,
+		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 
 			for k,e in ipairs(hittargets)
