@@ -958,7 +958,7 @@ local function m_equip_handle(mo)
 		if inputs[BT_BTNC] == 1
 			local pm = party[mo.m_equipparty]
 			if mo.m_equipslot == 1 and pm.weapon and pm.weapon.slot
-			or mo.m_equipslot == 2 and pm.ring and pm.ring.slot
+			or mo.m_equipslot == 2 and pm.wardring and pm.wardring.slot
 
 				S_StartSound(nil, sfx_select, mo.player)
 				mo.m_viewskillslot = 1
