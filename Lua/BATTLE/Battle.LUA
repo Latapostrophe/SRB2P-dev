@@ -569,7 +569,7 @@ rawset(_G, "BTL_splitSkills", function(v)
 				local is = attackDefs[im].implicit
 				local isdef = attackDefs[is]
 
-				if is
+				if is and isdef
 					--print("Implicit: "..is)
 					if isdef.type & ATK_PASSIVE
 						v.passiveskills[#v.passiveskills+1] = is
@@ -578,6 +578,9 @@ rawset(_G, "BTL_splitSkills", function(v)
 					end
 
 					im = is
+				else
+					print("\x82".."WARNING: ".."\x80".."Implicit '"..is.."' does not exist within skill table.")
+					break
 				end
 			end
 
