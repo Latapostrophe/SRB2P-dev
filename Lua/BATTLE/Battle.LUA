@@ -6719,7 +6719,7 @@ rawset(_G, "BTL_finish", function(pn)
 		-- check if we should add it to our skill card list
 			if btl.skillcards	-- make sure the tbl exists
 
-				BTL_addItem(btl,  "cs/ "..v.shuffle_skillcard, 1)
+				BTL_addItem(btl,  "sc/ "..v.shuffle_skillcard, 1)
 				v.shuffle_skillcard = nil	-- wipe out
 			end
 		end
