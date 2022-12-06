@@ -914,6 +914,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 			if (P_RandomRange(0, 100) <= status_hitrate)
 			and not mo.status_condition	-- can't status again if we already got that
+			and status_hitrate > 0 -- can't status if our hitrate was 0% to begin with
 			--and not mo.boss
 				mo.cachestatus = atk.status
 				mo.damagestate = DMG_STATUS
