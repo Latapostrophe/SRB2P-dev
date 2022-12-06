@@ -648,6 +648,7 @@ rawset(_G, "D_tartarusCrawler", function()
 					P_DoPlayerPain(p2)
 					P_InstaThrust(mo2, 0, 0)
 					PLAY_nomove(p2)
+					mo2.flags = $ & ~MF_NOGRAVITY
 					mo2.flags2 = $|MF2_DONTDRAW
 					p2.pflags = $|PF_GODMODE
 					p2.pflags = $ & ~(PF_JUMPED|PF_THOKKED)
