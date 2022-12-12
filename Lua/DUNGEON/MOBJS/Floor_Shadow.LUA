@@ -29,6 +29,39 @@ mobjinfo[MT_SHEDEW] = {
 	S_NULL
 }
 
+-- intializes a shadow's wave and its level
+rawset(_G, "shadowWaveInit", function(mo, forcewave)
+	
+	if not forcewave and not (server.waves or #server.waves) return end
+	local wave = forcewave or server.waves[P_RandomRange(1, #server.waves)]
+	
+	mo.wave = wave
+	-- get the wave's highest level and assign that as the shadow's level
+	local lvsum = 0
+	for i = 1, #mo.wave
+		local en = enemyList[mo.wave[i]]
+		if en and en.level
+			lvsum = $+en.level
+		end	
+	end
+	
+	lvsum = $ / #mo.wave
+	mo.level = lvsum
+end)
+
+-- gets the "level tier" between the player's level (level1) and the enemy's (level2)
+-- returns a value between -2 and 2
+
+-- -2: Enemy is 11+ levels below the player (no threat)
+-- -1: Enemy is 6 to 10 levels below the player (easy)
+-- 0: Enemy is 5 levels below to 5 levels above the player (even fight)
+-- 1: Enemy is 6+ levels above the player (Warning)
+-- 2: Enemy is 11+ levels above the player (Danger)
+
+rawset(_G, "DNG_getLevelTier", function(level1, level2)
+	return min(2, max(-2, (level2 - level1)/5))
+end)
+
 -- shadow collides with spikes: a hacky fix:
 local function shadow_spike_collide(mo, sp)
 	if sp and sp.valid and sp.type == MT_SPIKE
@@ -97,6 +130,11 @@ addHook("MobjThinker", function(mo)
 	if mo.fuse and mo.fuse > 1
 		return
 	end
+	
+	-- init shadow wave
+	if not mo.wave
+		shadowWaveInit(mo)
+	end	
 
 	-- make shadows flee
 	if mo.shadowflags & SHF_RUNAWAY
@@ -138,6 +176,12 @@ addHook("MobjThinker", function(mo)
 		if mo.shadowflags & SHF_GOLD
 			A_Look(mo, (256<<16)+1, 0)	-- gold shadows also look all around in a more limited fashion
 		end
+		
+		-- don't target spectators.
+		if mo.target and mo.target.player and mo.target.player.P_spectator
+			mo.target = nil
+		end	
+		
 		mo.ttime = 0
 	end
 
@@ -281,7 +325,8 @@ addHook("ShouldDamage", function(mo, s)
 
 	local special = s.spawnpoint and s.spawnpoint.valid and s.spawnpoint.options & 4	-- mtf_special
 
-	if server.P_BattleStatus[mo.player.P_party].running
+	if mo.player and mo.player.P_spectator	
+	or server.P_BattleStatus[mo.player.P_party].running
 	or (server and server.entrytime)
 	or mo.spr_nfloor
 	or mo.startbattle
@@ -293,13 +338,7 @@ addHook("ShouldDamage", function(mo, s)
 
 	mo.readybattle = {}
 
-	local wave
-	--if mapheaderinfo[gamemap].tartarus	-- tartarus uses special kind of waves, it needs its own table since it's pretty long
-		wave = server.waves[P_RandomRange(1, #server.waves)]
-	/*else	-- for other dungeons
-		local wave_sets = DNG_dungeonwaves[gamemap][server.P_DungeonStatus.section]
-		wave = wave_sets[P_RandomRange(1, #wave_sets)]
-	end*/
+	local wave = s.wave
 
 	-- start battle
 	local team_1 = server.plentities[mo.player.P_party]

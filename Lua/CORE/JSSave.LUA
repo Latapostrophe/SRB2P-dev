@@ -170,8 +170,7 @@ local function SAVE_ArchiveStoryData(f)
 	-- save player coordinates
 	if players[0] and players[0].mo and players[0].mo.valid
 		srb2p.storydata.playercoords = {players[0].mo.x, players[0].mo.y, players[0].mo.z, players[0].mo.angle}
-	end
-
+	end	
 	f:write(SAVEBLOCK_STORYDTA.."\n")
 	f:write(json.encode(srb2p.storydata))
 	f:write("\n")

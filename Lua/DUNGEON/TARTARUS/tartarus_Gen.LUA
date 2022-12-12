@@ -473,9 +473,16 @@ local function DNG_generatefloor(t, floornum)
 					local tbl = enemyList[enm.enemy]
 					if tbl
 						enm.anim_stand = tbl.anim_stand or {SPR_PLAY, A, 1}
+						if enm.anim_stand[1] == SPR_PLAY
+							enm.skin = tbl.skin or "sonic"//failsafe
+						end
 						ANIM_set(enm, enm.anim_stand)
 						if tbl.color
 							enm.color = tbl.color
+						end
+						
+						if tbl.scale
+							enm.scale = tbl.scale
 						end
 
 						if tbl.boss and tbl.endboss
@@ -1250,7 +1257,9 @@ rawset(_G, "DNG_setFloor", function(f)
 	end
 
 	local reapertimer = 0
-	if reapertimers[server.difficulty]
+	if server.cdungeon and server.cdungeon.reapertimer
+		reapertimer = server.cdungeon.reapertimer
+	elseif reapertimers[server.difficulty]
 		reapertimer = reapertimers[server.difficulty]
 	end
 

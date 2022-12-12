@@ -870,5 +870,5 @@ eventList["ev_m21_ev7"] = {
 						DNG_loadNewMap(22)
 					end
 				end
-			}	
+			}
 }

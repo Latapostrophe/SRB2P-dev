@@ -99,6 +99,22 @@ addHook("ShouldDamage", function(mo)
 	end
 end, MT_PLAYER)
 
+local function PIT_checkShadows(mo, v)
+	
+	if v and v.valid
+	and v.flags & MF_ENEMY
+	and v.level
+	and P_CheckSight(mo, v)
+		table.insert(mo.dng_proximityenemies, v)
+	end
+end
+
+local function DNG_playerEnemyProximity(mo)
+	mo.dng_proximityenemies = {}
+	
+	local range = 2048*mo.scale
+	searchBlockmap("objects", PIT_checkShadows, mo, mo.x - range, mo.x + range, mo.y - range, mo.x + range)
+end
 
 -- thinker for dungeons
 rawset(_G, "DNG_Thinker", function()
@@ -170,6 +186,7 @@ rawset(_G, "DNG_Thinker", function()
 		end
 		local mo = p.mo
 		if not mo continue end
+
 		if DNG_handleShop(mo) continue end		-- in shop, don't open the menus in that case
 		if DNG_handleEquipLab(mo) continue end	-- in equip lab, don't open menu either
 		if DNG_handleFusion(mo) continue end	-- in fusions, don't open menu either...
@@ -183,6 +200,15 @@ rawset(_G, "DNG_Thinker", function()
 			if btl.running continue end
 		end
 
+		-- spectators can't move in these gamemodes.
+		if p.P_spectator
+		and server.gamemode ~= GM_COOP
+		and server.gamemode ~= GM_VOIDRUN
+			PLAY_nomove(p)
+			continue
+		end
+
+		DNG_playerEnemyProximity(p.mo)
 		DNG_HandleAbilities(p, true)
 		D_StoryPitHandler(p)
 	end
@@ -214,6 +240,16 @@ rawset(_G, "DNG_Thinker", function()
 
 		return
 	else
+
+		for p in players.iterate
+			if p.mo and p.mo.valid
+				if p.P_spectator
+					p.mo.frame = $ & ~FF_TRANSMASK
+					p.mo.frame = $|FF_TRANS50
+					p.mo.colorized = true
+				end
+			end
+		end
 
 		D_tartarusCrawler()
 		if server.gamemode == GM_VOIDRUN

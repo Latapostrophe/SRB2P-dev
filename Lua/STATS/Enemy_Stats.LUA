@@ -171,7 +171,7 @@ rawset(_G, "smartAttackSelect", function(mo, forceheal)
 	local dekaja
 	local dekajaskill
 
-	local last_turn = server.P_BattleStatus[mo.battlen][2] ~= mo
+	local last_turn = server.P_BattleStatus[mo.battlen].turnorder[2] ~= mo
 	-- if we don't have a turn after this one, we CAN use mind/power charge
 
 	-- we are affected by debuffs...
@@ -358,8 +358,7 @@ rawset(_G, "generalEnemyThinker", function(mo)
 	local skillchance = enemyList[mo.enemy].skillchance
 	if skillchance == nil
 		skillchance = 50
-	end
-
+	end	
 	local attack, targets
 	local atarget
 
@@ -485,6 +484,12 @@ rawset(_G, "enemyList", {
 					"fire boost", "ice boost", "elec boost", "wind boost", "psy boost", "nuke boost", "bless boost", "curse boost",
 					"magarudyne", "maziodyne", "mafreidyne", "mapsiodyne", "tetrakarn", "makarakarn",
 					"dekaja", "dekunda"},
+
+
+		r_drops = {
+			{{"series", "ragged"}, 50},
+			{{"ring", "ragged"}, 50},
+		}
 	},
 
 	["reaper_alt"] = {
@@ -5477,7 +5482,14 @@ rawset(_G, "enemyList", {
 						end,
 		r_exp = 1,
 		r_drops = {
+			{"painite", 20},
 			{"nihil frame", 30},
+			{"ruby", 50},			
+			{"diamond", 80},
+			{"emerald", 100},
+			{"sapphire", 100},
+			{"onyx", 100},
+			{"amethyst", 100},
 		},
 
 		anim_stand = 		{SPR_ENM1, D, 10},
@@ -7187,6 +7199,7 @@ rawset(_G, "enemyList", {
 		--personascale = FRACUNIT*2,
 
 		anim_stand = 		{SPR_MNMS, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, E, C, E, C, D, D, D, 3},
+		anim_stand_hurt = 	{SPR_MNMS, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, D, D, D, C, C, C, E, C, E, C, D, D, D, 8},
 		anim_move =			{SPR_MNMS, C, C, D, D, 2},
 		anim_run =			{SPR_MNMS, C, C, D, D, 2},
 		anim_hurt =			{SPR_MNMS, F, 35},
@@ -7248,6 +7261,7 @@ rawset(_G, "enemyList", {
 		--personascale = FRACUNIT*2,
 
 		anim_stand = 		{SPR_MNMS, A, B, 8},
+		anim_stand_hurt = 	{SPR_MNMS, A, B, 16},
 		anim_move =			{SPR_MNMS, A, B, 8},
 		anim_run =			{SPR_MNMS, A, B, 8},
 		anim_hurt =			{SPR_MNMS, A, 35},
@@ -7335,6 +7349,7 @@ rawset(_G, "enemyList", {
 		--personascale = FRACUNIT*2,
 
 		anim_stand = 		{SPR_MNMS, G, H, I, H, 8},
+		anim_stand_hurt = 	{SPR_MNMS, G, H, I, H, 16},
 		anim_move =			{SPR_MNMS, G, H, I, H, 8},
 		anim_run =			{SPR_MNMS, G, H, I, H, 8},
 		anim_hurt =			{SPR_MNMS, G, 35},
@@ -7379,6 +7394,7 @@ rawset(_G, "enemyList", {
 		nopvp = true,
 
 		anim_stand = 		{SPR_MNMS, K, L, M, L, 8},
+		anim_stand_hurt = 	{SPR_MNMS, K, L, M, L, 16},
 		anim_move =			{SPR_MNMS, K, L, M, L, 8},
 		anim_run =			{SPR_MNMS, K, L, M, L, 8},
 		anim_hurt =			{SPR_MNMS, K, 35},
@@ -7449,6 +7465,7 @@ rawset(_G, "enemyList", {
 		nopvp = true,
 
 		anim_stand = 		{SPR_MNMS, N, O, P, O, 8},
+		anim_stand_hurt = 	{SPR_MNMS, N, O, P, O, 16},
 		anim_move =			{SPR_MNMS, N, O, P, O, 8},
 		anim_run =			{SPR_MNMS, N, O, P, O, 8},
 		anim_hurt =			{SPR_MNMS, N, 35},
@@ -8021,8 +8038,8 @@ rawset(_G, "enemyList", {
 					return generalEnemyThinker(mo)	--attackDefs["mamudoon"], enemies
 				end,
 	},
-
-
+	
+	
 	-- STORY MODE GARBAGE:
 	["crawla_commander"] = {
 		name = "Crawla Commander",
@@ -8053,8 +8070,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_CCOM, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-
-		skills = {"strike_1"}	-- necessary to avoid crashes :skull:
+													
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:											
 	},
 
 	["crawla_b"] = {
@@ -8086,8 +8103,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_POSS, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-
-		skills = {"strike_1"}	-- necessary to avoid crashes :skull:
+													
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:											
 	},
 
 	["brak_01"] = {
@@ -8119,8 +8136,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_BRAK, I, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-
-		anim_special1 =		{SPR_BRAK, 26, 10},
+													
+		anim_special1 =		{SPR_BRAK, 26, 10},	
 		anim_special2 =		{SPR_BRAK, N, O, P, Q, R, 5},
 		anim_special3 =		{SPR_BRAK, I, 2},
 		anim_special4 =		{SPR_BRAK, H, G, F, E, D, C, B, 6},
@@ -8135,11 +8152,11 @@ rawset(_G, "enemyList", {
 
 			local a = P_SpawnMobj(x, y, z, MT_DUMMY)
 			a.state = S_QUICKBOOM1
-
+			
 			if mo.deathtimer == 1
 				ANIM_set(mo, mo.anim_special2)	-- don't loop
-			end
-
+			end	
+			
 			if mo.deathtimer & 1
 				S_StartSound(mo, sfx_pop)
 			end
@@ -8150,8 +8167,8 @@ rawset(_G, "enemyList", {
 				return	-- deref function
 			end
 		end,
-
-		skills = {"brak_pierce"}	-- necessary to avoid crashes :skull:
+													
+		skills = {"brak_pierce"}	-- necessary to avoid crashes :skull:											
 	},
 
 	["maya_tut"] = {
@@ -8213,7 +8230,7 @@ rawset(_G, "enemyList", {
 			local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
 			local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
 			local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
-
+			
 			if mo.deathtimer % 4 == 0
 				for i = 1, 8
 					local a = P_SpawnMobj(x, y, z, MT_DUMMY)
@@ -8223,7 +8240,7 @@ rawset(_G, "enemyList", {
 					a.momx = P_RandomRange(-24, 24)*FRACUNIT
 					a.momy = P_RandomRange(-24, 24)*FRACUNIT
 					a.momz = P_RandomRange(-24, 24)*FRACUNIT
-				end
+				end	
 
 				S_StartSound(mo, sfx_srip)
 			end
@@ -8232,7 +8249,7 @@ rawset(_G, "enemyList", {
 				-- story mode: reset sonic's persona to orpheus (we fight this boss with thanatos temporarily...)
 				local pl = mo.enemies[1]	-- sonic...
 				PLYR_initPersona(pl, "orpheus", pl.skin)
-
+				
 				mo.deathanim = nil
 				mo.flags2 = $|MF2_DONTDRAW
 				return	-- deref function
@@ -8249,10 +8266,10 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_ENM6, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-
-		skills = {"agi"}
+													
+		skills = {"agi"}										
 	},
-
+	
 	["miniboss_fuzz_1"] = {
 		name = "Bribed Fuzz",
 		skillchance = 100,
@@ -8269,9 +8286,9 @@ rawset(_G, "enemyList", {
 		melee_natk = "pierce_1",
 		weak = ATK_CURSE,
 		thinker = 	function(mo)
-
+						
 						local btl = server.P_BattleStatus[mo.battlen]
-
+						
 						if btl.turn%2 == 0
 						and mo.snaptarget and mo.snaptarget.valid
 							return attackDefs["snap"], {mo.snaptarget}
@@ -8279,7 +8296,7 @@ rawset(_G, "enemyList", {
 							mo.snaptarget = mo.enemies[P_RandomRange(1, #mo.enemies)]
 							return attackDefs["glare"], {mo.snaptarget}
 						end
-
+						
 					end,
 
 		anim_stand = 		{SPR_ENM5, S, 10},

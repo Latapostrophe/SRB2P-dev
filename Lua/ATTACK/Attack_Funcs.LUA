@@ -18,6 +18,47 @@ for i = 1, #dmg_type_consts
 	rawset(_G, dmg_type_consts[i], i-1)
 end
 
+rawset(_G, "ATK_getSkillCost", function(mo, skl)
+
+	local cost = 0
+	if skl.costtype == CST_HP
+	or skl.costtype == CST_SP
+		cost = skl.cost
+	elseif skl.costtype == CST_HPPERCENT
+		cost = mo.maxhp*skl.cost/100
+	elseif skl.costtype == CST_SPPERCENT
+		cost = mo.maxsp*skl.cost/100
+	elseif skl.costtype == CST_EP
+		cost = skl.cost*100
+	end
+
+	-- outside of battle, passiveskills don't exist.
+	if mo.passiveskills
+		for i = 1, #mo.passiveskills
+			local atk = mo.passiveskills[i]
+			if attackDefs[atk]
+			and attackDefs[atk].passive == PSV_SKILLCOST
+				cost = attackDefs[atk].anim(mo, skl, cost) or $
+			end
+		end
+	else
+		local skls = copyTable(mo.skills)
+		if mo.skillcard
+			skls[#skls+1] = mo.skillcard
+		end
+
+		for i = 1, #skls
+			local atk = skls[i]
+			if attackDefs[atk]
+			and attackDefs[atk].passive == PSV_SKILLCOST
+				cost = attackDefs[atk].anim(mo, skl, cost) or $
+			end
+		end
+	end
+
+	return max(0, cost)
+end)
+
 -- get random drops from enemies
 rawset(_G, "getRandomDrops", function(mo)
 	--print("get random drops...")
@@ -72,7 +113,6 @@ rawset(_G, "getRandomDrops", function(mo)
 
 					elseif it[1] == "weapon"
 						local wpn = it[2]
-						wpn = makeWeapon(wpn)
 
 						if wpn
 							btl.r_weapons = $ or {}
@@ -141,7 +181,6 @@ rawset(_G, "getRandomDrops", function(mo)
 
 					elseif it[1] == "weapon"
 						local wpn = it[2]
-						wpn = makeWeapon(wpn)
 
 						if wpn
 							btl.r_weapons = $ or {}
@@ -473,7 +512,7 @@ local buffmsg = {
 rawset(_G, "buffStat", function(mo, stat, value, turn)
 
 	if value == nil then value = BUFFSTEP end
-	--if turn == nil then turn = 3 end	Unused
+	if type(stat) == "number" and turn == nil then turn = 3 end
 	if not stat return end
 
 	if value < 0
@@ -506,19 +545,21 @@ rawset(_G, "buffStat", function(mo, stat, value, turn)
 		msg = " minimized"	-- -75% is the max debuff
 	end
 
-	/*if not resetstat
-		if mo.buffs[stat][2] >= 9
-			msg = "Limit reached!"
-			name = ""
-			msgend = ""
-		elseif mo.buffs[stat][2]
-			msgend = " extended!"
+	if turn
+		if not resetstat
+			if mo.buffs[stat][2] >= 9
+				msg = "Limit reached!"
+				name = ""
+				msgend = ""
+			elseif mo.buffs[stat][2]
+				msgend = " extended!"
+			end
+			mo.buffs[stat][2] = min(9, $+turn)
+		else
+			mo.buffs[stat][2] = 0
 		end
-		mo.buffs[stat][2] = min(9, $+turn)
-	else
-		mo.buffs[stat][2] = 0
-	end*/
-	-- No more Persona turn based buffs
+	end
+	-- Still used by Break skills
 
 	BTL_logMessage(mo.battlen, name..msg..msgend)
 end)
@@ -539,14 +580,6 @@ local statusmessage = {
 }
 
 rawset(_G, "ATK_statusfuncs", {
-
-	[COND_HUNGER] = function(mo)
-						mo.strength = $/2
-						mo.magic = $/2
-						mo.endurance = $/2
-						mo.agility = $/2
-						mo.luck = $/2
-					end,
 
 	[COND_SILENCE] = function(mo)
 						mo.commandflags = $ or 0
@@ -933,8 +966,8 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 	if accuracy -- check for accuracy
 
-		local acc_div = attacker.status_condition == COND_DIZZY and 2 or 1
-		-- dizzy: accuracy /2
+		local acc_mult = attacker.status_condition == COND_DIZZY and 75 or 100
+		-- dizzy: accuracy *0.75
 
 		local attacker_agility = attacker.agility + attacker.agility*attacker.buffs["agi"][1] / 100
 		local attacked_agility = mo.agility + mo.agility*mo.buffs["agi"][1] / 100
@@ -993,11 +1026,11 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 		if mo.damagestate == DMG_DRAIN
 		or mo.damagestate == DMG_BLOCK	-- make sure to show off!
-			hitrate = 100*acc_div
+			hitrate = 100*acc_mult/100
 		end
 
 
-		if P_RandomRange(0, 100) > hitrate / acc_div
+		if P_RandomRange(0, 100) > hitrate * acc_mult/100
 		or (atk.instakill and mo.boss)	-- nope
 			--mo.damagestate = DMG_MISS
 			mo.passivedodge = passive_dodge
@@ -1012,7 +1045,9 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 					and attackDefs[s].type & atktype
 						s = attackDefs[s]
 						-- this % chance is not affected by boosts:
-						if P_RandomRange(0, 100) <= atk.accuracy + (attacker.luck - mo.luck)/2
+						-- 03/10/22: As of 1.3.6, this is garanteed on single target attacks.
+						local multitarget = atk.targetttype == TGT_ALLENEMIES
+						if not multitarget or P_RandomRange(0, 100) <= atk.accuracy + (attacker.luck - mo.luck)/2
 							mo.cachestatus = s.status
 							mo.damagestate = DMG_STATUS
 						end
@@ -1173,6 +1208,18 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	-- have we done a critical hit?
 	local crit = false
 	local critchance = (atk.physical and attacker.weapon) and attacker.weapon.crit or atk.critical
+	-- search for PSV_CRITBOOST...
+	for i = 1, #attacker.passiveskills
+		local skl = attacker.passiveskills[i]
+		if attackDefs[skl]
+		and attackDefs[skl].passive == PSV_CRITBOOST
+			local atk = attackDefs[skl]
+			if atk.power
+				critchance = $ or 0
+				critchance = $ + critchance*atk.power / 100
+			end
+		end
+	end
 
 	local attacker_luck = attacker.luck + (attacker.luck*attacker.buffs["crit"][1] / 50)
 	-- The receiving end can't resist a critical rate buff by having buffs of their own.
@@ -1474,6 +1521,11 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		dmg = $*85/100
 	end
 
+	-- Attacker has hunger: Multiply damage by 0.65
+	if attacker.status_condition == COND_HUNGER
+		dmg = $*65/100
+	end
+
 	-- Target has burn, multiply damage by 1.15
 	if mo.status_condition == COND_BURN
 		dmg = $*115/100
@@ -1528,6 +1580,36 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	-- return the damage number. We can use it for whatever purpose now :P
 	-- Also return if we critted or not
 	-- if the attack was Technical, there's a 1/2 chance of crit.
+end)
+
+
+rawset(_G, "run_ondamagepassives", function(mo)
+	-- ondamage passives
+	mo.atk_attacker.ondamage_recursion = $ or 0
+	mo.ondamage_recursion = $ or 0
+
+	for i = 1, #mo.atk_attacker.passiveskills
+		local psv = mo.atk_attacker.passiveskills[i]
+		local flag = (2<<(i-1))
+
+		if not (mo.atk_attacker.ondamage_recursion & flag) and attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
+			-- make sure to set this flag BEFORE calling the anim
+			mo.atk_attacker.ondamage_recursion = $ | flag
+			attackDefs[psv].anim(mo.atk_attacker, mo)
+
+		end
+	end
+
+	for i = 1, #mo.passiveskills
+		local psv = mo.passiveskills[i]
+		local flag = (2<<(i-1))
+
+		if not (mo.ondamage_recursion & flag) and attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
+			-- make sure to set this flag BEFORE calling the anim
+			mo.ondamage_recursion = $ | flag
+			attackDefs[psv].anim(mo, mo.atk_attacker)
+		end
+	end
 end)
 
 rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage an object
@@ -1594,6 +1676,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 		-- unless it's a revive (hp <= 0)
 		if server.gamemode == GM_PVP
 		and mo.hp > 0
+		and mo.atk_hitby.power and mo.atk_hitby.power >= 999	-- only apply this to diarahan
 			damage = $/2
 		end
 
@@ -1661,6 +1744,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 			BTL_logMessage(mo.battlen, "The Homunculus sacrificed itself!")
 			mo.homunculus = nil
 		end
+		run_ondamagepassives(mo)
 		return
 	end
 	local downsyndrome, dmgtable
@@ -1720,6 +1804,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 		end
 
 		mo.dodgeanim = TICRATE/2
+		run_ondamagepassives(mo)
 		return
 	end
 
@@ -2225,6 +2310,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 
 		end
 	end
+	run_ondamagepassives(mo)
 end)
 
 rawset(_G, "damageSP", function(mo, damage, damagestate, reset)		-- damage an object's SP

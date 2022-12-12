@@ -58,7 +58,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Fire \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Fire \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -110,7 +110,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Ice \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Ice \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -162,7 +162,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Wind \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Wind \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -214,7 +214,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Elec \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Elec \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -266,7 +266,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Psy \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Psy \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -318,7 +318,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Lower all enemies's Nuke \nresistanceto average \nfor 3 turns.",
+		desc = "Lower all enemies' Nuke \nresistanceto average \nfor 3 turns.",
 		target = TGT_ALLENEMIES,
 		debuff = true,
 
@@ -1367,7 +1367,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["regenerate 1"] = {
-		name = "Regenerate 1",
+		name = "Regenerate I",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 4% HP each turn",
@@ -1385,7 +1385,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["invigorate 1"] = {
-		name = "Invigorate 1",
+		name = "Invigorate I",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 2 SP each turn",
@@ -1403,7 +1403,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["invigorate 2"] = {
-		name = "Invigorate 2",
+		name = "Invigorate II",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 4 SP each turn",
@@ -1421,7 +1421,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["invigorate 3"] = {
-		name = "Invigorate 3",
+		name = "Invigorate III",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 6 SP each turn",
@@ -1439,7 +1439,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["regenerate 2"] = {
-		name = "Regenerate 2",
+		name = "Regenerate II",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 6% HP each turn",
@@ -1457,7 +1457,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["regenerate 3"] = {
-		name = "Regenerate 3",
+		name = "Regenerate III",
 		type = ATK_PASSIVE,
 		passive = PSV_STARTTURN,
 		desc = "Regenerate 8% HP each turn",
@@ -2718,6 +2718,34 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
+	["rending scythe"] = {
+		name = "Rending Scythe",
+		type = ATK_PASSIVE,
+		desc = "Increase all damage by 15%.\nOn kill, recover health equal\nto 2x the target's remaining health.",
+		passive = PSV_TRIGGERDAMAGE,
+
+		implicit = "rending scythe.part2",
+
+		anim = 	function(mo, target, dmg, crit)
+					dmg = $*115/100
+					return dmg
+				end,
+	},
+
+	["rending scythe.part2"] = {
+		name = "Rending Scythe - Heal On Kill",
+		type = ATK_PASSIVE,
+		desc = "Increase all damage by 15%.\nOn kill, recover health equal\nto the target's remaining health.",
+		passive = PSV_ONDAMAGE,
+
+		anim = 	function(mo, target)
+					if target != mo and not target.hp
+						damageObject(mo, -target.redhp*2)
+						playSound(mo.battlen, sfx_heal2)
+					end
+				end,
+	},
+
 	["precision 1"] = {
 		name = "Precision I",
 		type = ATK_PASSIVE,
@@ -3022,8 +3050,8 @@ rawset(_G, "attackDefs", {
 		name = "Backup Trick",
 		type = ATK_PASSIVE|ATK_CURSE,
 		instakill = true,
+		desc = "Missing a Death based attack\ninflicts Hex instead. Effect not\nguaranteed on multi-target Skills.",
 		rank = 5,
-		desc = "When missing a Death based\nattack, grants a chance to inflict\nHex on the target.",
 		passive = PSV_PLANB,
 		status = COND_HEX,
 	},
@@ -6473,7 +6501,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 12,
-		desc = "Raise allies's magic \nattack by 1 stage.",
+		desc = "Raise allies' magic \nattack by 1 stage.",
 		target = TGT_ALLALLIES,
 		buff = true,
 		anim = function(mo, targets, hittargets, timer)
@@ -9273,7 +9301,7 @@ rawset(_G, "attackDefs", {
 		cost = 13,
 		critical = 3,
 		status = COND_POISON,
-		statuschance = 35,
+		statuschance = 55,
 		desc = "Medium Slash damage to \none enemy.\nMedium chance of Poison.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -10866,7 +10894,7 @@ rawset(_G, "attackDefs", {
 		instakill = true,	-- the enemy is instantly killed without its health being displayed
 		luckbased = true,	-- use luck instead of agility
 		cost = 40,
-		desc = "Death based attack. \nMedium chance of instant kill to \none enemy.",
+		desc = "Death based attack. \nMedium chance of instant kill to \nall enemies.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 
@@ -13645,7 +13673,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		critical = 7,
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		norandom = true,	-- Don't allow this move to be selected in random pvp skills
 		desc = "A surprise attack from behind\nthat hits with Chaos Spears.",
@@ -13740,7 +13768,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		critical = 7,
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "Unavoidable grab attack\nthat slams the target on the floor.",
 		anim_norepel = true,
@@ -13919,7 +13947,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 7, -- 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "An attack using\nan explosive monitor.",
 		anim_norepel = true,
@@ -14069,7 +14097,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 90,
 		critical = 2,
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "A rapid overdrive attack. \nMore powerful than the average \nMelee hit, but low critical rate.",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14136,7 +14164,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 7, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "A strong Hammer Hit.",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14218,7 +14246,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 4, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "Lifts the target up with Levikinesis\nand finishes off with a powerful\nTelekinetic cutter",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14398,7 +14426,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		critical = 4, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "Drill through the target\nwith sharp heels!",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14457,7 +14485,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 95,
 		critical = 4, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "Use Badniks to attack\nthe target",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14554,7 +14582,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 7, -- was 7
 		target = TGT_ALLENEMIES,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "A fierce spin kick\nfollowed by a Drop Dash.",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -14719,7 +14747,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 85,
 		critical = 7, -- was 7
 		target = TGT_ENEMY,
-		cost = CST_HP,
+		costtype = CST_HP,
 		cost = 0,
 		desc = "A fierce spin kick\nfollowed by a Drop Dash.",
 		anim_norepel = true,	-- do not bounce back our ANIMATION
@@ -18938,7 +18966,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 999,
 		costtype = CST_SP,
 		cost = 32,
-		desc = "Evade every attack for 1 turn.\nClear stat penalties and\nraises Physical Attack",
+		desc = "Evade every attack for 1 turn.\nClear stat penalties and\nmaxes out Physical Attack",
 		target = TGT_CASTER,
 		evasionskill = 1,		-- # of turns before this skill is automatically casted again. NOTHING can be done until autocast happens again.
 		evasionwait = "",		-- this is usually printed in the console if the autocast isn't happening again.
@@ -18953,7 +18981,7 @@ rawset(_G, "attackDefs", {
 
 					if mo.guaranteedevasion
 						mo.guaranteedevasion = nil
-						BTL_logMessage(mo.battlen, "Stat penalties reverted,\nPhysical Attack up.")
+						BTL_logMessage(mo.battlen, "Stat penalties reverted,\nPhysical Attack maxed out!")
 
 						local strs = {"atk", "mag", "def", "agi"}
 
@@ -18965,7 +18993,7 @@ rawset(_G, "attackDefs", {
 							end
 						end
 
-						mo.buffs["atk"][1] = min(75, $ + 25)	-- make sure to keep it within bounds.
+						mo.buffs["atk"][1] = BUFFSTEP*3	-- max it out.
 					else
 						mo.guaranteedevasion = true
 						BTL_logMessage(mo.battlen, mo.name.." has become blurry...")
@@ -19947,6 +19975,14 @@ rawset(_G, "attackSortFunc", function(a, b)
 
 										end
 
+									-- EP specific stuff.
+									elseif ((t[a].costtype == CST_EP or t[b].costtype == CST_EP) and t[a].costtype ~= t[b].costtype)
+										return t[a].costtype ~= CST_EP
+
+									elseif (t[a].costtype == CST_EP and t[b].costtype == CST_EP)
+										return t[a].costtype < t[b].costtype
+
+									-- end of EP specific stuff.
 									elseif t[a].instakill ~= t[b].instakill
 										return (not t[a].instakill) and t[b].instakill
 

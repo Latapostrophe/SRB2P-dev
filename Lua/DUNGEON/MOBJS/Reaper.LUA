@@ -51,6 +51,7 @@ addHook("MobjThinker", function(mo)
 			if not server.P_BattleStatus[p.P_party].gameover
 			and not server.P_BattleStatus[p.P_party].running
 			and p.mo and p.mo.valid
+			and not p.P_spectator
 			and not p.mo.spr_nfloor
 
 				if R_PointToDist2(mo.x, mo.y, p.mo.x, p.mo.y) < bestdist
@@ -169,6 +170,7 @@ addHook("ShouldDamage", function(mo, s)
 	or server.entrytime
 	or mo.spr_nfloor
 	or mo.player and mo.player.powers[pw_flashing]
+	or mo.player and mo.player.P_spectator
 	or s and s.valid and s.rt and s.rt < TICRATE*3
 		return false
 	end

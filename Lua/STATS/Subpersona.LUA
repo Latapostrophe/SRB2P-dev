@@ -171,7 +171,6 @@ rawset(_G, "P_subpersonaCost", function(subp)
 	return price
 end)
 
-
 freeslot("SPR_SBPR", "SPR_SBP2")
 
 rawset(_G, "subpersonaList", {

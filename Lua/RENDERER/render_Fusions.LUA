@@ -113,7 +113,6 @@ rawset(_G, "R_drawFusions", function(v, mo)
 	
 	-- Draw persona / fusion list.
 	local numnames = {"1ST", "2ND", "3RD", "4TH"}
-	
 	if s == FS_NORMAL
 	or s == FS_REGISTER
 	or s == FS_COMPENDIUM
@@ -135,11 +134,10 @@ rawset(_G, "R_drawFusions", function(v, mo)
 		local showresults = #e.personas >= e.maxpersonas-1
 		
 		--v.drawFill(x-2, y-2, w, 70)
-		
 		local add = 2
 		local registration 
 		local compendium
-		
+
 		if s == FS_REGISTER
 		or s == FS_REGISTERCONFIRM
 		or s == FS_REGISTERCONFIRMALL
@@ -185,7 +183,6 @@ rawset(_G, "R_drawFusions", function(v, mo)
 		else
 			V_drawString(v, x+ w/2, y-16, "MATERIALS", "FPIMP", 0, "center", 135, 31)
 		end
-			
 		PDraw(v, x-2, y-2, v.cachePatch("FUSIONW"), V_TRANS40)
 		if showresults
 		or e.hudtimers.removeresults
@@ -244,7 +241,6 @@ rawset(_G, "R_drawFusions", function(v, mo)
 			if s == FS_COMPENDIUM
 				V_drawString(v, x + 148, y, P_subpersonaCost(subp)..currency, "NFNT", 0, nil, col, 31)
 			end
-			
 			if showresults
 				if e.maxpersonas == 2	-- normal fusion
 					-- do the processing directly!
@@ -305,7 +301,6 @@ rawset(_G, "R_drawFusions", function(v, mo)
 		local sprname = sprnames[subp_c.sprite]
 		local sprframe = string.char((subp_c.frame & FF_FRAMEMASK) + 65)
 		local patch = v.cachePatch(sprname..sprframe.."0")	-- eg: SUBPA0
-		
 		if e.checkpersona
 			v.fadeScreen(31, 7)
 		end	

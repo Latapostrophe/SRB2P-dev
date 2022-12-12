@@ -57,7 +57,6 @@ local textdata = {
 		statusview_1 = {
 			{nil, "Viewing status.\nPress \x90 to view Skills.\nPress \x91 to exit."}
 		},
-		
 		-- Spread
 		fusion_persona1 = {
 			
@@ -180,7 +179,6 @@ local textdata = {
 		},
 			
 		compendium_check = {
-			
 			{"Alt", "Pick whatever you'd like...", "H_ALT01", SKINCOLOR_BLUE},
 			{"Alt", "I even brought the right book this time!", "H_ALT01", SKINCOLOR_BLUE},
 		},
@@ -214,7 +212,6 @@ local textdata = {
 		compendium_dupe = {
 			{"Alt", "You already have that Sub-Persona...", "H_ALT05", SKINCOLOR_BLUE},
 		},
-		
 }
 
 local state_2_textdata = {
@@ -238,7 +235,6 @@ local state_2_textdata = {
 	[FS_CONFIRM] = "fusion_finalconfirm",
 	
 	[FS_EXP] = "fusion_done",
-	
 	[FS_COMPENDIUMMAIN] = "compendium_main",
 	
 	[FS_REGISTER] = "compendium_register",
@@ -350,9 +346,8 @@ rawset(_G, "DNG_startFusion", function(mo)
 		
 		-- compendium
 		registrable = {},
-		
+
 		sortfunc = 1,	-- Sorting function for the compendium.
-		
 	}
 
 	mo.fusion.hudtimers.enter = TICRATE/3	-- start
@@ -477,7 +472,6 @@ rawset(_G, "DNG_handleFusion", function(mo)
 	if state_2_textchoices[e.state]
 		e.maxtextchoice = state_2_textchoices[e.state]
 	end
-
 	-- this goes over stat handling.	
 	if e.checkpersona
 			
@@ -531,9 +525,7 @@ rawset(_G, "DNG_handleFusion", function(mo)
 		if e.hudtimers.alttext == 1
 			changetextdta(mo, textdata.welcome)
 		end
-		
 		e.checkcompendium = nil
-		
 		if inputs["right"] == 1
 			S_StartSound(nil, sfx_hover, p)
 			
@@ -572,7 +564,6 @@ rawset(_G, "DNG_handleFusion", function(mo)
 				FS_LEAVE,
 				
 			}
-			
 			e.personachoice = 1
 			e.personascroll = 0
 			mo.fusion.hudtimers.cardsout = TICRATE/3
@@ -581,7 +572,6 @@ rawset(_G, "DNG_handleFusion", function(mo)
 			local c = choice_2_state[e.mainchoice]
 			DNG_changeFSState(mo, c)
 		end
-	
 	elseif e.state == FS_LEAVE
 		e.hudtimers.leave = $ and $-1 or TICRATE*2
 		
@@ -589,8 +579,6 @@ rawset(_G, "DNG_handleFusion", function(mo)
 			DNG_stopFusion(mo)
 			return
 		end
-		
-	
 	elseif e.state == FS_COMPENDIUMMAIN
 		local choice = handleTextChoices(mo)
 		
@@ -600,7 +588,6 @@ rawset(_G, "DNG_handleFusion", function(mo)
 		end	
 		
 		e.maxinherit = 0	-- make sure we don't try to display inheritance
-		
 		if choice == 1
 			
 			local t = srb2p.storydata.compendium
@@ -631,7 +618,6 @@ rawset(_G, "DNG_handleFusion", function(mo)
 			end
 			
 			t = e.registrable
-			
 			if #t < 2
 				S_StartSound(nil, sfx_not, p)
 				changetextdta(mo, textdata.compendium_nopersonas)
@@ -957,7 +943,6 @@ rawset(_G, "DNG_handleFusion", function(mo)
 			e.checkpersona = 1
 			changetextdta(mo, textdata.statusview_1)
 			S_StartSound(nil, sfx_select, p)
-		
 		elseif inputs[BT_JUMP] == 1
 			
 			S_StartSound(nil, sfx_confir, p)
@@ -1155,14 +1140,10 @@ rawset(_G, "DNG_handleFusion", function(mo)
 					e.previewn = #e.personas
 					DNG_changeFSState(mo, FS_INHERIT)
 				end
-			
 			elseif e.state == FS_COMPENDIUMCONFIRM
 				-- simply put that persona in the team
 				btl.subpersonas[#btl.subpersonas+1] = srb2p.storydata.compendium[e.personachoice]
-				
 				S_StartSound(nil, sfx_qsumon, p)
-				
-			
 			elseif e.state == FS_CONFIRM
 				DNG_fade(
 					function()

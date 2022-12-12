@@ -54,6 +54,7 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	t.levelcap = type(t.levelcap) == "number" and clamp($, t.level, 99) or 1
 	t.gensize = type(t.gensize) == "number" and clamp($, 1, 6) or 1	-- this also affects the odds of cursed cards appearing
 	t.floors = type(t.floors) == "number" and max($, 1) or 1
+	t.reapertimer = type(t.reapertimer) == "number" and clamp($, -1, 16) or 0
 	t.allowinterference = type(t.allowinterference) == "boolean" and $ or false
 	t.skynum = type(t.skynum) == "number" and $ or 1
 	t.maxep = type(t.maxep) == "number" and clamp($, 0, 7) or 0
@@ -77,6 +78,8 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	t.shadowframes_float = type(t.shadowframes_float) == "table" and $ or nil
 	-- other cool dunegon stuff!
 	t.dungeonmusic = type(t.dungeonmusic) == "string" and $ or 0	-- ???
+	t.shopmusic = type(t.shopmusic) == "string" and $ or 0
+	t.equiplab_music = type(t.equiplab_music) == "string" and $ or 0
 	
 	/*t.battlemusics = type(t.battlemusics) == "table" and $ or nil
 	if t.battlemusics
@@ -110,6 +113,8 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 	-- Shop
 	t.shop = type(t.shop) == "string" and $ or "velvet_shop_mp1"
 	assert(shopList[t.shop], "Shop '"..t.shop.."' does not exist in shopList[]")
+	-- Equipment Lab Text
+	t.equiplab_text = type(t.equiplab_text) == "table" and $ or nil
 	
 	-- Check for item drops!
 	t.itemdrops = type(t.itemdrops) == "table" and $ or {}
@@ -281,7 +286,7 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 				map = BOSSFLOOR,
 				eventdir = 270,
 				spawndir = 90,
-				norepaer = true,
+				noreaper = true,
 			}
 			
 		}
@@ -328,8 +333,11 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 		"level",
 		"levelcap",
 		"shop",
+		"equiplab_text",
 		"gensize",
 		"dungeonmusic",
+		"shopmusic",
+		"equiplab_music",
 		--"battlemusics",
 		"floors",
 		"shufflelevel",
@@ -346,6 +354,7 @@ rawset(_G, "P_registerCustomDungeon", function(t)
 		"weapon_addpow",
 		"armour_adddef",
 		"skynum",
+		"reapertimer",
 		"allowinterference",
 		"pittexture",
 		"ceilingheight",

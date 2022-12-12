@@ -1358,7 +1358,7 @@ local function drawMenu_link(v, mo, choice, forcetimer)
 
 	renderLiNKEXP(v, p, -timer*32)
 
-	local bx = 145 + timer*64
+	local bx = 132 + timer*64
 	local x = bx
 	local y = 25 --160
 
@@ -1382,23 +1382,30 @@ local function drawMenu_link(v, mo, choice, forcetimer)
 		x = bx
 		for j = 1, #linkgrid[i]
 			local skl = linkgrid[i][j]
+			local pp
+			
+			if v.patchExists("LICO_"..skl)
+				pp = v.cachePatch("LICO_"..skl)
+			else
+				pp = v.cachePatch("LICO_0")
+			end
 
 			if skl == chosenskl
 				-- Show highlighted LiNK Skill
-				v.drawFill(x, y, 24, 24)
+				PDraw(v, x, y, v.cachePatch("LICO_S"), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
 			end
-			PDraw(v, x, y, v.cachePatch("H_LINK1"), V_SNAPTOBOTTOM|V_SNAPTOLEFT)
+			PDraw(v, x, y, pp, V_SNAPTOBOTTOM|V_SNAPTOLEFT)
 			if not linkskill_cost[srb2p.storydata.linkskills[skl]+1]
-				V_drawString(v, x, y+15, "\x82LvMAX", "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*33/100)
+				V_drawString(v, x, y+20, "\x82LvMAX", "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*33/100)
 			else
-				V_drawString(v, x, y+15, "\x82Lv"..srb2p.storydata.linkskills[skl], "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*33/100)
+				V_drawString(v, x, y+20, "\x82Lv"..srb2p.storydata.linkskills[skl], "NFNT", V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*33/100)
 			end
 
-			x = $+26
+			x = $+27
 
 		end
 
-		y = $+26
+		y = $+30
 	end
 	-- Draw LiNK Skill Name and Description
 	V_drawString(v, 60, 150, "\x82"..linkskill_name[chosenskl], "NFNT",  V_SNAPTORIGHT, nil, 0, 31, FRACUNIT*50/100)

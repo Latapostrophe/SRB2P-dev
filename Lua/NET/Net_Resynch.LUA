@@ -116,6 +116,12 @@ COM_AddCommand("__&sendunlocks", function(p, arg)
 	dprint("Recived UCOND "..arg.." from "..p.name)
 end)
 
+local needresynching
+
+addHook("NetVars", function(net)
+	needresynching = true
+end)
+
 --addHook("ThinkFrame", do
 rawset(_G, "NET_Synch", function()
 
@@ -159,6 +165,11 @@ rawset(_G, "NET_Synch", function()
 	end
 
 
+	if consoleplayer and consoleplayer.valid and needresynching
+		consoleplayer.synchtimer = 0
+		needresynching = nil
+	end
+
 	for p in players.iterate do
 		p.synchtimer = $ and $+ 1 or 1
 		if p.synchtimer <= 10
@@ -191,6 +202,18 @@ rawset(_G, "NET_Synch", function()
 		end
 	end*/
 	
+	for i = 1, 4
+		local btl = server.P_BattleStatus[i]
+		for j = 1, #btl.subpersonas
+			local per = btl.subpersonas[j]
+			per.ref = subpersonaList[per.int]
+		end
+	end
+	
+	for i=1, #enemiesrogued
+		ROGUE_initEnemyStats(enemiesrogued[i])
+	end
+
 	-- fix waves in rogue mode if necessary
 	if server.roguemode	-- hahahahaha....
 	and server.waves

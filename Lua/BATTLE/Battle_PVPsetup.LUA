@@ -46,9 +46,9 @@ addHook("ThinkFrame", do
 	-- now initiate the battle between those two teams
 	BTL_StartBattle(1, team_1, team_2, 0, nil, MUS_PlayRandomBattleMusic("mus_battle_pvp"))
 	local btl = server.P_BattleStatus[1]
-	btl.items = {{"chewing soul", 4}, {"hyperring", 2}, {"hypercombiring", 1}, {"me patra gem", 4}, {"1up", 1}}
+	btl.items = {{"chewing soul", 4}, {"hyperring", 2}, {"hypercombiring", 1}, {"me patra gem", 1}, {"patra gem", 4}, {"dekaja gem", 1}, {"dekunda gem", 1}, {"1up", 1}}
 	if server.pvpmode ~= PVP_BOSSMODE 
-		btl.items2 = {{"chewing soul", 4}, {"hyperring", 2}, {"hypercombiring", 1}, {"me patra gem", 4}, {"1up", 1}}
+		btl.items2 = {{"chewing soul", 4}, {"hyperring", 2}, {"hypercombiring", 1}, {"me patra gem", 1}, {"patra gem", 4}, {"dekaja gem", 1}, {"dekunda gem", 1}, {"1up", 1}}
 	else
 		btl.items = {{"soma", 1}, {"chewing soul", 4}, {"hyperring", 4}, {"hypercombiring", 2}, {"me patra gem", 4}, {"1up", 4}, {"homunculus", 1}}
 		btl.items2 = {}

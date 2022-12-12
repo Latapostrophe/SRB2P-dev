@@ -6,6 +6,7 @@
 	def = defense stat. 10% of it is converted into endurance.
 	hp
 	sp	= stat bonuses
+	slot = skill card
 	rarity:		Determines damage variance ceiling you take
 				1-2*	-> -10% to +10%
 				3-4*	-> -10% to +7.5%
@@ -26,6 +27,7 @@ rawset(_G, "makeRing", function(ring, level)
 		ref = ring,
 		def = r.def,
 		level = 0,
+		slot = r.slot,
 		rarity = r.rarity or 1,
 
 		hp = r.hp or 0,
@@ -113,7 +115,7 @@ rawset(_G, "equipRing", function(mo, ring, dequip)
 
 	if not dequip
 		removeRing(mo, ring)	-- remove this one from our inventory
-	end	
+	end
 end)
 
 rawset(_G, "enhanceRing", function(ring)
@@ -200,7 +202,7 @@ rawset(_G, "ringsList", {
 	},
 
 	-- Series rings
-	
+
 	-- T1:
 	["rekla rings"] = {
 		name = "Rekla Rings",
@@ -209,15 +211,15 @@ rawset(_G, "ringsList", {
 		hp = 5,
 		rarity = 3,
 	},
-	
+
 	["qualz rings"] = {
 		name = "Qualz Rings",
 		def = 210,
 		desc = "Sturdy rings with quartz\npatterns. What a waste of quartz.",
 		hp = 7,
 		rarity = 3,
-	},	
-	
+	},
+
 	["vincir rings"] = {
 		name = "Vincir Rings",
 		def = 250,
@@ -225,8 +227,8 @@ rawset(_G, "ringsList", {
 		hp = 10,
 		sp = 1,
 		rarity = 5,
-	},	
-	
+	},
+
 	-- T2:
 	["blue rings"] = {
 		name = "Blue Rings",
@@ -236,7 +238,7 @@ rawset(_G, "ringsList", {
 		sp = 1,
 		rarity = 3,
 	},
-	
+
 	["gliden rings"] = {
 		name = "Gliden Rings",
 		def = 260,
@@ -244,7 +246,7 @@ rawset(_G, "ringsList", {
 		hp = 15,
 		sp = 5,
 		rarity = 5,
-	},		
+	},
 
 	["strania rings"] = {
 		name = "Strania Rings",
@@ -254,7 +256,7 @@ rawset(_G, "ringsList", {
 		sp = 0,
 		rarity = 6,
 	},
-	
+
 	["maha rings"] = {
 		name = "Maha Rings",
 		def = 300,
@@ -262,8 +264,8 @@ rawset(_G, "ringsList", {
 		hp = 0,
 		sp = 15,
 		rarity = 6,
-	},	
-	
+	},
+
 	-- T3:
 
 	["red rings"] = {
@@ -273,8 +275,8 @@ rawset(_G, "ringsList", {
 		hp = 10,
 		sp = 2,
 		rarity = 3,
-	},	
-	
+	},
+
 	["comun rings"] = {
 		name = "Comun Rings",
 		def = 380,
@@ -283,7 +285,7 @@ rawset(_G, "ringsList", {
 		sp = 5,
 		rarity = 4,
 	},
-	
+
 	["v2-rekla rings"] = {
 		name = "V2-Rekla Rings",
 		def = 470,
@@ -291,7 +293,7 @@ rawset(_G, "ringsList", {
 		hp = 20,
 		sp = 20,
 		rarity = 6,
-	},		
+	},
 
 	-- T4:
 	["bright rings"] = {
@@ -310,7 +312,7 @@ rawset(_G, "ringsList", {
 		hp = 20,
 		sp = 5,
 		rarity = 4,
-	},		
+	},
 
 	["reaver rings"] = {
 		name = "Reaver Rings",
@@ -319,7 +321,7 @@ rawset(_G, "ringsList", {
 		hp = 25,
 		sp = 10,
 		rarity = 5,
-	},	
+	},
 
 	["revoluzio rings"] = {
 		name = "Revoluzio Rings",
@@ -339,7 +341,7 @@ rawset(_G, "ringsList", {
 		sp = 5,
 		rarity = 2,
 	},
-	
+
 	["nox rings"] = {
 		name = "Nox Rings",
 		def = 500,
@@ -348,7 +350,7 @@ rawset(_G, "ringsList", {
 		sp = 10,
 		rarity = 3,
 	},
-	
+
 	["lambda rings"] = {
 		name = "Lambda Rings",
 		def = 600,
@@ -356,8 +358,8 @@ rawset(_G, "ringsList", {
 		hp = 35,
 		sp = 20,
 		rarity = 5,
-	},	
-	
+	},
+
 	["agil rings"] = {
 		name = "Agil Rings",
 		def = 720,
@@ -365,8 +367,8 @@ rawset(_G, "ringsList", {
 		hp = 45,
 		sp = 30,
 		rarity = 6,
-	},	
-	
+	},
+
 	-- T6:
 	["novel rings"] = {
 		name = "Novel Rings",
@@ -376,7 +378,7 @@ rawset(_G, "ringsList", {
 		sp = 0,
 		rarity = 1,
 	},
-	
+
 	["vitalis rings"] = {
 		name = "Vitalis Rings",
 		def = 770,
@@ -384,7 +386,7 @@ rawset(_G, "ringsList", {
 		hp = 70,
 		sp = 0,
 		rarity = 4,
-	},	
+	},
 
 	["spirita rings"] = {
 		name = "Spirita Rings",
@@ -393,7 +395,7 @@ rawset(_G, "ringsList", {
 		hp = 0,
 		sp = 50,
 		rarity = 4,
-	},	
+	},
 
 	["awake rings"] = {
 		name = "Awake Rings",
@@ -402,8 +404,8 @@ rawset(_G, "ringsList", {
 		hp = 45,
 		sp = 25,
 		rarity = 5,
-	},	
-	
+	},
+
 	["freifi rings"] = {
 		name = "Freifi Rings",
 		def = 1100,
@@ -411,13 +413,22 @@ rawset(_G, "ringsList", {
 		hp = 120,
 		sp = 40,
 		rarity = 6,
-	},	
+	},
+
+	["ragged rings"] = {
+		name = "Ragged Rings",
+		def = 1350,
+		desc = "Cuffs torn from he who brings\nrest to souls. Chains dangle\nfrom them.",
+		hp = 150,
+		sp = 65,
+		rarity = 7,
+	},
 
 	["buhn rings"] = {
 		name = "Buhn Rings",
 		def = 1500,
 		desc = "This shouldn't exist.\nSo why does it?",
-		hp = 220,
+		hp = 180,
 		sp = 80,
 		rarity = 7,
 	},

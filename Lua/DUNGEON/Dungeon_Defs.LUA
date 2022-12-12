@@ -62,6 +62,7 @@
 	}
 
 */
+
 freeslot("MT_SRB2P_INTERACTION")
 mobjinfo[MT_SRB2P_INTERACTION] = {
 	doomednum = 896,
@@ -76,6 +77,11 @@ rawset(_G, "IT_INTERACTION", 1)		-- normal interaction object, runs func
 rawset(_G, "IT_AREASWITCH", 2)		-- uses targetmap, targetid
 rawset(_G, "IT_TALK", 3)			-- used for NPCs, works the same as IT_INTERACTION but displays "TALK"
 
+
+rawset(_G, "DNG_itemBoxes", {})
+rawset(_G, "DNG_areaDropTables", {})
+rawset(_G, "DNG_shadowSprites", {})
+rawset(_G, "DNG_interactiveObjects", {})
 rawset(_G, "DNG_itemBoxes", {})
 rawset(_G, "DNG_areaDropTables", {})
 rawset(_G, "DNG_shadowSprites", {})
@@ -160,8 +166,12 @@ rawset(_G, "D_HandleMenu", function(mo)
 		return
 	end
 
+	if mo.player.P_spectator
+		openmenu = "spectate_jointeam"
+	end
+
 	if not mo.m_menu
-	and not (server.P_DialogueStatus and server.P_DialogueStatus[mo.player.P_party] and server.P_DialogueStatus[mo.player.P_party].running)
+	and (mo.player.P_spectator or not (server.P_DialogueStatus and server.P_DialogueStatus[mo.player.P_party] and server.P_DialogueStatus[mo.player.P_party].running))
 		if inputs[BT_USE]==1
 		and P_IsObjectOnGround(mo)
 			M_openMenu(mo, openmenu)
@@ -442,7 +452,7 @@ rawset(_G, "LiNK_getEXP", function(exp)
 	if srb2p.storydata.linklvl >= 99 return end
   
   -- EXAMPLE OF LINK_LEXP BOOSTING
-	exp = $ * (100+(10*srb2p.storydata.linkskills[LINK_LEXP]))/100 -- 10% boost per level
+	exp = $ + exp*(10*srb2p.storydata.linkskills[LINK_LEXP])/100	-- 10% boost /lvl
 	
 	local xp = srb2p.storydata.linkexp + exp
 	local lv = srb2p.storydata.linklvl

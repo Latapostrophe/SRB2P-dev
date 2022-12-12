@@ -18,8 +18,6 @@ rawset(_G, "drawDate", function(v, y)
 	end
 
 	-- draw lunar phase
-	-- @TODO: do that for real.....
-	
 	local moonp = DATE_calendarDTA[save.datemonth][save.dateday] and DATE_calendarDTA[save.datemonth][save.dateday]["moonphase"] or 0
 	local daystomoon = DATE_toNextFullMoon()
 	

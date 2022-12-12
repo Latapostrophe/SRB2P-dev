@@ -1,6 +1,6 @@
 rawset(_G, "srb2p", {
 	name = "SRB2PERSONA",
-	version = "v2.0B-30.05.22",
+	version = "v2.0B-12.05.22",
 	verbase = 20,
 	--debug = true,
 	--debugprint = true,
@@ -181,6 +181,7 @@ local psv_constants = {
 
 	"PSV_STARTBATTLE",	-- execute a function at the start of the battle (the anim func), the target will be the user itself
 	"PSV_STARTTURN",	-- execute a function at the start of the turn. (the anim func), the target will be the user itself
+	"PSV_ENDTURN",		-- execute a function at the end of the turn. (the anim func), the target will be the user itself
 	"PSV_ENDBATTLE",	-- execute a function at the end of the battle. (the anim func), the target will be the user itself
 
 	"PSV_COND_RESIST",	-- resist status condition (odds /2)
@@ -198,8 +199,23 @@ local psv_constants = {
 	"PSV_LINKHITS",		-- Increase power of Link skills initial hits and allows them to hit more often (power for increase (%), accuracy for # hits)
 	"PSV_LINKBOOST",	-- Increase the power of every subsequent link hit by +power% for every subsequent hit.
 
+	-- should've been named DAMAGECALC probably but we're not gonna change that now...
+	-- A lot of the above PSV constants are kinda deprecated by this but there's no real reason to remove them.
 	"PSV_TRIGGERDAMAGE",			-- executes 'anim' with mo, target, dmg ad crit arugments when target is damaged. The returned value will be used as damage.
 	"PSV_TRIGGERDAMAGE_RECEIVED",	-- ditto, but executes for the receiving end
+
+	-- Ditto but runs when damage is physically received
+	"PSV_ONDAMAGE",
+	"PSV_ONDAMAGE_RECEIVED",
+
+	-- Boosts critical hits odds by power% (multiplicative)
+	"PSV_CRITBOOST",
+
+	-- gets passed usable skills of 'mo', must return the new cost.
+	-- the COST TYPE CANNOT BE CHANGED.
+	-- anim(mo, skill, cost)
+	-- return the cost
+	"PSV_SKILLCOST",
 }
 
 for i = 1, #psv_constants
@@ -387,7 +403,7 @@ rawset(_G, "linkskill_name", {
 	-- battle
 	[LINK_ALLOUT] = 	"Party Coordination",
 	[LINK_REXP] =		"Reserve Growth",
-	[LINK_EPCONVERT] =	"Chaos Convertion",
+	[LINK_EPCONVERT] =	"Chaos Conversion",
 	[LINK_MACCA] =		"Extortionist",
 	[LINK_RAREDROP] =	"Salvager",
 	[LINK_BREEZE] =		"Victory Breeze",
@@ -518,9 +534,9 @@ rawset(_G, "linkskill_effect", {
 
 	[LINK_EPCONVERT] = {
 		"EP dissipates after Battle.",
-		"Convertion rate: \n+5% EXP & Macca \nper EP Charge",
-		"Convertion rate: \n+7.5% EXP & Macca \nper EP Charge",
-		"Convertion rate: \n+10% EXP & Macca \nper EP Charge",
+		"Conversion rate: \n+5% EXP & Macca \nper EP Charge",
+		"Conversion rate: \n+7.5% EXP & Macca \nper EP Charge",
+		"Conversion rate: \n+10% EXP & Macca \nper EP Charge",
 	},
 
 	[LINK_RAREDROP] = {

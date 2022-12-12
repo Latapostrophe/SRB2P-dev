@@ -80,6 +80,10 @@ addHook("MobjCollide", function(t, mo)
 	local p = mo.player
 	if not (p.pflags & PF_JUMPED or p.dashmode > TICRATE*3) return end
 	if (t.hitflags and t.hitflags & (2^(p.P_party-1))) return end	-- already popped that gold box
+	if p.P_spectator return end
+
+	if mo.z > t.z+t.height + FRACUNIT*8 return end 	-- too high
+	if mo.z+mo.height < t.z return end	-- too low
 
 	if mo.z > t.z+t.height + FRACUNIT*8 return end 	-- too high
 	if mo.z+mo.height < t.z return end	-- too low
@@ -94,6 +98,10 @@ addHook("MobjCollide", function(t, mo)
 		end
 	end
 
+
+	-- when you get multiple of the same items in a row.
+	local batchqty = 0
+	local dispname = srb2p.storymode and "You" or "\x82"..mo.player.name.."\x80"
 	local maxrarity = 0
 	-- when you get multiple of the same items in a row.
 	local batchqty = 0
@@ -153,6 +161,12 @@ addHook("MobjCollide", function(t, mo)
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
 					end
 				end
+
+
+				--[[if rare
+					IT_startRareDropAnim(mo.player)
+				end--]]
+
 				continue
 			elseif type(v) == "number"	-- macca!
 

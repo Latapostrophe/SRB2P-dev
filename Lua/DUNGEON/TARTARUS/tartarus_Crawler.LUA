@@ -268,6 +268,7 @@ local function DNG_tartarusReaper()
 
 		if d.reapertimer <= 0
 		and not (server.reaper and server.reaper.valid)
+		and not d.spawnedreaper
 
 			-- check if NO ONE is in a battle
 			local run
@@ -280,6 +281,7 @@ local function DNG_tartarusReaper()
 			end
 
 			if not run
+				d.spawnedreaper = true
 				D_spawnReaper()
 			end
 		end
@@ -293,12 +295,21 @@ local function DNG_tartarusReaper()
 	end
 end
 
+local function nospikecollide_spec(mo, mo2)
+	if mo2 and mo2.valid and mo2.type == MT_SPIKE
+	and mo and mo.valid and mo.player and mo.player.P_spectator
+		return false
+	end
+end
+addHook("MobjCollide", nospikecollide_spec, MT_PLAYER)
+addHook("MobjMoveCollide", nospikecollide_spec, MT_PLAYER)
 
 -- getting hit by spikes:
 addHook("ShouldDamage", function(mo, inflictor)
 	if inflictor and inflictor.valid and inflictor.type == MT_SPIKE
 
 		if mo.player.powers[pw_flashing]
+		or mo.player.P_spectator
 			return false
 		end	-- no pain
 
@@ -352,6 +363,7 @@ rawset(_G, "D_tartarusCrawler", function()
 		server.blocktrans = $+1
 
 		if server.blocktrans == TICRATE*2
+			ROGUE_reset()
 			server.difficulty = $+1	-- increase difficulty.
 			-- Raise everyone's levelcaps
 
@@ -374,6 +386,7 @@ rawset(_G, "D_tartarusCrawler", function()
 		if server.blocktrans == TICRATE*6
 			server.blocktrans = nil
 			server.P_DungeonStatus.floor = $+1
+			server.P_DungeonStatus.spawnedreaper = nil
 			server.P_DungeonStatus.stairsfound = nil
 			server.P_DungeonStatus.savefloor = server.P_DungeonStatus.floor
 			DNG_setFloor(server.P_DungeonStatus.floor)
@@ -381,11 +394,12 @@ rawset(_G, "D_tartarusCrawler", function()
 				PLAY_move(p)
 			end
 
-			-- raise emerald pow cap
+			-- raise emerald pow cap and delete current saved affs
 			for i = 1, 4
 				local btl = server.P_BattleStatus[i]
 				if btl
 					btl.emeraldpow_max = $+1
+					btl.saved_affs = {}	-- clear saved affinities
 				end
 			end
 
@@ -402,7 +416,7 @@ rawset(_G, "D_tartarusCrawler", function()
 	local i = 0	-- # of iterarions
 
 	for p in players.iterate
-		if p.mo and p.mo.valid
+		if p.mo and p.mo.valid and not p.P_spectator	-- not spectators.
 
 			if not p.P_party continue end
 			if server.P_BattleStatus[p.P_party].gameover continue end	-- don't count gameover'd players
@@ -432,6 +446,17 @@ rawset(_G, "D_tartarusCrawler", function()
 			p.powers[pw_flashing] = TICRATE*3 -1
 			mo.spikehits = nil
 		end
+
+		if p.P_spectator
+			p.charability = 0
+			p.dashmode = 0
+
+			if mo.z < 0	-- pits...
+				mo.momz = $ + FRACUNIT
+			end
+
+			continue
+		end	-- don't do anything else.
 
 		if server.P_BattleStatus[p.P_party] and server.P_BattleStatus[p.P_party].running
 
@@ -677,6 +702,7 @@ rawset(_G, "D_tartarusCrawler", function()
 								end
 							end
 							server.P_DungeonStatus.floor = $+1
+							server.P_DungeonStatus.spawnedreaper = nil
 							server.P_DungeonStatus.stairsfound = nil
 							DNG_setFloor(server.P_DungeonStatus.floor)
 							server.reaper = nil

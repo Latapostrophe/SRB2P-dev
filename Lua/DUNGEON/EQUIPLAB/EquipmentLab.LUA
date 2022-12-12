@@ -107,7 +107,7 @@ rawset(_G, "equipGrindTiers", {
 
 
 -- since there's only one type of item lab, we can handle text data here as well.
-local textdata = {
+rawset(_G, "default_textdata", {
 
 		welcome = {		-- On main shop page
 			{"Alt", "Equipment isn't really my specialty, but I'll see what I can do.", "H_ALT01", SKINCOLOR_BLUE},
@@ -198,7 +198,9 @@ local textdata = {
 			{"Alt", "I can't make this one any better.", "H_ALT05", SKINCOLOR_BLUE},
 			{"Alt", "This one's reached its maximum potential, I think.", "H_ALT05", SKINCOLOR_BLUE},
 		},
-}
+})
+
+local textdata = {}
 
 local state_2_textdata = {
 	[ELS_MAIN] = "welcome",
@@ -242,10 +244,13 @@ rawset(_G, "DNG_startEquipLab", function(mo)
 	}
 
 	if server.gamemode ~= GM_VOIDRUN
-		S_ChangeMusic("SHOP", true, mo.player, nil, nil, 400)
+		local cdungeon_music = (server.cdungeon and server.cdungeon.equiplab_music) and server.cdungeon.eqiuplab_music or (server.cdungeon and server.cdungeon.shopmusic) and server.cdungeon.shopmusic or nil
+		S_ChangeMusic(cdungeon_music or "SHOP", true, mo.player)
 	end
 	mo.equiplab.hudtimers.enter = TICRATE/3	-- start
 
+	-- redefine our textdata if needed
+	textdata = (server.cdungeon and server.cdungeon.equiplab_text) and server.cdungeon.equiplab_text or default_textdata
 	-- start the text box
 	if textdata and textdata.welcome
 		mo.equiplab.currtextdata = textdata.welcome[P_RandomRange(1, #textdata.welcome)]
@@ -255,7 +260,8 @@ end)
 rawset(_G, "DNG_stopEquipLab", function(mo, nomenu)
 	mo.equiplab = {}	-- empty the table
 	if server.gamemode ~= GM_VOIDRUN
-		S_ChangeMusic(mapmusname, true, mo.player, nil, nil, 400)
+		--S_ChangeMusic(mapmusname, true, mo.player, nil, nil, 400)
+		S_ChangeMusic(mapmusname, true, mo.player)
 	end
 	if not nomenu
 		M_openMenu(mo, "m_selectfacility")

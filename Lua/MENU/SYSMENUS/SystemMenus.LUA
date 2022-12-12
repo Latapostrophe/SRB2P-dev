@@ -119,9 +119,7 @@ end
 local function mm_startNewGame()
 	SYS_closeMenu()
 	SAVE_localtable.party = {"sonic"}
-	
 	SAVE_storyReset()
-	
 	srb2p.storymode = true
 
 	DATE_setDate(5, 4, 1, 2016, 5)

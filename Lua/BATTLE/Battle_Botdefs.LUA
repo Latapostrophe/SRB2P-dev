@@ -147,6 +147,10 @@ rawset(_G, "PLYR_initStats", function(mo, persona, skin)
 		msp = 0
 	end
 
+	if srb2p.storymode and not SAVE_getEventFlag("storyinit")
+		msp = 0
+	end
+
 	mo.maxhp = mhp
 	mo.hp = mo.maxhp
 	mo.realhp = mo.maxhp
@@ -217,7 +221,7 @@ rawset(_G, "PLYR_initSkills", function(mo, persona)
 			end
 		end
 	end
-	
+
 	if mo.toomanyskills and mo.skin
 		print("Over 8 skills detected on "..mo.skin..", removing older skills.")
 		mo.toomanyskills = nil
@@ -239,6 +243,7 @@ rawset(_G, "PLYR_initPersona", function(mo, persona, skin)	-- init stats and ski
 			persona = "story_00"
 		end
 	end
+
 
 
 	persona = personaList[$]
@@ -318,6 +323,7 @@ rawset(_G, "PLYR_updatecontrol", function(mo)
 			mo.name = mo.savecontrol
 			if mo.control.mo.skin ~= mo.skin
 				R_SetPlayerSkin(mo.control, mo.skin)	-- make sure our real player looks like the character they chose.
+				COM_BufInsertText(mo.control, "skin "..mo.skin) -- So the game doesn't try changing them back whenever they change name
 			end	-- don't do it every frame
 			mo.color = mo.control.mo.color
 			mo.displaycontrolname = nil
@@ -509,7 +515,7 @@ rawset(_G, "PLYR_makePlayer", function(skin, pa, i, level)
 	-- get weapon name
 	local wpn = data.wep
 	if not weaponsList[wpn]
-		wpn = "shoes_01"
+		wpn = "generic_01"
 	end	-- you never know...
 
 	equipWeapon(mo, makeWeapon(wpn))
@@ -556,7 +562,6 @@ rawset(_G, "PLYR_spawn", function(team)
 
 	for pa = 1, #team
 		for i = 1, #team[pa]
-
 			local mo = PLYR_makePlayer(team[pa][i], pa, i)
 			mo.flags2 = $|MF2_DONTDRAW
 		end
@@ -566,10 +571,19 @@ end)
 -- removes team pn
 local function PLYR_removeTeam(pn)
 
-	if #server.playerlist[pn]
+	--if #server.playerlist[pn] -- Can be 0 with players still in the party
+	local partysize = server.P_netstat.teamlen
+	local pfound
+	for j=1, partysize
+		if server.playerlist[pn][j] and server.playerlist[pn][j].valid
+			pfound = true
+			break
+		end
+	end
+	if pfound
 		dprint("There are still players in team "..pn..", can't remove it!!")
 		return
-	end	-- uh are you dumb or something?
+	end	-- uh are you dumb or something?		
 
 	local i = #server.plentities[pn]
 	while i
@@ -587,6 +601,31 @@ local function PLYR_removeTeam(pn)
 	server.plentities[pn] = {}
 	server.playerlist[pn] = {}
 	dprint("Removed team "..pn)
+
+	local num = 0
+	for i=1, 4
+		local plist = server.playerlist[i]
+		for j=1, partysize
+			if plist[j] and plist[j].valid
+				num = $+1
+				break -- There's a player in this party, on to the next one
+			end
+		end
+	end
+
+	if num
+		if partysize
+			COM_BufInsertText(server, "maxplayers "..(num*partysize))
+		else
+			COM_BufInsertText(server, "maxplayers "..(num*4))
+		end
+	end
+
+	if num == 0 or (num < 2 and server.gamemode == GM_PVP) -- Only one party left, back to the lobby
+		SRB2P_killHUD()
+		SYS_closeMenu()
+		COM_ImmedExecute("map "..G_BuildMapName(srb2p.tartarus_map))
+	end
 end
 
 -- removes entity k from team n
@@ -751,6 +790,13 @@ addHook("MapLoad", do
 
 	if server.skinlist and #server.skinlist
 		PLYR_spawn(server.skinlist)
+		for p in players.iterate do
+
+			if not p.P_party or not p.maincontrol
+			--or 1	-- test
+				p.P_spectator = true	-- "spectator"
+			end
+		end
 	end
 end)
 
@@ -792,29 +838,48 @@ local function PLYR_checkforPlayer(mo)		-- check if whoever is controlling 'mo' 
 	if not seek return end
 
 	-- okay, very, VERY special case...
-	-- if we only have 2 players, then bot #4 should be controlled by p2 and not p1, make control split even~
+	-- if we only have 2 players, then even bots should be controlled by p2 and not p1, make control split even~
 
-	if seek == 4	-- last bot
-		local count = 0
-		local lastp
-		--for k,p in ipairs(plist) do
-		for i = 1, server.P_netstat.teamlen do	-- always count with teamlen!!!
-			local p = server.playerlist[mo.party][i]
-			if p and p.valid and p.P_party == mo.party
-				count = $+1
-				lastp = p
+	local count = 0
+	local botcount = 0
+	local firstp
+	local lastp
+	local evenbot
+	local oddbot
+	--for k,p in ipairs(plist) do
+	for i = 1, server.P_netstat.teamlen do	-- always count with teamlen!!!
+		local p = server.playerlist[mo.party][i]
+		local pmo = server.plentities[mo.party][i]
+		if p and p.valid and p.P_party == mo.party
+			count = $+1
+			firstp = $ or p
+			lastp = p
+		else
+			if pmo
+				botcount = $+1
+				if mo == pmo
+					if (botcount%2) == 0
+						evenbot = true
+					else
+						oddbot = true
+					end
+				end
 			end
 		end
+	end
 
-		if count == 2
-			twopset = true
-		end
+	if count == 2
+	and (evenbot or oddbot)
+		twopset = true
+	end
 
-		if count == 2	-- exactly 2 players;
-		and mo.control ~= lastp
-			-- give our controls to this 2nd player
+	if twopset	-- exactly 2 players;
+		if evenbot	-- We're an even bot
+		and mo.control ~= lastp and lastp.maincontrol -- Make sure player 2 has maincontrol first
 			PLYR_setcontrol(mo, lastp)
-			dprint(header.."2PSET: Updated bot "..(seek).."'s controls to "..lastp.name)
+		elseif oddbot	-- We're an odd bot
+		and mo.control ~= firstp and firstp.maincontrol -- Make sure "player 1" has maincontrol first
+			PLYR_setcontrol(mo, firstp)
 		end
 	end
 
@@ -828,55 +893,68 @@ local function PLYR_checkforPlayer(mo)		-- check if whoever is controlling 'mo' 
 	if not mo.control.valid					-- mysterious!
 		mo.control = nil			-- go back to being a good bot
 
-		if not (plist[1] and plist[1].valid)	-- ....player 1 from our team left as well!?
+		if not (firstp and firstp.valid)	-- ....player 1 from our team left as well!?
 			-- remove everyone from this team;
 			dprint(header.."No one left in party "..mo.party..", removing this party.")
 			PLYR_removeTeam(mo.party)
 			return
 		end
 
-		PLYR_setcontrol(mo, plist[1])
+		PLYR_setcontrol(mo, firstp)
 		dprint(header.."Reverted bot "..(seek).."'s controls to party leader")
 	end
 end
 addHook("MobjThinker", PLYR_checkforPlayer, MT_PFIGHTER)
 
 -- get players to take control of bots!
-
+-- DEPRECATED, but keeping around in case it ever ends up being useful again...
 local function PLYR_checkjoincontrol(p)
+	if p.P_spectator return end	-- no.
 	if not server.plentities return end
-	if not server.plentities[1] return end	-- no bots in the game. skip.
-	if not #server.plentities[1] return end
+	if not (server.plentities[1]
+	or server.plentities[2]
+	or server.plentities[3]
+	or server.plentities[4]) return end	-- no bots in the game. skip.
+	if not (#server.plentities[1]
+	or #server.plentities[2]
+	or #server.plentities[3]
+	or #server.plentities[4]) return end
 	if p.P_party return end			-- player shouldn't have had respawned in the first goddamn place.
 
 	-- check which party has the least players:
-	local leastplayers = server.P_netstat.teamlen+1
+	local spacesfree = 0
 	local partytojoin = 0
 	local nameindex	-- if we find a bot with our exact name (rejoining?)
 
 	for i = 1, 4
 		local pa = server.playerlist[i]
+		local plentities = server.plentities[i] -- Using server.P_netstat.teamlen breaks joins during boss mode
+		local partysize = #plentities
 
-		if not #pa	-- this party has NO players.
-		or #pa >= server.P_netstat.teamlen	-- full
+		local count = 0
+		for j = 1, partysize
+			if pa[j] and pa[j].valid
+				count = $+1
+			else
+				-- scan for the actual bot team, if they have a bot with YOUR player name, it means you're rejoining
+				if server.plentities[i][j]
+				and server.plentities[i][j].name == p.name
+					-- it's impossible for 2 players to have the same name, so we don't need to check for that.
+					partytojoin = i
+					nameindex = j
+					break -- No point checking the other players
+				end
+			end
+		end
+		if nameindex then break end -- No point checking the other parties
+		if not count	-- this party has NO players.
+		or count >= partysize	-- full
 			continue	-- don't try
 		end
 
-		for j = 1, server.P_netstat.teamlen do
-
-			-- scan for the actual bot team, if they have a bot with YOUR player name, it means you're rejoining
-			if server.plentities[i][j]
-			and server.plentities[i][j].name == p.name
-				-- it's impossible for 2 players to have the same name, so we don't need to check for that.
-				partytojoin = i
-				nameindex = j
-			end
-
-		end
-
-		if #pa < leastplayers
+		if (partysize - count) > spacesfree
 			partytojoin = i
-			leastplayers = #pa
+			spacesfree = partysize - count
 		end
 	end
 
@@ -885,35 +963,37 @@ local function PLYR_checkjoincontrol(p)
 
 		-- if anyone from that party is inside a battle's plist, add us to it as well...!
 		local pa = server.playerlist[partytojoin]
-		if pa[1].control and pa[1].control.battlen
-		and server.P_BattleStatus[pa[1].control.battlen].running
-			table.insert(server.P_BattleStatus[pa[1].control.battlen].plist, p)
-			dprint("Affected "..p.name.." to running battle "..pa[1].control.battlen)
+		local plentities = server.plentities[partytojoin]
+		local partysize = #plentities
+		for i=1, partysize
+			if pa[i] and pa[i].valid and pa[i].control and pa[i].control.valid and pa[i].control.battlen
+			and server.P_BattleStatus[pa[i].control.battlen].running
+				table.insert(server.P_BattleStatus[pa[i].control.battlen].plist, p)
+				dprint("Affected "..p.name.." to running battle "..pa[i].control.battlen)
+				break
+			end
 		end
 
 		-- on the player list we just joined, check if the boss was cleared to give ourselevs that flag as well:
 		-- (otherwise we'd be able to trigger the boss as well... oops?)
-		if pa[1] and pa[1].mo and pa[1].mo.eventclear
-			p.mo.eventclear = true
+		for i=1, partysize
+			if pa[i] and pa[i].valid and pa[i].mo and pa[i].mo.valid and pa[i].mo.eventclear
+				p.mo.eventclear = true
+				break
+			end
 		end
 
 		p.P_party = partytojoin
 
 		if nameindex	-- I got somewhere to be!
-			-- iterate table backwards and move everyone from that spot and after to the back
-			local j = server.P_netstat.teamlen
+			-- it's impossible for 2 players to have the same name
 			local pa = server.playerlist[partytojoin]
-
-			while j > nameindex
-				pa[j] = pa[j-1]
-				j = $-1
-			end
 			pa[nameindex] = p
 
 		else	-- take the first free spot
 
-			for i = 1, server.P_netstat.teamlen
-				if not server.playerlist[partytojoin][i]
+			for i = 1, partysize
+				if not (server.playerlist[partytojoin][i] and server.playerlist[partytojoin][i].valid)
 					server.playerlist[partytojoin][i] = p
 
 					return true
@@ -923,10 +1003,93 @@ local function PLYR_checkjoincontrol(p)
 	end
 end
 
+
+local function any_valid_player(t)
+	for i = 1, server.P_netstat.teamlen
+		if t[i] and t[i].valid
+			return t[i]
+		end	
+	end
+	return nil
+end
+
+-- automatically assign players unaffiliated to a party as a spectator.
+rawset(_G, "PLYR_assignSpectator", function(p)
+	if p.P_spectator return end	-- no.
+	if not server.plentities return end
+	if not server.P_netstat.teamlen return end
+	
+	local allinvalid = true
+	for i = 1, 4 do
+		if any_valid_player(server.plentities[i])
+			allinvalid = false
+			break
+		end	
+	end
+	
+	if allinvalid return end
+
+	if not p.P_party
+		p.P_spectator = true
+	end
+end)
+
 addHook("ThinkFrame", do
 	for p in players.iterate do
-		PLYR_checkjoincontrol(p)
+		PLYR_assignSpectator(p)
 	end
+end)
+
+-- spectator player is joining the game and is going to take control of entity
+rawset(_G, "PLYR_spectatorJoinGame", function(player, partyn, slotn)
+
+	if not partyn or not slotn return end
+	if not player.P_spectator return end	-- player is not a spectator anymore.
+
+	local entity = server.plentities[partyn][slotn]
+	if not entity or not entity.valid
+		print("Attempt to take control of invalid entity at "..partyn..", "..slotn)
+		return
+	end
+	if entity.control and entity.control.maincontrol == entity
+		print("Attempt to take control of entity "..partyn..", "..slotn.." already controlled by "..entity.control.name)
+		return
+	end
+
+	player.P_spectator = nil
+	player.P_party = partyn
+
+	PLYR_setcontrol(entity, player, true)
+
+	-- now add ourselves to the tables...
+	server.playerlist[partyn][slotn] = player
+
+	-- finally, dungeon stuff...
+	-- teleport me to my party leader:
+	local pslot = 1
+	local anotherplayer = server.playerlist[partyn][pslot]
+	-- it's impossible to have joined this party as the only player so we won't bother checking for bounds.
+	while (anotherplayer == player or not anotherplayer)
+		anotherplayer = server.playerlist[partyn][pslot]
+		pslot = $+1
+	end
+
+	P_TeleportMove(player.mo, anotherplayer.mo.x, anotherplayer.mo.y, anotherplayer.mo.z)
+	player.powers[pw_flashing] = TICRATE*3 -1
+	player.mo.colorized = false			-- remove colorization
+	player.mo.frame = $ & ~FF_TRANSMASK	-- remove translucency
+	player.charability = skins[player.mo.skin].ability	-- give ability back.
+
+	-- if we just joined mid battle, make sure to reflect that too...
+	-- get battlen first...
+	local battlen = server.plentities[partyn][1].battlen or partyn
+	local btl = server.P_BattleStatus[battlen]
+	if btl.running
+		PLAY_nomove(player)
+		btl.plist[#btl.plist+1] = player	-- affect ourselves to the battle plist (this will set the camera etc for us)
+	end
+
+	chatprint("\x82".."*"..player.name.." has joined party "..partyn)
 end)
 
 rawset(_G, "PLYR_reset", function(pn)	-- reset all battle related variables for all players
@@ -985,8 +1148,6 @@ rawset(_G, "PLYR_reset", function(pn)	-- reset all battle related variables for 
 	end
 end)
 
---if srb2p.debug
-
 COM_AddCommand("p_listplayers", function(p, arg)
 	local arg = tonumber(arg)
 	if not arg return end
@@ -1035,5 +1196,4 @@ COM_AddCommand("p_listplayers", function(p, arg)
 		CONS_Printf(p, "BOT #"..i.." ("..mo.name.."): "..name)
 	end
 end)
---end
 
