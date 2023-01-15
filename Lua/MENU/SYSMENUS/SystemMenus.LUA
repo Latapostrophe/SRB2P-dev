@@ -450,7 +450,7 @@ local function mm_drawPlayerSetup(v, anim, choices, curchoice)
 	if loc_skin == nil
 		local skincv = CV_FindVar("defaultskin")
 		if skincv
-			for i = 0, 31 do
+			for i = 0, 255 do
 				if skins[i] and skins[i].valid and skins[i].name == skincv.string
 
 					if not P_unlockedCharacter(skins[i].name)	-- yikes!
@@ -473,7 +473,7 @@ local function mm_drawPlayerSetup(v, anim, choices, curchoice)
 
 	mm_genericOptions(v, anim, choices, curchoice)
 
-	for i = 0, 31
+	for i = 0, 255
 		if skins[i] and skins[i].valid
 			maxskin = i
 		else

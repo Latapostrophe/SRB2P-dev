@@ -536,7 +536,7 @@ local function NET_team_skinselect(p)
 	local net = server.P_netstat
 	local minskin = 0
 	local maxskin = 0
-	for i = 0, 31
+	for i = 0, 255
 		if skins[i] and skins[i].valid
 			maxskin = i
 		else
