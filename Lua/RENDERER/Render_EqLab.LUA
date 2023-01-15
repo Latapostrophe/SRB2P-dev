@@ -530,7 +530,7 @@ rawset(_G, "R_drawEquipLab", function(v, mo)
 			v.drawFill(150 + timer*96, y, 999, 1, 135|V_SNAPTORIGHT)
 
 			if it1.level >= 10
-				V_drawString(v, 150 + timer*96, y+4, "\x82".."This item cannot be enhanced furhter", "NFNT", V_SNAPTORIGHT, nil, 0, 31)
+				V_drawString(v, 150 + timer*96, y+4, "\x82".."Max enhancement level reached", "NFNT", V_SNAPTORIGHT, nil, 0, 31)
 			else
 
 				V_drawString(v, 150 + timer*96, y-8, "YOU NEED", "FPIMP", V_SNAPTORIGHT, nil, 135, nil)
