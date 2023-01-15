@@ -1,6 +1,6 @@
 rawset(_G, "srb2p", {
 	name = "SRB2PERSONA",
-	version = "v2.0B-12.05.22",
+	version = "v2.0B-19.12.22",
 	verbase = 20,
 	--debug = true,
 	--debugprint = true,
@@ -38,6 +38,10 @@ rawset(_G, "srb2p", {
 					linkexp = 0,		-- LiNK EXP
 					linkpts = 0,		-- LiNK Points
 					linkskills = {},	-- LiNK Skill Levels
+					
+					-- Request data
+					requeststatus = {},		-- Status of every request, nil by default.
+					activerequests = {},	-- Active requests + trackers
 				},
 
 	-- XDATA tables
@@ -65,6 +69,18 @@ rawset(_G, "ICO_ITEM", "\x97")
 rawset(_G, "ICO_SKILLCARD", "\x98")
 rawset(_G, "ICO_PERSONA", "\x99")
 rawset(_G, "ICO_KEYITEM", "\x9A")
+
+rawset(_G, "ICO_RARE1", "\xF4")
+rawset(_G, "ICO_RARE2", "\xF5")
+rawset(_G, "ICO_RARE3", "\xF6")
+rawset(_G, "ICO_RARE4", "\xF7")
+rawset(_G, "ICO_RARE5", "\xF8")
+rawset(_G, "ICO_RARE6", "\xF9")
+rawset(_G, "ICO_RARE7", "\xFA")
+
+rawset(_G, "rarity_2_ico", {
+	ICO_RARE1, ICO_RARE2, ICO_RARE3, ICO_RARE4, ICO_RARE5, ICO_RARE6, ICO_RARE7
+})
 
 -- +/- 25% per buff/debuff, max 3 buffs (75%)
 rawset(_G, "BUFFSTEP", 25)

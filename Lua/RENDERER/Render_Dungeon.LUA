@@ -872,6 +872,24 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 	if renderMenus(v, mo)
 		drawEvent(v, p)		-- Still draw per-player events, they take priority.
 		renderTitlecard(v)	-- And fades
+		
+		-- and also link exp for the requests menu, if we display it, also draw a fade.
+		if srb2p.storymode
+		and srb2p.storydata.dolinkexp
+			local xpos = 0
+			if srb2p.storydata.linktimer
+				local tmr = max(0, srb2p.storydata.linktimer - TICRATE/2)
+				xpos = min(0, -tmr*32)
+			elseif srb2p.storydata.linkfinishtimer
+				xpos = max(0, ((srb2p.storydata.linkdone + TICRATE) - srb2p.storydata.linkfinishtimer))*(-32)
+			end
+			
+			local fade = min(7, (TICRATE - srb2p.storydata.linktimer)/2)
+			
+			v.fadeScreen(31, fade)
+			renderLiNKEXP(v, p, xpos)
+		end
+		
 		return true
 	end	-- don't render the rest if we're in a menu
 

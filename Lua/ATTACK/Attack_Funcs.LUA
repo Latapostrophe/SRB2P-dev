@@ -100,6 +100,8 @@ rawset(_G, "getRandomDrops", function(mo)
 
 						btl.r_weapons[#btl.r_weapons+1] = wpn
 						spawnWeaponDrop(wpn, mo.x, mo.y, mo.z)
+						
+						REQ_checkItem(wpn, 1, ACQ_DROP)
 
 					elseif it[1] == "ring"
 						local ring = it[2]
@@ -109,6 +111,8 @@ rawset(_G, "getRandomDrops", function(mo)
 							btl.r_rings[#btl.r_rings+1] = makeRing(ring, P_RandomRange(0, 3))
 							maxrarity = max($, btl.r_rings[#btl.r_rings].rarity)
 							spawnRingDrop(btl.r_rings[#btl.r_rings], mo.x, mo.y, mo.z)
+							
+							REQ_checkItem(btl.r_rings[#btl.r_rings], 1, ACQ_DROP)
 						end
 
 					elseif it[1] == "weapon"
@@ -119,6 +123,8 @@ rawset(_G, "getRandomDrops", function(mo)
 							btl.r_weapons[#btl.r_weapons+1] = makeWeapon(wpn, P_RandomRange(0, 3))
 							maxrarity = max($, btl.r_weapons[#btl.r_weapons].rarity)
 							spawnWeaponDrop(btl.r_weapons[#btl.r_weapons], mo.x, mo.y, mo.z)
+							
+							REQ_checkItem(btl.r_weapons[#btl.r_weapons], 1, ACQ_DROP)
 						end
 					end
 
@@ -141,7 +147,8 @@ rawset(_G, "getRandomDrops", function(mo)
 						end
 					end--]]
 				end
-
+				
+				REQ_checkItem(it, 1, ACQ_DROP)
 				spawnItemDrop(itemDefs[it], mo.x, mo.y, mo.z)
 				BTL_addResultItem(btl, it, 1)
 			end
@@ -2236,7 +2243,8 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 				end
 			end*/
 			getRandomDrops(mo)
-
+			REQ_checkEnemy(mo)
+			
 			if mo.extra
 				btl.r_exp = $+ exp*3/2
 				btl.r_money = $+money*3/2

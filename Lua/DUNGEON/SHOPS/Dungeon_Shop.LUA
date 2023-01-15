@@ -1024,7 +1024,10 @@ rawset(_G, "DNG_handleShop", function(mo)
 		local choice = handleTextChoices(mo)
 
 		if choice == 1		-- Buy
-
+			
+			-- Singleplayer request stuff:
+			local trackers = REQ_findActiveTrackers(OBJ_ITEM)
+			
 			-- Check Macca to see if we still have enough (another player may have spent the macca while we were confirming...)
 			if server.P_BattleStatus[mo.player.P_party].macca < mo.shop.moneybuf
 				S_StartSound(nil, sfx_not, mo.player)
@@ -1038,7 +1041,12 @@ rawset(_G, "DNG_handleShop", function(mo)
 			-- Case by case: What are we buying?
 			local list = mo.shop.tabs[mo.shop.tab]
 			local elt = list[mo.shop.choice][1]
-
+			
+			
+			-- REQUEST STUFF
+			REQ_checkItem(elt, mo.shop.quantity or 1, ACQ_BUY)
+			-- END OF REQUEST STUFF
+			
 			if mo.shop.tab == 1	-- Items!
 			or mo.shop.tab == 4	-- Skill Card
 			

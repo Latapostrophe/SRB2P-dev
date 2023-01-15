@@ -4246,6 +4246,9 @@ rawset(_G, "HUDBattleThinker", function(v, p, c)
 		elseif battle.battlestate == BS_LEVELUP
 			drawLevelUp(v, p, battle)
 		elseif battle.battlestate == BS_FINISH
+			if p and p.mo and p.mo.valid
+				renderMenus(v, p.mo)
+			end
 			drawFinish(v, battle)
 		elseif battle.battlestate == BS_MPFINISH
 			drawMPFinish(v, p, battle)

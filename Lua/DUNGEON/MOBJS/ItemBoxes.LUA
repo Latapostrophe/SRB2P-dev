@@ -130,6 +130,8 @@ addHook("MobjCollide", function(t, mo)
 							DNG_logMessage(dispname.." found ".."\x82"..buildWeaponName(wpn))
 						end
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
+						
+						REQ_checkItem(wpn, 1, ACQ_DROP)
 					end
 
 				elseif v[1] == "ring"
@@ -145,6 +147,8 @@ addHook("MobjCollide", function(t, mo)
 							DNG_logMessage(dispname.." found ".."\x82"..buildRingName(ring))
 						end
 						spawnRingDrop(ring, t.x, t.y, t.z)
+						
+						REQ_checkItem(ring, 1, ACQ_DROP)
 					end
 
 				elseif v[1] == "weapon"
@@ -159,6 +163,8 @@ addHook("MobjCollide", function(t, mo)
 							DNG_logMessage(dispname.." found ".."\x82"..buildWeaponName(wpn))
 						end
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
+						
+						REQ_checkItem(wpn, 1, ACQ_DROP)
 					end
 				end
 
@@ -210,6 +216,7 @@ addHook("MobjCollide", function(t, mo)
 
 
 			BTL_addItem(server.P_BattleStatus[mo.player.P_party], v, amount)
+			REQ_checkItem(v, amount, ACQ_DROP)
 
 			if mo.player.P_party == consoleplayer.P_party
 				DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..name..extrastr)

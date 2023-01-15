@@ -457,12 +457,15 @@ local function D_runEvent(evt, inputs, pn)
 					local t = cur[2][i]
 					if t[1] == "item"	-- regular item
 						BTL_addItem(pl and pl.P_party or server.P_BattleStatus[pn], t[2], t[3])
+						REQ_checkItem(t[2], t[3], ACQ_DROP)
 					
 					elseif t[1] == "weapon"
 						addWeapon(pl and pl or server.plentities[pn][1], t[2])
+						REQ_checkItem(t[2], 1, ACQ_DROP)
 						
 					elseif t[1] == "ring"	
 						addRing(pl and pl or server.plentities[pn][1], t[2])
+						REQ_checkItem(t[2], 1, ACQ_DROP)
 						
 					elseif t[1] == "macca"
 						server.P_BattleStatus[pl and pl.P_party or pn].macca = $ + t[2]

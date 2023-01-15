@@ -854,7 +854,9 @@ rawset(_G, "BTL_EmeraldSkills", {
 -- starts the battle EXP sequence on its own.
 -- n: battle status #
 -- exp: exp earned.
-rawset(_G, "BTL_getEXP", function(n, exp)
+-- items, weapons, rings: set the apropriate tables.
+
+rawset(_G, "BTL_getEXP", function(n, exp, items, weapons, rings, macca)
 	local btl = server.P_BattleStatus[n]
 	if not btl return end -- bruh
 	
@@ -863,6 +865,10 @@ rawset(_G, "BTL_getEXP", function(n, exp)
 	
 	btl.r_outofbattle = true	-- This disables the camera thinkers and shit.
 	btl.r_exp = exp
+	btl.r_money = macca
+	btl.r_item = items or {}
+	btl.r_weapons = weapons or {}
+	btl.r_rings = rings or {}
 	
 	btl.battlestate = BS_END
 	btl.hudtimer.endb = TICRATE*3/2

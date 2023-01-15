@@ -59,6 +59,11 @@ f = "EVENTS"
 		df("B7.LUA")
 
 
+-- REQUESTS
+print("Initializing requests...")
+f = "REQUESTS"
+	df("Request_Defs.LUA")
+	df("Request_Funcs.LUA")
 
 -- STATS
 print("Initializing stats tables...")
@@ -94,6 +99,7 @@ f = $.."/MENULIST"
 			df("Menu_SSave.LUA")
 			df("Pause_MP.LUA")
 			df("Pause_SP.LUA")
+			df("Menu_Requests.LUA")
 			df("Menu_Spectate.LUA")
 			df("SelectShop.LUA")
 

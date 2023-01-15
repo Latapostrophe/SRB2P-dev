@@ -39,6 +39,10 @@ local function drawStatuses(v, mo, timer)
 	local y = 80
 	PDraw(v, x, y, v.cachePatch("H_MACCA"), V_SNAPTOTOP|V_SNAPTOLEFT)
 	V_drawString(v, x+55, y+9, btl.macca, "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, "right", 31, nil)
+	
+	-- requests?
+	PDraw(v, x + 2, y - 22, v.cachePatch("M_RQICO"), V_SNAPTOTOP|V_SNAPTOLEFT)
+	PDraw(v, x + 2, y - 22  - ((leveltime % (TICRATE) < 3) and 1 or 0), v.cachePatch("M_RQNTF"), V_SNAPTOTOP|V_SNAPTOLEFT)
 end
 
 local function drawMenu_main(v, mo, choice, forcetimer, drawbars, dontdrawcommands)
@@ -87,11 +91,23 @@ local function drawMenu_main(v, mo, choice, forcetimer, drawbars, dontdrawcomman
 	if drawbars
 		renderPartyBars(v, mo.player)
 	end
+	
+	if mo.m_main_openrequests
+		local t = mo.m_main_openrequests
+		drawScreenwidePatch(v, v.cachePatch("H_ROPEN"..t))
+	end
+
+	if mo.m_requests_closetimer
+		local frame = (mo.m_requests_closetimer)
+		drawScreenwidePatch(v, v.cachePatch("H_ROPEN"..frame))	
+	end
+	
 
 	if not dontdrawcommands
 		local cmd = {
 						{BUTT_DPAD, "Select"},
 						{BUTT_A, "Confirm"},
+						{BUTT_C, "Requests"},
 						{BUTT_B, "Exit"},
 					}
 		V_drawCommands(v, cmd)
@@ -1924,6 +1940,21 @@ M_menus["sp_main"] = {
 		},
 		-- function to run continuously whilst this menu is opened
 		runfunc = function(mo)
+			
+			if mo.m_requests_closetimer
+				mo.m_requests_closetimer = $-1
+				return true
+			end	
+			
+			if mo.m_main_openrequests
+				mo.m_main_openrequests = $+1
+				if mo.m_main_openrequests == 5
+					M_openMenu(mo, "m_requests")
+					mo.m_main_openrequests = nil
+				end	
+				return true
+			end
+			
 			if mo.m_main_renderangle
 				if mo.m_main_renderangle > 0
 					mo.m_main_renderangle = $-1
@@ -1940,7 +1971,9 @@ M_menus["sp_main"] = {
 			elseif inputs["down"]==1
 				mo.m_main_renderangle = mo.player.invertcommand and 3 or -3
 				S_StartSound(nil, sfx_turn, mo.player)
-			end
+			elseif inputs[BT_BTNC]==1
+				mo.m_main_openrequests = 1
+			end	
 		end,
 
 		-- when we confirm, run this

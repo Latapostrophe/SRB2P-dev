@@ -1780,6 +1780,7 @@ rawset(_G, "DNG_handleFusion", function(mo)
 				elseif e.fusionend == TICRATE*5
 					DNG_fade(	function()
 									
+									REQ_checkPersona(e.personas[#e.personas])
 									DNG_changeFSState(mo, FS_MAIN)
 									
 									e.learnslot = nil
