@@ -1086,7 +1086,6 @@ local function m_equip_hud(v, mo, choice)
 	fn(v, mo, choice_prev)
 
 	local cmd = {
-					{BUTT_DPAD, "Select"},
 					{BUTT_A, "Change"},
 					{BUTT_B, "Exit"},
 	}
@@ -1139,7 +1138,7 @@ local function m_equip_hud(v, mo, choice)
 	local rng = member.wardring
 
 	-- Write char info and their current equipment
-	V_drawString(v, -timer*64 +8, 30, member.name.." LV"..member.level, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
+	V_drawString(v, -timer*64 +3, 30, member.name.." LV"..member.level, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
 
 	-- Write equipment:
 	local inventorylist
@@ -1147,27 +1146,27 @@ local function m_equip_hud(v, mo, choice)
 	if wep
 		if mo.m_equipslot == 1
 			inventorylist = btl.weapons
-			v.drawFill(-timer*64 + 4, 48, 128, 12, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
+			v.drawFill(-timer*64, 48, 132, 12, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
 		end
-
-		V_drawString(v, -timer*64 +8, 50, buildWeaponName(wep), "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
+		
+		V_drawString(v, -timer*64 +3, 50, buildWeaponName(wep), "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
 
 		-- weapon power:
-		V_drawString(v, -timer*64 +92, 52, "ATK", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31, FRACUNIT/4)
-		V_drawString(v, -timer*64 +108, 51, (wep.atk/10), "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
+		V_drawString(v, -timer*64 +101, 52, "ATK", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31, FRACUNIT/4)
+		V_drawString(v, -timer*64 +113, 51, (wep.atk/10), "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
 	end
 	if rng
 		-- this code sucks
 		if mo.m_equipslot == 2
 			inventorylist = btl.armours
-			v.drawFill(-timer*64 + 4, 60, 128, 12, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
+			v.drawFill(-timer*64, 60, 136, 12, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
 		end
 
-		V_drawString(v, -timer*64 +8, 62, buildRingName(rng), "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
+		V_drawString(v, -timer*64 +3, 62, buildRingName(rng), "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
 
 		-- ring def:
-		V_drawString(v, -timer*64 +92, 64, "DEF", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31, FRACUNIT/4)
-		V_drawString(v, -timer*64 +108, 63, (rng.def/10), "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
+		V_drawString(v, -timer*64 +101, 64, "DEF", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31, FRACUNIT/4)
+		V_drawString(v, -timer*64 +113, 63, (rng.def/10), "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
 	end
 
 	v.drawFill(-timer*64+4, 75, 90, 1, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
@@ -1186,8 +1185,8 @@ local function m_equip_hud(v, mo, choice)
 		totalstr = $.."\n"
 	end
 
-	V_drawString(v, -timer*64 +8, 80, "STATS TOTAL: \n", "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
-	V_drawString(v, -timer*64 +8, 90, totalstr, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31, FRACUNIT/3)
+	V_drawString(v, -timer*64 +3, 80, "STATS TOTAL: \n", "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
+	V_drawString(v, -timer*64 +3, 90, totalstr, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31, FRACUNIT/3)
 
 	-- show me my other inventory items...
 	if inventorylist
@@ -1198,7 +1197,7 @@ local function m_equip_hud(v, mo, choice)
 			local a = inventorylist[i]
 
 			if mo.m_equipinventory == i
-				v.drawFill(180, -timer*96 +10 +y -2, 320-173, 12, 135|V_SNAPTOTOP|V_SNAPTORIGHT)
+				v.drawFill(170, -timer*96 +10 +y -2, 999, 12, 135|V_SNAPTOTOP|V_SNAPTORIGHT)
 			end
 
 			if i > scroll
@@ -1207,13 +1206,13 @@ local function m_equip_hud(v, mo, choice)
 				if mo.m_equipslot == 1
 					local colour = (not canEquipWeapon(party[mo.m_equipparty], a)) and 16 or 0
 
-					V_drawString(v, 185, -timer*96 + 10 +y, buildWeaponName(a), "NFNT", V_SNAPTOTOP|V_SNAPTORIGHT, nil, colour, 31)
-					V_drawString(v, 280, -timer*95 + 12 +y, "ATK", "FPIMP", V_SNAPTOTOP|V_SNAPTORIGHT, nil, colour, 31, FRACUNIT/4)
+					V_drawString(v, 175, -timer*96 + 10 +y, buildWeaponName(a), "NFNT", V_SNAPTOTOP|V_SNAPTORIGHT, nil, colour, 31)
+					V_drawString(v, 283, -timer*95 + 12 +y, "ATK", "FPIMP", V_SNAPTOTOP|V_SNAPTORIGHT, nil, colour, 31, FRACUNIT/4)
 					V_drawString(v, 295, -timer*95 + 10 +y, (a.atk/10), "FPNUM", V_SNAPTOTOP|V_SNAPTORIGHT, nil, colour, 31)
 
 				else
-					V_drawString(v, 185, -timer*96 + 10 +y, buildRingName(a), "NFNT", V_SNAPTOTOP|V_SNAPTORIGHT, nil, 0, 31)
-					V_drawString(v, 280, -timer*95 + 12 +y, "DEF", "FPIMP", V_SNAPTOTOP|V_SNAPTORIGHT, nil, colour, 31, FRACUNIT/4)
+					V_drawString(v, 175, -timer*96 + 10 +y, buildRingName(a), "NFNT", V_SNAPTOTOP|V_SNAPTORIGHT, nil, 0, 31)
+					V_drawString(v, 283, -timer*95 + 12 +y, "DEF", "FPIMP", V_SNAPTOTOP|V_SNAPTORIGHT, nil, colour, 31, FRACUNIT/4)
 					V_drawString(v, 295, -timer*95 + 10 +y, (a.def/10), "FPNUM", V_SNAPTOTOP|V_SNAPTORIGHT, nil, 0, 31)
 				end
 			end
@@ -1308,7 +1307,6 @@ local function m_equip_hud(v, mo, choice)
 	if skillslot	-- skill card slot for weapons
 		str = $..skillslot
 		cmd = {
-					{BUTT_DPAD, "Select"},
 					{BUTT_A, "Change"},
 					{BUTT_C, "\x82View Slot\x80"},
 					{BUTT_B, "Exit"},
