@@ -369,6 +369,11 @@ rawset(_G, "getAttackAff", function(mo, atk, attacker)
 		return DMG_BLOCK
 	end
 
+	-- attacks with no power value should ignore affinities altogether.
+	if not atk.power
+		return DMG_NORMAL
+	end
+
 	-- Technical damage bypasses all affinities besides weak!
 	local technical = isAttackTechnical(mo, atk, atktype)
 	debuff = $ or technical	-- this counts, too
