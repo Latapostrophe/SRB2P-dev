@@ -685,7 +685,7 @@ local function PLYR_checkforPlayer(mo)		-- check if whoever is controlling 'mo' 
 	local seek	-- seek our index in the party
 	--for i = 1, #server.plentities[mo.party] do
 	for i = 1, server.P_netstat.teamlen do
-		if server.plentities[mo.party][i] == mo
+		if server.plentities[mo.party] and server.plentities[mo.party][i] and server.plentities[mo.party][i] == mo
 			seek = i
 			break
 		end
@@ -862,7 +862,7 @@ end
 
 local function any_valid_player(t)
 	for i = 1, server.P_netstat.teamlen
-		if t[i] and t[i].valid
+		if t and t[i] and t[i].valid
 			return t[i]
 		end	
 	end
