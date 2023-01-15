@@ -4,12 +4,12 @@
 rawset(_G, "reapertimers", {
 
 	0,	-- b1: off
-	9,	-- b2: 9 minutes / floor
-	8,	-- b3: 8 minutes / floor
-	7, 	-- b4 and above: 7 minutes / floor
-	7,
-	7,
-	7,
+	15,	-- b2: 15 minutes / floor
+	12,	-- b3: 12 minutes / floor
+	10, -- b4: 10 minutes / floor
+	9,	-- b5: 9 minutes / floor
+	8,	-- b6: 8 minutes / floor
+	7,	-- monad: 7 minutes / floor
 })
 
 -- Dungeon shadow flags:
