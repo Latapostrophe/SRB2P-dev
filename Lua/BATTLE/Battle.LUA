@@ -4561,6 +4561,7 @@ rawset(_G, "BTL_linkHandler", function(pn)
 			if not mo.hp	-- happens if a link skill killed an enemy.
 			or (mo.enemy and not mo.deathanim and enemyList[mo.enemy].deathanim)	-- Very funny bug that CAN actually happen.
 			-- This happens with Monad final boss where the Link can happen during the cutscene because of that, it's really stupid
+			or (mo.linkstate and (not mo.linkstate.entref or not mo.linkstate.entref.valid))	-- entity that cast the link has been removed somehow.
 
 				table.remove(btl.linkhits, 1)
 				return
