@@ -568,7 +568,7 @@ local function NET_team_skinselect(p)
 	mo.P_net_selectindex = $ or myindex
 
 	if mo.P_net_skinselect == nil
-		for i = 0, 31 do
+		for i = 0, 254 do
 			if skins[i].name == mo.skin
 				mo.P_net_skinselect = i
 				break
