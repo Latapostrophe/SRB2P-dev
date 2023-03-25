@@ -1035,6 +1035,36 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 		end
 
 		BTL_initSkillChange(v)
+		
+		local new_skills = {} --preform a duplicate skill check now, because
+		for i = 1, #v.skills --splitskills gets triggered twice
+			local dupecheck = false
+			for z = 1, #v.skills
+				if v.skills[i] == v.skills[z]
+				and i > z
+					dupecheck = true
+				end
+			end
+			if not dupecheck
+				table.insert(new_skills, v.skills[i])
+			end
+		end
+		v.skills = new_skills
+		new_skills = {}
+		for i = 1, #v.passiveskills
+			local dupecheck = false
+			for z = 1, #v.passiveskills
+				if v.passiveskills[i] == v.passiveskills[z]
+				and i > z
+					dupecheck = true
+				end
+			end
+			if not dupecheck
+				table.insert(new_skills, v.passiveskills[i])
+			end
+		end
+		v.passiveskills = new_skills
+		new_skills = nil
 
 		battleStatus.fighters[#battleStatus.fighters+1] = v
 		BTL_addtoplist(battleStatus, v)
