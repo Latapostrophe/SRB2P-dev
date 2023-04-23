@@ -200,6 +200,38 @@ rawset(_G, "default_textdata", {
 		},
 })
 
+-- Weapon Types and Names
+rawset(_G, "typelookups", {
+	WPT_SHOES,
+	WPT_MONITOR,
+	WPT_KNUCKLES,
+	WPT_REMOTE,
+	WPT_LIMITERS,
+	WPT_HAMMER,
+	WPT_CLAWS,
+	WPT_HEELS,
+	WPT_PSYGLOVES,
+	WPT_HANDSONIC,
+	WPT_GENERICMELEE,
+	WPT_GENERICRANGED,
+})
+
+rawset(_G, "wpntypes", {
+	"nihil shoes",
+	"nihil monitor",
+	"nihil knuckles",
+	"nihil device",
+	"nihil limiters",
+	"nihil hammer",
+	"nihil claws",
+	"nihil heels",
+	"nihil gloves",
+	"nihil blades",
+	"nihil rapier",
+	"nihil gun",
+})
+
+
 local textdata = {}
 
 local state_2_textdata = {
@@ -453,21 +485,6 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 				return
 			end
 
-			local typelookups = {
-				WPT_SHOES,
-				WPT_MONITOR,
-				WPT_KNUCKLES,
-				WPT_REMOTE,
-				WPT_LIMITERS,
-				WPT_HAMMER,
-				WPT_CLAWS,
-				WPT_HEELS,
-				WPT_PSYGLOVES,
-				WPT_HANDSONIC,
-				WPT_GENERICMELEE,
-				WPT_GENERICRANGED,
-			}
-
 			for i = 1, #typelookups do
 				if getEquipWeaponType(mo.player.maincontrol) & typelookups[i]
 					e.selectequiptype = i
@@ -572,36 +589,6 @@ rawset(_G, "DNG_handleEquipLab", function(mo)
 		local minc = 2
 
 		local maxscroll = max(0, maxc-maxitems)
-
-		local wpntypes = {
-			"nihil shoes",
-			"nihil monitor",
-			"nihil knuckles",
-			"nihil device",
-			"nihil limiters",
-			"nihil hammer",
-			"nihil claws",
-			"nihil heels",
-			"nihil gloves",
-			"nihil blades",
-			"nihil rapier",
-			"nihil gun",
-		}
-
-		local typelookups = {
-			WPT_SHOES,
-			WPT_MONITOR,
-			WPT_KNUCKLES,
-			WPT_REMOTE,
-			WPT_LIMITERS,
-			WPT_HAMMER,
-			WPT_CLAWS,
-			WPT_HEELS,
-			WPT_PSYGLOVES,
-			WPT_HANDSONIC,
-			WPT_GENERICMELEE,
-			WPT_GENERICRANGED,
-		}
 
 		if inputs["down"] == 1
 		and maxc > 1
