@@ -1040,8 +1040,16 @@ rawset(_G, "drawPartyStatus", function(v, p, battle)
 		end
 	end
 
+
 	if (not flash) or leveltime%10 < 5
-		V_drawString(v, bx + 26, 32+18, lvl, "FPNUM", V_SNAPTORIGHT, nil, textcolor, 31, FRACUNIT*2/3)
+		V_drawString(v, bx + 21, 35+18, lvl, "FPNUM", V_SNAPTORIGHT, nil, textcolor, 31, FRACUNIT/2)
+		V_drawString(v, bx + 21 + 8, 35 + 16, ".", "NFNT", V_SNAPTORIGHT, nil, textcolor, 31, FRACUNIT/2)
+		
+		-- quick hack because we don't have a padded number builder (might be worth adding...)
+		local dec = battle.emeraldpow%100
+		local padding = (dec < 10 and "0" or "")
+		
+		V_drawString(v, bx + 21 + 11, 35+18, padding..dec, "FPNUM", V_SNAPTORIGHT, nil, textcolor, 31, FRACUNIT/4)
 	end
 
 	-- finally, draw physhud sparkles
@@ -1090,8 +1098,6 @@ rawset(_G, "drawPartyStatus", function(v, p, battle)
 
 
 	end
-	--let's add in a percentage tracker for EP
-	V_drawString(v, (battle.hudtimer.start or 0)*8 + 315, 150, ((battle.emeraldpow/100 == battle.emeraldpow_max and 100) or battle.emeraldpow%100).."%", "NFNT", V_SNAPTORIGHT, "right", textcolor, 31)
 end)
 
 rawset(_G, "drawPlayerSkillList", function(v, p, mo)
