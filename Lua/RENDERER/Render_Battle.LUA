@@ -854,12 +854,20 @@ rawset(_G, "drawSkillCommand", function(v, x, y, mo, skill, active, have_item, s
 	end
 
 	V_drawString(v, x+32, y+12, cost, "FPNUM", V_SNAPTOLEFT, "right", ((skill.costtype == CST_EP and 112 or (skill.costtype == CST_SP or skill.costtype == CST_SPPERCENT) and 181 or 131) + (not active and 3 or 0)), 31)
-	v.drawIndex((x+35)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
+	if skill.costtype == CST_EP --let's render percentages for EP
+		local percentage = ATK_getSkillCost(owner or mo, skill) - cost*100
+		if percentage < 10 then percentage = "0"..$ end
+		V_drawString(v, x+35, y+10, ".", "NFNT", V_SNAPTOLEFT, "right", 112 + (not active and 3 or 0), 31)
+		V_drawString(v, x+44, y+12, percentage, "FSNUM", V_SNAPTOLEFT, "right", 112 + (not active and 3 or 0), 31)
+		v.drawIndex((x+47)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
+	else
+		v.drawIndex((x+35)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
+	end
 
 	if pp[2]	-- palette index: SP, or HP
 		v.drawIndex((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, pp[2] + (not active and 3 or 0))
 	else	-- for emerald power, use normal colours and draw
-		v.drawScaled((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, ep_colors[cost]))
+		v.drawScaled((x+45)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, ep_colors[cost]))
 	end
 
 
@@ -1082,6 +1090,8 @@ rawset(_G, "drawPartyStatus", function(v, p, battle)
 
 
 	end
+	--let's add in a percentage tracker for EP
+	V_drawString(v, (battle.hudtimer.start or 0)*8 + 315, 150, ((battle.emeraldpow/100 == battle.emeraldpow_max and 100) or battle.emeraldpow%100).."%", "NFNT", V_SNAPTORIGHT, "right", textcolor, 31)
 end)
 
 rawset(_G, "drawPlayerSkillList", function(v, p, mo)
