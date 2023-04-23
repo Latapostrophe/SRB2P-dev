@@ -1582,31 +1582,26 @@ end)
 
 
 rawset(_G, "run_ondamagepassives", function(mo)
-	-- ondamage passives
-	mo.atk_attacker.ondamage_recursion = $ or 0
-	mo.ondamage_recursion = $ or 0
-
-	for i = 1, #mo.atk_attacker.passiveskills
-		local psv = mo.atk_attacker.passiveskills[i]
-		local flag = (2<<(i-1))
-
-		if not (mo.atk_attacker.ondamage_recursion & flag) and attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
-			-- make sure to set this flag BEFORE calling the anim
-			mo.atk_attacker.ondamage_recursion = $ | flag
-			attackDefs[psv].anim(mo.atk_attacker, mo)
-
+	if not mo.ondamage_recursion
+		local btl = server.P_BattleStatus[mo.battlen]
+		for i = 1, #btl.fighters						--in case someone damages all enemies or some
+			btl.fighters[i].ondamage_recursion = true	--stupid shit so this ensures everything
+		end												--everything works as intended
+		for i = 1, #mo.atk_attacker.passiveskills
+			local psv = mo.atk_attacker.passiveskills[i]
+			if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
+				attackDefs[psv].anim(mo.atk_attacker, mo)
+			end
 		end
-	end
-
-	for i = 1, #mo.passiveskills
-		local psv = mo.passiveskills[i]
-		local flag = (2<<(i-1))
-
-		if not (mo.ondamage_recursion & flag) and attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
-			-- make sure to set this flag BEFORE calling the anim
-			mo.ondamage_recursion = $ | flag
-			attackDefs[psv].anim(mo, mo.atk_attacker)
+		for i = 1, #mo.passiveskills
+			local psv = mo.passiveskills[i]
+			if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
+				attackDefs[psv].anim(mo, mo.atk_attacker)
+			end
 		end
+		for i = 1, #btl.fighters
+			btl.fighters[i].ondamage_recursion = nil
+		end	
 	end
 end)
 
