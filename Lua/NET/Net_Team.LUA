@@ -536,7 +536,7 @@ local function NET_team_skinselect(p)
 	local net = server.P_netstat
 	local minskin = 0
 	local maxskin = 0
-	for i = 0, 255
+	for i = 0, 254
 		if skins[i] and skins[i].valid
 			maxskin = i
 		else
@@ -568,7 +568,7 @@ local function NET_team_skinselect(p)
 	mo.P_net_selectindex = $ or myindex
 
 	if mo.P_net_skinselect == nil
-		for i = 0, 31 do
+		for i = 0, 254 do
 			if skins[i].name == mo.skin
 				mo.P_net_skinselect = i
 				break
