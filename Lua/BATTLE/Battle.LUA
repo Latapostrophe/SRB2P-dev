@@ -722,10 +722,15 @@ end)
 
 rawset(_G, "BTL_initSkillChange", function(v)
 	--I AM GOING TO SHIT, FUCK LUA
-	if not v.skills or not #v.skills return end
+	if not v.skills or not #v.skills or not v.saveskills return end
 	
-	local new_skills = {}
+	if v.passiveskills
+		for i = 1, #v.passiveskills
+			v.skills[#v.skills + 1] = v.passiveskills[i]
+		end
+	end
 	
+	local tmp_skill = {}
 	for i = 1, #v.skills
 		local skl = v.skills[i]
 		if skl and attackDefs[skl]
@@ -733,66 +738,70 @@ rawset(_G, "BTL_initSkillChange", function(v)
 			if atk.skillchange
 				local skill = atk.skillchange(v, skl)
 				if skill == skl --i mean we only need to dprint and change skills if it's different...
-					table.insert(new_skills, skl)
+					table.insert(tmp_skill, skl)
 				else
 					if not attackDefs[skill]
 						dprint("\x82"..skl.."\x80".." not converted to ".."\x82"..skill.."\x80"..". (Not a valid skill.)")
-						table.insert(new_skills, skl)
+						table.insert(tmp_skill, skl)
 					else
 						dprint("\x82"..skl.."\x80".." converted to ".."\x82"..skill.."\x80"..".")
-						table.insert(new_skills, skill)
+						table.insert(tmp_skill, skill)
 					end
 				end
 			else
-				table.insert(new_skills, skl)
-			end
-		end
-	end
-	if v.passiveskills and #v.passiveskills --check passives as well, if we have them
-		for i = 1, #v.passiveskills
-			local skl = v.passiveskills[i]
-			if skl and attackDefs[skl]
-				local atk = attackDefs[skl]
-				if atk.skillchange
-					local skill = atk.skillchange(v, skl)
-					if skill == skl --i mean we only need to dprint and change skills if it's different...
-						table.insert(new_skills, skl)
-					else
-						if not attackDefs[skill]
-							dprint("\x82"..skl.."\x80".." not converted to ".."\x82"..skill.."\x80"..". (Not a valid skill.)")
-							table.insert(new_skills, skl)
-						else
-							dprint("\x82"..skl.."\x80".." converted to ".."\x82"..skill.."\x80"..".")
-							table.insert(new_skills, skill)
-						end
-					end
-				else
-					table.insert(new_skills, skl)
-				end
+				table.insert(tmp_skill, skl)
 			end
 		end
 	end
 	--now let's make sure no duplicates are here...
-	local new_new_skills = {} --yes, i know, unoriginal
-	for i = 1, #new_skills
+	local new_skills = {} --creative...
+	for i = 1, #tmp_skill
 		local dupecheck = false
-		for z = 1, #new_skills
-			if new_skills[i] == new_skills[z]
+		for z = 1, #tmp_skill
+			if tmp_skill[i] == tmp_skill[z]
 			and i > z
 				dupecheck = true
 			end
 		end
 		if not dupecheck
-			table.insert(new_new_skills, new_skills[i])
+			table.insert(new_skills, tmp_skill[i])
 		end
 	end
-	--finally give em the skills
-	v.skills = new_new_skills
-	--then split the skills up again
+	--give em the skills
+	v.skills = copyTable(new_skills)
+	--then split the skills up
 	BTL_splitSkills(v)
+	new_skills = {} --...dupe check a second time... (pain)
+	for i = 1, #v.skills
+		local dupecheck = false
+		for z = 1, #v.skills
+			if v.skills[i] == v.skills[z]
+			and i > z
+				dupecheck = true
+			end
+		end
+		if not dupecheck
+			table.insert(new_skills, v.skills[i])
+		end
+	end
+	v.skills = copyTable(new_skills)
+	new_skills = {}
+	for i = 1, #v.passiveskills
+		local dupecheck = false
+		for z = 1, #v.passiveskills
+			if v.passiveskills[i] == v.passiveskills[z]
+			and i > z
+				dupecheck = true
+			end
+		end
+		if not dupecheck
+			table.insert(new_skills, v.passiveskills[i])
+		end
+	end
+	v.passiveskills = copyTable(new_skills)
 	--this apparently frees memory i guess?
+	tmp_skill = nil
 	new_skills = nil
-	new_new_skills = nil
 end)
 
 rawset(_G, "BTL_changeSkillSelect", function(v, skill)	--mostly here just for convenience in case
@@ -840,7 +849,8 @@ rawset(_G, "BTL_equipSubPersona", function(mo, subp)
 	--print("Subp "..mo.subpersona.name.." equipped.")
 	BTL_setupstats(mo, true)	-- set up our stats
 	BTL_initAdditionalSkills(mo, true)	-- set up skills
-	BTL_initSkillChange(mo)	--for skillchange + spliting passive skills
+	BTL_splitSkills(v) -- split passives from normal skills
+	BTL_initSkillChange(mo)	-- activate skillchange
 
 	if not subp.level	-- cleanse subpersona if it's a non existant one.
 		mo.subpersona = nil
