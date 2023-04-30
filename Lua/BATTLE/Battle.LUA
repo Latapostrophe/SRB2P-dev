@@ -849,7 +849,7 @@ rawset(_G, "BTL_equipSubPersona", function(mo, subp)
 	--print("Subp "..mo.subpersona.name.." equipped.")
 	BTL_setupstats(mo, true)	-- set up our stats
 	BTL_initAdditionalSkills(mo, true)	-- set up skills
-	BTL_splitSkills(v) -- split passives from normal skills
+	BTL_splitSkills(mo) -- split passives from normal skills
 	BTL_initSkillChange(mo)	-- activate skillchange
 
 	if not subp.level	-- cleanse subpersona if it's a non existant one.
