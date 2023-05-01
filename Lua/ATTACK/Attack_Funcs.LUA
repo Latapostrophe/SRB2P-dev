@@ -1191,8 +1191,9 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	local ATK_DEF = FixedDiv(USER_ATK, ENEMY_DEF)
 	--print(ATK_POW.."|"..ATK_DEF.."|"..usestat.."|"..POW.."|"..attacker.atk)
 
-	dmg = max(1, 5*FixedMul(FixedSqrt(ATK_DEF), FixedSqrt(ATK_POW))) /FRACUNIT
-	-- 5* sqrt( (ATK/DEF)*POW)
+	dmg = 5*FixedMul(FixedSqrt(ATK_DEF), FixedSqrt(ATK_POW)) /FRACUNIT / (atk.hits or 1)
+	dmg = max(1, $)
+	-- 5* sqrt( (ATK/DEF)*POW) / hits
 	-- Because of integer overflow concerns within the square root itself,
 	-- we change the formula to
 	-- 5* sqrt(ATK/DEF)*sqrt(POW), Knowing that sqrt(a*b) = sqrt(a)*sqrt(b)
@@ -1601,7 +1602,7 @@ rawset(_G, "run_ondamagepassives", function(mo)
 		end
 		for i = 1, #btl.fighters
 			btl.fighters[i].ondamage_recursion = nil
-		end	
+		end
 	end
 end)
 

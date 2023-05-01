@@ -6944,14 +6944,14 @@ rawset(_G, "attackDefs", {
 	["double fang"] = {
 		name = "Double Fang",
 		type = ATK_PIERCE,
-		power = 80,
+		power = 200,
 		accuracy = 80,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
 		cost = 11,
 		critical = 2,
 		hits = 2,
-		desc = "Light Pierce damage to \none enemy 2x",
+		desc = "Light Pierce damage to \none enemy up to 2 times.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7139,14 +7139,14 @@ rawset(_G, "attackDefs", {
 	["torrent shot"] = {
 		name = "Torrent Shot",
 		type = ATK_PIERCE,
-		power = 55,
+		power = 400,
 		accuracy = 80,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
 		cost = 15,
 		critical = 2,
 		hits = 3,
-		desc = "Light Pierce damage to \none enemy 3x",
+		desc = "Light Pierce damage to \none enemy up to 3 times.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7490,7 +7490,7 @@ rawset(_G, "attackDefs", {
 	["myriad slashes"] = {
 		name = "Myriad Slashes",
 		type = ATK_SLASH,
-		power = 165,
+		power = 900,
 		accuracy = 70,
 		costtype = CST_HPPERCENT,
 		cost = 20,
@@ -7583,7 +7583,7 @@ rawset(_G, "attackDefs", {
 	["agneyastra"] = {
 		name = "Agneyastra",
 		type = ATK_STRIKE,
-		power = 120,
+		power = 850,
 		accuracy = 80,
 		costtype = CST_HPPERCENT,
 		cost = 20,
@@ -7667,7 +7667,7 @@ rawset(_G, "attackDefs", {
 	["kill rush"] = {
 		name = "Kill Rush",
 		type = ATK_STRIKE,
-		power = 110,
+		power = 330,
 		accuracy = 85,
 		costtype = CST_HPPERCENT,
 		cost = 13,
@@ -7723,13 +7723,13 @@ rawset(_G, "attackDefs", {
 	["swift strike"] = {
 		name = "Swift Strike",
 		type = ATK_STRIKE,
-		power = 110,
+		power = 330,
 		accuracy = 70,
 		costtype = CST_HPPERCENT,
 		cost = 20,
 		critical = 2,
 		hits = 2,
-		desc = "Medium strike damage to \nall enemies up to 3 times.",
+		desc = "Medium strike damage to \nall enemies up to 2 times.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 
@@ -7963,7 +7963,7 @@ rawset(_G, "attackDefs", {
 	["akasha arts"] = {
 		name = "Akasha Arts",
 		type = ATK_STRIKE,
-		power = 280,
+		power = 950,
 		accuracy = 85,
 		costtype = CST_HPPERCENT,
 		cost = 26,
@@ -8654,7 +8654,7 @@ rawset(_G, "attackDefs", {
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
 		cost = 17,
-		critical = 7,
+		critical = 20,
 		desc = "Severe Slash damage to \none enemy. \nHigh critical rate",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -8744,7 +8744,7 @@ rawset(_G, "attackDefs", {
 	["tempest slash"] = {
 		name = "Tempest Slash",
 		type = ATK_SLASH,
-		power = 300,
+		power = 1000,
 		accuracy = 91,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
@@ -8991,7 +8991,7 @@ rawset(_G, "attackDefs", {
 	["twin slash"] = {
 		name = "Twin Slash",
 		type = ATK_SLASH,
-		power = 60,
+		power = 170,
 		accuracy = 90,
 		costtype = CST_HPPERCENT,
 		cost = 8,
@@ -9367,7 +9367,7 @@ rawset(_G, "attackDefs", {
 	["deathbound"] = {
 		name = "Deathbound",
 		type = ATK_SLASH,
-		power = 200,
+		power = 720,
 		accuracy = 70,
 		costtype = CST_HPPERCENT,
 		cost = 19,
@@ -9447,7 +9447,7 @@ rawset(_G, "attackDefs", {
 	["triple down"] = {
 		name = "Triple Down",
 		type = ATK_PIERCE,
-		power = 45,
+		power = 500,
 		accuracy = 75,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
@@ -9467,6 +9467,7 @@ rawset(_G, "attackDefs", {
 							local shot = P_SpawnMobj(v.x+x, v.y+y, v.z+z, MT_DUMMY)
 							shot.scale = FRACUNIT*3
 							shot.state = S_STAB_1_1
+							shot.color = SKINCOLOR_ORANGE
 							playSound(mo.battlen, sfx_hit)
 							damageObject(v)
 						end
@@ -17975,7 +17976,7 @@ rawset(_G, "attackDefs", {
 	["fitness"] = {
 		name = "Physical Fitness",
 		type = ATK_ALMIGHTY,
-		power = 2,
+		power = 1200,
 		hits = 25,
 		accuracy = 80,
 		critical = 1,
@@ -18004,6 +18005,7 @@ rawset(_G, "attackDefs", {
 						maso.sprite = SPR_MASO
 						maso.tics = -1
 						maso.frame = A
+						maso.fuse = TICRATE*8
 						maso.momx = (t.x - maso.x)/4
 						maso.momy = (t.y - maso.y)/4
 						maso.momz = (t.z - maso.z)/4
