@@ -723,13 +723,13 @@ end)
 rawset(_G, "BTL_initSkillChange", function(v)
 	--I AM GOING TO SHIT, FUCK LUA
 	if not v.skills or not #v.skills or not v.saveskills return end
-	
+
 	if v.passiveskills
 		for i = 1, #v.passiveskills
 			v.skills[#v.skills + 1] = v.passiveskills[i]
 		end
 	end
-	
+
 	local tmp_skill = {}
 	for i = 1, #v.skills
 		local skl = v.skills[i]
@@ -1045,7 +1045,7 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 		end
 
 		BTL_initSkillChange(v)
-		
+
 		local new_skills = {} --preform a duplicate skill check now, because
 		for i = 1, #v.skills --splitskills gets triggered twice
 			local dupecheck = false
@@ -2408,11 +2408,12 @@ rawset(_G, "BTL_turnstatusconditions", function(mo)
 			return true
 
 		elseif mo.status_condition == COND_SILENCE
+		or mo.status_condition == COND_HUNGER
 
 			if not mo.t_statustimer
 				mo.status_turns = $+1
 
-				if mo.status_turns >= 2
+				if mo.status_turns >= 3
 					status_cam(mo)
 					BTL_logMessage(pn, mo.name.." has recovered")
 					mo.t_curebuffer = true
@@ -2501,21 +2502,37 @@ rawset(_G, "BTL_turnstatusconditions", function(mo)
 			if not mo.t_statustimer
 				status_cam(mo)
 				mo.status_turns = $+1
-				BTL_logMessage(pn, mo.name.." is fast asleep...")
+
+				if mo.status_turns >= 3
+					BTL_logMessage(pn, mo.name.." woke up!")
+				else
+					BTL_logMessage(pn, mo.name.." is fast asleep...")
+				end
 			end
 			mo.t_statustimer = $+1
 
 			if mo.t_statustimer == 10
-				damageObject(mo, -mo.maxhp/10, DMG_NORMAL)
-				damageSP(mo, -mo.maxsp/10)
+				damageObject(mo, -mo.maxhp/20, DMG_NORMAL)
+				damageSP(mo, -mo.maxsp/20)
 				mo.damaged = 1
 				playSound(mo.battlen, sfx_heal)
 			end
 
 			if mo.t_statustimer >= TICRATE+20
 				-- skip our turn.
+
+				if mo.status_turns >= 3
+					mo.t_curebuffer = nil
+					cureStatus(mo)
+					return
+				end
+
 				btl.battlestate = BS_ENDTURN
 				mo.t_statustimer = 0
+			end
+
+			if mo.t_curebuffer
+				return true
 			end
 
 			return true
