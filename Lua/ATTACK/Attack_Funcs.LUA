@@ -313,7 +313,7 @@ rawset(_G, "isAttackTechnical", function(mo, atk, t)
 		return (t == ATK_PSY or t == ATK_BLESS)
 
 	elseif cond == COND_SLEEP		-- Technical: All
-		return 1
+		return t ~= ATK_HEAL
 
 	elseif cond == COND_DIZZY		-- Dizzy: Psy / Nuke / Elec
 		return (t == ATK_PSY or t == ATK_NUCLEAR or t == ATK_ELEC)
