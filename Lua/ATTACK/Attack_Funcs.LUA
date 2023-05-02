@@ -312,8 +312,8 @@ rawset(_G, "isAttackTechnical", function(mo, atk, t)
 	elseif cond == COND_BRAINWASH	-- Technical: Psy / Bless
 		return (t == ATK_PSY or t == ATK_BLESS)
 
-	elseif cond == COND_SLEEP		-- Technical: All
-		return t ~= ATK_HEAL
+	elseif cond == COND_SLEEP		-- Technical: All except friendly attacks / attacks with no power notation.
+		return atk.power and (atk.target ~= TGT_ALLY and atk.target ~= TGT_ALLALLIES)
 
 	elseif cond == COND_DIZZY		-- Dizzy: Psy / Nuke / Elec
 		return (t == ATK_PSY or t == ATK_NUCLEAR or t == ATK_ELEC)

@@ -14747,6 +14747,18 @@ rawset(_G, "attackDefs", {
 						elseif target.down
 							BTL_logMessage(targets[1].battlen, target.name.." is down.")
 							return true
+
+						elseif target.status_condition == COND_SLEEP
+							BTL_logMessage(targets[1].battlen, target.name.." is asleep.")
+							return true
+
+						elseif target.status_condition == COND_SHOCK
+							BTL_logMessage(targets[1].battlen, target.name.." is paralyzed.")
+							return true
+
+						elseif target.status_condition == COND_RAGE
+							BTL_logMessage(targets[1].battlen, target.name.." is enraged and can't hear you.")
+							return true
 						end
 					end,
 
