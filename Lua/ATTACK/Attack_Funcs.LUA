@@ -380,24 +380,35 @@ rawset(_G, "getAttackAff", function(mo, atk, attacker)
 
 
 	-- check if our passive skills block the attack
+	local bestaff = DMG_NORMAL
 	for i = 1, #mo.passiveskills
 		local psv = mo.passiveskills[i]
 		if attackDefs[psv]
 			psv = attackDefs[$]
+
 			if psv.type & atktype
 
-				if psv.passive == PSV_BLOCK and not debuff
-					return DMG_BLOCK
-				elseif psv.passive == PSV_REPEL and not debuff and not (psv.accuracy and psv.accuracy < 100)	-- chance repels don't count!
-					return DMG_REPEL
-				elseif psv.passive == PSV_RESIST and not debuff
-					return DMG_RESIST
-				elseif psv.passive == PSV_DRAIN and not debuff
-					return DMG_DRAIN
+				if (psv.passive == PSV_BLOCK and not debuff)
+					bestaff = max($, DMG_BLOCK)
+
+				elseif (psv.passive == PSV_REPEL and not debuff and not (psv.accuracy and psv.accuracy < 100))	-- chance repels don't count!
+					bestaff = max($, DMG_REPEL)
+
+				elseif (psv.passive == PSV_RESIST and not debuff)
+					bestaff = max($, DMG_RESIST)
+
+				elseif (psv.passive == PSV_DRAIN and not debuff)
+					bestaff = max($, DMG_DRAIN)
 				end
 			end
 		end
 	end
+
+	-- we found something better than normal resistance in our passive skills
+	if bestaff > DMG_NORMAL
+		return bestaff
+	end
+
 
 	-- very special case.
 	if mo.guard
@@ -942,7 +953,14 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		end
 	end
 
-	if forcedamage then return forcedamage,false end	-- yeah no
+	if forcedamage
+		-- for healing, remove any special damage state.
+		if forcedamage < 0
+			mo.damagestate = DMG_NORMAL
+		end
+
+		return forcedamage,false
+	end	-- yeah no
 
 	if atktype == ATK_HEAL or atktype == ATK_SUPPORT	-- these are not meant to deal any damage.
 		return 1
@@ -1198,6 +1216,9 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	-- we change the formula to
 	-- 5* sqrt(ATK/DEF)*sqrt(POW), Knowing that sqrt(a*b) = sqrt(a)*sqrt(b)
 
+	if dmg < 0	-- if somehow this turns out to be healing, reset damage state to normal.
+		mo.damagestate = DMG_NORMAL
+	end
 
 	if mo.down
 	and atk.downboost	-- stuff like cruel attack / vile assault
@@ -1270,6 +1291,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		end
 
 	elseif mo.damagestate == DMG_DRAIN
+	and dmg > 0
 		dmg = -dmg			-- let's heal instead.
 
 	elseif mo.damagestate == DMG_RESIST
@@ -1278,7 +1300,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		dmg = max(1, $/3)	-- Do less damage
 	end
 
-	if mo.guard	and not drain		-- guarding (stacks with resistances) (don't guard a drain)
+	if mo.guard	and mo.damagestate ~= DMG_DRAIN
 		dmg = max(1, $/3)
 	end
 
