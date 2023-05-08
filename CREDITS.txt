@@ -24,6 +24,7 @@ ARTISTS:
 	SoapSurfin:		Titlescreen art
 
 	Inazuma:		Shadow The Hedgehog & Blaze The Cat sprites
+	lightdasher:		Blaze The Cat sprites
 	DrStephen:		Dr. Eggman sprites
 
 
