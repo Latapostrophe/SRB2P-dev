@@ -2671,6 +2671,16 @@ COM_AddCommand("d_setstatus", function(p, target, num, arg)
 					end
 
 					t[i].down = true	-- down is a separate status condition
+
+				elseif status_lookup[arg] == COND_HYPER
+
+					if t[i].status_condition ~= COND_HYPER
+						t[i].status_condition = COND_HYPER
+						local stats = {"strength", "magic", "endurance", "agility", "luck"}
+						for j = 1, #stats do
+							t[i][stats[j]] = $+10
+						end
+					end
 				else
 					cureStatus(t[i])
 					t[i].status_condition = 0
