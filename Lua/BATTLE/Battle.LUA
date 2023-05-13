@@ -4655,7 +4655,7 @@ rawset(_G, "BTL_linkHandler", function(pn)
 			btl.dmg_downs = {}	-- damage knockdown	(won't happen here but needs resetting anyway)
 
 			-- link damage (base dmg + linkboost% * added links per new link)
-			local linkdamage = mo.linkstate.dmg + (mo.linkstate.dmg*mo.linkstate.linkboost/100)*(mo.linkstate.link-1)
+			local linkdamage = mo.linkstate.dmg + (mo.linkstate.dmg*mo.linkstate.linkboost/100)*mo.linkstate.link
 
 			-- links only down if they hit a weakness (no random crit)
 			btl.dmg_downs[1] = {getAttackAff(mo, mo.atk_hitby, mo.atk_attacker) == DMG_WEAK}
