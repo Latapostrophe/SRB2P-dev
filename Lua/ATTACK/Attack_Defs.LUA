@@ -5770,7 +5770,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 10,
-		desc = "Remove enemy buffs",
+		desc = "Remove 1 stage of enemy buffs.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 			local colors = {SKINCOLOR_ORANGE, SKINCOLOR_LAVENDER, SKINCOLOR_EMERALD, SKINCOLOR_YELLOW}
@@ -5793,11 +5793,11 @@ rawset(_G, "attackDefs", {
 						local t = targets[i]
 						local s = strs[j]
 						if t.buffs[s][1] > 0
-							t.buffs[s][1] = 0
+							t.buffs[s][1] = max(0, $ - BUFFSTEP)
 							t.buffs[s][2] = 0
 						end
 					end
-					BTL_logMessage(targets[1].battlen, "Stat increases nullified")
+					BTL_logMessage(targets[1].battlen, "Stat increases lowered")
 				end
 			end
 			if timer == TICRATE*3/2 + (#targets-1)*10
@@ -5812,7 +5812,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 10,
-		desc = "Remove party debuffs",
+		desc = "Remove 1 stage of party debuffs.",
 		target = TGT_ALLALLIES,
 		anim = function(mo, targets, hittargets, timer)
 			local colors = {SKINCOLOR_ORANGE, SKINCOLOR_LAVENDER, SKINCOLOR_EMERALD, SKINCOLOR_YELLOW}
@@ -5835,7 +5835,7 @@ rawset(_G, "attackDefs", {
 						local t = targets[i]
 						local s = strs[j]
 						if t.buffs[s][1] < 0
-							t.buffs[s][1] = 0
+							t.buffs[s][1] = min(0, $ + BUFFSTEP)
 							t.buffs[s][2] = 0
 						end
 					end
