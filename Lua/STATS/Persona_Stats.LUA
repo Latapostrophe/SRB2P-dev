@@ -80,9 +80,9 @@ rawset(_G, "personaList", {
 		anim_atk = 		{SPR_PSN0, D, E, F, G, H, H, H, I, J, K, L, L, L, L, L, L, 2},
 		startframe = 0,
 
-		strength = 7,
+		strength = 8,
 		magic = 10,
-		endurance = 6,
+		endurance = 5,
 		luck = 4,
 		agility = 12,
 		weak = ATK_PSY,
@@ -150,9 +150,9 @@ rawset(_G, "personaList", {
 
 		strength = 4,
 		magic = 12,
-		endurance = 6,
+		endurance = 5,
 		luck = 7,
-		agility = 10,
+		agility = 11,
 		weak = ATK_NUCLEAR,
 		resist = ATK_PSY,
 		skills = {
@@ -181,9 +181,9 @@ rawset(_G, "personaList", {
 		anim_atk = 		{SPR_PSN6, C, D, E, F, G, H, I, J, J, J, J, J, J, J, J, J, J, J, 3},
 		startframe = 0,
 
-		strength = 4,
+		strength = 6,
 		magic = 11,
-		endurance = 6,
+		endurance = 4,
 		luck = 10,
 		agility = 8,
 		weak = ATK_FIRE,
@@ -217,8 +217,8 @@ rawset(_G, "personaList", {
 
 		strength = 4,
 		magic = 12,
-		endurance = 6,
-		luck = 10,
+		endurance = 5,
+		luck = 11,
 		agility = 7,
 		weak = ATK_ELEC,
 		resist = ATK_WIND|ATK_BLESS,
@@ -257,16 +257,16 @@ rawset(_G, "personaList", {
 		weak = ATK_ELEC,
 		resist = ATK_STRIKE|ATK_NUCLEAR,
 		skills = {
-					{"snap", 1}, {"frei", 4},
+					{"pile hit", 1}, {"frei", 4},
 					{"tarukaja", 11}, {"dekunda", 15},
-					{"mafrei", 18}, {"assault shot", 22},
+					{"mafrei", 18}, {"pile bash", 22},
 					{"freila", 26}, {"swordbreaker", 30},
 
 					{"mafreila", 34, "snap"}, {"matarukaja", 38, "tarukaja"},
 					{"heat wave", 42, "frei"}, {"power charge", 45, "mafrei"},
-					{"heavy shot", 53, "assault shot"}, {"freidyne", 57, "freila"},
+					{"pile crush", 53, "pile bash"}, {"freidyne", 57, "freila"},
 					{"vicious strike", 62, "heat wave"}, {"mafreidyne", 67, "mafreila"},
-					{"pralaya", 75, "heavy shot"}, {"akasha arts", 85, "vicious strike"},
+					{"pile detonation", 75, "pile crush"}, {"akasha arts", 85, "vicious strike"},
 
 
 
@@ -301,8 +301,8 @@ rawset(_G, "personaList", {
 		startframe = 0,
 
 		strength = 10,
-		magic = 7,
-		endurance = 6,
+		magic = 8,
+		endurance = 5,
 		luck = 4,
 		agility = 12,
 		weak = ATK_WIND,
@@ -333,7 +333,7 @@ rawset(_G, "personaList", {
 		-- STATS (at level 10. so we can have some precision, y'see)
 
 		strength = 12,
-		magic = 6,
+		magic = 5,
 		endurance = 10,
 		luck = 4,
 		agility = 8,
@@ -370,11 +370,11 @@ rawset(_G, "personaList", {
 		anim_idle = {SPR_PSN1, A, B, 6},
 		anim_atk = 	{SPR_PSN1, C, D, E, E, E, E, E, F, G, H, H, H, H, H, 3},
 
-		strength = 5,
+		strength = 6,
 		magic = 10,
-		endurance = 6,
+		endurance = 4,
 		luck = 12,
-		agility = 6,
+		agility = 7,
 		weak = ATK_CURSE,
 		resist = ATK_BLESS|ATK_PSY,
 		skills = {

@@ -80,7 +80,14 @@ end
 
 function A_StabEnd(a)
 	if not a or not a.valid return end
-
+	
+	-- looping animation 
+	if a.extravalue1
+		a.extravalue1 = $-1
+		a.state = S_STAB_1_1
+		return
+	end
+	
 	local mo = P_SpawnMobj(a.x, a.y, a.z, MT_THOK)
 	mo.tics = TICRATE/4
 	mo.color = a.color

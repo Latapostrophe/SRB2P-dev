@@ -7127,6 +7127,312 @@ rawset(_G, "attackDefs", {
 				end,
 	},
 
+	["pile hit"] = {
+		name = "Pile Hit",
+		type = ATK_PIERCE,
+		power = 65,
+		accuracy = 99,
+		costtype = CST_HPPERCENT,
+		technical = COND_FREEZE,
+		cost = 6,
+		critical = 5,
+		desc = "Light Pierce damage to \none enemy.\n400% Hatred generation.",
+		aggrofactor = FRACUNIT*4,
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			if timer == 15
+				playSound(mo.battlen, sfx_rail1)
+				createSplat(mo)
+				createSplat(mo)
+				localquake(mo.battlen, FRACUNIT*10, 10)
+
+				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
+				d.sprite = SPR_THMP
+				d.frame = A|FF_FULLBRIGHT
+				d.scale = FRACUNIT/4
+				d.destscale = FRACUNIT*4
+				d.scalespeed = FRACUNIT/8
+				d.fuse = TICRATE-10
+				d.tics = d.fuse
+				d.momz = FRACUNIT*2
+				d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.color = SKINCOLOR_ORANGE
+
+				d = P_SpawnMobj(target.x, target.y, target.z, MT_THOK)
+				d.tics = TICRATE/4
+				d.color = SKINCOLOR_ORANGE
+				d.scale = target.scale/8
+				d.destscale = target.scale*8
+				d.scalespeed = target.scale/2
+				d.sprite = SPR_STAB
+				d.frame = A|FF_FULLBRIGHT
+
+				d = P_SpawnMobj(target.x, target.y, target.z, MT_THOK)
+				d.tics = TICRATE/2
+				d.fuse = d.tics
+				d.color = SKINCOLOR_ORANGE
+				d.scale = target.scale/4
+				d.destscale = target.scale*8
+				d.scalespeed = target.scale/3
+				d.sprite = SPR_STAB
+				d.frame = A|FF_FULLBRIGHT
+
+			elseif timer == 30
+				local shot = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				shot.state = S_STAB_1_1
+				shot.extravalue1 = 3
+				shot.color = SKINCOLOR_ORANGE
+				shot.scale = FRACUNIT*3
+				playSound(mo.battlen, sfx_hit)
+
+			elseif timer > 30 and timer < 45 and leveltime%3 == 0
+				for i=1,8
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
+					b.momx = P_RandomRange(-8, 8)*FRACUNIT
+					b.momy = P_RandomRange(-8, 8)*FRACUNIT
+					b.momz = P_RandomRange(-8, 8)*FRACUNIT
+					b.scale = FRACUNIT
+					b.destscale = FRACUNIT/12
+				end
+
+			elseif timer == 50
+				playSound(mo.battlen, sfx_rail1)
+				createSplat(mo)
+				createSplat(mo)
+				localquake(mo.battlen, FRACUNIT*10, 10)
+				damageObject(target)
+
+			elseif timer == 70
+				return true
+			end
+
+			if timer >= 35 and timer <= 45
+			and timer %5 == 0
+				local x = target.x + P_RandomRange(-128, 128)*mo.scale
+				local y = target.y + P_RandomRange(-128, 128)*mo.scale
+				local z = target.z + P_RandomRange(64, 128)*mo.scale
+
+				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
+				rage.sprite = SPR_TSUN
+				rage.frame = A
+				rage.scale = 1
+				rage.fuse = TICRATE/2
+				rage.destscale = FRACUNIT
+				rage.renderflags = $|RF_NOCOLORMAPS
+				rage.scalespeed = FRACUNIT/4
+				rage.tics = TICRATE/2
+			end
+
+		end,
+	},
+
+	["pile bash"] = {
+		name = "Pile Bash",
+		type = ATK_PIERCE,
+		power = 160,
+		accuracy = 99,
+		costtype = CST_HPPERCENT,
+		technical = COND_FREEZE,
+		cost = 8,
+		critical = 5,
+		desc = "Medium Pierce damage to \none enemy.\n400% Hatred generation.",
+		aggrofactor = FRACUNIT*4,
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			if timer == 15
+				playSound(mo.battlen, sfx_rail1)
+				createSplat(mo)
+				createSplat(mo)
+				localquake(mo.battlen, FRACUNIT*10, 10)
+
+				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
+				d.sprite = SPR_THMP
+				d.frame = A|FF_FULLBRIGHT
+				d.scale = FRACUNIT/4
+				d.destscale = FRACUNIT*4
+				d.scalespeed = FRACUNIT/8
+				d.fuse = TICRATE-10
+				d.tics = d.fuse
+				d.momz = FRACUNIT*2
+				d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.color = SKINCOLOR_ORANGE
+
+				d = P_SpawnMobj(target.x, target.y, target.z, MT_THOK)
+				d.tics = TICRATE/4
+				d.color = SKINCOLOR_ORANGE
+				d.scale = target.scale/8
+				d.destscale = target.scale*8
+				d.scalespeed = target.scale/2
+				d.sprite = SPR_STAB
+				d.frame = A|FF_FULLBRIGHT
+
+				d = P_SpawnMobj(target.x, target.y, target.z, MT_THOK)
+				d.tics = TICRATE/2
+				d.fuse = d.tics
+				d.color = SKINCOLOR_ORANGE
+				d.scale = target.scale/4
+				d.destscale = target.scale*8
+				d.scalespeed = target.scale/3
+				d.sprite = SPR_STAB
+				d.frame = A|FF_FULLBRIGHT
+
+			elseif timer == 30
+				local shot = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				shot.state = S_STAB_1_1
+				shot.extravalue1 = 3
+				shot.color = SKINCOLOR_ORANGE
+				shot.scale = FRACUNIT*3
+				playSound(mo.battlen, sfx_hit)
+
+			elseif timer > 30 and timer < 45 and leveltime%3 == 0
+				for i=1,8
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
+					b.momx = P_RandomRange(-8, 8)*FRACUNIT
+					b.momy = P_RandomRange(-8, 8)*FRACUNIT
+					b.momz = P_RandomRange(-8, 8)*FRACUNIT
+					b.scale = FRACUNIT
+					b.destscale = FRACUNIT/12
+				end
+
+			elseif timer == 50
+				playSound(mo.battlen, sfx_rail1)
+				createSplat(mo)
+				createSplat(mo)
+				localquake(mo.battlen, FRACUNIT*10, 10)
+				damageObject(target)
+
+			elseif timer == 70
+				return true
+			end
+
+			if timer >= 35 and timer <= 45
+			and timer %5 == 0
+				local x = target.x + P_RandomRange(-128, 128)*mo.scale
+				local y = target.y + P_RandomRange(-128, 128)*mo.scale
+				local z = target.z + P_RandomRange(64, 128)*mo.scale
+
+				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
+				rage.sprite = SPR_TSUN
+				rage.frame = A
+				rage.scale = 1
+				rage.fuse = TICRATE/2
+				rage.destscale = FRACUNIT
+				rage.renderflags = $|RF_NOCOLORMAPS
+				rage.scalespeed = FRACUNIT/4
+				rage.tics = TICRATE/2
+			end
+
+		end,
+	},
+
+	["pile crush"] = {
+		name = "Pile Crush",
+		type = ATK_PIERCE,
+		power = 380,
+		accuracy = 99,
+		costtype = CST_HPPERCENT,
+		technical = COND_FREEZE,
+		cost = 12,
+		critical = 5,
+		desc = "Heavy Pierce damage to \none enemy.\n400% Hatred generation.",
+		aggrofactor = FRACUNIT*4,
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			if timer == 15
+				playSound(mo.battlen, sfx_rail1)
+				createSplat(mo)
+				createSplat(mo)
+				localquake(mo.battlen, FRACUNIT*10, 10)
+
+				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
+				d.sprite = SPR_THMP
+				d.frame = A|FF_FULLBRIGHT
+				d.scale = FRACUNIT/4
+				d.destscale = FRACUNIT*4
+				d.scalespeed = FRACUNIT/8
+				d.fuse = TICRATE-10
+				d.tics = d.fuse
+				d.momz = FRACUNIT*2
+				d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.color = SKINCOLOR_ORANGE
+
+				d = P_SpawnMobj(target.x, target.y, target.z, MT_THOK)
+				d.tics = TICRATE/4
+				d.color = SKINCOLOR_ORANGE
+				d.scale = target.scale/8
+				d.destscale = target.scale*8
+				d.scalespeed = target.scale/2
+				d.sprite = SPR_STAB
+				d.frame = A|FF_FULLBRIGHT
+
+				d = P_SpawnMobj(target.x, target.y, target.z, MT_THOK)
+				d.tics = TICRATE/2
+				d.fuse = d.tics
+				d.color = SKINCOLOR_ORANGE
+				d.scale = target.scale/4
+				d.destscale = target.scale*8
+				d.scalespeed = target.scale/3
+				d.sprite = SPR_STAB
+				d.frame = A|FF_FULLBRIGHT
+
+			elseif timer == 30
+				local shot = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				shot.state = S_STAB_1_1
+				shot.extravalue1 = 3
+				shot.color = SKINCOLOR_ORANGE
+				shot.scale = FRACUNIT*3
+				playSound(mo.battlen, sfx_hit)
+
+			elseif timer > 30 and timer < 45 and leveltime%3 == 0
+				for i=1,8
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
+					b.momx = P_RandomRange(-8, 8)*FRACUNIT
+					b.momy = P_RandomRange(-8, 8)*FRACUNIT
+					b.momz = P_RandomRange(-8, 8)*FRACUNIT
+					b.scale = FRACUNIT
+					b.destscale = FRACUNIT/12
+				end
+
+			elseif timer == 50
+				playSound(mo.battlen, sfx_rail1)
+				createSplat(mo)
+				createSplat(mo)
+				localquake(mo.battlen, FRACUNIT*10, 10)
+				damageObject(target)
+
+			elseif timer == 70
+				return true
+			end
+
+			if timer >= 35 and timer <= 45
+			and timer %5 == 0
+				local x = target.x + P_RandomRange(-128, 128)*mo.scale
+				local y = target.y + P_RandomRange(-128, 128)*mo.scale
+				local z = target.z + P_RandomRange(64, 128)*mo.scale
+
+				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
+				rage.sprite = SPR_TSUN
+				rage.frame = A
+				rage.scale = 1
+				rage.fuse = TICRATE/2
+				rage.destscale = FRACUNIT
+				rage.renderflags = $|RF_NOCOLORMAPS
+				rage.scalespeed = FRACUNIT/4
+				rage.tics = TICRATE/2
+			end
+
+		end,
+	},
+
 	["skewer"] = {
 
 		name = "Skewer",				-- Name of the skill
@@ -8336,7 +8642,7 @@ rawset(_G, "attackDefs", {
 	["heat wave"] = {
 		name = "Heat Wave",
 		type = ATK_STRIKE,
-		power = 280,
+		power = 210,
 		accuracy = 85,
 		costtype = CST_HPPERCENT,
 		cost = 18,
@@ -8402,7 +8708,7 @@ rawset(_G, "attackDefs", {
 	["vicious strike"] = {
 		name = "Vicious Strike",
 		type = ATK_STRIKE,
-		power = 500,
+		power = 400,
 		accuracy = 92,
 		costtype = CST_HPPERCENT,
 		cost = 22,
@@ -8468,7 +8774,7 @@ rawset(_G, "attackDefs", {
 	["akasha arts"] = {
 		name = "Akasha Arts",
 		type = ATK_STRIKE,
-		power = 950,
+		power = 750,
 		accuracy = 85,
 		costtype = CST_HPPERCENT,
 		cost = 26,
@@ -8691,7 +8997,7 @@ rawset(_G, "attackDefs", {
 				rage.scale = 1
 				rage.fuse = TICRATE/2
 				rage.destscale = FRACUNIT
-				rage.renderflags = $|RF_NOCLORMAPS
+				rage.renderflags = $|RF_NOCOLORMAPS
 				rage.scalespeed = FRACUNIT/4
 				rage.tics = TICRATE/2
 			end
@@ -8786,7 +9092,7 @@ rawset(_G, "attackDefs", {
 				rage.frame = A
 				rage.scale = 1
 				rage.fuse = TICRATE/2
-				rage.renderflags = $|RF_NOCLORMAPS
+				rage.renderflags = $|RF_NOCOLORMAPS
 				rage.destscale = FRACUNIT*2
 				rage.scalespeed = FRACUNIT/4
 				rage.tics = TICRATE/2
@@ -8882,7 +9188,7 @@ rawset(_G, "attackDefs", {
 				rage.scale = 1
 				rage.fuse = TICRATE/2
 				rage.destscale = FRACUNIT*2
-				rage.renderflags = $|RF_NOCLORMAPS
+				rage.renderflags = $|RF_NOCOLORMAPS
 				rage.scalespeed = FRACUNIT/4
 				rage.tics = TICRATE/2
 			end
@@ -8985,7 +9291,7 @@ rawset(_G, "attackDefs", {
 				rage.scale = 1
 				rage.fuse = TICRATE/2
 				rage.destscale = FRACUNIT*2
-				rage.renderflags = $|RF_NOCLORMAPS
+				rage.renderflags = $|RF_NOCOLORMAPS
 				rage.scalespeed = FRACUNIT/4
 				rage.tics = TICRATE/2
 			end
@@ -9946,7 +10252,7 @@ rawset(_G, "attackDefs", {
 	["gale slash"] = {
 		name = "Gale Slash",
 		type = ATK_SLASH,
-		power = 200,
+		power = 125,
 		accuracy = 90,
 		costtype = CST_HPPERCENT,
 		cost = 12,
@@ -10049,7 +10355,7 @@ rawset(_G, "attackDefs", {
 	["blade of fury"] = {
 		name = "Blade of Fury",
 		type = ATK_SLASH,
-		power = 260,
+		power = 220,
 		accuracy = 90,
 		costtype = CST_HPPERCENT,
 		cost = 16,
@@ -10143,7 +10449,7 @@ rawset(_G, "attackDefs", {
 	["danse macabre"] = {
 		name = "Danse Macabre",
 		type = ATK_SLASH,
-		power = 230,
+		power = 200,
 		accuracy = 95,
 		costtype = CST_HPPERCENT,
 		cost = 20,
@@ -10248,7 +10554,7 @@ rawset(_G, "attackDefs", {
 	["deathbound"] = {
 		name = "Deathbound",
 		type = ATK_SLASH,
-		power = 720,
+		power = 620,
 		accuracy = 70,
 		costtype = CST_HPPERCENT,
 		cost = 19,
@@ -10328,7 +10634,7 @@ rawset(_G, "attackDefs", {
 	["triple down"] = {
 		name = "Triple Down",
 		type = ATK_PIERCE,
-		power = 500,
+		power = 400,
 		accuracy = 75,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
