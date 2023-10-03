@@ -1291,8 +1291,75 @@ rawset(_G, "drawPlayerTarget", function(v, p, c, mo)
 		-- draw bar
 		drawTargetHP(v, x, y, mo, tgt, aff)
 
-		V_drawString(v, 310 + mo.t_ctarget*24, 5, tgt.name, "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, "right", 0, 31)
-		V_drawString(v, 240 + mo.t_ctarget*24, 5, "\nLV"..tgt.level, "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, nil, 0, 31)
+		V_drawString(v, 310 + mo.t_ctarget*24, 5, "LV"..tgt.level.." "..tgt.name, "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, "right", 0, 31)
+		--V_drawString(v, 240 + mo.t_ctarget*24, 5, "\nLV"..tgt.level, "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, nil, 0, 31)
+
+		if tgt.enemy
+		and tgt.aggro_list
+			local l = BTL_enemyOrderedAggroList(tgt)
+			local hx = 240 + mo.t_ctarget*24
+			local hl = 8
+
+			V_drawString(v, hx, 15, "Hatred:", "NFNT", V_SNAPTORIGHT|V_SNAPTOTOP, nil, 0, 31)
+
+			for i = 1, #l
+				local hate = l[i]
+
+				if hate and hate.plyr and hate.stats
+					PDraw(v, hx+35, 14, v.cachePatch(charStats[hate.stats].icon), V_SNAPTOTOP|V_SNAPTORIGHT, v.getColormap(TC_DEFAULT, hate.color))
+
+					if not hate.hp
+						PDraw(v, hx+35, 15, v.cachePatch("H_NOTARG"), V_SNAPTOTOP|V_SNAPTORIGHT)
+					elseif tgt.targetlock and tgt.targetlockon ~= hate
+						PDraw(v, hx+35, 15, v.cachePatch("H_TLOCK"), V_SNAPTOTOP|V_SNAPTORIGHT)
+					end
+
+					-- show a gauge to tell us how far we are from getting aggro
+					local topaggro	-- upper limit until we overtake the next person
+					local lowaggro	-- lower limit
+
+					local toptarget
+					local lowtarget
+
+					local col = 0
+
+					if i > 1 and i < #l		-- middle of the pack
+						toptarget = l[i-1]
+						lowtarget = l[i+1]
+
+						topaggro = tgt.aggro_list[toptarget]
+						lowaggro = tgt.aggro_list[lowtarget]
+					elseif i == #l			-- bottom of the line
+						toptarget = l[i-1]
+
+						topaggro = tgt.aggro_list[toptarget]
+						lowaggro = 0
+					end
+
+					-- colour changes depending on where you are in the aggro list.
+					if i == 1
+						col = 36
+					elseif i == 2
+						col = 53
+					end
+
+					v.drawFill(hx+35, 23, hl+1, 2, 31|V_SNAPTOTOP|V_SNAPTORIGHT)
+
+					if lowaggro ~= nil and topaggro ~= nil
+						local diff = topaggro-lowaggro
+						local val = tgt.aggro_list[l[i]] - lowaggro
+
+						local le = val*hl / diff
+
+						v.drawFill(hx+35, 23, le, 1, col|V_SNAPTOTOP|V_SNAPTORIGHT)
+					else
+						v.drawFill(hx+35, 23, hl, 1, col|V_SNAPTOTOP|V_SNAPTORIGHT)
+					end
+
+					hx = $+10
+				end
+			end
+		end
 
 		-- draw buffs and debuffs
 		local stats = {"atk", "mag", "def", "agi", "crit"}
@@ -1425,22 +1492,22 @@ rawset(_G, "drawStats", function(v, mo, timer, enemy, skilln, cmd)	-- display th
 		V_drawString(v, min(10, timer*16), 50, "MAX SP ???", "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 181, nil)
 
 	else	-- we are drawing a player, draw HP/SP gauges as well as persona name and NEXT EXP.
-	
+
 		-- next exp + gauge:
 		local expt = getEXPTable()
-		
+
 		for i = 1, 2
 			v.drawFill(min(33, timer*16) + (i-1), 32 +(i-1), 54, 1, 62|V_SNAPTOLEFT|V_SNAPTOTOP)
 			v.drawFill(min(33, timer*16) - (i-1), 32 +(i-1), mo.exp*54/expt[mo.level], 1, 54|V_SNAPTOLEFT|V_SNAPTOTOP)
-		end	
-		
+		end
+
 		V_drawString(v, min(32, timer*16), 8, "\n\nNEXT: "..(expt[mo.level]-mo.exp), "NFNT", V_SNAPTOLEFT|V_SNAPTOTOP, nil, 0, 31)
-		
+
 		-- Persona name & Arcana
 		local arcana = mo.persona.arcana or 1
 		PDraw(v, min(96, timer*32), 8, v.cachePatch("ARCANA"..arcana), V_SNAPTOTOP)
 		V_drawString(v, min(96, timer*32), 18, mo.persona.name:upper(), "FPIMP", V_SNAPTOTOP, nil, 0, 31)
-		
+
 		--hp
 		for i = 0, 3
 			v.drawFill(min(24, timer*16)-i, 45+i, 65, 1, 137|V_SNAPTOTOP|V_SNAPTOLEFT)
@@ -2843,7 +2910,7 @@ rawset(_G, "drawBattleEnd", function(v, btl)
 	-- party member EXP
 	local party = server.plentities[btl.n]
 	local xpt = getEXPTable()
-	
+
 	for i = 0, #party-1
 
 		local mo = party[i+1]
@@ -2860,16 +2927,16 @@ rawset(_G, "drawBattleEnd", function(v, btl)
 		end
 
 		-- draw EXP gauge:
-		
+
 		local subp
-		
+
 		-- only do that in story mode.
 		if srb2p.storymode
 			subp = mo.subpersona	-- if this isn't nil, then draw things SLIGHTLY differently.
 		end
-		
+
 		local bary = not subp and 3 or 0
-		
+
 		-- MAIN PERSONA
 		v.drawFill(min(62+37 - i*20, -256 + ((postt-4)*32)), 102+bary + 20*i, 79, 5, (mo.level == mo.levelcap and 54 or 31)|V_SNAPTOTOP)
 
@@ -2880,7 +2947,7 @@ rawset(_G, "drawBattleEnd", function(v, btl)
 		end
 
 		v.drawFill(min(62+37 - i*20, -256 + ((postt-4)*32)), 102+bary + 20*i, mo.exp*79/xpt[mo.level], 4, 54|V_SNAPTOTOP)
-		
+
 		-- SUB PERSONA
 		if subp
 			v.drawFill(min(62+37 - i*20, -256 + ((postt-4)*32)), 102+bary+5 + 20*i, 79, 5, (mo.level == mo.levelcap and 54 or 31)|V_SNAPTOTOP)
@@ -2891,9 +2958,9 @@ rawset(_G, "drawBattleEnd", function(v, btl)
 				v.drawFill(min(62+37 - i*20, -256 + ((postt-4)*32)), 102+bary+5 + 20*i, btl.r_subprecalculates[i+1][1]*79/xpt[subp.level], 4, 62|V_SNAPTOTOP)
 			end
 
-			v.drawFill(min(62+37 - i*20, -256 + ((postt-4)*32)), 102+bary+5 + 20*i, subp.exp*79/xpt[subp.level], 4, 54|V_SNAPTOTOP)			
+			v.drawFill(min(62+37 - i*20, -256 + ((postt-4)*32)), 102+bary+5 + 20*i, subp.exp*79/xpt[subp.level], 4, 54|V_SNAPTOTOP)
 		end
-		
+
 		-- exp window:
 		PDraw(v, min(62 - i*20, -256 + ((postt-4)*32)), 100 + 20*i, v.cachePatch(subp and "H_EXP2" or "H_EXP"), V_SNAPTOTOP)
 
@@ -2901,12 +2968,12 @@ rawset(_G, "drawBattleEnd", function(v, btl)
 		V_drawString(v, min(62 -i*20 + 10, -100 + (postt-4)*32), 100 + 6 + 20*i, party[i+1].level, "FPNUM", V_SNAPTOTOP, nil, 135, 31)
 
 		-- draw exp #:
-		
+
 		V_drawString(v, min(62+37 + 40 -i*20, -100 + (postt-4)*32), 102+bary-2 + 20*i, mo.exp.."/"..xpt[mo.level], "FSNUM", V_SNAPTOTOP, "center", 0, 31)
 		if subp
 			V_drawString(v, min(62+37 + 40 -i*20, -100 + (postt-4)*32), 102+bary-2+5 + 20*i, subp.exp.."/"..xpt[subp.level], "FSNUM", V_SNAPTOTOP, "center", 0, 31)
-		end	
-		
+		end
+
 		--V_drawString(v, min(148 -i*20, -100 + (postt-4)*32), 107 + 20*i, mo.level >= mo.levelcap and "" or tostring(party[i+1].exp), "FSNUM", V_SNAPTOTOP|V_MONOSPACE, "right", 0, nil)	-- curr exp
 		--V_drawString(v, min(165 -i*20, -100 + (postt-4)*32), 107 + 20*i, mo.level < mo.levelcap and xpt[party[i+1].level] or "MAX", "FSNUM", V_SNAPTOTOP|V_MONOSPACE, nil, 0, nil)
 
@@ -2920,7 +2987,7 @@ rawset(_G, "drawBattleEnd", function(v, btl)
 			v.drawScaled(x, (112 + 20*i)<<FRACBITS, FRACUNIT/10, v.cachePatch(frame), V_SNAPTOTOP)
 		end
 	end
-	
+
 	-- potential reserve members:
 	local rx = 10
 	local ry = 180
@@ -2928,13 +2995,13 @@ rawset(_G, "drawBattleEnd", function(v, btl)
 		local mo = server.plreserve[i]
 		local patch = charStats[mo.stats].icon
 		local basex = min(rx, -100 + (postt-4)*32)
-		
+
 		v.draw(basex, ry-2, v.cachePatch(patch), V_SNAPTOBOTTOM, v.getColormap(TC_DEFAULT, mo.color))
 		V_drawString(v, basex+18, ry, "Lv"..mo.level, "NFNT", V_SNAPTOBOTTOM, nil, 0, 31)
-		
+
 		v.drawFill(basex, ry+12, 33, 2, 31|V_SNAPTOBOTTOM)
 		v.drawFill(basex, ry+12, mo.exp*32/xpt[mo.level], 1, 54|V_SNAPTOBOTTOM)
-		
+
 		rx = $ + 20
 	end
 
@@ -2977,14 +3044,14 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 			break
 		end
 	end
-	
-	local subp = battle.r_sublevelupqueue[pnum][1]		
+
+	local subp = battle.r_sublevelupqueue[pnum][1]
 	local mo
 	for i = 1, #server.plentities[pnum]
 		if server.plentities[pnum][i].subpersona == subp
 			mo = server.plentities[pnum][i]
 			break
-		end	
+		end
 	end
 
 	if not mo	-- go back to normal drawer.
@@ -2993,12 +3060,12 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 
 	local mynum
 	for i = 1, #server.plentities[mo.battlen]
-		if server.plentities[mo.battlen][i] == mo 
+		if server.plentities[mo.battlen][i] == mo
 			mynum = i
 			break
 		end
 	end
-	
+
 	local timer = TICRATE*2/3 - mo.r_levelupenter
 
 	if timer >= TICRATE*2/3
@@ -3016,21 +3083,21 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 	local sprname = sprnames[subp_c.sprite]
 	local sprframe = string.char((subp_c.frame & FF_FRAMEMASK) + 65)
 	local patch = v.cachePatch(sprname..sprframe.."0")	-- eg: SUBPA0
-	
+
 	local dx = 45
-		
+
 	PDraw(v, dx+20, 4, v.cachePatch("H_SUBP"), V_30TRANS)
-		
+
 	PDraw(v, dx, 84, cardpatch)
-	PDraw(v, dx, 84, patch)	
-	
+	PDraw(v, dx, 84, patch)
+
 	V_drawString(v, dx + 40, 4, subp.ref.name:upper().." LV"..subp.level, "FPIMP", 0, nil, 0, 31)
-		
-	PDraw(v, dx + 40, 16, v.cachePatch("ARCANA"..subp_c.arcana))	
+
+	PDraw(v, dx + 40, 16, v.cachePatch("ARCANA"..subp_c.arcana))
 
 	-- now draw stat bonuses and disadvantages:
 	local stats_subp = {"st", "ma", "en", "ag", "lu"}
-		
+
 	local dy = 28
 	for i = 1, #stats_subp
 		V_drawString(v, dx + 40, dy, stats_subp[i]:upper(), "NFNT", 0, nil, 0, 31)
@@ -3060,7 +3127,7 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 		V_drawString(v, dx + 60, dy, str, "NFNT", 0, nil, 0, 31)
 		dy = $ + 10
 	end
-		
+
 	-- EXP
 	if srb2p.storymode
 		local expt = getEXPTable()
@@ -3068,20 +3135,20 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 		v.drawFill(dx + 40, dy+9, subp.exp*63 / expt[subp.level], 1, 54)
 		V_drawString(v, dx + 40, dy, "NEXT LV:"..(expt[subp.level]-subp.exp), "NFNT", 0, nil, 0, 31)
 	end
-	
+
 	--V_drawString(v, 160, 100, subp.name, "NFNT", 0, "center", 0, 31)
 
 	-- And now the skills!
-		
+
 	local sx = dx + 120
 	local sy = 16 + 12*7
-		
+
 	-- show next skill
 	local ndata
-		
+
 	if battle.r_subnewskillsqueue and battle.r_subnewskillsqueue[mynum] and battle.r_subnewskillsqueue[mynum][1]
 		ndata = {battle.r_subnewskillsqueue[mynum][1][1], battle.r_subnewskillsqueue[mynum][1][2]}
-	else	
+	else
 		for i = 1, #subp_c.skills
 			local sk = subp_c.skills[i]
 			if type(sk) == "table"
@@ -3090,12 +3157,12 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 				break
 			end
 		end
-	end	
-		
+	end
+
 	if ndata
 		V_drawString(v, sx, dy+12, "NEXT (LV"..ndata[2]..")", "NFNT", 0, nil, 0, 31)
 	end
-		
+
 	local i = 7
 	while i
 		local w = 64
@@ -3104,7 +3171,7 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 		local c2 = 31
 		local candesc
 		local desc
-			
+
 		local a = subp.skills[i]
 		if i == 7
 			if ndata
@@ -3115,36 +3182,36 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 				continue
 			end
 		end
-			
+
 		v.drawFill(sx, sy, w, h,  (not ((i == mo.newskillnum or i == mo.r_forgetselect or (i == 7 and mo.r_forgetselect)) and leveltime%4 < 2) and 135 or 0))
 
 		local aname = a
-			
+
 		if a
 			local atk = attackDefs[a]
 			local atype
-				
-				
+
+
 			if atk
 				aname = atk.name
 				if atk.type & ATK_PASSIVE
 					atype = 15
-				else	
+				else
 					atype = atk_constant_2_num[atk.type]
 				end
-					
-				desc = atk.desc	
-			end	
-				
+
+				desc = atk.desc
+			end
+
 			if atype
 				v.drawScaled(sx*FRACUNIT, (sy+1)*FRACUNIT, FRACUNIT/4, v.cachePatch("ATK_"..atype))
 				v.drawIndex(sx*FRACUNIT, (sy+1)*FRACUNIT, FRACUNIT/4, v.cachePatch("H_ELMF3"), 0, (not ((i == mo.newskillnum or i == mo.r_forgetselect or (i == 7 and mo.r_forgetselect)) and leveltime%4 < 2) and 135 or 0))
 			end
-								
+
 		else
 			aname = "/"
 		end
-			
+
 		V_drawString(v, sx+32, sy + 2, aname, aname:len() <= 10 and "NFNT" or "TFNT", 0, "center", c2)
 
 		-- we have to forget a skill? Draw the properties of this skill here.
@@ -3164,14 +3231,14 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 
 		if i == 7
 			sy = $-12
-		end	
-			
+		end
+
 		i = $-1
 		sy = $ - 12
 
-			
+
 	end
-	
+
 	if mo.r_askconfirm
 		V_drawString(v, 20, 110, "Are you sure?\nThis cannot be undone.\n".."\x90".."Forget\n".."\x91".."Back", "NFNT", V_SNAPTOBOTTOM|V_SNAPTOLEFT, nil, 0, 31)
 	elseif mo.r_forgetselect
@@ -3188,7 +3255,7 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 			loc_trns = 0
 		end
 	end
-	
+
 	return true
 end)
 
@@ -3222,17 +3289,17 @@ rawset(_G, "drawLevelUp", function(v, p, battle)
 			return	-- uh this shouldn't happen
 		end
 	end
-	
+
 	local mo = battle.r_levelupqueue[pnum][1]
 
 	if not mo
-		
+
 		-- level up queue done, check if we have subps to level up!
 		if battle.r_sublevelupqueue[pnum][1]
 		and drawSubLevelUp(v, p, battle)
 			return
-		end	
-		
+		end
+
 		drawWaitScreen(v, netgame, LEVELWAITSTRING)
 		return
 	end
@@ -3240,7 +3307,7 @@ rawset(_G, "drawLevelUp", function(v, p, battle)
 	local mynum
 	if mo.battlen	-- in-battle entity
 		for i = 1, #server.plentities[mo.battlen]
-			if server.plentities[mo.battlen][i] == mo 
+			if server.plentities[mo.battlen][i] == mo
 				mynum = i
 				break
 			end
@@ -3456,13 +3523,13 @@ end)
 -- draw battle finish wipe
 rawset(_G, "drawFinish", function(v, battle)
 	local timer = battle.r_wipe
-	
+
 	-- if the event must fade in post battle, don't do that.
 	local evt_buf = battle.event_buf
 	if evt_buf and eventList[evt_buf] and eventList[evt_buf].fadein
 		timer = 999
-	end	
-	
+	end
+
 	v.drawFill(0, 0, 20*timer, 500, 31|V_SNAPTOTOP|V_SNAPTOLEFT)
 end)
 

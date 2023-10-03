@@ -1129,6 +1129,112 @@ rawset(_G, "attackDefs", {
 				end
 		end,
 	},
+	
+	-- @TODO: Animation
+	["derail"] = {
+		name = "Derail",
+		type = ATK_SUPPORT,
+		power = 0,
+		costtype = CST_SP,
+		accuracy = 999,
+		cost = 12,
+		desc = "Inflicts Target Lock for 2 turns,\nbut raises the target's Physical\nand Magic Attack by 1 stage.",
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+				local target = hittargets[1]
+
+				if timer == 10
+					playSound(mo.battlen, sfx_absorb)
+				end
+
+				if timer <= 30
+					local thok = P_SpawnMobj(target.x+P_RandomRange(-70, 70)*FRACUNIT, target.y+P_RandomRange(-70, 70)*FRACUNIT, target.z+P_RandomRange(0, 50)*FRACUNIT, MT_DUMMY)
+					thok.state = S_CDUST1
+					thok.momz = P_RandomRange(3, 10)*FRACUNIT
+					thok.color = SKINCOLOR_RED
+					thok.tics = P_RandomRange(10, 35)
+					thok.scale = FRACUNIT*3/2
+				end
+
+				if timer == 20
+					--damageObject(target)
+					inflictTargetLock(target, mo, 2)
+					buffStat(target, "atk")
+					buffStat(target, "mag")
+					BTL_logMessage(mo.battlen, "Target lock, Phys & Magic Attack up.")
+					
+					
+				elseif timer == 42
+					return true
+				end
+		end,
+	},
+
+	["respite"] = {
+		name = "Respite",
+		type = ATK_SUPPORT,
+		power = 0,
+		costtype = CST_SP,
+		accuracy = 999,
+		cost = 4,
+		desc = "Reduces the enemy's Hatred towards you,\nmaking them target the 2nd member in the list.\nCannot be used if you are not being targetted.",
+		target = TGT_ENEMY,
+		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
+						local target = targets[n]
+						local battle = server.P_BattleStatus[target.battlen]
+						local mo = battle.turnorder[1]
+						local allies = mo.allies
+						
+						if #allies <= 1
+							BTL_logMessage(target.battlen, "No one else in the party.")
+							return true						
+						end
+						
+						if BTL_enemyGetAggroTarget(target) ~= mo
+							BTL_logMessage(target.battlen, "Not being targetted.")
+							return true
+						end
+					end,		
+		anim = function(mo, targets, hittargets, timer)
+				local target = hittargets[1]
+
+				if timer == 10
+					playSound(mo.battlen, sfx_absorb)
+				end
+
+				if timer <= 30
+					local thok = P_SpawnMobj(target.x+P_RandomRange(-70, 70)*FRACUNIT, target.y+P_RandomRange(-70, 70)*FRACUNIT, target.z+P_RandomRange(0, 50)*FRACUNIT, MT_DUMMY)
+					thok.state = S_CDUST1
+					thok.momz = P_RandomRange(3, 10)*FRACUNIT
+					thok.color = SKINCOLOR_BLUE
+					thok.tics = P_RandomRange(10, 35)
+					thok.scale = FRACUNIT*3/2
+				end
+
+				if timer == 20
+					-- get the person 2nd in the aggro list
+					-- set our own aggro to be that -1
+					-- if THEIR aggro is 0, set it to 1.
+					
+					local l = BTL_enemyOrderedAggroList(target)
+					local aggro1 = target.aggro_list[l[1]]
+					local aggro2 = target.aggro_list[l[2]]
+					
+					if aggro2 == 0
+						BTL_enemySetAggro(target, l[1], 0)
+						BTL_enemySetAggro(target, l[2], 1)
+					else
+						BTL_enemySetAggro(target, l[1], aggro2-1)
+					end
+
+					BTL_logMessage(mo.battlen, "Hatred level lowered.")
+					
+					
+				elseif timer == 42
+					return true
+				end
+		end,
+	},
 
 	["provoke"] = {
 		name = "Provoke",
@@ -2478,6 +2584,19 @@ rawset(_G, "attackDefs", {
 	},
 
 	-- SPECIAL:
+
+	["defiance"] = {
+		name = "Defiance",
+		type = ATK_PASSIVE,
+		desc = "Boost damage by 20% against\nenemies targetting you.",
+		passive = PSV_TRIGGERDAMAGE,
+		anim = 	function(mo, target, dmg, crit)
+					if target.aggro_list and BTL_enemyGetAggroTarget(target) == mo
+						dmg = $*120/100
+					end
+					return dmg
+				end,
+	},
 
 	-- firm stance: 0% dodge part
 	["firm stance"] = {
@@ -8502,6 +8621,382 @@ rawset(_G, "attackDefs", {
 		end,
 	},
 
+	-- hammer hit line
+	["hammer hit"] = {
+		name = "Hammer Hit",
+		type = ATK_STRIKE,
+		power = 65,
+		accuracy = 99,
+		costtype = CST_HPPERCENT,
+		technical = COND_FREEZE,
+		cost = 5,
+		critical = 5,
+		desc = "Light Strike damage to \none enemy.\n400% Hatred generation.",
+		aggrofactor = FRACUNIT*4,
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			if timer == 20
+				damageObject(target)
+				playSound(mo.battlen, sfx_pstop)
+
+				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
+				d.sprite = SPR_THMP
+				d.frame = B|FF_FULLBRIGHT
+				d.scale = FRACUNIT/4
+				d.destscale = FRACUNIT*3
+				d.scalespeed = FRACUNIT/8
+				d.fuse = TICRATE-10
+				d.tics = d.fuse
+				d.momz = FRACUNIT*2
+				d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.color = SKINCOLOR_ORANGE
+
+				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				ol.sprite = SPR_NTHK
+				ol.color = SKINCOLOR_GREY
+				ol.scale = 1
+				ol.destscale = FRACUNIT*32
+				ol.scalespeed = FRACUNIT/5
+				ol.frame = B|FF_FULLBRIGHT
+				ol.tics = 20
+
+				if not target.plyr
+					createSplat(mo)
+					createSplat(mo)
+				end
+				localquake(mo.battlen, FRACUNIT*10, 10)
+				for i=1,16
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_DUMMY)
+					b.momx = P_RandomRange(-8, 8)*FRACUNIT
+					b.momy = P_RandomRange(-8, 8)*FRACUNIT
+					b.momz = P_RandomRange(-8, 8)*FRACUNIT
+					b.state = S_AOADUST1
+					b.frame = A|FF_FULLBRIGHT
+					b.scale = FRACUNIT*3
+					b.destscale = FRACUNIT/12
+				end
+			
+			elseif timer >= 35 and timer <= 45
+			and timer %5 == 0
+				local x = target.x + P_RandomRange(-128, 128)*mo.scale
+				local y = target.y + P_RandomRange(-128, 128)*mo.scale
+				local z = target.z + P_RandomRange(64, 128)*mo.scale
+				
+				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
+				rage.sprite = SPR_TSUN
+				rage.frame = A
+				rage.scale = 1
+				rage.fuse = TICRATE/2
+				rage.destscale = FRACUNIT
+				rage.renderflags = $|RF_NOCLORMAPS
+				rage.scalespeed = FRACUNIT/4
+				rage.tics = TICRATE/2
+			end
+			
+			if timer == 55
+				return true
+			end
+		end,
+	},
+
+	["hammer bash"] = {
+		name = "Hammer Bash",
+		type = ATK_STRIKE,
+		power = 165,
+		accuracy = 99,
+		costtype = CST_HPPERCENT,
+		technical = COND_FREEZE,
+		cost = 8,
+		critical = 5,
+		desc = "Medium Strike damage to \none enemy.\n400% Hatred generation.",
+		aggrofactor = FRACUNIT*4,
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			if timer == 20
+				
+				playSound(mo.battlen, sfx_s3k5d)
+				
+
+				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				ol.sprite = SPR_NTHK
+				ol.color = SKINCOLOR_GREY
+				ol.scale = 1
+				ol.destscale = FRACUNIT*32
+				ol.scalespeed = FRACUNIT/5
+				ol.frame = B|FF_FULLBRIGHT
+				ol.tics = 20				
+
+				for i=1,8
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
+					b.momx = P_RandomRange(-8, 8)*FRACUNIT
+					b.momy = P_RandomRange(-8, 8)*FRACUNIT
+					b.momz = P_RandomRange(-8, 8)*FRACUNIT
+					b.scale = FRACUNIT
+					b.destscale = FRACUNIT/12
+				end
+			
+			elseif timer == 35
+				
+				damageObject(target)
+				playSound(mo.battlen, sfx_s3k9b)
+
+				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
+				d.sprite = SPR_THMP
+				d.frame = B|FF_FULLBRIGHT
+				d.scale = FRACUNIT/4
+				d.destscale = FRACUNIT*3
+				d.scalespeed = FRACUNIT/8
+				d.fuse = TICRATE-10
+				d.tics = d.fuse
+				d.momz = FRACUNIT*2
+				d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.color = SKINCOLOR_ORANGE
+
+
+				if not target.plyr
+					createSplat(mo)
+					createSplat(mo)
+				end
+				localquake(mo.battlen, FRACUNIT*30, 10)
+				for i=1,24
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_DUMMY)
+					b.momx = P_RandomRange(-16, 16)*FRACUNIT
+					b.momy = P_RandomRange(-16, 16)*FRACUNIT
+					b.momz = P_RandomRange(-16, 16)*FRACUNIT
+					b.state = S_AOADUST1
+					b.frame = A|FF_FULLBRIGHT
+					b.scale = FRACUNIT*3
+					b.destscale = FRACUNIT/12
+				end
+			
+			elseif timer >= 45 and timer <= 55
+			and timer %5 == 0
+				local x = target.x + P_RandomRange(-128, 128)*mo.scale
+				local y = target.y + P_RandomRange(-128, 128)*mo.scale
+				local z = target.z + P_RandomRange(64, 128)*mo.scale
+				
+				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
+				rage.sprite = SPR_TSUN
+				rage.frame = A
+				rage.scale = 1
+				rage.fuse = TICRATE/2
+				rage.renderflags = $|RF_NOCLORMAPS
+				rage.destscale = FRACUNIT*2
+				rage.scalespeed = FRACUNIT/4
+				rage.tics = TICRATE/2
+			end
+			
+			if timer == 65
+				return true
+			end
+		end,
+	},
+
+	["hammer crush"] = {
+		name = "Hammer Crush",
+		type = ATK_STRIKE,
+		power = 380,
+		accuracy = 99,
+		costtype = CST_HPPERCENT,
+		technical = COND_FREEZE,
+		cost = 12,
+		critical = 5,
+		desc = "Heavy Strike damage to \none enemy.\n400% Hatred generation.",
+		aggrofactor = FRACUNIT*4,
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			if timer == 20
+				playSound(mo.battlen, sfx_s3k5d)
+				
+
+				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				ol.sprite = SPR_NTHK
+				ol.color = SKINCOLOR_GREY
+				ol.scale = 1
+				ol.destscale = FRACUNIT*32
+				ol.scalespeed = FRACUNIT/5
+				ol.frame = B|FF_FULLBRIGHT
+				ol.tics = 20				
+
+				for i=1,8
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
+					b.momx = P_RandomRange(-8, 8)*FRACUNIT
+					b.momy = P_RandomRange(-8, 8)*FRACUNIT
+					b.momz = P_RandomRange(-8, 8)*FRACUNIT
+					b.scale = FRACUNIT
+					b.destscale = FRACUNIT/12
+				end
+			
+			elseif timer == 35
+				
+				damageObject(target)
+				playSound(mo.battlen, sfx_s3k9b)
+
+				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
+				d.sprite = SPR_THMP
+				d.frame = B|FF_FULLBRIGHT
+				d.scale = FRACUNIT/4
+				d.destscale = FRACUNIT*3
+				d.scalespeed = FRACUNIT/8
+				d.fuse = TICRATE-10
+				d.tics = d.fuse
+				d.momz = FRACUNIT*2
+				d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.color = SKINCOLOR_ORANGE
+
+
+				if not target.plyr
+					createSplat(mo)
+					createSplat(mo)
+				end
+				localquake(mo.battlen, FRACUNIT*40, 10)
+				for i=1,24
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_DUMMY)
+					b.momx = P_RandomRange(-16, 16)*FRACUNIT
+					b.momy = P_RandomRange(-16, 16)*FRACUNIT
+					b.momz = P_RandomRange(-16, 16)*FRACUNIT
+					b.state = S_AOADUST1
+					b.frame = A|FF_FULLBRIGHT
+					b.scale = FRACUNIT*3
+					b.destscale = FRACUNIT/12
+				end
+			
+			elseif timer >= 45 and timer <= 55
+			and timer %5 == 0
+				local x = target.x + P_RandomRange(-128, 128)*mo.scale
+				local y = target.y + P_RandomRange(-128, 128)*mo.scale
+				local z = target.z + P_RandomRange(64, 128)*mo.scale
+				
+				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
+				rage.sprite = SPR_TSUN
+				rage.frame = A
+				rage.scale = 1
+				rage.fuse = TICRATE/2
+				rage.destscale = FRACUNIT*2
+				rage.renderflags = $|RF_NOCLORMAPS
+				rage.scalespeed = FRACUNIT/4
+				rage.tics = TICRATE/2
+			end
+			
+			if timer == 65
+				return true
+			end
+		end,
+	},
+
+	["hammer detonation"] = {
+		name = "Hammer Detonation",
+		type = ATK_STRIKE,
+		power = 600,
+		accuracy = 99,
+		costtype = CST_HPPERCENT,
+		technical = COND_FREEZE,
+		cost = 15,
+		critical = 5,
+		desc = "Severe Strike damage to \none enemy.\n400% Hatred generation.",
+		aggrofactor = FRACUNIT*4,
+		target = TGT_ENEMY,
+		anim = function(mo, targets, hittargets, timer)
+			local target = hittargets[1]
+
+			if timer == 20
+				playSound(mo.battlen, sfx_s3k5d)
+				
+
+				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+				ol.sprite = SPR_NTHK
+				ol.color = SKINCOLOR_GREY
+				ol.scale = 1
+				ol.destscale = FRACUNIT*32
+				ol.scalespeed = FRACUNIT/5
+				ol.frame = B|FF_FULLBRIGHT
+				ol.tics = 20				
+
+				for i=1,8
+					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
+					b.momx = P_RandomRange(-8, 8)*FRACUNIT
+					b.momy = P_RandomRange(-8, 8)*FRACUNIT
+					b.momz = P_RandomRange(-8, 8)*FRACUNIT
+					b.scale = FRACUNIT
+					b.destscale = FRACUNIT/12
+				end
+			
+			elseif timer == 35
+				
+				damageObject(target)
+				playSound(mo.battlen, sfx_s3k9b)
+
+				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
+				d.sprite = SPR_THMP
+				d.frame = B|FF_FULLBRIGHT
+				d.scale = FRACUNIT/4
+				d.destscale = FRACUNIT*3
+				d.scalespeed = FRACUNIT/8
+				d.fuse = TICRATE-10
+				d.tics = d.fuse
+				d.momz = FRACUNIT*2
+				d.momx = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
+				d.color = SKINCOLOR_ORANGE
+
+
+				if not target.plyr
+					createSplat(mo)
+					createSplat(mo)
+				end
+				localquake(mo.battlen, FRACUNIT*40, 10)
+				for i=1,16
+					local b = P_SpawnMobj(target.x, target.y, target.z+2*FRACUNIT, MT_DUMMY)
+					b.momx = P_RandomRange(-3, 3)*FRACUNIT
+					b.momy = P_RandomRange(-3, 3)*FRACUNIT
+					b.momz = P_RandomRange(4, 16)*FRACUNIT
+					b.state = S_AOADUST1
+					b.frame = A|FF_FULLBRIGHT
+					b.scale = FRACUNIT*3
+					b.destscale = FRACUNIT/12
+				end
+				for i = 1,32
+					local dust = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
+					dust.angle = ANGLE_90 + ANG1* (11*(i-1))
+					dust.destscale = FRACUNIT*10
+					dust.state = S_AOADUST1
+					dust.frame = A|FF_FULLBRIGHT
+					P_InstaThrust(dust, dust.angle, 20*FRACUNIT)
+				end
+			
+			elseif timer >= 45 and timer <= 55
+			and timer %5 == 0
+				local x = target.x + P_RandomRange(-128, 128)*mo.scale
+				local y = target.y + P_RandomRange(-128, 128)*mo.scale
+				local z = target.z + P_RandomRange(64, 128)*mo.scale
+				
+				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
+				rage.sprite = SPR_TSUN
+				rage.frame = A
+				rage.scale = 1
+				rage.fuse = TICRATE/2
+				rage.destscale = FRACUNIT*2
+				rage.renderflags = $|RF_NOCLORMAPS
+				rage.scalespeed = FRACUNIT/4
+				rage.tics = TICRATE/2
+			end
+			
+			if timer == 65
+				return true
+			end
+		end,
+	},
+
+	-- teardrop line
 	["teardrop"] = {
 		name = "Teardrop",
 		type = ATK_STRIKE,
@@ -9913,7 +10408,7 @@ rawset(_G, "attackDefs", {
 	["mapsi"] = {
 		name = "Mapsi",
 		type = ATK_PSY,
-		power = 60,
+		power = 40,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -10062,7 +10557,7 @@ rawset(_G, "attackDefs", {
 	["mapsio"] = {
 		name = "Mapsio",
 		type = ATK_PSY,
-		power = 140,
+		power = 95,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -10272,7 +10767,7 @@ rawset(_G, "attackDefs", {
 	["mapsiodyne"] = {
 		name = "Mapsiodyne",
 		type = ATK_PSY,
-		power = 350,
+		power = 240,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -11683,7 +12178,7 @@ rawset(_G, "attackDefs", {
 	["makouha"] = {
 		name = "Makouha",
 		type = ATK_BLESS,
-		power = 75,
+		power = 50,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -11787,7 +12282,7 @@ rawset(_G, "attackDefs", {
 	["makouga"] = {
 		name = "Makouga",
 		type = ATK_BLESS,
-		power = 170,
+		power = 110,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -11906,7 +12401,7 @@ rawset(_G, "attackDefs", {
 	["makougaon"] = {
 		name = "Makougaon",
 		type = ATK_BLESS,
-		power = 400,
+		power = 280,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -12039,7 +12534,7 @@ rawset(_G, "attackDefs", {
 	["maeiha"] = {
 		name = "Maeiha",
 		type = ATK_CURSE,
-		power = 75,
+		power = 50,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -12196,7 +12691,7 @@ rawset(_G, "attackDefs", {
 	["maeiga"] = {
 		name = "Maeiga",
 		type = ATK_CURSE,
-		power = 170,
+		power = 110,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -12439,7 +12934,7 @@ rawset(_G, "attackDefs", {
 	["maeigaon"] = {
 		name = "Maeigaon",
 		type = ATK_CURSE,
-		power = 400,
+		power = 280,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -12710,7 +13205,7 @@ rawset(_G, "attackDefs", {
 	["mafreidyne"] = {
 		name = "Mafreidyne",
 		type = ATK_NUCLEAR,
-		power = 350,
+		power = 240,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -12908,7 +13403,7 @@ rawset(_G, "attackDefs", {
 	["mafreila"] = {
 		name = "Mafreila",
 		type = ATK_NUCLEAR,
-		power = 140,
+		power = 95,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -13083,7 +13578,7 @@ rawset(_G, "attackDefs", {
 	["mafrei"] = {
 		name = "Mafrei",
 		type = ATK_NUCLEAR,
-		power = 60,
+		power = 40,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -13410,7 +13905,7 @@ rawset(_G, "attackDefs", {
 	["magarudyne"] = {
 		name = "Magarudyne",
 		type = ATK_WIND,
-		power = 350,
+		power = 240,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 18,
@@ -13467,7 +13962,7 @@ rawset(_G, "attackDefs", {
 	["magarula"] = {
 		name = "Magarula",
 		type = ATK_WIND,
-		power = 140,
+		power = 95,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 12,
@@ -13521,7 +14016,7 @@ rawset(_G, "attackDefs", {
 	["magaru"] = {
 		name = "Magaru",
 		type = ATK_WIND,
-		power = 60,
+		power = 40,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 6,
@@ -14158,7 +14653,7 @@ rawset(_G, "attackDefs", {
 	},
 
 	["amy_atk1"] = {
-		name = "Hammer Hit",
+		name = "Hammer Jump",
 		type = ATK_STRIKE,
 		power = 45,
 		accuracy = 85,
@@ -15244,9 +15739,9 @@ rawset(_G, "attackDefs", {
 		type = ATK_HEAL,
 		costtype = CST_SP,
 		cost = 4,
-		power = 50,
+		power = 45,
 		rank = 1,
-		desc = "Slight HP recovery to one ally",
+		desc = "Low HP recovery to one ally",
 		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
 						local target = targets[n]
 						if target.hp >= target.maxhp
@@ -15306,9 +15801,9 @@ rawset(_G, "attackDefs", {
 
 			elseif timer == 70
 				P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
-				local heals = P_RandomRange(50, 60)
+				local heals = getHealing(target, mo)
 				playSound(mo.battlen, sfx_heal)
-				damageObject(target, -heals)
+				damageObject(target, heals)
 			elseif timer == 120
 				return true
 			end
@@ -15320,8 +15815,8 @@ rawset(_G, "attackDefs", {
 		type = ATK_HEAL,
 		costtype = CST_SP,
 		cost = 8,
-		power = 50,
-		desc = "Slight HP recovery to all allies",
+		power = 25,
+		desc = "Very low HP recovery to all allies",
 		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
 						local noheal = 0
 						for i = 1, #targets
@@ -15384,9 +15879,9 @@ rawset(_G, "attackDefs", {
 
 				elseif time == 70
 					P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
-					local heals = P_RandomRange(50, 60)
+					local heals = getHealing(target, mo)
 					playSound(mo.battlen, sfx_heal)
-					damageObject(target, -heals)
+					damageObject(target, heals)
 				end
 			end
 
@@ -15401,7 +15896,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_HEAL,
 		costtype = CST_SP,
 		cost = 8,
-		power = 150,
+		power = 140,
 		desc = "Moderate HP recovery to one ally",
 		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
 						local target = targets[n]
@@ -15455,9 +15950,9 @@ rawset(_G, "attackDefs", {
 
 			elseif timer == 70
 				P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
-				local heals = P_RandomRange(150, 160)
+				local heals = getHealing(target, mo)
 				playSound(mo.battlen, sfx_heal2)
-				damageObject(target, -heals)
+				damageObject(target, heals)
 			elseif timer == 120
 				return true
 			end
@@ -15469,7 +15964,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_HEAL,
 		costtype = CST_SP,
 		cost = 16,
-		power = 150,
+		power = 90,
 		desc = "Moderate HP recovery to all allies",
 		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
 						local noheal = 0
@@ -15531,9 +16026,9 @@ rawset(_G, "attackDefs", {
 
 				elseif time == 70
 					P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
-					local heals = P_RandomRange(150, 160)
+					local heals = getHealing(target, mo)
 					playSound(mo.battlen, sfx_heal2)
-					damageObject(target, -heals)
+					damageObject(target, heals)
 				end
 			end
 
@@ -15548,8 +16043,8 @@ rawset(_G, "attackDefs", {
 		type = ATK_HEAL,
 		costtype = CST_SP,
 		cost = 16,
-		power = 999,
-		desc = "Full HP recovery to one ally",
+		power = 300,
+		desc = "High HP recovery to one ally",
 		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
 						local target = targets[n]
 						if target.hp >= target.maxhp
@@ -15602,9 +16097,9 @@ rawset(_G, "attackDefs", {
 
 			elseif timer == 70
 				P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
-				local heals = target.maxhp
+				local heals = getHealing(target, mo)
 				playSound(mo.battlen, sfx_heal3)
-				damageObject(target, -heals)
+				damageObject(target, heals)
 			elseif timer == 120
 				return true
 			end
@@ -15616,8 +16111,8 @@ rawset(_G, "attackDefs", {
 		type = ATK_HEAL,
 		costtype = CST_SP,
 		cost = 32,
-		power = 999,
-		desc = "Full HP recovery to all allies",
+		power = 180,
+		desc = "High HP recovery to all allies",
 		nocast = 	function(targets, n)	-- we can't cast this skill if this function returns true
 						local noheal = 0
 						for i = 1, #targets
@@ -15680,9 +16175,9 @@ rawset(_G, "attackDefs", {
 
 				elseif time == 70
 					P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
-					local heals = target.maxhp
+					local heals = getHealing(target, mo)
 					playSound(mo.battlen, sfx_heal3)
-					damageObject(target, -heals)
+					damageObject(target, heals)
 				end
 			end
 
@@ -15855,7 +16350,7 @@ rawset(_G, "attackDefs", {
 	["mazio"] = {
 		name = "Mazio",
 		type = ATK_ELEC,
-		power = 60,
+		power = 40,
 		accuracy = 90,
 		costtype = CST_SP,
 		status = COND_SHOCK,
@@ -15957,7 +16452,7 @@ rawset(_G, "attackDefs", {
 	["mazionga"] = {
 		name = "Mazionga",
 		type = ATK_ELEC,
-		power = 140,
+		power = 95,
 		accuracy = 90,
 		costtype = CST_SP,
 		status = COND_SHOCK,
@@ -16050,7 +16545,7 @@ rawset(_G, "attackDefs", {
 	["maziodyne"] = {
 		name = "Maziodyne",
 		type = ATK_ELEC,
-		power = 350,
+		power = 240,
 		accuracy = 90,
 		costtype = CST_SP,
 		status = COND_SHOCK,
@@ -17332,7 +17827,7 @@ rawset(_G, "attackDefs", {
 	["maragidyne"] = {
 		name = "Maragidyne",
 		type = ATK_FIRE,
-		power = 350,
+		power = 240,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,
@@ -17390,7 +17885,7 @@ rawset(_G, "attackDefs", {
 	["maragion"] = {
 		name = "Maragion",
 		type = ATK_FIRE,
-		power = 140,
+		power = 95,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -17442,7 +17937,7 @@ rawset(_G, "attackDefs", {
 	["maragi"] = {
 		name = "Maragi",
 		type = ATK_FIRE,
-		power = 60,
+		power = 40,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -17626,7 +18121,7 @@ rawset(_G, "attackDefs", {
 	["mabufu"] = {
 		name = "Mabufu",
 		type = ATK_ICE,
-		power = 60,
+		power = 40,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 8,
@@ -17794,7 +18289,7 @@ rawset(_G, "attackDefs", {
 	["mabufula"] = {
 		name = "Mabufula",
 		type = ATK_ICE,
-		power = 140,
+		power = 95,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 16,
@@ -17970,7 +18465,7 @@ rawset(_G, "attackDefs", {
 	["mabufudyne"] = {
 		name = "Mabufudyne",
 		type = ATK_ICE,
-		power = 350,
+		power = 240,
 		accuracy = 90,
 		costtype = CST_SP,
 		cost = 24,

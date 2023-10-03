@@ -425,6 +425,71 @@ rawset(_G, "BTL_initEnemyAnimsPlayer", function(mo)
 	ANIM_set(mo, mo.anim_stand, true)
 end)
 
+rawset(_G, "BTL_initEnemyAggro", function(mo)
+	local en = mo.enemies
+	
+	mo.aggro_list = {}
+	
+	for i = 1, #en
+		mo.aggro_list[en[i]] = P_RandomRange(90, 110)	-- random aggro start.
+	end
+end)
+
+rawset(_G, "BTL_enemySetAggro", function(mo, target, value)
+	mo.aggro_list[target] = value	
+	
+	-- dbg:
+	local l = BTL_enemyOrderedAggroList(mo)
+	
+	/*print("AGGRO")
+	for i = 1, #l
+		--print(l[i].name)
+		--print(mo.aggro_list[l[i]])
+		print(l[i].name..": "..mo.aggro_list[l[i]].."%")
+	end	
+	print("----")*/
+end)
+
+rawset(_G, "BTL_enemyChangeAggro", function(mo, target, value)
+	mo.aggro_list[target] = max(5, $ + value)
+	
+	-- dbg:
+	local l = BTL_enemyOrderedAggroList(mo)
+	
+	/*print("AGGRO")
+	for i = 1, #l
+		--print(l[i].name)
+		--print(mo.aggro_list[l[i]])
+		print(l[i].name..": "..mo.aggro_list[l[i]].."%")
+	end	
+	print("----")*/
+end)
+
+
+rawset(_G, "BTL_enemyOrderedAggroList", function(mo)
+	local aggrolist = {}
+	
+	for k, v in pairs(mo.aggro_list)
+		aggrolist[#aggrolist+1] = k
+	end
+	
+	table.sort(aggrolist, 	function(a, b)
+								return a.hp > 0 and (mo.aggro_list[a] > mo.aggro_list[b])
+							end)
+						
+	return aggrolist
+end)
+
+rawset(_G, "BTL_enemyGetAggroTarget", function(mo)
+	
+	if mo.targetlock and mo.targetlockon and mo.targetlockon.valid
+		return mo.targetlockon
+	end
+	
+	return BTL_enemyOrderedAggroList(mo)[1]
+end)
+
+
 rawset(_G, "BTL_initEnemy", function(mo)
 	local enemy = enemyList[mo.enemy]
 	if not enemy
@@ -1042,7 +1107,10 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 		v.saveskills = copyTable(v.skills)		-- for skill cards and sub persona reverting
 		if v.plyr
 			PLYR_getStats(v, v.level, true)
+		elseif v.enemy
+			BTL_initEnemyAggro(v)
 		end
+		
 		v.savestats = {v.strength, v.magic, v.endurance, v.agility, v.luck}	-- back up stats
 		v.flags2 = $ & ~MF2_DONTDRAW
 		ANIM_set(v, v.anim_stand, true)
@@ -1157,6 +1225,10 @@ rawset(_G, "BTL_StartBattle", function(pn, team1, team2, advantage, func, music,
 		-- in battle, we cannot use passive skills
 		BTL_splitSkills(v)
 		v.flags2 = $ & ~MF2_DONTDRAW
+		
+		if v.enemy
+			BTL_initEnemyAggro(v)
+		end
 
 		-- rather unlikely
 		if v.subpersona
@@ -1958,7 +2030,9 @@ end)
 -- function to call when switching skills to auto update target selection
 rawset(_G, "BTL_setSkillTargets", function(mo, targettype)
 	local newtargets
-	if targettype == TGT_ENEMY or targettype == TGT_ALLENEMIES
+	if targettype == TGT_ENEMY and mo.targetlock and mo.targetlockon and mo.targetlockon.valid
+		newtargets = {mo.targetlockon}
+	elseif targettype == TGT_ENEMY or targettype == TGT_ALLENEMIES
 		newtargets = mo.enemies
 	elseif targettype == TGT_ALLY or targettype == TGT_ALLALLIES
 		newtargets = mo.allies
@@ -1976,7 +2050,7 @@ rawset(_G, "BTL_setSkillTargets", function(mo, targettype)
 		end
 	end
 
-	if mo.targets ~= newtargets or mo.targettype ~= targettype
+	if not compareTables(mo.targets, newtargets) or mo.targettype ~= targettype
 
 		-- for tgt_dead; check if we have dead allies to begin with.
 		local deadallieslist = {}
@@ -2012,10 +2086,12 @@ rawset(_G, "BTL_setSkillTargets", function(mo, targettype)
 		mo.targets = newtargets or $
 
 		if targettype == TGT_ALLY
+		and mo.t_cmem
 		and mo.t_cmem[2]
 		and newtargets[mo.t_cmem[2]]
 			mo.t_target = mo.t_cmem[2]
 		elseif targettype == TGT_ENEMY
+		and mo.t_cmem
 		and mo.t_cmem[1]
 		and newtargets[mo.t_cmem[1]]
 			mo.t_target = mo.t_cmem[1]
@@ -2356,6 +2432,7 @@ end)
 
 rawset(_G, "BTL_turnstatusconditions", function(mo)
 	local btl = server.P_BattleStatus[mo.battlen]
+	
 	if mo.status_condition
 
 		local pn = mo.battlen
@@ -2371,7 +2448,7 @@ rawset(_G, "BTL_turnstatusconditions", function(mo)
 
 			mo.t_hidehud = true	-- tell the renderer to not display anything
 
-			if mo.status_timer == 2
+			if mo.statustimer == 2
 				status_cam(mo)
 				BTL_logMessage(pn, mo.name.." is shocked and couldn't move!")
 			end
@@ -2664,6 +2741,75 @@ rawset(_G, "BTL_turnstatusconditions", function(mo)
 	end
 end)
 
+rawset(_G, "BTL_drawAggroLines", function(pn)
+	
+	local btl = server.P_BattleStatus[pn]
+	local mo = btl.turnorder[1]
+	
+	if not mo.plyr return end
+	
+	local timefac = TICRATE*3/2
+	
+	local timer = leveltime%timefac
+	local prevtime = (leveltime-1)%timefac	-- for lerp
+	
+	local percent = timer*(FRACUNIT*2) / timefac
+	local prevpercent = prevtime*(FRACUNIT*2) / timefac
+	
+	local maxlerp = 10
+	
+	--print(percent)
+	--rawset(_G, "lerp", function(start, finish, percent)
+	
+	local en = mo.enemies
+	if percent <= FRACUNIT
+		for i = 1, #en
+			local e = mo.enemies[i]
+			local t = BTL_enemyGetAggroTarget(e)
+			
+			-- get the coordinates of 3 points that we need to draw a spline...
+			local p1 = {x=e.x, y=e.y, z=e.z}
+			
+			local a = R_PointToAngle2(t.x, t.y, e.x, e.y)
+			
+			local p2x = t.x + 96*cos(a)
+			local p2y = t.y + 96*sin(a)
+			local p2z = t.z + 96*FRACUNIT
+			local p2 = {x=p2x, y=p2y, z=p2z}
+			
+			local p3 = {x=t.x, y=t.y, z=t.z}
+			
+			local start = 1
+
+			
+			if prevpercent < 0 and prevpercent > FRACUNIT
+				start = maxlerp
+			end
+			
+			if timer
+				for j = start, maxlerp
+					local pp = lerp(prevpercent, percent, j*FRACUNIT/maxlerp)
+					
+					if pp > 0 and pp < FRACUNIT
+						
+						local coords = pointOnSpline({p1, p2, p3}, pp*3)
+						--print(pp..", "..timer)
+						
+						local o = P_SpawnMobj(coords.x, coords.y, coords.z, MT_THOK)
+						o.frame = A|FF_ADD
+						o.color = SKINCOLOR_RED
+						o.renderflags = RF_NOCOLORMAPS|RF_FULLBRIGHT
+						o.scale = FRACUNIT/4
+						o.scalespeed = FRACUNIT/32
+						o.destscale = 1
+						o.fuse = 12
+					end
+				end
+			end
+		end
+	end
+end)
+
 -- handle what entities do on their turn;
 -- for players, this means everything relative to your selection and whatnot.
 -- for enemies, they pick an attack relative to their AI
@@ -2951,6 +3097,12 @@ rawset(_G, "BTL_turnHandler", function(pn)
 				BTL_setAttack(mo, "nosp")
 				mo.targets = {mo}
 			end
+			
+			-- ignore the choice of target if we're target locked and using a single target skill.
+			if mo.targetlock and mo.targetlockon and mo.targetlockon.valid
+			and mo.attack.targettype == TGT_ENEMY
+				mo.targets = {mo.targetlockon}
+			end
 
 			-- summon persona for enemies with one.
 			-- this is useful if we want some persona summoner battles?
@@ -3012,6 +3164,7 @@ rawset(_G, "BTL_turnHandler", function(pn)
 		local inputs = mo.control.mo.P_inputs
 
 		BTL_setupPlayerTurn(mo)	-- setup menu stuff. this func only runs once while 'acted' isn't set to true.
+		BTL_drawAggroLines(pn)	-- draws aggro lines for players to see.
 
 		-- handle turn timer here:
 		if mo.t_acttimer
@@ -3135,11 +3288,8 @@ rawset(_G, "BTL_turnHandler", function(pn)
 
 			-- targetting
 			BTL_setAttack(mo, mo.melee)
-			mo.targets = mo.enemies
-
-			if not mo.targettype	-- ready this
-				mo.targettype = mo.attack.target
-			end
+			--mo.targets = mo.enemies
+			BTL_setSkillTargets(mo, mo.attack.targettype or TGT_ENEMY)
 
 
 			CAM_followtarget(mo)
@@ -4693,6 +4843,15 @@ rawset(_G, "BTL_deadEnemiescleanse", function(btl)
 			t2 = v.enemies
 			playerref = true
 		end
+		
+		-- update targetlock
+		if v.targetlock and v.targetlockon
+			if not v.targetlockon.valid
+			or not v.targetlockon.hp
+				v.targetlock = nil
+				v.targetlockon = nil
+			end
+		end
 	end
 
 	return t1 or {}, t2 or {}
@@ -4744,7 +4903,69 @@ rawset(_G, "statusConditionEffects", function(mo)	-- the little animations over 
 			an = $+ ANG1*180
 		end
 	end
-
+	
+	-- target lock:
+	local btl = server.P_BattleStatus[mo.battlen]
+	if mo.targetlock
+		
+		-- circle em in chains! (that's kinda hot!)
+		local numparts = 25
+		local partlen = 25
+		-- to figure out our aproximate radius:
+		-- (numparts*partlen)/(2*pi)
+		local pi = 3*FRACUNIT + (1416*FRACUNIT/10000)	-- ~3.1416
+		
+		local radius = FixedDiv((numparts*partlen)*FRACUNIT, 2*pi) / FRACUNIT
+		
+		for i = 1, numparts
+			local a = (360 / numparts)*i*ANG1 + leveltime*ANG1
+			local x = mo.x + radius*cos(a)
+			local y = mo.y + radius*sin(a)
+			
+			local t = P_SpawnMobj(x, y, mo.z, MT_DUMMY)
+			t.tics = 2
+			t.sprite = SPR_TLCK
+			t.frame = A|FF_FULLBRIGHT|FF_PAPERSPRITE
+			t.renderflags = $|RF_NOCOLORMAPS
+			t.angle = a + ANG1*90
+		end
+		
+		-- make a line from the afflicted enemy to the target they're locked on to
+		if btl.battlestate == BS_DOTURN
+			local a = R_PointToAngle2(mo.x, mo.y, mo.targetlockon.x, mo.targetlockon.y)
+			local linklen = 25
+			local r = radius + leveltime%linklen
+			local startx = mo.x + r*cos(a)
+			local starty = mo.y + r*sin(a)
+			
+			local dist = R_PointToDist2(startx, starty, mo.targetlockon.x, mo.targetlockon.y)
+			
+			local numlinks = dist/linklen /FRACUNIT
+			
+			local totaldist = 0
+			for i = 1, numlinks-1
+				
+				local x = startx + totaldist*cos(a)
+				local y = starty + totaldist*sin(a)
+				local link = P_SpawnMobj(x, y, mo.z, MT_DUMMY)
+				local t = 4-(numlinks-i)
+				local tflag = 0
+				if t > 0
+					tflag = min(9, (t*3)) << FF_TRANSSHIFT
+				end
+				
+				link.tics = 2
+				link.sprite = SPR_TLCK
+				link.frame = A|FF_FULLBRIGHT|FF_PAPERSPRITE|tflag
+				link.renderflags = $|RF_NOCOLORMAPS
+				link.angle = a
+				
+				totaldist = $+linklen
+			end
+			
+		end
+	end
+	
 	-- fields that spawn particles i guess??
 	if mo.fieldstate
 
@@ -5132,6 +5353,36 @@ rawset(_G, "BTL_handleStatusConditions", function(pn, timer)
 	local cam = btl.cam
 
 	if not mo return true end	-- well uh shit?
+
+	
+	if mo.targetlock
+	and not mo.t_didtargetlock
+		
+		mo.targetlock = $-1
+		mo.t_didtargetlock = true
+		--print(mo.targetlock)
+	end
+	
+	if mo.t_didtargetlock
+	and mo.targetlock ~= nil
+	and mo.targetlock <= 0
+		
+		--print("A")
+		if timer == 2
+			status_cam(mo)
+			BTL_logMessage(pn, mo.name.." is no longer target locked.")
+		end
+
+		if timer >= TICRATE
+			mo.t_statustimer = 0
+			mo.targetlock = nil
+			mo.targetlockon = nil
+			return true
+		end
+
+		return
+	end
+	
 	if not mo.status_condition return true end	-- go on, go on
 	if mo.status_condition_pass return true end	-- that means we already did this
 
@@ -5768,7 +6019,8 @@ rawset(_G, "BTL_endturnHandler", function(pn)
 			mo.status_res = max(0, $-2)
 		end
 	end
-
+	
+	mo.t_didtargetlock = nil	-- remove this flag
 	mo.skipdowncheck = nil	-- don't forget to remove this
 	mo.batontouch = nil	-- can't baton touch anymore
 	if btl.turnorder[1] and btl.turnorder[1].valid

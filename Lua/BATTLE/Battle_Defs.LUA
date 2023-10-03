@@ -859,28 +859,28 @@ rawset(_G, "BTL_EmeraldSkills", {
 rawset(_G, "BTL_getEXP", function(n, exp, items, weapons, rings, macca)
 	local btl = server.P_BattleStatus[n]
 	if not btl return end -- bruh
-	
+
 	BTL_softReset(n)
 	btl.running = true
-	
+
 	btl.r_outofbattle = true	-- This disables the camera thinkers and shit.
 	btl.r_exp = exp
 	btl.r_money = macca
 	btl.r_item = items or {}
 	btl.r_weapons = weapons or {}
 	btl.r_rings = rings or {}
-	
+
 	btl.battlestate = BS_END
 	btl.hudtimer.endb = TICRATE*3/2
 	btl.r_precalculates = {}
-	
+
 	-- make sure players can't move...
 	for p in players.iterate do
 		if p.P_party == n
 			PLAY_nomove(p)
-		end	
+		end
 	end
-	
+
 end)
 
 COM_AddCommand("d_getexp", function(p, arg)
@@ -1081,6 +1081,7 @@ rawset(_G, "BTL_spawnEnemy", function(source, t, prev, x, y, z, addang)
 	BTL_initAdditionalSkills(enm)
 	BTL_splitSkills(enm)
 	BTL_setupstats(enm)
+	BTL_initEnemyAggro(enm)
 
 	enm.scale = enm.escale
 	enm.shadowscale = enm.escale
@@ -1114,7 +1115,7 @@ rawset(_G, "BTL_spawnPlayer", function(source, pa, t, x, y, z, addang)
 	if #source.allies > 4	-- max # of enemies already!!
 		return nil	-- Don't error, but return nil.
 	end
-	
+
 	local running = btl.running
 
 
@@ -1192,10 +1193,10 @@ rawset(_G, "BTL_spawnPlayer", function(source, pa, t, x, y, z, addang)
 
 	nmo.saveskills = copyTable(nmo.skills)	-- you never know
 	nmo.savestats = {nmo.strength, nmo.magic, nmo.endurance, nmo.agility, nmo.luck}	-- back up stats
-	
+
 	-- setup default coordinates
 	nmo.defaultcoords = {nmo.x, nmo.y, nmo.z, nmo.angle}
-	
+
 	BTL_initAdditionalSkills(nmo)
 	BTL_splitSkills(nmo)
 	BTL_setupstats(nmo)
@@ -1204,7 +1205,7 @@ rawset(_G, "BTL_spawnPlayer", function(source, pa, t, x, y, z, addang)
 		nmo.angle = ang + ANG1*180
 	else
 		nmo.angle = source.angle
-	end	
+	end
 	ANIM_set(nmo, nmo.anim_stand, true)
 
 	return nmo
@@ -1313,11 +1314,11 @@ end)
 rawset(_G, "BTL_updateArenaCenter", function()
 	for mt in mapthings.iterate do
 		local m = mt.mobj
-		
+
 		for s = 1, server.P_DungeonStatus.section	-- try and find whatever works with the section we have.
-		
+
 			if m and m.valid and m.type == MT_BOSS3WAYPOINT and mt.extrainfo == s
-				
+
 				for i = 1, 4
 					local btl = server.P_BattleStatus[i]
 					local shiftx = (mapheaderinfo[gamemap].arenashiftx or 0)*FRACUNIT *(i-1)
@@ -1325,16 +1326,16 @@ rawset(_G, "BTL_updateArenaCenter", function()
 					local t = P_SpawnMobj(m.x+shiftx, m.y+shifty, m.z, MT_THOK)
 					t.state = S_INVISIBLE
 					t.angle = m.angle
-					
+
 					-- free current center mobj
 					if btl.arenacenter and btl.arenacenter.valid
 						P_RemoveMobj(btl.arenacenter)
-					end	
-					
+					end
+
 					btl.arenacenter = t
 				end
 			end
-		end	
+		end
 	end
 end)
 

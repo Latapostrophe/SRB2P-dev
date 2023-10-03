@@ -100,7 +100,7 @@ rawset(_G, "getRandomDrops", function(mo)
 
 						btl.r_weapons[#btl.r_weapons+1] = wpn
 						spawnWeaponDrop(wpn, mo.x, mo.y, mo.z)
-						
+
 						REQ_checkItem(wpn, 1, ACQ_DROP)
 
 					elseif it[1] == "ring"
@@ -111,7 +111,7 @@ rawset(_G, "getRandomDrops", function(mo)
 							btl.r_rings[#btl.r_rings+1] = makeRing(ring, P_RandomRange(0, 3))
 							maxrarity = max($, btl.r_rings[#btl.r_rings].rarity)
 							spawnRingDrop(btl.r_rings[#btl.r_rings], mo.x, mo.y, mo.z)
-							
+
 							REQ_checkItem(btl.r_rings[#btl.r_rings], 1, ACQ_DROP)
 						end
 
@@ -123,7 +123,7 @@ rawset(_G, "getRandomDrops", function(mo)
 							btl.r_weapons[#btl.r_weapons+1] = makeWeapon(wpn, P_RandomRange(0, 3))
 							maxrarity = max($, btl.r_weapons[#btl.r_weapons].rarity)
 							spawnWeaponDrop(btl.r_weapons[#btl.r_weapons], mo.x, mo.y, mo.z)
-							
+
 							REQ_checkItem(btl.r_weapons[#btl.r_weapons], 1, ACQ_DROP)
 						end
 					end
@@ -147,7 +147,7 @@ rawset(_G, "getRandomDrops", function(mo)
 						end
 					end--]]
 				end
-				
+
 				REQ_checkItem(it, 1, ACQ_DROP)
 				spawnItemDrop(itemDefs[it], mo.x, mo.y, mo.z)
 				BTL_addResultItem(btl, it, 1)
@@ -690,6 +690,14 @@ rawset(_G, "cureStatus", function(mo, msg)
 	mo.status_turns = 0
 end)
 
+-- inflict target lock.
+-- this is a separate status that can stack with others
+rawset(_G, "inflictTargetLock", function(target, lockon, turns)
+
+	target.targetlock = turns
+	target.targetlockon = lockon
+end)
+
 rawset(_G, "ATK_fieldStartFunc", {
 
 	[FLD_GARUVERSE] = 	function(target)
@@ -859,6 +867,44 @@ rawset(_G, "resetDamage", function(mo)
 	mo.endured = 0
 	mo.hudpop = 0
 	mo.passivedodge = nil
+end)
+
+-- calculates healing
+rawset(_G, "getHealing", function(mo, attacker, force)
+
+	if force
+		return -abs(force)
+	end
+
+	-- calculate the healing stat w/ buffs
+	local usestat = attacker.magic
+	local batonbuff = attacker.batonpassbuff or 0
+	local atk = attacker.attack
+
+	-- shouldn't happen but this is better than erroring
+	if not atk
+		return -1
+	end
+
+	local apow = atk.power
+
+	usestat = $ + usestat*(attacker.buffs["mag"][1] + batonbuff)
+
+	-- now calc healing
+	local heal = (apow/2) + ( FixedSqrt( FixedMul((apow<<FRACBITS), (usestat<<FRACBITS))) )/FRACUNIT
+
+	-- while we're here, handle serene grace (and other heal boosts)
+	-- heal boost must be checked from the attacker!
+	for i = 1, #attacker.passiveskills
+
+		local a = attackDefs[attacker.passiveskills[i]]
+		if a and a.passive == PSV_BOOST and (a.type & ~ATK_PASSIVE) & ATK_HEAL	-- healing boost!
+			heal = $ + heal*a.power/100	-- boost by power%.
+			-- also stacks!
+		end
+	end
+
+	return -heal + P_RandomRange(-heal/10, heal/10)
 end)
 
 -- Use the damage formula to check how much damage we've done to mo.
@@ -1664,7 +1710,9 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 	-- heals and baton pass:
 	if damage and damage < 0	-- negative damage means heals!
 		mo.damagestate = DMG_NORMAL
-		local batonbuff = mo.atk_attacker.batonpassbuff or 0
+
+		-- this is now handled directly in getHealing
+		/*local batonbuff = mo.atk_attacker.batonpassbuff or 0
 		damage = $ + damage * batonbuff/100
 		damage = $ + damage * mo.atk_attacker.buffs["mag"][1] /100
 
@@ -1677,7 +1725,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 				damage = $ + damage*a.power/100	-- boost by power%.
 												-- also stacks!
 			end
-		end
+		end*/
 
 		-- in PVP; healing is reduced by half
 		-- unless it's a revive (hp <= 0)
@@ -2209,6 +2257,41 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 		end
 	end
 
+	-- change enemy aggro now.
+	-- we hit the enemy: increase our aggro towards em
+	if mo.hp and mo.enemy and dmgnum
+		if mo.atk_attacker and mo.atk_attacker.valid and mo.atk_attacker.plyr
+
+			local aggro_fac = FRACUNIT
+			if mo.atk_hitby
+				aggro_fac = mo.atk_hitby.aggrofactor or $
+			end
+
+			BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * aggro_fac / FRACUNIT)
+
+		end
+	elseif mo.plyr and dmgnum
+
+		-- the enemy hit us:
+		if mo.atk_attacker and mo.atk_attacker.valid and mo.atk_attacker.enemy
+
+			local aggro_fac = FRACUNIT
+
+			if mo.guard
+				aggro_fac = FRACUNIT*12
+			end
+
+			BTL_enemyChangeAggro(mo.atk_attacker, mo, -damage * aggro_fac / FRACUNIT)
+
+		elseif damage < 0	-- we're being healed! in that case, alert EVERY ENEMY of who healed us.
+			-- yes, this may include ourselves.
+			local aggro_fac = FRACUNIT*3/2
+			for i = 1, #mo.enemies
+				BTL_enemyChangeAggro(mo.enemies[i], mo.atk_attacker, -damage * aggro_fac / FRACUNIT)
+			end
+		end
+	end
+
 	if not mo.hp and (dmgnum or damage > 0)	-- I can't believe we're fucking dead
 	--and not (mo.flags2 & MF2_DONTDRAW)
 	and mo.state ~= S_INVISIBLE
@@ -2228,10 +2311,10 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 
 			local exp = mo.expval or enemyList[mo.enemy].r_exp or 1
 			local money = mo.moneyval or enemyList[mo.enemy].r_macca or exp/4
-			
+
 			if enemyList[mo.enemy].r_macca == 0	-- specifically 0, not nil
 				money = 0
-			end	
+			end
 
 			-- get item drops:
 			/*if enemyList[mo.enemy].r_drops
@@ -2244,7 +2327,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 			end*/
 			getRandomDrops(mo)
 			REQ_checkEnemy(mo)
-			
+
 			if mo.extra
 				btl.r_exp = $+ exp*3/2
 				btl.r_money = $+money*3/2

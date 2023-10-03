@@ -6,6 +6,9 @@
 freeslot("S_PLAY_FAINTED", "SPR2_SHIT", "SPR2_CSMN")
 states[S_PLAY_FAINTED] = {SPR_PLAY, A|SPR2_SHIT, -1, nil, 0, 0, S_PLAY_STND}
 
+-- Target lock status
+freeslot("SPR_TLCK")
+
 -- Bviper
 freeslot("SPR_VIPR")
 

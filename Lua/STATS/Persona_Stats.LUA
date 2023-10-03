@@ -33,24 +33,24 @@ local hacklist = {
 }
 
 rawset(_G, "personaList", {
-	
+
 	["story_00"] = {
 		name = "Sonic",
 		arcana = ARCANA_FOOL,
-		
+
 		sprite = SPR_NULL,
 		anim_idle = 	{SPR_NULL, A, 1},
 		anim_atk = 		{SPR_NULL, A, 1},
-		
+
 		strength = 7,
 		magic = 10,
 		endurance = 6,
 		luck = 4,
 		agility = 12,
-		
+
 		skills = {{"infinite endure", 1}}
 	},
-	
+
 	["story_01"] = {
 		name = "???",
 		arcana = ARCANA_DEATH,
@@ -347,15 +347,15 @@ rawset(_G, "personaList", {
 		skills = {
 
 			{"lunge", 1}, {"zio", 4},
-			{"dia", 9}, {"tarunda", 14},
-			{"dekaja", 18}, {"assault dive", 23},
-			{"teardrop", 27},  {"zionga", 31},
+			{"hammer hit", 9}, {"tarunda", 14},
+			{"dekaja", 18}, {"assault dive", 21},
+			{"hammer bash", 24, "hammer hit"},  {"zionga", 27},
+			{"teardrop", 30}, {"derail", 33, "zio"}, {"defiance", 35, "lunge"},
 
-			{"hard knuckle", 35, "lunge"}, {"diarama", 39, "dia"},
-			{"matarunda", 46, "zio"}, {"moondrop", 49, "teardrop"},
-			{"gigantic fist", 53, "tarunda"}, {"ziodyne", 57, "assault dive"},
-			{"iron fist", 61, "zionga"}, {"stardrop", 65, "moondrop"},
-			{"diarahan", 69, "diarama"}, {"megaton raid", 75, "gigantic fist"}
+			{"matarunda", 40, "tarunda"}, {"moondrop", 45, "teardrop"},
+			{"gigantic fist", 51, "assault dive"}, {"hammer crush", 54, "hammer bash"},
+			{"ziodyne", 58, "zionga"}, {"stardrop", 65, "moondrop"},
+			{"megaton raid", 75, "gigantic fist"}, {"hammer detonation", 81, "hammer crush"},
 		},
 	},
 

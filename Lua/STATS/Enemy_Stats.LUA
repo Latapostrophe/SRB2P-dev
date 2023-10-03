@@ -358,17 +358,13 @@ rawset(_G, "generalEnemyThinker", function(mo)
 	local skillchance = enemyList[mo.enemy].skillchance
 	if skillchance == nil
 		skillchance = 50
-	end	
-	local attack, targets
-	local atarget
-
+	end
 	-- specifically allow enemies with 0 skill chance to do normals every turn.
 	if enemyList[mo.enemy].skillchance == 0
 		skillchance = 0
 	end
 
-	local attack, atarget = smartAttackSelect(mo)
-	local targets
+	local attack, atarget, targets
 
 	if not (attack and P_RandomRange(1, 100) <= skillchance and mo.skills and #mo.skills)
 	and mo.status_condition ~= COND_RAGE
@@ -388,7 +384,11 @@ rawset(_G, "generalEnemyThinker", function(mo)
 		local skill = attack
 
 		if skill.target == TGT_ENEMY	-- target random enemy
-			targets = {mo.enemies[P_RandomRange(1, #mo.enemies)]}
+			if mo.aggro_list
+				targets = {BTL_enemyGetAggroTarget(mo)}
+			else
+				targets = {mo.enemies[P_RandomRange(1, #mo.enemies)]}
+			end
 		elseif skill.target == TGT_ALLENEMIES
 			targets = copyTable(mo.enemies)	-- target all enemies
 		elseif skill.target == TGT_ALLY	-- target random ally
@@ -5484,7 +5484,7 @@ rawset(_G, "enemyList", {
 		r_drops = {
 			{"painite", 20},
 			{"nihil frame", 30},
-			{"ruby", 50},			
+			{"ruby", 50},
 			{"diamond", 80},
 			{"emerald", 100},
 			{"sapphire", 100},
@@ -8038,8 +8038,8 @@ rawset(_G, "enemyList", {
 					return generalEnemyThinker(mo)	--attackDefs["mamudoon"], enemies
 				end,
 	},
-	
-	
+
+
 	-- STORY MODE GARBAGE:
 	["crawla_commander"] = {
 		name = "Crawla Commander",
@@ -8070,8 +8070,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_CCOM, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
-		skills = {"strike_1"}	-- necessary to avoid crashes :skull:											
+
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:
 	},
 
 	["crawla_b"] = {
@@ -8103,8 +8103,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_POSS, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
-		skills = {"strike_1"}	-- necessary to avoid crashes :skull:											
+
+		skills = {"strike_1"}	-- necessary to avoid crashes :skull:
 	},
 
 	["brak_01"] = {
@@ -8136,8 +8136,8 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_BRAK, I, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
-		anim_special1 =		{SPR_BRAK, 26, 10},	
+
+		anim_special1 =		{SPR_BRAK, 26, 10},
 		anim_special2 =		{SPR_BRAK, N, O, P, Q, R, 5},
 		anim_special3 =		{SPR_BRAK, I, 2},
 		anim_special4 =		{SPR_BRAK, H, G, F, E, D, C, B, 6},
@@ -8152,11 +8152,11 @@ rawset(_G, "enemyList", {
 
 			local a = P_SpawnMobj(x, y, z, MT_DUMMY)
 			a.state = S_QUICKBOOM1
-			
+
 			if mo.deathtimer == 1
 				ANIM_set(mo, mo.anim_special2)	-- don't loop
-			end	
-			
+			end
+
 			if mo.deathtimer & 1
 				S_StartSound(mo, sfx_pop)
 			end
@@ -8167,8 +8167,8 @@ rawset(_G, "enemyList", {
 				return	-- deref function
 			end
 		end,
-													
-		skills = {"brak_pierce"}	-- necessary to avoid crashes :skull:											
+
+		skills = {"brak_pierce"}	-- necessary to avoid crashes :skull:
 	},
 
 	["maya_tut"] = {
@@ -8230,7 +8230,7 @@ rawset(_G, "enemyList", {
 			local x = P_RandomRange(-64, 64)*FRACUNIT + mo.x
 			local y = P_RandomRange(-64, 64)*FRACUNIT + mo.y
 			local z = P_RandomRange(96, 256)*FRACUNIT + mo.z
-			
+
 			if mo.deathtimer % 4 == 0
 				for i = 1, 8
 					local a = P_SpawnMobj(x, y, z, MT_DUMMY)
@@ -8240,7 +8240,7 @@ rawset(_G, "enemyList", {
 					a.momx = P_RandomRange(-24, 24)*FRACUNIT
 					a.momy = P_RandomRange(-24, 24)*FRACUNIT
 					a.momz = P_RandomRange(-24, 24)*FRACUNIT
-				end	
+				end
 
 				S_StartSound(mo, sfx_srip)
 			end
@@ -8249,7 +8249,7 @@ rawset(_G, "enemyList", {
 				-- story mode: reset sonic's persona to orpheus (we fight this boss with thanatos temporarily...)
 				local pl = mo.enemies[1]	-- sonic...
 				PLYR_initPersona(pl, "orpheus", pl.skin)
-				
+
 				mo.deathanim = nil
 				mo.flags2 = $|MF2_DONTDRAW
 				return	-- deref function
@@ -8266,10 +8266,10 @@ rawset(_G, "enemyList", {
 		anim_getup =		{SPR_ENM6, A, 1},		-- enemies don't need special standing, death or revive anims.
 													-- they explode on death, and cannot be revived.
 													-- unless it's specified like for players.
-													
-		skills = {"agi"}										
+
+		skills = {"agi"}
 	},
-	
+
 	["miniboss_fuzz_1"] = {
 		name = "Bribed Fuzz",
 		skillchance = 100,
@@ -8286,9 +8286,9 @@ rawset(_G, "enemyList", {
 		melee_natk = "pierce_1",
 		weak = ATK_CURSE,
 		thinker = 	function(mo)
-						
+
 						local btl = server.P_BattleStatus[mo.battlen]
-						
+
 						if btl.turn%2 == 0
 						and mo.snaptarget and mo.snaptarget.valid
 							return attackDefs["snap"], {mo.snaptarget}
@@ -8296,7 +8296,7 @@ rawset(_G, "enemyList", {
 							mo.snaptarget = mo.enemies[P_RandomRange(1, #mo.enemies)]
 							return attackDefs["glare"], {mo.snaptarget}
 						end
-						
+
 					end,
 
 		anim_stand = 		{SPR_ENM5, S, 10},

@@ -36,33 +36,33 @@ local filen = 0
 local function mm_loadSaveGame()
 	-- @TODO: D_MapChange
 	local h = srb2p.fileheaders[filen]
-	
+
 	if not h.storydta
 		SYS_CreatePrompt("FATAL: Not a storymode file.", PT_NOTIFICATION, nil)
-	elseif not h.storydta.map	
+	elseif not h.storydta.map
 		SYS_CreatePrompt("FATAL: No saved map", PT_NOTIFICATION, nil)
-	end	
-	
+	end
+
 	SAVE_storyReset()
-	
+
 	srb2p.storymode = true
 	srb2p.loadfile = h		-- In singleplayer, we can simply apply that directly with no bad consequences.
-	
+
 	-- setup skin list...
 	SAVE_localtable.party = {}
 	for i = 1, #h.playerlist[1]
 		SAVE_localtable.party[i] = h.playerlist[1][i].skin
-	end	
-	
+	end
+
 	-- load the map
 	COM_ImmedExecute("map "..G_BuildMapName(h.storydta.map).." -force")
 
 end
 
 local function mm_handleFiles(m, choices, curchoice, e)
-		
-	if e == KEY_ENTER	
-		
+
+	if e == KEY_ENTER
+
 		local header = srb2p.fileheaders[curchoice]
 		if not header
 			SYS_CreatePrompt("This file is empty.", PT_NOTIFICATION, nil)
@@ -77,7 +77,7 @@ local function mm_handleFiles(m, choices, curchoice, e)
 end
 
 local function mm_drawFiles(v, timer, choices, curchoice)
-	
+
 	if not srb2p.fileheaders or not #srb2p.fileheaders return end
 
 	local fwtimer = (TICRATE/4) - timer
@@ -86,27 +86,27 @@ local function mm_drawFiles(v, timer, choices, curchoice)
 	v.fadeScreen(31, min(8, fwtimer))
 	PDraw(v, 0, timer*48, v.cachePatch("M_LOAD"), V_SNAPTOLEFT)
 	v.drawFill(64, 0, 1, fwtimer*48, 135|V_SNAPTOLEFT|V_SNAPTOTOP)
-	
+
 	local scroll = max(0, curchoice-4)
 	local y = 24 - (27*scroll)
 
 	for i = 1, MAXSAVES do
-		local t = max(0, timer - (MAXSAVES-(i-1))/16)	
+		local t = max(0, timer - (MAXSAVES-(i-1))/16)
 		local startx = 80 + (64*t)
 		local skinx = startx + 40	--120
 		R_drawSaveFile(v, startx, y, i, i == curchoice, false)
 
 		y = $+27
-	end	
+	end
 end
 
 -- quick check for tutorial:
 
 local function mm_startTutorial()
 	SYS_closeMenu()
-	
+
 	SAVE_storyReset()
-	
+
 	-- ready save localtable loading:
 	SAVE_localtable.party = {"sonic", "amy"}
 	SAVE_localtable.tutorial = true
@@ -1414,12 +1414,12 @@ local netgameplay_opt = {
 }
 
 SYS_menus[SM_TITLE] = {
-	
+
 	openfunc = 	function()
 						srb2p.storymode = nil
 						SAVE_storyReset()
 				end,
-	
+
 	openstate = MS_TITLE,
 	openchoice = 1,
 
@@ -1460,17 +1460,17 @@ SYS_menus[SM_TITLE] = {
 						{"Tutorial", 64, 124, CT_FUNCTION, mm_startTutorial, nil, "Recommended for people who have never played Persona"},
 					},
 	},
-	
+
 	[MS_SAVES] = {
 		opentimer = TICRATE/4,
 		prev = MS_1PLAYER,
 		drawfunc = mm_drawFiles,
-		runfunc = mm_handleFiles,		
+		runfunc = mm_handleFiles,
 		choices = files,
 		openfunc = 	function()
 						srb2p.fileheaders = SAVE_GetFilesHeaders()	-- reset file header display
 					end,
-	},	
+	},
 
 	[MS_QUICKPLAY] = {
 		opentimer = TICRATE/4,
@@ -1648,7 +1648,7 @@ SYS_menus[SM_TITLE] = {
 						{"Debug prints", 100, 32, CT_CVAR, cv_debugprints, nil, "Display debug prints during gameplay."},
 						{"Debug cheats", 100, 44, CT_CVAR, cv_debugcheats, nil, "Enable d_ cheat commands for debugging."},
 						--{"View Skills List", 100, 56, CT_MENUSTATE, MS_SKILLIST, nil, "Display all the skills available in-game."},
-						--{"View Personas List", 100, 68, CT_MENUSTATE, MS_PERSONALIST, nil, "Compute the skills of any Persona at a given level."},
+						{"View Personas List", 100, 68, CT_MENUSTATE, MS_PERSONALIST, nil, "Compute the skills of any Persona at a given level."},
 					},
 	},
 

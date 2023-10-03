@@ -1,8 +1,8 @@
 rawset(_G, "srb2p", {
 	name = "SRB2PERSONA",
-	version = "v2.0B-19.12.22",
+	version = "v2.0B-09.09.23",
 	verbase = 20,
-	--debug = true,
+	debug = true,
 	--debugprint = true,
 
 	tutorial_map = 90, 	-- map for tutorial
@@ -38,7 +38,7 @@ rawset(_G, "srb2p", {
 					linkexp = 0,		-- LiNK EXP
 					linkpts = 0,		-- LiNK Points
 					linkskills = {},	-- LiNK Skill Levels
-					
+
 					-- Request data
 					requeststatus = {},		-- Status of every request, nil by default.
 					activerequests = {},	-- Active requests + trackers
@@ -82,8 +82,8 @@ rawset(_G, "rarity_2_ico", {
 	ICO_RARE1, ICO_RARE2, ICO_RARE3, ICO_RARE4, ICO_RARE5, ICO_RARE6, ICO_RARE7
 })
 
--- +/- 25% per buff/debuff, max 3 buffs (75%)
-rawset(_G, "BUFFSTEP", 25)
+-- +/- 10% per buff/debuff, max 3 buffs (45%)
+rawset(_G, "BUFFSTEP", 15)
 rawset(_G, "MAXBUFFS", 3)
 
 local gm_constants = {
