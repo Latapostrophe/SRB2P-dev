@@ -488,7 +488,7 @@ rawset(_G, "enemyList", {
 
 		r_drops = {
 			{{"series", "ragged"}, 50},
-			{{"ring", "ragged"}, 50},
+			{{"ring", "ragged rings"}, 50},
 		}
 	},
 

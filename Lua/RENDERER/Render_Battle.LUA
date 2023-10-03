@@ -854,12 +854,20 @@ rawset(_G, "drawSkillCommand", function(v, x, y, mo, skill, active, have_item, s
 	end
 
 	V_drawString(v, x+32, y+12, cost, "FPNUM", V_SNAPTOLEFT, "right", ((skill.costtype == CST_EP and 112 or (skill.costtype == CST_SP or skill.costtype == CST_SPPERCENT) and 181 or 131) + (not active and 3 or 0)), 31)
-	v.drawIndex((x+35)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
+	if skill.costtype == CST_EP --let's render percentages for EP
+		local percentage = ATK_getSkillCost(owner or mo, skill) - cost*100
+		if percentage < 10 then percentage = "0"..$ end
+		V_drawString(v, x+35, y+10, ".", "NFNT", V_SNAPTOLEFT, "right", 112 + (not active and 3 or 0), 31)
+		V_drawString(v, x+44, y+12, percentage, "FSNUM", V_SNAPTOLEFT, "right", 112 + (not active and 3 or 0), 31)
+		v.drawIndex((x+47)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
+	else
+		v.drawIndex((x+35)<<FRACBITS, (y+15)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, 31)
+	end
 
 	if pp[2]	-- palette index: SP, or HP
 		v.drawIndex((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, pp[2] + (not active and 3 or 0))
 	else	-- for emerald power, use normal colours and draw
-		v.drawScaled((x+34)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, ep_colors[cost]))
+		v.drawScaled((x+45)<<FRACBITS, (y+14)<<FRACBITS, FRACUNIT/2, v.cachePatch(pp[1]), V_SNAPTOLEFT, v.getColormap(TC_DEFAULT, ep_colors[cost]))
 	end
 
 
@@ -1032,8 +1040,16 @@ rawset(_G, "drawPartyStatus", function(v, p, battle)
 		end
 	end
 
+
 	if (not flash) or leveltime%10 < 5
-		V_drawString(v, bx + 26, 32+18, lvl, "FPNUM", V_SNAPTORIGHT, nil, textcolor, 31, FRACUNIT*2/3)
+		V_drawString(v, bx + 21, 35+18, lvl, "FPNUM", V_SNAPTORIGHT, nil, textcolor, 31, FRACUNIT/2)
+		V_drawString(v, bx + 21 + 8, 35 + 16, ".", "NFNT", V_SNAPTORIGHT, nil, textcolor, 31, FRACUNIT/2)
+
+		-- quick hack because we don't have a padded number builder (might be worth adding...)
+		local dec = battle.emeraldpow%100
+		local padding = (dec < 10 and "0" or "")
+
+		V_drawString(v, bx + 21 + 11, 35+18, padding..dec, "FPNUM", V_SNAPTORIGHT, nil, textcolor, 31, FRACUNIT/4)
 	end
 
 	-- finally, draw physhud sparkles
@@ -1963,7 +1979,7 @@ rawset(_G, "drawTactics", function(v, p, mo)
 					if e.stats and charStats[e.stats]
 						ico = v.cachePatch(charStats[e.stats].icon)
 					elseif e.skin and charStats[e.skin]
-						ico = v.cachePatch(charsStats[e.skin].icon)
+						ico = v.cachePatch(charStats[e.skin].icon)
 					elseif e.enemy and enemyList[e.enemy] and enemyList[e.enemy].icon
 						ico = v.cachePatch(enemyList[e.enemy].icon)
 					elseif e.boss

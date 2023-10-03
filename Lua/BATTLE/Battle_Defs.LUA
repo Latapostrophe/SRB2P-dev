@@ -1283,6 +1283,7 @@ rawset(_G, "BTL_start", function(party, wave, adv, mus, func, allowboss, norun, 
 		end
 		team_2[#team_2+1] = enm
 	end
+
 	if boss	--norun or adv == 2
 		server.P_BattleStatus[party].boss = true	-- make sure we can't run away etc etc
 	end

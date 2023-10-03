@@ -1129,7 +1129,7 @@ rawset(_G, "attackDefs", {
 				end
 		end,
 	},
-	
+
 	-- @TODO: Animation
 	["derail"] = {
 		name = "Derail",
@@ -1162,8 +1162,8 @@ rawset(_G, "attackDefs", {
 					buffStat(target, "atk")
 					buffStat(target, "mag")
 					BTL_logMessage(mo.battlen, "Target lock, Phys & Magic Attack up.")
-					
-					
+
+
 				elseif timer == 42
 					return true
 				end
@@ -1184,17 +1184,17 @@ rawset(_G, "attackDefs", {
 						local battle = server.P_BattleStatus[target.battlen]
 						local mo = battle.turnorder[1]
 						local allies = mo.allies
-						
+
 						if #allies <= 1
 							BTL_logMessage(target.battlen, "No one else in the party.")
-							return true						
+							return true
 						end
-						
+
 						if BTL_enemyGetAggroTarget(target) ~= mo
 							BTL_logMessage(target.battlen, "Not being targetted.")
 							return true
 						end
-					end,		
+					end,
 		anim = function(mo, targets, hittargets, timer)
 				local target = hittargets[1]
 
@@ -1215,11 +1215,11 @@ rawset(_G, "attackDefs", {
 					-- get the person 2nd in the aggro list
 					-- set our own aggro to be that -1
 					-- if THEIR aggro is 0, set it to 1.
-					
+
 					local l = BTL_enemyOrderedAggroList(target)
 					local aggro1 = target.aggro_list[l[1]]
 					local aggro2 = target.aggro_list[l[2]]
-					
+
 					if aggro2 == 0
 						BTL_enemySetAggro(target, l[1], 0)
 						BTL_enemySetAggro(target, l[2], 1)
@@ -1228,8 +1228,8 @@ rawset(_G, "attackDefs", {
 					end
 
 					BTL_logMessage(mo.battlen, "Hatred level lowered.")
-					
-					
+
+
 				elseif timer == 42
 					return true
 				end
@@ -3648,7 +3648,7 @@ rawset(_G, "attackDefs", {
 							damageObject(target, -30)
 							playSound(mo.battlen, sfx_heal)
 						end
-					end	
+					end
 					if timer == 60 + (#hittargets-1)*6
 						return true
 					end
@@ -3682,7 +3682,7 @@ rawset(_G, "attackDefs", {
 							damageObject(target, -50)
 							playSound(mo.battlen, sfx_heal)
 						end
-					end	
+					end
 					if timer == 60 + (#hittargets-1)*6
 						return true
 					end
@@ -4092,7 +4092,7 @@ rawset(_G, "attackDefs", {
 		costtype = CST_SP,
 		cost = 8,
 		desc = "Light Almighty dmg to all enemies.\nDestroys barriers.",
-		target = TGT_ENEMIES,
+		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 
 			for k,e in ipairs(hittargets)
@@ -6686,12 +6686,12 @@ rawset(_G, "attackDefs", {
 		target = TGT_ENEMY,
 		anim = 	function(mo, targets, hittargets, timer)
 					local target = targets[1]
-					
+
 					if timer <= 1
 						BTL_logMessage(mo.battlen, mo.name.." glares at "..target.name.."...")
 					elseif timer == TICRATE
 						return true
-					end	
+					end
 				end,
 	},
 
@@ -6779,17 +6779,17 @@ rawset(_G, "attackDefs", {
 		desc = "3x Regular attack using the \npierce attribute.",
 		target = TGT_ENEMY,
 		anim = 	function(mo, targets, hittargets, timer)
-				
+
 				local target = hittargets[1]
-				
+
 				if timer == 10
 					ANIM_set(mo, mo.anim_special1, true)
-					
+
 				elseif timer >= 15 and timer%3 == 0 and timer < 60
 					local rndx = target.x + P_RandomRange(-64, 64)*target.scale
 					local rndy = target.y + P_RandomRange(-64, 64)*target.scale
 					local rndz = target.z + P_RandomRange(0, 128)*target.scale
-					
+
 					local shot = P_SpawnMobj(rndx, rndy, rndz, MT_DUMMY)
 					shot.state = S_STAB_1_1
 					shot.color = SKINCOLOR_ORANGE
@@ -6809,24 +6809,24 @@ rawset(_G, "attackDefs", {
 					d.momy = P_RandomRange(0, FRACUNIT-1)*P_RandomRange(-8, 8)
 					d.color = SKINCOLOR_ORANGE
 				end
-				
+
 				if timer-5 > 15 and (timer-5) %3 == 0 and timer < 60
 					playSound(mo.battlen, sfx_rail1)
 					createSplat(mo)
 					localquake(mo.battlen, FRACUNIT*10, 10)
 				end
-				
+
 				if timer == 25
 				or timer == 32
 				or timer == 39
 					damageObject(target)
-				end	
+				end
 
 				if timer == 80
 					return true
-				end	
+				end
 		end,
-	},	
+	},
 
 	["brak_msl"] = {
 		name = "Missile Shot",
@@ -6842,35 +6842,35 @@ rawset(_G, "attackDefs", {
 		desc = "Regular attack using the \npierce attribute.",
 		target = TGT_ENEMY,
 		anim = 	function(mo, targets, hittargets, timer)
-				
+
 				local target = hittargets[1]
-				
+
 				if timer == 20
 					ANIM_set(mo, mo.anim_special1, true)
-					
+
 					local xpos = mo.x + P_ReturnThrustX(mo, mo.angle, FixedMul(64*FRACUNIT, mo.scale)) + P_ReturnThrustX(mo, mo.angle+ANGLE_270, FixedMul(32*FRACUNIT, mo.scale))
 					local ypos = mo.y + P_ReturnThrustY(mo, mo.angle, FixedMul(64*FRACUNIT, mo.scale)) + P_ReturnThrustY(mo, mo.angle+ANGLE_270, FixedMul(32*FRACUNIT, mo.scale))
-					
+
 					mo.msl = P_SpawnXYZMissile(mo, target, MT_CYBRAKDEMON_MISSILE, xpos, ypos, mo.z + 144*mo.scale);
-				
+
 				elseif mo.msl and mo.msl.valid
-					
+
 					if R_PointToDist2(mo.msl.x, mo.msl.y, target.x, target.y) < 80*target.scale
 					and not mo.msl.fusing
-					
+
 						P_InstaThrust(mo.msl, 0, 0)
 						mo.msl.momz = 0
 						mo.msl.fusing = true
 						mo.msl.fuse = 10
-						
+
 						local s = P_SpawnMobj(mo.msl.x, mo.msl.y, mo.msl.z, MT_DUMMY)
 						s.color = SKINCOLOR_WHITE
 						s.state = S_MEGISTAR1
 						s.scale = $*2 + P_RandomRange(0, 65535)
 						playSound(mo.battlen, sfx_hamas1)
-						
-					elseif mo.msl.fusing 
-						
+
+					elseif mo.msl.fusing
+
 						if mo.msl.fuse == 1
 							local boom = P_SpawnMobj(target.x, target.y, target.z, MT_BOSSEXPLODE)
 							boom.scale = FRACUNIT*4
@@ -6895,19 +6895,19 @@ rawset(_G, "attackDefs", {
 
 							mo.msl = nil	--- deref
 							mo.msltimer = 30
-								
+
 						end
 					end
-					
+
 				elseif mo.msltimer
 					mo.msltimer = $-1
 					if not mo.msltimer
 						mo.msltimer = nil	-- deref
 						return true
-					end	
+					end
 				end
 			end,
-	},	
+	},
 
 	["pierce_1"] = {
 		name = "Pierce Attack",
@@ -7449,14 +7449,14 @@ rawset(_G, "attackDefs", {
 	["double fang"] = {
 		name = "Double Fang",
 		type = ATK_PIERCE,
-		power = 80,
+		power = 200,
 		accuracy = 80,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
 		cost = 11,
 		critical = 2,
 		hits = 2,
-		desc = "Light Pierce damage to \none enemy 2x",
+		desc = "Light Pierce damage to \none enemy up to 2 times.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7644,14 +7644,14 @@ rawset(_G, "attackDefs", {
 	["torrent shot"] = {
 		name = "Torrent Shot",
 		type = ATK_PIERCE,
-		power = 55,
+		power = 400,
 		accuracy = 80,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
 		cost = 15,
 		critical = 2,
 		hits = 3,
-		desc = "Light Pierce damage to \none enemy 3x",
+		desc = "Light Pierce damage to \none enemy up to 3 times.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -7995,7 +7995,7 @@ rawset(_G, "attackDefs", {
 	["myriad slashes"] = {
 		name = "Myriad Slashes",
 		type = ATK_SLASH,
-		power = 165,
+		power = 900,
 		accuracy = 70,
 		costtype = CST_HPPERCENT,
 		cost = 20,
@@ -8088,7 +8088,7 @@ rawset(_G, "attackDefs", {
 	["agneyastra"] = {
 		name = "Agneyastra",
 		type = ATK_STRIKE,
-		power = 120,
+		power = 850,
 		accuracy = 80,
 		costtype = CST_HPPERCENT,
 		cost = 20,
@@ -8172,7 +8172,7 @@ rawset(_G, "attackDefs", {
 	["kill rush"] = {
 		name = "Kill Rush",
 		type = ATK_STRIKE,
-		power = 110,
+		power = 330,
 		accuracy = 85,
 		costtype = CST_HPPERCENT,
 		cost = 13,
@@ -8228,13 +8228,13 @@ rawset(_G, "attackDefs", {
 	["swift strike"] = {
 		name = "Swift Strike",
 		type = ATK_STRIKE,
-		power = 110,
+		power = 330,
 		accuracy = 70,
 		costtype = CST_HPPERCENT,
 		cost = 20,
 		critical = 2,
 		hits = 2,
-		desc = "Medium strike damage to \nall enemies up to 3 times.",
+		desc = "Medium strike damage to \nall enemies up to 2 times.",
 		target = TGT_ALLENEMIES,
 		anim = function(mo, targets, hittargets, timer)
 
@@ -8468,7 +8468,7 @@ rawset(_G, "attackDefs", {
 	["akasha arts"] = {
 		name = "Akasha Arts",
 		type = ATK_STRIKE,
-		power = 280,
+		power = 950,
 		accuracy = 85,
 		costtype = CST_HPPERCENT,
 		cost = 26,
@@ -8678,13 +8678,13 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT*3
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer >= 35 and timer <= 45
 			and timer %5 == 0
 				local x = target.x + P_RandomRange(-128, 128)*mo.scale
 				local y = target.y + P_RandomRange(-128, 128)*mo.scale
 				local z = target.z + P_RandomRange(64, 128)*mo.scale
-				
+
 				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
 				rage.sprite = SPR_TSUN
 				rage.frame = A
@@ -8695,7 +8695,7 @@ rawset(_G, "attackDefs", {
 				rage.scalespeed = FRACUNIT/4
 				rage.tics = TICRATE/2
 			end
-			
+
 			if timer == 55
 				return true
 			end
@@ -8718,9 +8718,9 @@ rawset(_G, "attackDefs", {
 			local target = hittargets[1]
 
 			if timer == 20
-				
+
 				playSound(mo.battlen, sfx_s3k5d)
-				
+
 
 				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
 				ol.sprite = SPR_NTHK
@@ -8729,7 +8729,7 @@ rawset(_G, "attackDefs", {
 				ol.destscale = FRACUNIT*32
 				ol.scalespeed = FRACUNIT/5
 				ol.frame = B|FF_FULLBRIGHT
-				ol.tics = 20				
+				ol.tics = 20
 
 				for i=1,8
 					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
@@ -8739,9 +8739,9 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer == 35
-				
+
 				damageObject(target)
 				playSound(mo.battlen, sfx_s3k9b)
 
@@ -8774,13 +8774,13 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT*3
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer >= 45 and timer <= 55
 			and timer %5 == 0
 				local x = target.x + P_RandomRange(-128, 128)*mo.scale
 				local y = target.y + P_RandomRange(-128, 128)*mo.scale
 				local z = target.z + P_RandomRange(64, 128)*mo.scale
-				
+
 				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
 				rage.sprite = SPR_TSUN
 				rage.frame = A
@@ -8791,7 +8791,7 @@ rawset(_G, "attackDefs", {
 				rage.scalespeed = FRACUNIT/4
 				rage.tics = TICRATE/2
 			end
-			
+
 			if timer == 65
 				return true
 			end
@@ -8815,7 +8815,7 @@ rawset(_G, "attackDefs", {
 
 			if timer == 20
 				playSound(mo.battlen, sfx_s3k5d)
-				
+
 
 				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
 				ol.sprite = SPR_NTHK
@@ -8824,7 +8824,7 @@ rawset(_G, "attackDefs", {
 				ol.destscale = FRACUNIT*32
 				ol.scalespeed = FRACUNIT/5
 				ol.frame = B|FF_FULLBRIGHT
-				ol.tics = 20				
+				ol.tics = 20
 
 				for i=1,8
 					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
@@ -8834,9 +8834,9 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer == 35
-				
+
 				damageObject(target)
 				playSound(mo.battlen, sfx_s3k9b)
 
@@ -8869,13 +8869,13 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT*3
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer >= 45 and timer <= 55
 			and timer %5 == 0
 				local x = target.x + P_RandomRange(-128, 128)*mo.scale
 				local y = target.y + P_RandomRange(-128, 128)*mo.scale
 				local z = target.z + P_RandomRange(64, 128)*mo.scale
-				
+
 				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
 				rage.sprite = SPR_TSUN
 				rage.frame = A
@@ -8886,7 +8886,7 @@ rawset(_G, "attackDefs", {
 				rage.scalespeed = FRACUNIT/4
 				rage.tics = TICRATE/2
 			end
-			
+
 			if timer == 65
 				return true
 			end
@@ -8910,7 +8910,7 @@ rawset(_G, "attackDefs", {
 
 			if timer == 20
 				playSound(mo.battlen, sfx_s3k5d)
-				
+
 
 				local ol = P_SpawnMobj(target.x, target.y, target.z, MT_DUMMY)
 				ol.sprite = SPR_NTHK
@@ -8919,7 +8919,7 @@ rawset(_G, "attackDefs", {
 				ol.destscale = FRACUNIT*32
 				ol.scalespeed = FRACUNIT/5
 				ol.frame = B|FF_FULLBRIGHT
-				ol.tics = 20				
+				ol.tics = 20
 
 				for i=1,8
 					local b = P_SpawnMobj(target.x, target.y, target.z+20*FRACUNIT, MT_SUPERSPARK)
@@ -8929,9 +8929,9 @@ rawset(_G, "attackDefs", {
 					b.scale = FRACUNIT
 					b.destscale = FRACUNIT/12
 				end
-			
+
 			elseif timer == 35
-				
+
 				damageObject(target)
 				playSound(mo.battlen, sfx_s3k9b)
 
@@ -8972,13 +8972,13 @@ rawset(_G, "attackDefs", {
 					dust.frame = A|FF_FULLBRIGHT
 					P_InstaThrust(dust, dust.angle, 20*FRACUNIT)
 				end
-			
+
 			elseif timer >= 45 and timer <= 55
 			and timer %5 == 0
 				local x = target.x + P_RandomRange(-128, 128)*mo.scale
 				local y = target.y + P_RandomRange(-128, 128)*mo.scale
 				local z = target.z + P_RandomRange(64, 128)*mo.scale
-				
+
 				local rage = P_SpawnMobj(x, y, z, MT_DUMMY)
 				rage.sprite = SPR_TSUN
 				rage.frame = A
@@ -8989,7 +8989,7 @@ rawset(_G, "attackDefs", {
 				rage.scalespeed = FRACUNIT/4
 				rage.tics = TICRATE/2
 			end
-			
+
 			if timer == 65
 				return true
 			end
@@ -9535,7 +9535,7 @@ rawset(_G, "attackDefs", {
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
 		cost = 17,
-		critical = 7,
+		critical = 20,
 		desc = "Severe Slash damage to \none enemy. \nHigh critical rate",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
@@ -9625,7 +9625,7 @@ rawset(_G, "attackDefs", {
 	["tempest slash"] = {
 		name = "Tempest Slash",
 		type = ATK_SLASH,
-		power = 300,
+		power = 1000,
 		accuracy = 91,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
@@ -9872,7 +9872,7 @@ rawset(_G, "attackDefs", {
 	["twin slash"] = {
 		name = "Twin Slash",
 		type = ATK_SLASH,
-		power = 60,
+		power = 170,
 		accuracy = 90,
 		costtype = CST_HPPERCENT,
 		cost = 8,
@@ -10248,7 +10248,7 @@ rawset(_G, "attackDefs", {
 	["deathbound"] = {
 		name = "Deathbound",
 		type = ATK_SLASH,
-		power = 200,
+		power = 720,
 		accuracy = 70,
 		costtype = CST_HPPERCENT,
 		cost = 19,
@@ -10328,7 +10328,7 @@ rawset(_G, "attackDefs", {
 	["triple down"] = {
 		name = "Triple Down",
 		type = ATK_PIERCE,
-		power = 45,
+		power = 500,
 		accuracy = 75,
 		costtype = CST_HPPERCENT,
 		technical = COND_FREEZE,
@@ -10348,6 +10348,7 @@ rawset(_G, "attackDefs", {
 							local shot = P_SpawnMobj(v.x+x, v.y+y, v.z+z, MT_DUMMY)
 							shot.scale = FRACUNIT*3
 							shot.state = S_STAB_1_1
+							shot.color = SKINCOLOR_ORANGE
 							playSound(mo.battlen, sfx_hit)
 							damageObject(v)
 						end
@@ -15627,6 +15628,18 @@ rawset(_G, "attackDefs", {
 						elseif target.down
 							BTL_logMessage(targets[1].battlen, target.name.." is down.")
 							return true
+
+						elseif target.status_condition == COND_SLEEP
+							BTL_logMessage(targets[1].battlen, target.name.." is asleep.")
+							return true
+
+						elseif target.status_condition == COND_SHOCK
+							BTL_logMessage(targets[1].battlen, target.name.." is paralyzed.")
+							return true
+
+						elseif target.status_condition == COND_RAGE
+							BTL_logMessage(targets[1].battlen, target.name.." is enraged and can't hear you.")
+							return true
 						end
 					end,
 
@@ -18857,7 +18870,7 @@ rawset(_G, "attackDefs", {
 	["fitness"] = {
 		name = "Physical Fitness",
 		type = ATK_ALMIGHTY,
-		power = 2,
+		power = 1200,
 		hits = 25,
 		accuracy = 80,
 		critical = 1,
@@ -18886,6 +18899,7 @@ rawset(_G, "attackDefs", {
 						maso.sprite = SPR_MASO
 						maso.tics = -1
 						maso.frame = A
+						maso.fuse = TICRATE*8
 						maso.momx = (t.x - maso.x)/4
 						maso.momy = (t.y - maso.y)/4
 						maso.momz = (t.z - maso.z)/4
@@ -20526,7 +20540,7 @@ local instakill_accuracy_thresholds = {
 	28,
 	30,
 	40,	-- Mudoon
-	60,	-- Die For Me! 
+	60,	-- Die For Me!
 }
 
 local heal_thresholds = {
@@ -20539,34 +20553,34 @@ local heal_thresholds = {
 rawset(_G, "ATK_setRank", function(ref)
 	local atk = attackDefs[ref]
 	if atk.rank return end	-- this attack's Rank is already set.
-	
+
 	local rank = 1
-	
+
 	if atk.type and not (atk.type & ATK_PASSIVE)
-		
-		
-			
+
+
+
 			if atk.instakill	-- Instant Kills (Hama/Mudo etc)
 				for i = 1, #instakill_accuracy_thresholds
 					if atk.accuracy >= instakill_accuracy_thresholds[i]
 						rank = i+1
-					end	
+					end
 				end
-			
+
 			elseif atk.dekaja or atk.dekunda
 				rank = 3
-			
+
 			elseif atk.ghastlywail
 				rank = 5
-			
+
 			elseif atk.superbuff or atk.superdebuff
 				rank = 6
-			
-			elseif atk.buff or atk.debuff				
+
+			elseif atk.buff or atk.debuff
 				rank = 2
-				
+
 			elseif atk.power
-				
+
 				if atk.type & ATK_HEAL
 					for i = 1, #heal_thresholds
 						if atk.power >= heal_thresholds[i]
@@ -20579,8 +20593,8 @@ rawset(_G, "ATK_setRank", function(ref)
 							rank = i+1
 						end
 					end
-				end	
-							
+				end
+
 			elseif atk.status
 				rank = 2
 			end
@@ -20593,41 +20607,41 @@ rawset(_G, "ATK_setRank", function(ref)
 					rank = $+1
 				elseif atk.buff or atk.debuff
 					rank = $+3
-				end	
+				end
 			end
 
 	else
 		-- Passive skill handling
 		if atk.passive == PSV_BOOST
 			rank = atk.power/6
-		
+
 		elseif atk.passive == PSV_RESIST
 			rank = 4
-			
-		elseif atk.passive == PSV_BLOCK	
+
+		elseif atk.passive == PSV_BLOCK
 			rank = 5
-			
+
 		elseif atk.passive == PSV_REPEL
 			rank = 6
-			
+
 		elseif atk.passive == PSV_DRAIN
 			rank = 7
-		
+
 		elseif atk.passive == PSV_COND_BOOST
 			rank = 3
-		
+
 		elseif atk.passive == PSV_COND_RESIST
 			rank = atk.power/20
-		
+
 		elseif atk.passive == PSV_ENDURE
 			rank = 5
-			
+
 		end
 	end
-	
+
 	rank = min($, 7)
 	rank = max(1, $)
-	
+
 	print(atk.name.."- > RANK "..rank)
 	atk.rank = rank
 end)
@@ -20646,10 +20660,10 @@ local rank_costs = {
 rawset(_G, "ATK_makeSkillCard", function(atk)
 	local atkd = attackDefs[atk]
 	if not atkd return end	-- doesn't exist.
-	
+
 	local rarity = atkd.rank
-	local cost = rank_costs[rarity]		
-	
+	local cost = rank_costs[rarity]
+
 	itemDefs["sc/ "..atk] = {
 		name = atkd.name,
 		desc = atkd.desc,
@@ -20662,36 +20676,36 @@ rawset(_G, "ATK_makeSkillCard", function(atk)
 		menufunc = 	function(user, mo)	-- function to run when using the item from dungeon menu specifically
 						-- user: player mo in dungeon
 						-- mo: actual entity it was used on (will be a table if it's multi target)
-						
+
 						-- Generate the event...
 						local it = itemDefs["sc/ "..atk]
 						local text = "Use \x82"..buildItemName(it).."\x80?"
 						if mo.skillcard
 							text = $.."\n\x82The currently equipped "..buildItemName(itemDefs["sc/ "..mo.skillcard]).." will be ".."\x85".."overwritten."
 						end
-						
+
 						user.player.d_skillcard = it.skill
 						user.player.d_skillcardon = mo
-						
+
 						local evtdta = {
 							[1] = {"text", nil, text, {{"Yes", 2}, {"No", 4}}},
-							
+
 							-- Equip it
 							[2] = {"use_skillcard"},
-							
+
 							-- Don't (give the item back)
 							[4] = {"cancel_skillcard"},
-							
+
 							["hud_back"] = 	function(v)
 												v.fadeScreen(31, 5)
 											end,
 						}
-						
+
 						D_startPlayerEvent(user.player, evtdta)
 					end,
-		
+
 	}
-	
+
 end)
 
 for i = 1, #sorted_attackDefs

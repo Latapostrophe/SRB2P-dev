@@ -186,7 +186,7 @@ rawset(_G, "ringsList", {
 	},
 
 	["vigor cuffs"] = {
-		name = "Vior Cuffs",
+		name = "Vigor Cuffs",
 		def = 500,
 		desc = "Heavy rings that increase\none's vitality at the cost of making\nit much harder to concentrate.",
 		sp = -75,

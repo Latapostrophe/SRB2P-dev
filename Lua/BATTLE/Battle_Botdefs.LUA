@@ -157,7 +157,7 @@ rawset(_G, "PLYR_initStats", function(mo, persona, skin)
 	mo.maxsp = msp
 	mo.sp = mo.maxsp
 	mo.realsp = mo.maxsp	-- realhp/sp is used for equipment that would give you ""negative"" stats when used.
-	
+
 	-- Handle our LiNK Boosts
 	if srb2p.storymode
 		mo.linkhp = 5*srb2p.storydata.linkskills[LINK_HP]
@@ -170,7 +170,7 @@ rawset(_G, "PLYR_initStats", function(mo, persona, skin)
 		mo.realhp = mo.maxhp
 		mo.realsp = mo.maxsp
 	end
-	
+
 	-- Store Catalyst Boost Amounts here
 	mo.catalysthp = 0
 	mo.catalystsp = 0
@@ -253,7 +253,7 @@ rawset(_G, "PLYR_initPersona", function(mo, persona, skin)	-- init stats and ski
 	mo.resist = persona.resist or 0
 	mo.drain = persona.drain or 0
 	mo.repel = persona.repel or 0
-	
+
 	mo.arcana = persona.arcana
 
 	mo.persona = persona
@@ -583,7 +583,7 @@ local function PLYR_removeTeam(pn)
 	if pfound
 		dprint("There are still players in team "..pn..", can't remove it!!")
 		return
-	end	-- uh are you dumb or something?		
+	end	-- uh are you dumb or something?
 
 	local i = #server.plentities[pn]
 	while i
@@ -829,7 +829,7 @@ local function PLYR_checkforPlayer(mo)		-- check if whoever is controlling 'mo' 
 	local seek	-- seek our index in the party
 	--for i = 1, #server.plentities[mo.party] do
 	for i = 1, server.P_netstat.teamlen do
-		if server.plentities[mo.party][i] == mo
+		if server.plentities[mo.party] and server.plentities[mo.party][i] and server.plentities[mo.party][i] == mo
 			seek = i
 			break
 		end
@@ -1006,9 +1006,9 @@ end
 
 local function any_valid_player(t)
 	for i = 1, server.P_netstat.teamlen
-		if t[i] and t[i].valid
+		if t and t[i] and t[i].valid
 			return t[i]
-		end	
+		end
 	end
 	return nil
 end
@@ -1018,15 +1018,15 @@ rawset(_G, "PLYR_assignSpectator", function(p)
 	if p.P_spectator return end	-- no.
 	if not server.plentities return end
 	if not server.P_netstat.teamlen return end
-	
+
 	local allinvalid = true
 	for i = 1, 4 do
 		if any_valid_player(server.plentities[i])
 			allinvalid = false
 			break
-		end	
+		end
 	end
-	
+
 	if allinvalid return end
 
 	if not p.P_party

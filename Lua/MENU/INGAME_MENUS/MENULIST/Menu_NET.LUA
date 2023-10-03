@@ -944,8 +944,6 @@ M_menus["mpselect_main"] = {
 				count = $+1
 			end
 			if count < 2
-			or count > 8
-			or (mo.m_menuchoices[mo.m_submenu] == 2 and count > 5)	-- boss mode is 5 players max
 				S_StartSound(nil, sfx_not, mo.player)
 				return true
 			end

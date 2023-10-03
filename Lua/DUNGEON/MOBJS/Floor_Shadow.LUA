@@ -31,10 +31,10 @@ mobjinfo[MT_SHEDEW] = {
 
 -- intializes a shadow's wave and its level
 rawset(_G, "shadowWaveInit", function(mo, forcewave)
-	
+
 	if not forcewave and not (server.waves or #server.waves) return end
 	local wave = forcewave or server.waves[P_RandomRange(1, #server.waves)]
-	
+
 	mo.wave = wave
 	-- get the wave's highest level and assign that as the shadow's level
 	local lvsum = 0
@@ -42,9 +42,9 @@ rawset(_G, "shadowWaveInit", function(mo, forcewave)
 		local en = enemyList[mo.wave[i]]
 		if en and en.level
 			lvsum = $+en.level
-		end	
+		end
 	end
-	
+
 	lvsum = $ / #mo.wave
 	mo.level = lvsum
 end)
@@ -94,29 +94,29 @@ addHook("MobjThinker", function(mo)
 	if mo.shadowflags & SHF_GOLD
 		goldShadowGlow(mo)
 	end
-	
+
 	-- scale:
 	if not DNG_isTartarusMap()
 	or mo.shadowflags & SHF_STRONG
 		if mo.cusval == 0
 			mo.scale = $*16/10
 			mo.cusval = 1
-		end	
+		end
 	end
-	
+
 	local frame_anims = {}
 	if server.cdungeon
 		frame_anims = {
 			server.cdungeon.shadowframes_stop,
 			server.cdungeon.shadowframes_move,
 		}
-	
+
 	elseif DNG_shadowSprites and DNG_shadowSprites[gamemap]
 		frame_anims = {
 			DNG_shadowSprites[gamemap][1],
 			DNG_shadowSprites[gamemap][2]
 		}
-	end	
+	end
 
 	if server.entrytime
 
@@ -130,11 +130,11 @@ addHook("MobjThinker", function(mo)
 	if mo.fuse and mo.fuse > 1
 		return
 	end
-	
+
 	-- init shadow wave
 	if not mo.wave
 		shadowWaveInit(mo)
-	end	
+	end
 
 	-- make shadows flee
 	if mo.shadowflags & SHF_RUNAWAY
@@ -176,12 +176,12 @@ addHook("MobjThinker", function(mo)
 		if mo.shadowflags & SHF_GOLD
 			A_Look(mo, (256<<16)+1, 0)	-- gold shadows also look all around in a more limited fashion
 		end
-		
+
 		-- don't target spectators.
 		if mo.target and mo.target.player and mo.target.player.P_spectator
 			mo.target = nil
-		end	
-		
+		end
+
 		mo.ttime = 0
 	end
 
@@ -252,7 +252,7 @@ addHook("MobjThinker", function(mo)
 				end
 
 				mo.momz = 0
-				
+
 				if DNG_isTartarusMap()
 					mo.z = max(-8*FRACUNIT, mo.floorz)
 				end
@@ -325,7 +325,7 @@ addHook("ShouldDamage", function(mo, s)
 
 	local special = s.spawnpoint and s.spawnpoint.valid and s.spawnpoint.options & 4	-- mtf_special
 
-	if mo.player and mo.player.P_spectator	
+	if mo.player and mo.player.P_spectator
 	or server.P_BattleStatus[mo.player.P_party].running
 	or (server and server.entrytime)
 	or mo.spr_nfloor

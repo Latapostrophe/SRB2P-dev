@@ -97,44 +97,44 @@ end)
 -- Get a subpersona from the compendium that's the same as subp
 rawset(_G, "P_getSubpersonaFromCompendium", function(subp)
 	if not srb2p.storymode return end
-	
+
 	local t = srb2p.storydata.compendium
 	for i = 1, #t do
 		local csubp = t[i]
-		
+
 		if subp.name == csubp.name
 			return csubp
 		end
-	end	
+	end
 end)
 
 -- Checks if a SubPersona can be added in the compendium
 rawset(_G, "P_canReplaceCompendium", function(subp)
 	if not srb2p.storymode return end
-	
+
 	local csubp = P_getSubpersonaFromCompendium(subp)
-		
+
 	if csubp
 		local r = false
 		local diffskills
-			
+
 		for j = 1, #subp.skills
 			if csubp.skills[j] ~= subp.skills[j]
 				diffskills = true
 				break
-			end	
+			end
 		end
-		
+
 		if subp.level > csubp.level
 		or (subp.level == csubp.level and subp.exp > csubp.exp)
 		or #subp.skills > #csubp.skills
 		or diffskills
 			return true
 		else
-			return false	
+			return false
 		end
 	end
-	
+
 	return true 	-- couldn't find it? then sure, we can register
 end)
 
@@ -150,24 +150,24 @@ local skilltiercost = {
 
 -- Evaluates the cost of a subpersona...
 rawset(_G, "P_subpersonaCost", function(subp)
-	
+
 	local price = 0
 	price = $ + (10 + subp.level)^2 *10
-	
+
 	local stats = {"st", "ma", "en", "ag", "lu"}
 	for i = 1, #stats do
 		local st = subp[stats[i]]
 		if st > 0
 			price = $+ 16*st
-		end	
+		end
 	end
-	
+
 	for i = 1, #subp.skills do
 		local atkd = attackDefs[subp.skills[i]]
 		local r = atkd.rank or 1
 		price = $ + skilltiercost[r]
 	end
-	
+
 	return price
 end)
 

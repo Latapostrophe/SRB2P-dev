@@ -162,7 +162,7 @@ f = "DUNGEON"
 
 	f = "DUNGEON/EQUIPLAB"
 		df("EquipmentLab.LUA")
-		
+
 	f = "DUNGEON/FUSIONS"
 		df("FusionLib.LUA")
 		df("SubPFusion.LUA")

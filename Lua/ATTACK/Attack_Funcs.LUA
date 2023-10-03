@@ -322,8 +322,8 @@ rawset(_G, "isAttackTechnical", function(mo, atk, t)
 	elseif cond == COND_BRAINWASH	-- Technical: Psy / Bless
 		return (t == ATK_PSY or t == ATK_BLESS)
 
-	elseif cond == COND_SLEEP		-- Technical: All
-		return 1
+	elseif cond == COND_SLEEP		-- Technical: All except friendly attacks / attacks with no power notation.
+		return atk.power and (atk.target ~= TGT_ALLY and atk.target ~= TGT_ALLALLIES)
 
 	elseif cond == COND_DIZZY		-- Dizzy: Psy / Nuke / Elec
 		return (t == ATK_PSY or t == ATK_NUCLEAR or t == ATK_ELEC)
@@ -379,30 +379,46 @@ rawset(_G, "getAttackAff", function(mo, atk, attacker)
 		return DMG_BLOCK
 	end
 
+	-- attacks with no power value should ignore affinities altogether.
+	if not atk.power
+		return DMG_NORMAL
+	end
+
 	-- Technical damage bypasses all affinities besides weak!
 	local technical = isAttackTechnical(mo, atk, atktype)
 	debuff = $ or technical	-- this counts, too
 
 
 	-- check if our passive skills block the attack
+	local bestaff = DMG_NORMAL
 	for i = 1, #mo.passiveskills
 		local psv = mo.passiveskills[i]
 		if attackDefs[psv]
 			psv = attackDefs[$]
+
 			if psv.type & atktype
 
-				if psv.passive == PSV_BLOCK and not debuff
-					return DMG_BLOCK
-				elseif psv.passive == PSV_REPEL and not debuff and not (psv.accuracy and psv.accuracy < 100)	-- chance repels don't count!
-					return DMG_REPEL
-				elseif psv.passive == PSV_RESIST and not debuff
-					return DMG_RESIST
-				elseif psv.passive == PSV_DRAIN and not debuff
-					return DMG_DRAIN
+				if (psv.passive == PSV_BLOCK and not debuff)
+					bestaff = max($, DMG_BLOCK)
+
+				elseif (psv.passive == PSV_REPEL and not debuff and not (psv.accuracy and psv.accuracy < 100))	-- chance repels don't count!
+					bestaff = max($, DMG_REPEL)
+
+				elseif (psv.passive == PSV_RESIST and not debuff)
+					bestaff = max($, DMG_RESIST)
+
+				elseif (psv.passive == PSV_DRAIN and not debuff)
+					bestaff = max($, DMG_DRAIN)
 				end
 			end
 		end
 	end
+
+	-- we found something better than normal resistance in our passive skills
+	if bestaff > DMG_NORMAL
+		return bestaff
+	end
+
 
 	-- very special case.
 	if mo.guard
@@ -970,6 +986,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 			if (P_RandomRange(0, 100) <= status_hitrate)
 			and not mo.status_condition	-- can't status again if we already got that
+			and status_hitrate > 0 -- can't status if our hitrate was 0% to begin with
 			--and not mo.boss
 				mo.cachestatus = atk.status
 				mo.damagestate = DMG_STATUS
@@ -992,7 +1009,14 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		end
 	end
 
-	if forcedamage then return forcedamage,false end	-- yeah no
+	if forcedamage
+		-- for healing, remove any special damage state.
+		if forcedamage < 0
+			mo.damagestate = DMG_NORMAL
+		end
+
+		return forcedamage,false
+	end	-- yeah no
 
 	if atktype == ATK_HEAL or atktype == ATK_SUPPORT	-- these are not meant to deal any damage.
 		return 1
@@ -1246,12 +1270,16 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 	local ATK_DEF = FixedDiv(USER_ATK, ENEMY_DEF)
 	--print(ATK_POW.."|"..ATK_DEF.."|"..usestat.."|"..POW.."|"..attacker.atk)
 
-	dmg = max(1, 5*FixedMul(FixedSqrt(ATK_DEF), FixedSqrt(ATK_POW))) /FRACUNIT
-	-- 5* sqrt( (ATK/DEF)*POW)
+	dmg = 5*FixedMul(FixedSqrt(ATK_DEF), FixedSqrt(ATK_POW)) /FRACUNIT / (atk.hits or 1)
+	dmg = max(1, $)
+	-- 5* sqrt( (ATK/DEF)*POW) / hits
 	-- Because of integer overflow concerns within the square root itself,
 	-- we change the formula to
 	-- 5* sqrt(ATK/DEF)*sqrt(POW), Knowing that sqrt(a*b) = sqrt(a)*sqrt(b)
 
+	if dmg < 0	-- if somehow this turns out to be healing, reset damage state to normal.
+		mo.damagestate = DMG_NORMAL
+	end
 
 	if mo.down
 	and atk.downboost	-- stuff like cruel attack / vile assault
@@ -1324,6 +1352,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		end
 
 	elseif mo.damagestate == DMG_DRAIN
+	and dmg > 0
 		dmg = -dmg			-- let's heal instead.
 
 	elseif mo.damagestate == DMG_RESIST
@@ -1332,7 +1361,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 		dmg = max(1, $/3)	-- Do less damage
 	end
 
-	if mo.guard	and not drain		-- guarding (stacks with resistances) (don't guard a drain)
+	if mo.guard	and mo.damagestate ~= DMG_DRAIN
 		dmg = max(1, $/3)
 	end
 
@@ -1637,30 +1666,25 @@ end)
 
 
 rawset(_G, "run_ondamagepassives", function(mo)
-	-- ondamage passives
-	mo.atk_attacker.ondamage_recursion = $ or 0
-	mo.ondamage_recursion = $ or 0
-
-	for i = 1, #mo.atk_attacker.passiveskills
-		local psv = mo.atk_attacker.passiveskills[i]
-		local flag = (2<<(i-1))
-
-		if not (mo.atk_attacker.ondamage_recursion & flag) and attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
-			-- make sure to set this flag BEFORE calling the anim
-			mo.atk_attacker.ondamage_recursion = $ | flag
-			attackDefs[psv].anim(mo.atk_attacker, mo)
-
+	if not mo.ondamage_recursion
+		local btl = server.P_BattleStatus[mo.battlen]
+		for i = 1, #btl.fighters						--in case someone damages all enemies or some
+			btl.fighters[i].ondamage_recursion = true	--stupid shit so this ensures everything
+		end												--everything works as intended
+		for i = 1, #mo.atk_attacker.passiveskills
+			local psv = mo.atk_attacker.passiveskills[i]
+			if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE
+				attackDefs[psv].anim(mo.atk_attacker, mo)
+			end
 		end
-	end
-
-	for i = 1, #mo.passiveskills
-		local psv = mo.passiveskills[i]
-		local flag = (2<<(i-1))
-
-		if not (mo.ondamage_recursion & flag) and attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
-			-- make sure to set this flag BEFORE calling the anim
-			mo.ondamage_recursion = $ | flag
-			attackDefs[psv].anim(mo, mo.atk_attacker)
+		for i = 1, #mo.passiveskills
+			local psv = mo.passiveskills[i]
+			if attackDefs[psv] and attackDefs[psv].passive == PSV_ONDAMAGE_RECEIVED
+				attackDefs[psv].anim(mo, mo.atk_attacker)
+			end
+		end
+		for i = 1, #btl.fighters
+			btl.fighters[i].ondamage_recursion = nil
 		end
 	end
 end)
@@ -2750,6 +2774,16 @@ COM_AddCommand("d_setstatus", function(p, target, num, arg)
 					end
 
 					t[i].down = true	-- down is a separate status condition
+
+				elseif status_lookup[arg] == COND_HYPER
+
+					if t[i].status_condition ~= COND_HYPER
+						t[i].status_condition = COND_HYPER
+						local stats = {"strength", "magic", "endurance", "agility", "luck"}
+						for j = 1, #stats do
+							t[i][stats[j]] = $+10
+						end
+					end
 				else
 					cureStatus(t[i])
 					t[i].status_condition = 0

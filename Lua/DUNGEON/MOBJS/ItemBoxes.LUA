@@ -130,7 +130,7 @@ addHook("MobjCollide", function(t, mo)
 							DNG_logMessage(dispname.." found ".."\x82"..buildWeaponName(wpn))
 						end
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
-						
+
 						REQ_checkItem(wpn, 1, ACQ_DROP)
 					end
 
@@ -147,7 +147,7 @@ addHook("MobjCollide", function(t, mo)
 							DNG_logMessage(dispname.." found ".."\x82"..buildRingName(ring))
 						end
 						spawnRingDrop(ring, t.x, t.y, t.z)
-						
+
 						REQ_checkItem(ring, 1, ACQ_DROP)
 					end
 
@@ -163,7 +163,7 @@ addHook("MobjCollide", function(t, mo)
 							DNG_logMessage(dispname.." found ".."\x82"..buildWeaponName(wpn))
 						end
 						spawnWeaponDrop(wpn, t.x, t.y, t.z)
-						
+
 						REQ_checkItem(wpn, 1, ACQ_DROP)
 					end
 				end

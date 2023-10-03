@@ -541,7 +541,7 @@ local function mm_drawPlayerSetup(v, anim, choices, curchoice)
 	if loc_skin == nil
 		local skincv = CV_FindVar("defaultskin")
 		if skincv
-			for i = 0, 31 do
+			for i = 0, 254 do
 				if skins[i] and skins[i].valid and skins[i].name == skincv.string
 
 					if not P_unlockedCharacter(skins[i].name)	-- yikes!
@@ -564,7 +564,7 @@ local function mm_drawPlayerSetup(v, anim, choices, curchoice)
 
 	mm_genericOptions(v, anim, choices, curchoice)
 
-	for i = 0, 31
+	for i = 0, 254
 		if skins[i] and skins[i].valid
 			maxskin = i
 		else
@@ -1234,9 +1234,9 @@ local settings_opt = {
 }
 
 local control_opt = {
-
-	{"CURSOR MEMORY", 100, 8, CT_CVAR, cv_cursormemory, nil, "If on, keeps your cursor where it was in battle"},
-	{"INVERT COMMAND", 100, 20, CT_CVAR, cv_invertcommand, nil, "If on, inverts commands in battle"},
+	
+	{"CURSOR MEMORY", 100, 8, CT_CVAR, cv_cursormemory, nil, "If on, cursor position is kept between turns."},
+	{"INVERT COMMAND", 100, 20, CT_CVAR, cv_invertcommand, nil, "If on, flips the rotation of the battle wheel."},
 
 	{"MOVE FORWARD", 100, 44, CT_GAMECONTROL, gc_forward, nil, "Set game controls"},
 	{"MOVE BACKWARDS", 100,56, CT_GAMECONTROL, gc_backward, nil, "Set game controls"},
@@ -1246,11 +1246,11 @@ local control_opt = {
 	{"TURN RIGHT", 100, 104, CT_GAMECONTROL, gc_turnright, nil, "Set game controls"},
 
 	-- SRB2P Buttons
-	{"A BUTTON", 100, 128, CT_GAMECONTROL, gc_jump, nil, "Set game controls"},
-	{"B BUTTON", 100, 140, CT_GAMECONTROL, gc_use, nil, "Set game controls"},
-	{"C BUTTON", 100, 152, CT_GAMECONTROL, gc_tossflag, nil, "Set game controls"},
-	{"L BUTTON", 100, 164, CT_GAMECONTROL, gc_weaponprev, nil, "Set game controls"},
-	{"R BUTTON", 100, 176, CT_GAMECONTROL, gc_weaponnext, nil, "Set game controls"},
+	{"A BUTTON", 100, 128, CT_GAMECONTROL, gc_jump, nil, "Jump/Confirm"},
+	{"B BUTTON", 100, 140, CT_GAMECONTROL, gc_use, nil, "Open Menu/Back"},
+	{"C BUTTON", 100, 152, CT_GAMECONTROL, gc_tossflag, nil, "Interact/Misc"},
+	{"L BUTTON", 100, 164, CT_GAMECONTROL, gc_weaponprev, nil, "Cycle left/Misc"},
+	{"R BUTTON", 100, 176, CT_GAMECONTROL, gc_weaponnext, nil, "Cycle right/Misc"},
 
 	-- multiplayer?
 	{"CHAT", 100, 200, CT_GAMECONTROL, gc_talkkey, nil, "Set game controls"},
@@ -1266,16 +1266,17 @@ local control_opt = {
 	{"SCREENSHOT", 100, 296, CT_GAMECONTROL, gc_screenshot, nil, "Also available by pressing F8"},
 	{"RECORD GIF", 100, 308, CT_GAMECONTROL, gc_recordgif, nil, "Also available by pressing F9"},
 	{"SYSTEM MENU", 100, 320, CT_GAMECONTROL, gc_systemmenu, nil, "Also available by pressing ESC"},
-	{"CONSOLE", 100, 332, CT_GAMECONTROL, gc_console, nil, "Also available with \'`\'"},
+	{"CONSOLE", 100, 332, CT_GAMECONTROL, gc_console, nil, "Also available by pressing Tilde"},
 
 	-- Lua?
-	{"CUSTOM 1", 100, 356, CT_GAMECONTROL, gc_custom1, nil, "Set game controls"},
-	{"CUSTOM 2", 100, 368, CT_GAMECONTROL, gc_custom2, nil, "Set game controls"},
-	{"CUSTOM 3", 100, 380, CT_GAMECONTROL, gc_custom3, nil, "Set game controls"},
+	{"CUSTOM 1", 100, 356, CT_GAMECONTROL, gc_custom1, nil, "May be used by addons"},
+	{"CUSTOM 2", 100, 368, CT_GAMECONTROL, gc_custom2, nil, "May be used by addons"},
+	{"CUSTOM 3", 100, 380, CT_GAMECONTROL, gc_custom3, nil, "May be used by addons"},
 
 	-- Opt
 	{"MOUSE SETTINGS", 100, 404, CT_MENUSTATE, MS_MOUSEOPTIONS, nil, "Options relative to the Mouse"},
 	{"CONTROLLER SETTINGS", 100, 416, CT_MENUSTATE, MS_CONTROLLEROPTIONS, nil, "Options relative to controller sticks and defaults."},
+	{"ANALOG MODE", 100, 428, CT_CVAR, CV_FindVar("uconfiganalog"), nil, "If off, movement is in relation of the camera direction."},
 }
 
 local controller_opt = {

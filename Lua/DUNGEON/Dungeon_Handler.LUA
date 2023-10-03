@@ -100,7 +100,7 @@ addHook("ShouldDamage", function(mo)
 end, MT_PLAYER)
 
 local function PIT_checkShadows(mo, v)
-	
+
 	if v and v.valid
 	and v.flags & MF_ENEMY
 	and v.level
@@ -111,7 +111,7 @@ end
 
 local function DNG_playerEnemyProximity(mo)
 	mo.dng_proximityenemies = {}
-	
+
 	local range = 2048*mo.scale
 	searchBlockmap("objects", PIT_checkShadows, mo, mo.x - range, mo.x + range, mo.y - range, mo.x + range)
 end

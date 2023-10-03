@@ -236,14 +236,14 @@ end)
 addHook("MapLoad", do
 	if gamemap == srb2p.tartarus_map
 		COM_BufInsertText(server, "maxplayers 16")
-		
+
 		for p in players.iterate do
 			local mo = p.mo
 			p.P_spectator = nil
 			if p.mo
 				p.mo.colorized = false	-- uh yeah specs do that...
 				M_closeMenu(p.mo)
-			end	
+			end
 		end
 	end
 end)
@@ -350,14 +350,14 @@ rawset(_G, "NET_startgame", function()
 	elseif server.gamemode == GM_PVP
 		server.pvpmode = buf.extradata
 	end
-	
+
 	-- set date for fancies
 	if server.marathon
 		DATE_setDate(5, 4, 24, 2010, -1)
 	else
 		DATE_setDate(5, 4, 24, 2010, -1)
-	end	
-		
+	end
+
 	if server.roguemode
 		ROGUE_reset()
 		if not server.rogueseed
@@ -544,7 +544,7 @@ local function NET_team_skinselect(p)
 	local net = server.P_netstat
 	local minskin = 0
 	local maxskin = 0
-	for i = 0, 31
+	for i = 0, 254
 		if skins[i] and skins[i].valid
 			maxskin = i
 		else
@@ -576,7 +576,7 @@ local function NET_team_skinselect(p)
 	mo.P_net_selectindex = $ or myindex
 
 	if mo.P_net_skinselect == nil
-		for i = 0, 31 do
+		for i = 0, 254 do
 			if skins[i].name == mo.skin
 				mo.P_net_skinselect = i
 				break
@@ -1096,6 +1096,7 @@ local function NET_teamselect()
 			elseif inpt[BT_USE] == 1
 				S_StartSound(nil, sfx_confir, p)
 				mo.P_net_teamstate = 0
+				mo.P_net_createparty = nil
 				mo.P_net_spectate = nil
 			end
 		end
@@ -1107,7 +1108,7 @@ local function NET_teamselect()
 			pready = $+1
 		end
 	end
-	
+
 	-- the launch prompt(if our host is deciding to spectate):
 	for p in players.iterate
 		local inpt = p.mo.P_inputs

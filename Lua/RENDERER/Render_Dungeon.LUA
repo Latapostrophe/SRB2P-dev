@@ -608,9 +608,9 @@ rawset(_G, "renderSaveButton", function(v, p)
 end)
 
 local function renderInteractionButton(v, p)
-	
+
 	if not p.mo.obj_interact return end
-	
+
 	local timer = p.mo.obj_interact
 	local xscale = FRACUNIT
 	local yscale = FRACUNIT
@@ -625,7 +625,7 @@ local function renderInteractionButton(v, p)
 
 		local str = p.mo.obj_interact_dta[1]
 		V_drawString(v, 220, 83, str:sub(1, tt), "FPIMP", 0, "center", 0, 31)
-		
+
 		if timer > #buttonscales+4
 			tt = timer - #buttonscales - 4
 			str = p.mo.obj_interact_dta[2]
@@ -736,14 +736,14 @@ end)
 
 local function R_drawFadeDta(v)
 	if server.fadedta
-		
+
 		local fadelv = 0
-		
+
 		if server.fadedta.timer > 10
 			fadelv = 20 - server.fadedta.timer
 		else	-- <= 10
 			fadelv = server.fadedta.timer
-		end	
+		end
 		v.fadeScreen(server.fadedta.colour, fadelv)
 	end
 end
@@ -823,19 +823,19 @@ local lvdiff_col = {
 }
 
 rawset(_G, "renderProximityEnemyLevel", function(v, mo, c)
-	
+
 	local mylevel
 	if mo.player.maincontrol
 		mylevel = mo.player.maincontrol.level
 	else
 		mylevel = 1	-- fallback!?
-	end	
-	
+	end
+
 	if mo.dng_proximityenemies
 		for i = 1, #mo.dng_proximityenemies
 			local e = mo.dng_proximityenemies[i]
 			local x, y = R_GetScreenCoords(v, mo.player, c, e.x, e.y, e.z + e.scale*72)
-			
+
 			-- x & y < 0 if out of screen
 			if x > 0 and y > 0
 				local lvtier = DNG_getLevelTier(mylevel, e.level)
@@ -872,7 +872,7 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 	if renderMenus(v, mo)
 		drawEvent(v, p)		-- Still draw per-player events, they take priority.
 		renderTitlecard(v)	-- And fades
-		
+
 		-- and also link exp for the requests menu, if we display it, also draw a fade.
 		if srb2p.storymode
 		and srb2p.storydata.dolinkexp
@@ -883,13 +883,13 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 			elseif srb2p.storydata.linkfinishtimer
 				xpos = max(0, ((srb2p.storydata.linkdone + TICRATE) - srb2p.storydata.linkfinishtimer))*(-32)
 			end
-			
+
 			local fade = min(7, (TICRATE - srb2p.storydata.linktimer)/2)
-			
+
 			v.fadeScreen(31, fade)
 			renderLiNKEXP(v, p, xpos)
 		end
-		
+
 		return true
 	end	-- don't render the rest if we're in a menu
 
@@ -977,6 +977,7 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 		renderSaveButton(v, p)
 	end
 
+
 	if mo.obj_interact
 		renderInteractionButton(v, p)
 	end
@@ -995,13 +996,14 @@ rawset(_G, "HUDDungeonThinker", function(v, p, c)
 	if server.blocktrans
 		renderBlockTransition(v)
 	end
-	
+
 	drawDateChangeDate(v)
 	drawDateChangeTime(v)
-	
+
 	if server.fadedta
 		R_drawFadeDta(v)
 	end
+
 
 	if srb2p.storymode
 	and srb2p.storydata.dolinkexp

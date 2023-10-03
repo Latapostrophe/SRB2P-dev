@@ -254,7 +254,7 @@ rawset(_G, "R_drawShop", function(v, mo)
 					local cost = 250
 					if atk.power then cost = atk.power*3 end
 
-					V_drawString(v, x+170, ty, (cost/5)..currency, "NFNT", 0, "right", 0, 31)
+					V_drawString(v, x+170, ty, (cost/8)..currency, "NFNT", 0, "right", 0, 31)
 
 					if i == mo.shop.choice
 						-- Also draw the item description...

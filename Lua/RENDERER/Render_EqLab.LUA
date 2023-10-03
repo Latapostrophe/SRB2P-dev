@@ -397,7 +397,7 @@ rawset(_G, "R_drawEquipLab", function(v, mo)
 			PDraw(v, -timer*64, 0, v.cachePatch("M_EQUIW2"), V_SNAPTOLEFT|V_SNAPTOTOP|TR_TRANS40)
 			PDraw(v, -timer*64, 0, v.cachePatch("M_EQUIW1"), V_SNAPTOLEFT|V_SNAPTOTOP)
 
-			V_drawString(v, -timer*64 +8, 30, member.name.." LV"..member.level, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, nil)
+			V_drawString(v, -timer*64 +3, 30, member.name.." LV"..member.level, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
 
 			v.drawFill(-timer*64+4, 75, 90, 1, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
 
@@ -415,34 +415,34 @@ rawset(_G, "R_drawEquipLab", function(v, mo)
 				totalstr = $.."\n"
 			end
 
-			V_drawString(v, -timer*64 +8, 80, "STATS TOTAL: \n", "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
-			V_drawString(v, -timer*64 +8, 90, totalstr, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31, FRACUNIT/3)
+			V_drawString(v, -timer*64 +3, 80, "STATS TOTAL: \n", "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31)
+			V_drawString(v, -timer*64 +3, 90, totalstr, "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, 0, 31, FRACUNIT/3)
 
 			if wep
 				if e.selectequip == 1
-					v.drawFill(-timer*64 + 4, 48, 128, 12, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
+					v.drawFill(-timer*64, 48, 132, 12, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
 					namebuildfunc = buildWeaponName
 				end
 
-				V_drawString(v, -timer*64 +8, 50, buildWeaponName(wep), "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
+				V_drawString(v, -timer*64 +3, 50, buildWeaponName(wep), "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
 
 				-- weapon power:
-				V_drawString(v, -timer*64 +92, 52, "ATK", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31, FRACUNIT/4)
-				V_drawString(v, -timer*64 +108, 51, (wep.atk/10), "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
+				V_drawString(v, -timer*64 +101, 52, "ATK", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31, FRACUNIT/4)
+				V_drawString(v, -timer*64 +113, 51, (wep.atk/10), "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
 			end
 			if rng
 				-- this code sucks
 				if e.selectequip == 2
-					v.drawFill(-timer*64 + 4, 60, 128, 12, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
+					v.drawFill(-timer*64, 60, 136, 12, 135|V_SNAPTOTOP|V_SNAPTOLEFT)
 					namebuildfunc = buildRingName
 					ittype = 2
 				end
 
-				V_drawString(v, -timer*64 +8, 62, buildRingName(rng), "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
+				V_drawString(v, -timer*64 +3, 62, buildRingName(rng), "NFNT", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
 
 				-- ring def:
-				V_drawString(v, -timer*64 +92, 64, "DEF", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31, FRACUNIT/4)
-				V_drawString(v, -timer*64 +108, 63, (rng.def/10), "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
+				V_drawString(v, -timer*64 +101, 64, "DEF", "FPIMP", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31, FRACUNIT/4)
+				V_drawString(v, -timer*64 +113, 63, (rng.def/10), "FPNUM", V_SNAPTOTOP|V_SNAPTOLEFT, nil, (not mybot) and 16 or 0, 31)
 			end
 
 			local it1 = e.lastsource
@@ -530,7 +530,7 @@ rawset(_G, "R_drawEquipLab", function(v, mo)
 			v.drawFill(150 + timer*96, y, 999, 1, 135|V_SNAPTORIGHT)
 
 			if it1.level >= 10
-				V_drawString(v, 150 + timer*96, y+4, "\x82".."This item cannot be enhanced furhter", "NFNT", V_SNAPTORIGHT, nil, 0, 31)
+				V_drawString(v, 150 + timer*96, y+4, "\x82".."Max enhancement level reached", "NFNT", V_SNAPTORIGHT, nil, 0, 31)
 			else
 
 				V_drawString(v, 150 + timer*96, y-8, "YOU NEED", "FPIMP", V_SNAPTORIGHT, nil, 135, nil)
