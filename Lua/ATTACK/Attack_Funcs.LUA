@@ -1689,7 +1689,7 @@ rawset(_G, "run_ondamagepassives", function(mo)
 	end
 end)
 
-rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage an object
+rawset(_G, "damageObject", function(mo, damage, damagestate, reset, skipaggro)		-- damage an object
 	-- set damage to nil to use the sevrer pre-calculated damage!
 	local btl = server.P_BattleStatus[mo.battlen]
 
@@ -2250,7 +2250,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 				div = $*6
 			end	-- only restore 12.5% of damage dealt with link skills
 
-			damageObject(mo.atk_attacker, -(abs(damage)*3/div))
+			damageObject(mo.atk_attacker, -(abs(damage)*3/div), DMG_NORMAL, true, true)
 
 		elseif mo.fieldstate.type == FLD_ZIOVERSE
 		and not mo.zionverse_spread	-- flag to make sure we don't endlessly damage everything lol
@@ -2267,7 +2267,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 					a.atk_hitby = mo.atk_hitby
 
 					a.zionverse_spread = true	-- flag to not spread damage endlessly
-					damageObject(a, damage/5)
+					damageObject(a, damage/5, DMG_NORMAL)
 					a.zionverse_spread = nil
 
 					for j = 1, 16
@@ -2283,35 +2283,37 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset)		-- damage a
 
 	-- change enemy aggro now.
 	-- we hit the enemy: increase our aggro towards em
-	if mo.hp and mo.enemy and dmgnum
-		if mo.atk_attacker and mo.atk_attacker.valid and mo.atk_attacker.plyr
+	if not skipaggro
+		if mo.hp and mo.enemy and dmgnum
+			if mo.atk_attacker and mo.atk_attacker.valid and mo.atk_attacker.plyr
 
-			local aggro_fac = FRACUNIT
-			if mo.atk_hitby
-				aggro_fac = mo.atk_hitby.aggrofactor or $
+				local aggro_fac = FRACUNIT
+				if mo.atk_hitby
+					aggro_fac = mo.atk_hitby.aggrofactor or $
+				end
+
+				BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * aggro_fac / FRACUNIT)
+
 			end
+		elseif mo.plyr and dmgnum
 
-			BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * aggro_fac / FRACUNIT)
+			-- the enemy hit us:
+			if mo.atk_attacker and mo.atk_attacker.valid and mo.atk_attacker.enemy
 
-		end
-	elseif mo.plyr and dmgnum
+				local aggro_fac = FRACUNIT
 
-		-- the enemy hit us:
-		if mo.atk_attacker and mo.atk_attacker.valid and mo.atk_attacker.enemy
+				if mo.guard
+					aggro_fac = FRACUNIT*12
+				end
 
-			local aggro_fac = FRACUNIT
+				BTL_enemyChangeAggro(mo.atk_attacker, mo, -damage * aggro_fac / FRACUNIT)
 
-			if mo.guard
-				aggro_fac = FRACUNIT*12
-			end
-
-			BTL_enemyChangeAggro(mo.atk_attacker, mo, -damage * aggro_fac / FRACUNIT)
-
-		elseif damage < 0	-- we're being healed! in that case, alert EVERY ENEMY of who healed us.
-			-- yes, this may include ourselves.
-			local aggro_fac = FRACUNIT*3/2
-			for i = 1, #mo.enemies
-				BTL_enemyChangeAggro(mo.enemies[i], mo.atk_attacker, -damage * aggro_fac / FRACUNIT)
+			elseif damage < 0	-- we're being healed! in that case, alert EVERY ENEMY of who healed us.
+				-- yes, this may include ourselves.
+				local aggro_fac = FRACUNIT*3/2
+				for i = 1, #mo.enemies
+					BTL_enemyChangeAggro(mo.enemies[i], mo.atk_attacker, -damage * aggro_fac / FRACUNIT)
+				end
 			end
 		end
 	end

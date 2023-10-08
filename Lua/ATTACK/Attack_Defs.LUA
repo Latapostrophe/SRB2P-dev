@@ -1483,7 +1483,7 @@ rawset(_G, "attackDefs", {
 				P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
 				local heals = max(1, target.maxhp*4 / 100)
 				playSound(mo.battlen, sfx_heal)
-				damageObject(target, -heals, DMG_NORMAL, true)
+				damageObject(target, -heals, DMG_NORMAL, true, true)
 			elseif timer == 20
 				return true
 			end
@@ -1555,7 +1555,7 @@ rawset(_G, "attackDefs", {
 				P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
 				local heals = max(1, target.maxhp*6 / 100)
 				playSound(mo.battlen, sfx_heal2)
-				damageObject(target, -heals, DMG_NORMAL, true)
+				damageObject(target, -heals, DMG_NORMAL, true, true)
 			elseif timer == 20
 				return true
 			end
@@ -1573,7 +1573,7 @@ rawset(_G, "attackDefs", {
 				P_SpawnMobj(target.x, target.y, target.z, MT_IVSP)
 				local heals = max(1, target.maxhp*8 / 100)
 				playSound(mo.battlen, sfx_heal3)
-				damageObject(target, -heals, DMG_NORMAL, true)
+				damageObject(target, -heals, DMG_NORMAL, true, true)
 			elseif timer == 20
 				return true
 			end
@@ -17349,7 +17349,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 999,
 		costtype = CST_SP,
 		cost = 8,
-		desc = "Drain a bit of HP from 1 enemy",
+		desc = "Medium Almighty dmg to one enemy.\nRecover damage dealt as HP.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 					local target = hittargets[1]
@@ -17379,7 +17379,7 @@ rawset(_G, "attackDefs", {
 						and target ~= mo
 							mo.atk_attacker = mo
 							playSound(mo.battlen, sfx_heal2)
-							damageObject(mo, -mo.buf_damage, DMG_NORMAL)
+							damageObject(mo, -mo.buf_damage, DMG_NORMAL, true, true)
 						end
 
 						local h_angle = P_RandomRange(1, 359)*ANG1
@@ -17416,7 +17416,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 999,
 		costtype = CST_SP,
 		cost = 16,
-		desc = "Drain a considerable amount \nof HP from 1 enemy",
+		desc = "Medium Almighty dmg to one enemy.\nRecover damage dealt as HP.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 					local target = hittargets[1]
@@ -17446,7 +17446,7 @@ rawset(_G, "attackDefs", {
 						and target ~= mo
 							mo.atk_attacker = mo
 							playSound(mo.battlen, sfx_heal3)
-							damageObject(mo, -mo.buf_damage, DMG_NORMAL)
+							damageObject(mo, -mo.buf_damage, DMG_NORMAL, true, true)
 						end
 
 						local h_angle = P_RandomRange(1, 359)*ANG1
@@ -17483,7 +17483,7 @@ rawset(_G, "attackDefs", {
 		accuracy = 999,
 		costtype = CST_SP,
 		cost = 24,
-		desc = "Drain a high amount \nof HP from 1 enemy",
+		desc = "Heavy Almighty dmg to one enemy.\nRecover damage dealt as HP.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 					local target = hittargets[1]
@@ -17513,7 +17513,7 @@ rawset(_G, "attackDefs", {
 						and target ~= mo
 							mo.atk_attacker = mo
 							playSound(mo.battlen, sfx_heal3)
-							damageObject(mo, -mo.buf_damage, DMG_NORMAL)
+							damageObject(mo, -mo.buf_damage, DMG_NORMAL, true, true)
 						end
 
 						local h_angle = P_RandomRange(1, 359)*ANG1
