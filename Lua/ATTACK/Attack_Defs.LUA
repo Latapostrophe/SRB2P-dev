@@ -475,7 +475,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Physical skill damage x2.5 next turn.",
+		desc = "Physical skill damage x2.5 next turn.\nLink Skills are unaffected.",
 		target = TGT_CASTER,
 		superbuff = true,
 		powercharge = true,				-- do not remove power charge status after using this skill.
@@ -535,7 +535,7 @@ rawset(_G, "attackDefs", {
 		type = ATK_SUPPORT,
 		costtype = CST_SP,
 		cost = 15,
-		desc = "Magic damage x2.5 next turn.",
+		desc = "Magic damage x2.5 next turn.\nLink Skills are unaffected.",
 		target = TGT_CASTER,
 		mindcharge = true,	-- used to know that we shouldn't remove mindcharge after using this skill.
 		superbuff = true,	-- powerful buff
@@ -2596,6 +2596,22 @@ rawset(_G, "attackDefs", {
 					end
 					return dmg
 				end,
+	},
+
+	["stealth strike"] = {
+		name = "Stealth Strike",
+		type = ATK_PASSIVE|ATK_FIRE|ATK_ICE|ATK_WIND|ATK_ELEC|ATK_PSY|ATK_NUCLEAR|ATK_BLESS|ATK_CURSE|ATK_STRIKE|ATK_SLASH|ATK_PIERCE,
+		desc = "Reduces Hatred generation from offensive\nSkills by 50%.",
+		power = 50,
+		passive = PSV_AGGRO,
+	},
+
+	["silent heal"] = {
+		name = "Silent Heal",
+		type = ATK_PASSIVE|ATK_HEAL,
+		desc = "Reduces Hatred generation from healing\nSkills by 50%.",
+		power = 50,
+		passive = PSV_AGGRO,
 	},
 
 	-- firm stance: 0% dodge part
@@ -17762,7 +17778,7 @@ rawset(_G, "attackDefs", {
 		cost = 10,
 		critical = 3,
 		link = true,
-		desc = "Light Fire damage to\none enemy. Following allied attacks\ngain Link follow-ups.",
+		desc = "Light Fire damage to\none enemy. Allied attacks gain\nfollow ups.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -17831,7 +17847,7 @@ rawset(_G, "attackDefs", {
 		cost = 10,
 		critical = 3,
 		link = true,
-		desc = "Light Wind damage to\none enemy. Following allied attacks\ngain Link follow-ups.",
+		desc = "Light Wind damage to\none enemy. Allied attacks gain\nfollow ups.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -17906,7 +17922,7 @@ rawset(_G, "attackDefs", {
 		cost = 10,
 		critical = 3,
 		link = true,
-		desc = "Light Ice damage to\none enemy. Following allied attacks\ngain Link follow-ups.",
+		desc = "Light Ice damage to\none enemy. Allied attacks gain\nfollow ups.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]
@@ -17975,7 +17991,7 @@ rawset(_G, "attackDefs", {
 		cost = 10,
 		critical = 3,
 		link = true,
-		desc = "Light Electric damage to\none enemy. Following allied attacks\ngain Link follow-ups.",
+		desc = "Light Electric damage to\none enemy. Allied attacks gain\nfollow ups.",
 		target = TGT_ENEMY,
 		anim = function(mo, targets, hittargets, timer)
 			local target = hittargets[1]

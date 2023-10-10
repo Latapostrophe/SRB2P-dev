@@ -1484,7 +1484,8 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 
 
 	-- mindcharge / powercharge boost:
-	if boost
+	-- link skills are unaffected
+	if boost and not atk.link
 		dmg = $* 30/12
 	end
 
@@ -2284,6 +2285,26 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset, skipaggro)		
 	-- change enemy aggro now.
 	-- we hit the enemy: increase our aggro towards em
 	if not skipaggro
+	and not (mo.plyr and mo.atk_attacker.plyr)	-- player on player violence doesn't generate aggro. duh.
+		
+		local generalfactor = FRACUNIT	-- regular aggro generation
+		
+		for i = 1, #mo.atk_attacker.passiveskills
+			local psv = mo.atk_attacker.passiveskills[i]
+			if attackDefs[psv]
+				psv = attackDefs[$]		
+				
+				if psv.passive == PSV_AGGRO
+					
+					local typ = psv.type & ~ATK_PASSIVE
+					if typ & mo.atk_hitby.type
+						
+						generalfactor = ($ * typ.power) / 100			
+					end
+				end
+			end
+		end
+		
 		if mo.hp and mo.enemy and dmgnum
 			if mo.atk_attacker and mo.atk_attacker.valid and mo.atk_attacker.plyr
 
@@ -2292,7 +2313,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset, skipaggro)		
 					aggro_fac = mo.atk_hitby.aggrofactor or $
 				end
 
-				BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * aggro_fac / FRACUNIT)
+				BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * FixedMul(aggro_fac, generalfac) / FRACUNIT)
 
 			end
 		elseif mo.plyr and dmgnum
@@ -2312,7 +2333,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset, skipaggro)		
 				-- yes, this may include ourselves.
 				local aggro_fac = FRACUNIT*3/2
 				for i = 1, #mo.enemies
-					BTL_enemyChangeAggro(mo.enemies[i], mo.atk_attacker, -damage * aggro_fac / FRACUNIT)
+					BTL_enemyChangeAggro(mo.enemies[i], mo.atk_attacker, -damage * FixedMul(aggro_fac, generalfac) / FRACUNIT)
 				end
 			end
 		end
