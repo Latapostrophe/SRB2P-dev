@@ -398,14 +398,7 @@ rawset(_G, "R_drawFusions", function(v, mo)
 		if e.learnskills and e.learnskills[1]
 			ndata = {e.learnskills[1][1], e.learnskills[1][2]}
 		else	
-			for i = 1, #subp_c.skills
-				local sk = subp_c.skills[i]
-				if type(sk) == "table"
-				and subp.level < sk[2]
-					ndata = {sk[1], sk[2]}
-					break
-				end
-			end
+			ndata = P_subPersonaNextSkill(subp)
 		end	
 		
 		if ndata

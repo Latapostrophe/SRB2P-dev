@@ -2944,12 +2944,7 @@ rawset(_G, "drawBattleEnd", function(v, btl)
 
 		-- draw EXP gauge:
 
-		local subp
-
-		-- only do that in story mode.
-		if srb2p.storymode
-			subp = mo.subpersona	-- if this isn't nil, then draw things SLIGHTLY differently.
-		end
+		local subp = mo.subpersona	-- if this isn't nil, then draw things SLIGHTLY differently.
 
 		local bary = not subp and 3 or 0
 
@@ -3145,12 +3140,10 @@ rawset(_G, "drawSubLevelUp", function(v, p, battle)
 	end
 
 	-- EXP
-	if srb2p.storymode
-		local expt = getEXPTable()
-		v.drawFill(dx + 40, dy+9, 64, 2, 31)
-		v.drawFill(dx + 40, dy+9, subp.exp*63 / expt[subp.level], 1, 54)
-		V_drawString(v, dx + 40, dy, "NEXT LV:"..(expt[subp.level]-subp.exp), "NFNT", 0, nil, 0, 31)
-	end
+	local expt = getEXPTable()
+	v.drawFill(dx + 40, dy+9, 64, 2, 31)
+	v.drawFill(dx + 40, dy+9, subp.exp*63 / expt[subp.level], 1, 54)
+	V_drawString(v, dx + 40, dy, "NEXT LV:"..(expt[subp.level]-subp.exp), "NFNT", 0, nil, 0, 31)
 
 	--V_drawString(v, 160, 100, subp.name, "NFNT", 0, "center", 0, 31)
 

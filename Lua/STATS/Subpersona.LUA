@@ -59,6 +59,20 @@ rawset(_G, "P_generateSubPersona", function(subp, lv)
 	return subp_t
 end)
 
+-- return the next skill this persona is going to learn and its level
+-- {skill, level}
+-- or nil if nothing is there.
+rawset(_G, "P_subPersonaNextSkill", function(subp)
+
+	for i = 1, #subp.ref.skills
+		local sk = subp.ref.skills[i]
+		if type(sk) == "table"
+		and subp.level < sk[2]
+			return {sk[1], sk[2]}
+		end
+	end
+end)
+
 -- register a SubPersona to the compendium...
 -- overwrites existing entry if it exists.
 -- does nothing outside of story mode or if subp is nil.

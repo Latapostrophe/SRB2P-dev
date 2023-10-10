@@ -1565,10 +1565,11 @@ end,
 						if mo.m_personacheckskills
 
 							local subp = server.P_BattleStatus[p.P_party].subpersonas[mo.m_menuchoices[mo.m_submenu]]
-
+							local maxskills = P_subPersonaNextSkill(subp) and 7 or 6
+							
 							if inputs["down"] == 1
 								mo.m_personacheckskills = $+1
-								if mo.m_personacheckskills > #subp.skills
+								if mo.m_personacheckskills > maxskills
 									mo.m_personacheckskills = 1
 								end
 								S_StartSound(nil, sfx_hover, mo.player)
@@ -1576,7 +1577,7 @@ end,
 							elseif inputs["up"] == 1
 								mo.m_personacheckskills = $-1
 								if mo.m_personacheckskills <= 0
-									mo.m_personacheckskills = #subp.skills
+									mo.m_personacheckskills = maxskills
 								end
 								S_StartSound(nil, sfx_hover, mo.player)
 
@@ -1675,11 +1676,11 @@ end,
 						local battle = server.P_BattleStatus[mo.player.P_party]
 						local timers = mo.m_hudtimers
 						local timer = timers.sclosemenu and (TICRATE/3 - timers.sclosemenu) or timers.smenuopen or 0
-						local y = 100 - (64 * (choice-1)) + (mo.m_main_subp or 0) +32
+						local y = 80 - (64 * (choice-1)) + (mo.m_main_subp or 0) +32
 
 						for i = 1, #battle.subpersonas do
 							local sp = battle.subpersonas[i]
-							local finalxpos = 160 - abs(132 - y)
+							local finalxpos = 120 - (132 - y)/3
 
 							PDraw(v, finalxpos - (timer*48), y, v.cachePatch("SHFLFL"))	-- draw card
 							if i > 1	-- subp 1 is an empty card.
@@ -1709,24 +1710,30 @@ end,
 
 						-- stats
 						local subp = battle.subpersonas[choice]
-						local dx = 180 - timer*48
+						local dx = 100 - timer*48
 						local by = 10
 
 						PDraw(v, dx+20, by, v.cachePatch("H_SUBP"), V_30TRANS)
-						V_drawString(v, dx + 40, by, subp.ref.name and subp.ref.name:upper() or "INVALID SUB", "FPIMP", 0, nil, 0, 31)
-
+						V_drawString(v, dx + 40, by, (subp.ref.name and subp.ref.name:upper() or "INVALID SUB").." "..(subp.level and "LV"..subp.level or ""), "FPIMP", 0, nil, 0, 31)
+						PDraw(v, dx + 40, by+10, v.cachePatch("ARCANA"..subp.ref.arcana))
+						
 						-- now draw stat bonuses and disadvantages:
 						local stats_subp = {"st", "ma", "en", "ag", "lu"}
 						local bot = server.plentities[mo.player.P_party][mo.m_menuchoices["m_partychoice"]]
 
 						local playerstats = {bot.strength, bot.magic, bot.endurance, bot.agility, bot.luck}
 						-- we don't actually need savestats since we don't actually equip it for real
-						local dy = by+12
+						local dy = by+22
 						for i = 1, #stats_subp
 							V_drawString(v, dx + 40, dy, stats_subp[i]:upper(), "NFNT", 0, nil, 0, 31)
 
 							-- draw a fake stat bar for funsies
 							local checkstat = subp[stats_subp[i]]
+							if srb2p.storydata.linkskills[LINK_AFFINITY]
+							 if subp.arcana == bot.arcana
+							   checkstat = $ + srb2p.storydata.linkskills[LINK_AFFINITY]
+							 end
+							end
 							local str
 							if checkstat and checkstat < 0
 								v.drawFill(dx + 62, dy+6, 32, 4, 31)	-- black bg
@@ -1754,19 +1761,42 @@ end,
 							dy = $ + 10
 						end
 
+						if subp.level	-- don't do that on "unequip" lmao
+							local expt = getEXPTable()
+							v.drawFill(dx + 40, dy+9, 64, 2, 31)
+							v.drawFill(dx + 40, dy+9, subp.exp*63 / expt[subp.level], 1, 54)
+							V_drawString(v, dx + 40, dy, "NEXT LV:"..(expt[subp.level]-subp.exp), "NFNT", 0, nil, 0, 31)
+						end
+
 						-- skills:
-						dy = $+5
-						dx = $+40
-
-						if subp.skills and #subp.skills
-							for i = 1, #subp.skills
-								local skillname = subp.skills[i]
-
-								local name = "INVALID SKILL"
+						dy = 10
+						dx = $+128
+						
+						local nskill = P_subPersonaNextSkill(subp)
+						local skilllist = copyTable(subp.skills)
+						if nskill
+							skilllist[7] = nskill[1]
+						end
+						
+						if subp.level
+							for i = 1, 7
+								local skillname = skilllist[i]
+								
+								if i == 7
+								and (not skillname or not nskill)
+									break	-- we don't have a skill to learn at a later level
+								elseif i == 7
+								and nskill
+									
+									V_drawString(v, dx+20, dy+2, "NEXT: LV"..nskill[2], "NFNT", 0, nil, 0, 31)
+									dy = $+10
+								end
+								
+								local name = skillname and "INVALID SKILL" or "/"
 								local stype = 1
 								local col = 31
 								local tcol = 0
-								local sizeh = 16
+								local sizeh = 10
 								local candesc
 								local desc
 
@@ -1790,19 +1820,20 @@ end,
 
 								-- draw the skill, now.
 								v.drawFill(dx, dy, 128, sizeh, col)
-								PDraw(v, dx+2, dy, v.cachePatch("ATK_"..stype))
-								v.drawIndex((dx+2)*FRACUNIT, dy*FRACUNIT, FRACUNIT/2, v.cachePatch("H_ELMF3"), 0, col)
-
-								V_drawString(v, dx+20, dy+4, name, "NFNT", 0, nil, tcol, (not tcol and 31 or nil))
-
-								if candesc
-									V_drawString(v, dx+4, dy+18, desc, "TFNT", 0, nil, tcol, (not tcol and 31 or nil))
+								if skillname
+									v.drawScaled((dx+2)*FRACUNIT, (dy+1)*FRACUNIT, FRACUNIT/4, v.cachePatch("ATK_"..stype))
+									v.drawIndex((dx+2)*FRACUNIT, (dy+1)*FRACUNIT, FRACUNIT/4, v.cachePatch("H_ELMF3"), 0, col)
 								end
 
-								dy = $+(candesc and 50 or 18)
+								V_drawString(v, dx+20, dy+2, name, name:len() <= 10 and "NFNT" or "TFNT", 0, nil, tcol, (not tcol and 31 or nil))
+
+								if candesc
+									V_drawString(v, dx+4, dy+18, desc or "No Skill", "TFNT", 0, nil, tcol, (not tcol and 31 or nil))
+								end
+
+								dy = $+(candesc and 50 or 12)
 							end
 						end
-
 
 						M_drawPartyStatus(v, mo, mo.m_menuchoices["m_partychoice"])
 

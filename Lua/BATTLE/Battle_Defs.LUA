@@ -864,8 +864,8 @@ rawset(_G, "BTL_getEXP", function(n, exp, items, weapons, rings, macca)
 	btl.running = true
 
 	btl.r_outofbattle = true	-- This disables the camera thinkers and shit.
-	btl.r_exp = exp
-	btl.r_money = macca
+	btl.r_exp = exp or 0
+	btl.r_money = macca or 0
 	btl.r_item = items or {}
 	btl.r_weapons = weapons or {}
 	btl.r_rings = rings or {}

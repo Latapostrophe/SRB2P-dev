@@ -143,10 +143,6 @@ rawset(_G, "BTL_MapLoad", function()
 				server.P_BattleStatus[i].emeraldpow_max = SAVE_getNumEmeralds()
 			end
 
-			if srb2p.storymode
-				server.P_BattleStatus[i].emeraldpow_max = SAVE_getNumEmeralds()
-			end
-
 			-- uuuh test
 			/*local wep = {"shoes_01", "device_01", "hammer_01", "knuckles_01"}
 			for k = 1, 24
@@ -6314,9 +6310,7 @@ rawset(_G, "BTL_endHandler", function(pn)
 			-- Active party member
 			if i <= og_len
 				mo = server.plentities[pn][i]
-				if srb2p.storymode	-- No subpersona EXP in multiplayer.
-					subp = mo.subpersona
-				end
+				subp = mo.subpersona
 			-- reserve party member
 			else
 				-- Determine xp divisor based off of LINK_REXP
@@ -6342,13 +6336,6 @@ rawset(_G, "BTL_endHandler", function(pn)
 				btl.r_subnewskillsqueue[i] = {}
 			end
 
-			local ssubxp
-			if subp
-				ssubxp = subp.exp
-				btl.r_subprecalculates[i] = {ssubxp, subp.level, nil, mo}
-				btl.r_subnewskillsqueue[i] = {}
-			end
-
 			-- save our stats, and save our old skills for the level up animation:
 			-- reset our stats before saving them though;
 			if not reserve
@@ -6360,6 +6347,7 @@ rawset(_G, "BTL_endHandler", function(pn)
 
 			-- precalculate the level and the exp we'll be at
 			-- MAIN:
+			print(btl.r_precalculates[i][2])
 			while xp and not mo.penalty
 			and btl.r_precalculates[i][2] < mo.levelcap
 
@@ -7040,44 +7028,6 @@ rawset(_G, "BTL_levelUpHandler", function(pn)
 		if t[1].r_transition
 			t[1].r_transition = $-1
 			if not t[1].r_transition	-- transition for next done playing
-				table.remove(t, 1)
-			end
-		end
-	end
-
-	-- now do the same for subpersonas if necessary.
-	for i = 1, #btl.r_sublevelupqueue do
-		local t = btl.r_sublevelupqueue[i]
-
-		if #btl.r_levelupqueue[i] continue end	-- still leveling up player characters.
-
-		if not t or not #t
-			subdonelevelingup = $+1
-			continue
-		end
-
-		local mo
-		for i = 1, #server.plentities[pn]
-			if server.plentities[pn][i].subpersona == t[1]
-				mo = server.plentities[pn][i]
-				break
-			end
-		end
-
-		if BTL_subLevelUpAnimation(t[1], pn)
-			-- can only happen in story mode, so using player 0 is perfectly safe.
-			local control = mo.control
-
-			local inpt = control.mo.P_inputs
-			if inpt[BT_JUMP]==1	-- to next player
-			and not mo.r_transition
-				mo.r_transition = TICRATE/2
-			end
-		end
-
-		if mo.r_transition
-			mo.r_transition = $-1
-			if not mo.r_transition	-- transition for next done playing
 				table.remove(t, 1)
 			end
 		end
