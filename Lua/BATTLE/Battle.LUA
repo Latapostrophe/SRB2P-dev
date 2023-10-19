@@ -530,6 +530,8 @@ rawset(_G, "BTL_initEnemy", function(mo)
 	mo.deathanim = enemy.deathanim ~= nil
 
 	mo.target_zoffs = enemy.target_zoffs or 0
+	mo.spritexoffset = enemy.spritexoffset and enemy.spritexoffset*FRACUNIT or 0
+	mo.spriteyoffset = enemy.spriteyoffset and enemy.spriteyoffset*FRACUNIT or 0
 
 	if server.gamemode == GM_CHALLENGE
 		mo.endboss = false
@@ -5139,6 +5141,8 @@ rawset(_G, "statusConditionEffects", function(mo)	-- the little animations over 
 			dummy.scale = mo.scale
 			dummy.colorized = true
 			dummy.color = SKINCOLOR_CYAN
+			dummy.spriteyoffset = mo.spriteyoffset
+			dummy.spritexoffset = mo.spritexoffset
 			dummy.fuse = 2
 		end
 	end
@@ -5172,6 +5176,8 @@ rawset(_G, "statusConditionEffects", function(mo)	-- the little animations over 
 			dummy.scale = mo.scale
 			dummy.colorized = true
 			dummy.color = SKINCOLOR_CRIMSON
+			dummy.spriteyoffset = mo.spriteyoffset
+			dummy.spritexoffset = mo.spritexoffset
 			dummy.fuse = 2
 		end
 	end
@@ -5300,6 +5306,8 @@ rawset(_G, "statusConditionEffects", function(mo)	-- the little animations over 
 		dummy.angle = mo.angle
 		dummy.scale = mo.scale
 		dummy.color = mo.color
+		dummy.spriteyoffset = mo.spriteyoffset
+		dummy.spritexoffset = mo.spritexoffset
 		dummy.fuse = 2
 
 		if not (leveltime%4)
@@ -5408,6 +5416,8 @@ rawset(_G, "statusConditionEffects", function(mo)	-- the little animations over 
 			dum.color = mo.color
 			dum.scale = mo.scale
 			dum.flags = MF_NOGRAVITY|MF_BOSS|MF_NOCLIPTHING
+			dum.spriteyoffset = mo.spriteyoffset
+			dum.spritexoffset = mo.spritexoffset
 			dum.fuse = 2
 		end
 
