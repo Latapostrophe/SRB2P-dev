@@ -2042,6 +2042,15 @@ rawset(_G, "BTL_preturnHandler", function(pn)		-- here, we do stuff with whoever
 			end
 		end
 	end
+	
+	-- field timers:
+	if mo.fieldstate
+		mo.fieldstate.turns = $-1
+		--print(mo.fieldstate.turns)
+		if mo.fieldstate.turns <= 0
+			clearField(mo)
+		end
+	end
 
 	-- note: menu player init stuff is now handled at the top of the battle input func
 
@@ -3122,15 +3131,6 @@ rawset(_G, "BTL_turnHandler", function(pn)
 	-- statuses and fields will apply multiple times in case of 1-mores however!
 
 		if BTL_turnstatusconditions(mo) return end
-
-		-- field timers:
-		if mo.fieldstate
-			mo.fieldstate.turns = $-1
-			--print(mo.fieldstate.turns)
-			if mo.fieldstate.turns <= 0
-				clearField(mo)
-			end
-		end
 	--end
 
 	-- TODO: make thinkers more accurate
