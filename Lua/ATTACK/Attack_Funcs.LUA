@@ -2313,7 +2313,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset, skipaggro)		
 					aggro_fac = mo.atk_hitby.aggrofactor or $
 				end
 
-				BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * FixedMul(aggro_fac, generalfac) / FRACUNIT)
+				BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * FixedMul(aggro_fac, generalfactor) / FRACUNIT)
 
 			end
 		elseif mo.plyr and dmgnum
