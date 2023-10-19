@@ -834,6 +834,7 @@ rawset(_G, "renderProximityEnemyLevel", function(v, mo, c)
 	if mo.dng_proximityenemies
 		for i = 1, #mo.dng_proximityenemies
 			local e = mo.dng_proximityenemies[i]
+			if not e.valid continue -- Weird, but can happen during reaper spawn
 			local x, y = R_GetScreenCoords(v, mo.player, c, e.x, e.y, e.z + e.scale*72)
 
 			-- x & y < 0 if out of screen
