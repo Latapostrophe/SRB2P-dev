@@ -6324,9 +6324,7 @@ rawset(_G, "BTL_endHandler", function(pn)
 			-- Active party member
 			if i <= og_len
 				mo = server.plentities[pn][i]
-				if srb2p.storymode	-- No subpersona EXP in multiplayer.
-					subp = mo.subpersona
-				end
+				subp = mo.subpersona
 			-- reserve party member
 			else
 				-- Determine xp divisor based off of LINK_REXP
@@ -6344,13 +6342,6 @@ rawset(_G, "BTL_endHandler", function(pn)
 			local sxp = mo.exp	-- exp to start from (will be mo.exp at first, then 0 if we level up during precalc)
 			btl.r_precalculates[i] = {sxp, mo.level, nil}	-- 1: xp, 2: level, 3: has level up?
 			btl.r_newskillsqueue[i] = {}
-
-			local ssubxp
-			if subp
-				ssubxp = subp.exp
-				btl.r_subprecalculates[i] = {ssubxp, subp.level, nil, mo}
-				btl.r_subnewskillsqueue[i] = {}
-			end
 
 			local ssubxp
 			if subp
