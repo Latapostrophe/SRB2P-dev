@@ -143,10 +143,6 @@ rawset(_G, "BTL_MapLoad", function()
 				server.P_BattleStatus[i].emeraldpow_max = SAVE_getNumEmeralds()
 			end
 
-			if srb2p.storymode
-				server.P_BattleStatus[i].emeraldpow_max = SAVE_getNumEmeralds()
-			end
-
 			-- uuuh test
 			/*local wep = {"shoes_01", "device_01", "hammer_01", "knuckles_01"}
 			for k = 1, 24
