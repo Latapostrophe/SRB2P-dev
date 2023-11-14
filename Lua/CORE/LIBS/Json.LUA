@@ -107,7 +107,7 @@ end
 
 local function encode_number(val)
   -- Check for NaN, -inf and inf
-  if val ~= val or val <= INT32_MIN or val >= INT32_MAX then
+  if val ~= val or val < INT32_MIN or val > INT32_MAX then
     error("unexpected number value '" .. tostring(val) .. "'")
   end
 	-- SRB2P: numbers can't be floats
