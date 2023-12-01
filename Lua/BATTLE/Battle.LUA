@@ -2226,6 +2226,7 @@ rawset(_G, "BTL_skillCostDepletion", function(mo)
 	elseif skill.costtype == CST_SP
 	or skill.costtype == CST_SPPERCENT
 		if mo.sp < cost
+		or mo.maxsp == 0 -- Ensures CST_SPPERCENT skills wont be casted when your max sp is 0
 			playSound(mo.battlen, sfx_not)
 			BTL_logMessage(mo.battlen, "Insufficient SP")
 			return
