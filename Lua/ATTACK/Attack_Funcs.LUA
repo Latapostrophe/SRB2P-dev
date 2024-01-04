@@ -554,7 +554,7 @@ rawset(_G, "buffStat", function(mo, stat, value, turn)
 		msg = " down"
 		msgend = "!"
 	end
-	if abs(value) >= BUFFSTEP*2
+	if abs(value) >= BUFFSTEP*2 and not turn
 		msgend = " x"..tostring(abs(value)/BUFFSTEP).."!"
 	end
 
