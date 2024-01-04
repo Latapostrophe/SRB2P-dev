@@ -9350,6 +9350,7 @@ rawset(_G, "attackDefs", {
 			if timer == 30
 				damageObject(target)
 				playSound(mo.battlen, sfx_pstop)
+				BTL_logMessage(targets[1].battlen, "Defence down x2!")
 
 				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
 				d.sprite = SPR_THMP
@@ -9427,6 +9428,7 @@ rawset(_G, "attackDefs", {
 			if timer == 30
 				damageObject(target)
 				playSound(mo.battlen, sfx_pstop)
+				BTL_logMessage(targets[1].battlen, "Defence down x2!")
 
 				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
 				d.sprite = SPR_THMP
@@ -9504,6 +9506,7 @@ rawset(_G, "attackDefs", {
 			if timer == 30
 				damageObject(target)
 				playSound(mo.battlen, sfx_pstop)
+				BTL_logMessage(targets[1].battlen, "Defence down x2!")
 
 				local d = P_SpawnMobj(target.x, target.y, target.z+128*FRACUNIT, MT_THOK)
 				d.sprite = SPR_THMP
