@@ -47,6 +47,13 @@ rawset(_G, "shadowWaveInit", function(mo, forcewave)
 
 	lvsum = $ / #mo.wave
 	mo.level = lvsum
+	
+	-- if applicable, set the section we did this on.
+	-- that way we know if we need to update later on.
+	if server.P_DungeonStatus and server.P_DungeonStatus.section
+		mo.section = server.P_DungeonStatus.section
+		print("Set section "..mo.section)
+	end
 end)
 
 -- gets the "level tier" between the player's level (level1) and the enemy's (level2)
@@ -130,7 +137,13 @@ addHook("MobjThinker", function(mo)
 	if mo.fuse and mo.fuse > 1
 		return
 	end
-
+	
+	-- force reroll wave when the map changes sections.
+	if mo.section and server.P_DungeonStatus and mo.section ~= server.P_DungeonStatus.section
+		print("Section mismatch")
+		mo.wave = nil
+	end
+	
 	-- init shadow wave
 	if not mo.wave
 		shadowWaveInit(mo)

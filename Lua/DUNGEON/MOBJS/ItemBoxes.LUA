@@ -103,9 +103,6 @@ addHook("MobjCollide", function(t, mo)
 	local batchqty = 0
 	local dispname = srb2p.storymode and "You" or "\x82"..mo.player.name.."\x80"
 	local maxrarity = 0
-	-- when you get multiple of the same items in a row.
-	local batchqty = 0
-	local dispname = srb2p.storymode and "You" or "\x82"..mo.player.name.."\x80"
 
 	if t.content and t.content[1]
 		for k,v in ipairs(t.content)
@@ -218,9 +215,9 @@ addHook("MobjCollide", function(t, mo)
 			BTL_addItem(server.P_BattleStatus[mo.player.P_party], v, amount)
 			REQ_checkItem(v, amount, ACQ_DROP)
 
-			if mo.player.P_party == consoleplayer.P_party
+			/*if mo.player.P_party == consoleplayer.P_party
 				DNG_logMessage("\x82"..mo.player.name.."\x80".." found ".."\x82"..name..extrastr)
-			end
+			end*/
 
 			if it and it.rarity and (not it.material or it.rarity >= 7)
 				--IT_startRareDropAnim(mo.player)
