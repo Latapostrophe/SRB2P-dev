@@ -2313,7 +2313,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset, skipaggro)		
 					aggro_fac = mo.atk_hitby.aggrofactor or $
 				end
 
-				BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * FixedMul(aggro_fac, generalfac) / FRACUNIT)
+				BTL_enemyChangeAggro(mo, mo.atk_attacker, damage * FixedMul(aggro_fac, generalfactor) / FRACUNIT)
 
 			end
 		elseif mo.plyr and dmgnum
@@ -2333,7 +2333,7 @@ rawset(_G, "damageObject", function(mo, damage, damagestate, reset, skipaggro)		
 				-- yes, this may include ourselves.
 				local aggro_fac = FRACUNIT*3/2
 				for i = 1, #mo.enemies
-					BTL_enemyChangeAggro(mo.enemies[i], mo.atk_attacker, -damage * FixedMul(aggro_fac, generalfac) / FRACUNIT)
+					BTL_enemyChangeAggro(mo.enemies[i], mo.atk_attacker, -damage * FixedMul(aggro_fac, generalfactor) / FRACUNIT)
 				end
 			end
 		end
