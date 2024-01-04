@@ -554,18 +554,24 @@ rawset(_G, "buffStat", function(mo, stat, value, turn)
 		msg = " down"
 		msgend = "!"
 	end
+	if abs(value) >= BUFFSTEP*2
+		msgend = " x"..tostring(abs(value)/BUFFSTEP).."!"
+	end
 
 	local resetstat = mo.buffs[stat][1] + value == 0
 	if resetstat
 		msg = " reverted"
+		msgend = "!"
 	end	-- reset the stat if it was lowered before buff or increased before debuff
 
 	mo.buffs[stat][1] = min(BUFFSTEP*MAXBUFFS, $+value)
 	mo.buffs[stat][1] = max(-BUFFSTEP*MAXBUFFS, $)
 	if mo.buffs[stat][1] >= BUFFSTEP*MAXBUFFS
 		msg = " maxed out"	-- 75% is the max buff
+		msgend = "!"
 	elseif mo.buffs[stat][1] <= -BUFFSTEP*MAXBUFFS
 		msg = " minimized"	-- -75% is the max debuff
+		msgend = "!"
 	end
 
 	if turn
