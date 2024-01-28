@@ -6645,6 +6645,7 @@ rawset(_G, "BTL_levelupAnimation", function(mo)
 	end
 
 	if save_checkouts >= 5	-- that means all our stats are good!
+	and not (btl.r_newskillsqueue[mynum] and btl.r_newskillsqueue[mynum][1])
 		mo.r_nskilltimer = nil
 		mo.newskillnum = nil
 		mo.justgotskill = nil
