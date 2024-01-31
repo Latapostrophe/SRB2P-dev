@@ -319,7 +319,7 @@ rawset(_G, "renderTitlecard", function(v)
 	if netgame
 	and server.gamemode == GM_COOP
 	and server.P_BattleStatus
-	and server.P_BattleStatus.lives
+	and server.P_BattleStatus.lives ~= nil
 	and server.P_BattleStatus.lives >= 0	-- -1 is infinite, so don't display it
 
 		if consoleplayer and consoleplayer.maincontrol and consoleplayer.maincontrol.valid
