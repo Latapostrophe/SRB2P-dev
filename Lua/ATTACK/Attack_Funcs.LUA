@@ -1424,7 +1424,7 @@ rawset(_G, "getDamage", function(mo, attacker, forcedamage, accuracy)
 				if atk.costtype == CST_HP
 					hp = $ + atk.cost
 				elseif atk.costtype == CST_HPPERCENT
-					hp = $ + attacker.maxhp*atk.costtype / 100
+					hp = $ + attacker.maxhp*atk.cost / 100
 				end
 
 				local hpdiff = 100 - minhp
